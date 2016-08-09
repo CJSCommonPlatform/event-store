@@ -1,8 +1,11 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.eventlog;
 
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.EventLogRepositoryException;
+import static java.lang.String.format;
+
+import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSequenceIdException;
+import uk.gov.justice.services.jdbc.persistence.AbstractJdbcRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,15 +16,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 /**
  * JDBC based repository for event log records.
  */
-public class JdbcEventLogRepository {
+public class EventLogJdbcRepository extends AbstractJdbcRepository {
 
     /**
      * Column Names
@@ -35,9 +35,6 @@ public class JdbcEventLogRepository {
 
     static final long INITIAL_VERSION = 0L;
 
-    static final String JNDI_APP_NAME_LOOKUP = "java:app/AppName";
-    static final String JNDI_DS_EVENT_STORE_PATTERN = "java:/app/%s/DS.eventstore";
-
     /**
      * Statements
      */
@@ -48,10 +45,8 @@ public class JdbcEventLogRepository {
             "VALUES(?, ?, ?, ?, ?, ?)";
 
     private static final String READING_STREAM_EXCEPTION = "Exception while reading stream %s";
+    private static final String JNDI_DS_EVENT_STORE_PATTERN = "java:/app/%s/DS.eventstore";
 
-    Context initialContext;
-
-    DataSource datasource;
 
     /**
      * Insert the given event into th event log.
@@ -62,7 +57,7 @@ public class JdbcEventLogRepository {
     public void insert(final EventLog eventLog) throws InvalidSequenceIdException {
 
         if (eventLog.getSequenceId() == null) {
-            throw new InvalidSequenceIdException(String.format("Version is null for stream %s", eventLog.getStreamId()));
+            throw new InvalidSequenceIdException(format("Version is null for stream %s", eventLog.getStreamId()));
         }
 
         try (Connection connection = getDataSource().getConnection();
@@ -77,7 +72,7 @@ public class JdbcEventLogRepository {
 
             ps.executeUpdate();
         } catch (SQLException | NamingException e) {
-            throw new EventLogRepositoryException(String.format("Exception while storing sequence %s of stream %s",
+            throw new JdbcRepositoryException(format("Exception while storing sequence %s of stream %s",
                     eventLog.getSequenceId(), eventLog.getStreamId()), e);
         }
     }
@@ -98,7 +93,7 @@ public class JdbcEventLogRepository {
 
             events = extractResults(ps);
         } catch (SQLException | NamingException e) {
-            throw new EventLogRepositoryException(String.format(READING_STREAM_EXCEPTION, streamId), e);
+            throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
         }
 
         return events.stream();
@@ -123,7 +118,7 @@ public class JdbcEventLogRepository {
 
             events = extractResults(ps);
         } catch (SQLException | NamingException e) {
-            throw new EventLogRepositoryException(String.format(READING_STREAM_EXCEPTION, streamId), e);
+            throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
         }
 
         return events.stream();
@@ -148,29 +143,12 @@ public class JdbcEventLogRepository {
                 }
             }
         } catch (SQLException | NamingException e) {
-            throw new EventLogRepositoryException(String.format(READING_STREAM_EXCEPTION, streamId), e);
+            throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
         }
 
         return INITIAL_VERSION;
     }
 
-    private Context getInitialContext() throws NamingException {
-        if (initialContext == null) {
-            initialContext = new InitialContext();
-        }
-
-        return initialContext;
-    }
-
-    protected DataSource getDataSource() throws NamingException {
-        if (datasource == null) {
-            final String appName = (String) getInitialContext().lookup(JNDI_APP_NAME_LOOKUP);
-
-            datasource = (DataSource) getInitialContext().lookup(String.format(JNDI_DS_EVENT_STORE_PATTERN, appName));
-        }
-
-        return datasource;
-    }
 
     protected List<EventLog> extractResults(final PreparedStatement preparedStatement) throws SQLException {
         List<EventLog> events = new ArrayList<>();
@@ -192,4 +170,8 @@ public class JdbcEventLogRepository {
                 resultSet.getString(COL_PAYLOAD));
     }
 
+    @Override
+    protected String jndiName() throws NamingException {
+        return format(JNDI_DS_EVENT_STORE_PATTERN, warFileName());
+    }
 }

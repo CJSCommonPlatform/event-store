@@ -12,12 +12,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EventSourceTest {
+public class DefaultEventSourceTest {
 
     private static final UUID STREAM_ID = UUID.randomUUID();
 
     @InjectMocks
-    EventSource eventSource;
+    DefaultEventSource eventSource;
 
     @Mock
     private EventStreamManager eventStreamManager;

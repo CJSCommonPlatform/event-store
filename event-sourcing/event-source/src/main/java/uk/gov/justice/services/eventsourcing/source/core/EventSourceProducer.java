@@ -2,8 +2,14 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import static uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName.DEFAULT_EVENT_SOURCE_NAME;
 
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName;
-import uk.gov.justice.services.messaging.cdi.UnmanagedBeanCreator;
+import uk.gov.justice.services.jdbc.persistence.DataSourceJndiNameProvider;
 import uk.gov.justice.subscription.registry.EventSourceRegistry;
 
 import java.util.Optional;
@@ -27,7 +33,19 @@ public class EventSourceProducer {
     EventSourceRegistry eventSourceRegistry;
 
     @Inject
-    UnmanagedBeanCreator unmanagedBeanCreator;
+    EventStreamManagerFactory eventStreamManagerFactory;
+
+    @Inject
+    EventRepositoryFactory eventRepositoryFactory;
+
+    @Inject
+    EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
+
+    @Inject
+    EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
+
+    @Inject
+    DataSourceJndiNameProvider dataSourceJndiNameProvider;
 
     /**
      * Backwards compatible support for Unnamed EventSource injection points
@@ -36,7 +54,18 @@ public class EventSourceProducer {
      */
     @Produces
     public EventSource eventSource() {
-        return unmanagedBeanCreator.create(JdbcBasedEventSource.class);
+
+        final String jndiDatasource = dataSourceJndiNameProvider.jndiName();
+        final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource);
+        final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource);
+
+        final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
+                eventJdbcRepository,
+                eventStreamJdbcRepository);
+
+        final EventStreamManager eventStreamManager = eventStreamManagerFactory.eventStreamManager(eventRepository);
+
+        return new JdbcBasedEventSource(eventStreamManager, eventRepository);
     }
 
     /**

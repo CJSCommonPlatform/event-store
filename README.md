@@ -1,1 +1,1 @@
-# event-source
+# Event Source Library for Microservices Framework

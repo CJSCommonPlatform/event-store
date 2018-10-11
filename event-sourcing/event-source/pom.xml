@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>event-sourcing</artifactId>
-        <groupId>uk.gov.justice.services</groupId>
-        <version>5.0.0-SNAPSHOT</version>
+        <groupId>uk.gov.justice.event-store</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,27 +25,27 @@
             <artifactId>framework-api-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-publisher-jms</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-repository-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>messaging-core</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>core</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>messaging-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-subscription-registry</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -55,12 +55,12 @@
         </dependency>
 
         <!-- Test dependency -->
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>test-utils-core</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>test-utils-core</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -75,6 +75,16 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>test-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.utils</groupId>
+            <artifactId>test-utils-core</artifactId>
+            <version>${test-utils.version}</version>
         </dependency>
         <dependency>
             <groupId>net.trajano.commons</groupId>
@@ -101,19 +111,19 @@
             <artifactId>weld-se-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>test-utils-persistence</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>test-utils-persistence</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-subscription-test-utils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

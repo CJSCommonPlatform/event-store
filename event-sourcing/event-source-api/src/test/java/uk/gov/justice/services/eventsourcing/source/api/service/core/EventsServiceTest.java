@@ -16,8 +16,8 @@ import static uk.gov.justice.services.eventsourcing.source.api.service.core.Dire
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.first;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.head;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.position;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataOf;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
@@ -60,26 +60,31 @@ public class EventsServiceTest {
         final JsonObject payload1 = createObjectBuilder().add("field1", "value1").build();
         final JsonObject payload2 = createObjectBuilder().add("field2", "value2").build();
 
-        final JsonEnvelope event1 = envelope()
-                .withPayloadOf("value1","field1")
-                .with(metadataOf(firstEventId,"Test Name1")
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder()
+                        .withId(firstEventId)
+                        .withName("Test Name1")
                         .withVersion(1L)
                         .withStreamId(streamId)
-                        .createdAt(event1CreatedAt)
-                ).build();
-        final JsonEnvelope event2 =  envelope()
-                .withPayloadOf("value2","field2")
-                .with(metadataOf(secondEventId,"Test Name2")
+                        .createdAt(event1CreatedAt),
+                createObjectBuilder().add("field1", "value1")
+        );
+
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder()
+                        .withId(secondEventId)
+                        .withName("Test Name2")
                         .withVersion(2L)
                         .withStreamId(streamId)
-                        .createdAt(event2CreatedAt)
-                ).build();
+                        .createdAt(event2CreatedAt),
+                createObjectBuilder().add("field2", "value2")
+        );
 
-        final EventStream eventStream  = mock(EventStream.class);
+        final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
         when(eventStream.getPosition()).thenReturn(2L);
-        when(eventStream.readFrom(eventStream.size() - 1)).thenReturn(Stream.of(event1,event2));
+        when(eventStream.readFrom(eventStream.size() - 1)).thenReturn(Stream.of(event1, event2));
 
         final List<EventEntry> entries = service.events(streamId, head(), BACKWARD, pageSize);
 
@@ -109,26 +114,32 @@ public class EventsServiceTest {
         final JsonObject payload1 = createObjectBuilder().add("field1", "value1").build();
         final JsonObject payload2 = createObjectBuilder().add("field2", "value2").build();
 
-        final JsonEnvelope event1 = envelope()
-                .withPayloadOf("value1","field1")
-                .with(metadataOf(streamId,"Test Name1")
+
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name1")
                         .withVersion(1L)
                         .withStreamId(streamId)
-                        .createdAt(event1CreatedAt)
-                ).build();
-        final JsonEnvelope event2 =  envelope()
-                .withPayloadOf("value2","field2")
-                .with(metadataOf(streamId,"Test Name2")
+                        .createdAt(event1CreatedAt),
+                createObjectBuilder().add("field1", "value1")
+        );
+
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name2")
                         .withVersion(2L)
                         .withStreamId(streamId)
-                        .createdAt(event2CreatedAt)
-                ).build();
+                        .createdAt(event2CreatedAt),
+                createObjectBuilder().add("field2", "value2")
+        );
 
-        final EventStream eventStream  = mock(EventStream.class);
+        final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
         when(eventStream.size()).thenReturn(2L);
-        when(eventStream.readFrom(first().getPosition())).thenReturn(Stream.of(event1,event2));
+        when(eventStream.readFrom(first().getPosition())).thenReturn(Stream.of(event1, event2));
 
         final List<EventEntry> eventEntries = service.events(streamId, first(), FORWARD, pageSize);
 
@@ -161,29 +172,38 @@ public class EventsServiceTest {
         final JsonObject payload3 = createObjectBuilder().add("field3", "value3").build();
         final JsonObject payload2 = createObjectBuilder().add("field2", "value2").build();
 
-        final JsonEnvelope event2 =  envelope()
-                .withPayloadOf("value2","field2")
-                .with(metadataOf(secondEventId,"Test Name2")
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name2")
                         .withVersion(2L)
                         .withStreamId(streamId)
-                        .createdAt(event2CreatedAt)
-                ).build();
-        final JsonEnvelope event3 = envelope()
-                .withPayloadOf("value3","field3")
-                .with(metadataOf(firstEventId,"Test Name3")
+                        .createdAt(event2CreatedAt),
+                createObjectBuilder().add("field2", "value2")
+        );
+
+        final JsonEnvelope event3 = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name3")
                         .withVersion(3L)
                         .withStreamId(streamId)
-                        .createdAt(event3CreatedAt)
-                ).build();
-        final JsonEnvelope event4 =  envelope()
-                .withPayloadOf("value4","field4")
-                .with(metadataOf(secondEventId,"Test Name4")
+                        .createdAt(event3CreatedAt),
+                createObjectBuilder().add("field3", "value3")
+        );
+
+        final JsonEnvelope event4 = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name4")
                         .withVersion(4L)
                         .withStreamId(streamId)
-                        .createdAt(event4CreatedAt)
-                ).build();
+                        .createdAt(event4CreatedAt),
+                createObjectBuilder().add("field4", "value4")
+        );
 
-        final EventStream eventStream  = mock(EventStream.class);
+
+        final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
 
@@ -207,12 +227,12 @@ public class EventsServiceTest {
     }
 
     @Test
-    public void shouldReturnEmptyList(){
+    public void shouldReturnEmptyList() {
         final UUID streamId = randomUUID();
         final Position position = Position.empty();
         final List<EventEntry> eventEntries = service.events(streamId, position, null, 1);
 
-        assertThat(eventEntries , is(empty()));
+        assertThat(eventEntries, is(empty()));
     }
 
 
@@ -230,27 +250,31 @@ public class EventsServiceTest {
         final JsonObject payload4 = createObjectBuilder().add("field4", "value4").build();
         final JsonObject payload3 = createObjectBuilder().add("field3", "value3").build();
 
-        final JsonEnvelope event4 =  envelope()
-                .withPayloadOf("value4","field4")
-                .with(metadataOf(secondEventId,"Test Name4")
+        final JsonEnvelope event4 = envelopeFrom(
+                metadataBuilder()
+                        .withId(secondEventId)
+                        .withName("Test Name4")
                         .withVersion(4L)
                         .withStreamId(streamId)
-                        .createdAt(event4CreatedAt)
-                ).build();
-        final JsonEnvelope event3 = envelope()
-                .withPayloadOf("value3","field3")
-                .with(metadataOf(firstEventId,"Test Name3")
+                        .createdAt(event4CreatedAt),
+                createObjectBuilder().add("field4", "value4")
+        );
+        final JsonEnvelope event3 = envelopeFrom(
+                metadataBuilder()
+                        .withId(firstEventId)
+                        .withName("Test Name3")
                         .withVersion(3L)
                         .withStreamId(streamId)
-                        .createdAt(event3CreatedAt)
-                ).build();
+                        .createdAt(event3CreatedAt),
+                createObjectBuilder().add("field3", "value3")
+        );
 
-        final EventStream eventStream  = mock(EventStream.class);
+        final EventStream eventStream = mock(EventStream.class);
 
         final long positionId = 3L;
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
-        when(eventStream.readFrom(positionId)).thenReturn(Stream.of(event3 , event4));
+        when(eventStream.readFrom(positionId)).thenReturn(Stream.of(event3, event4));
 
         final List<EventEntry> eventEntries = service.events(streamId, position(positionId), FORWARD, pageSize);
 
@@ -270,24 +294,28 @@ public class EventsServiceTest {
     }
 
     @Test
-    public void shouldReturnEventExist(){
+    public void shouldReturnEventExist() {
         final UUID streamId = randomUUID();
         final long position = 1L;
 
         final ZonedDateTime createdAt = now();
-        final JsonEnvelope event =  envelope()
-                .withPayloadOf("value1","field1")
-                .with(metadataOf(streamId,"Test Name1")
+
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder()
+                        .withId(streamId)
+                        .withName("Test Name1")
                         .withVersion(position)
                         .withStreamId(streamId)
-                        .createdAt(createdAt)
-                ).build();
+                        .createdAt(createdAt),
+                createObjectBuilder().add("field1", "value1")
+        );
+
         final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
         when(eventStream.readFrom(1L)).thenReturn(Stream.of(event));
 
-        assertTrue(service.eventExists(streamId , position));
+        assertTrue(service.eventExists(streamId, position));
         verify(eventSource).getStreamById(streamId);
         verify(eventStream).readFrom(position);
     }

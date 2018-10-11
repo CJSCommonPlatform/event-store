@@ -21,15 +21,14 @@ import uk.gov.justice.services.eventsourcing.publishing.helpers.TestGlobalValueP
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.core.DefaultJsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.core.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
-import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
-import uk.gov.justice.services.messaging.logging.TraceLogger;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 import uk.gov.justice.subscription.EventSourcesParser;
@@ -109,7 +108,6 @@ public class EventDeQueuerTimerBeanIT {
             LoggerProducer.class,
             JsonObjectEnvelopeConverter.class,
             DefaultJsonObjectEnvelopeConverter.class,
-            TraceLogger.class,
             DefaultTraceLogger.class,
             ObjectMapperProducer.class,
             EventSourcesParser.class,

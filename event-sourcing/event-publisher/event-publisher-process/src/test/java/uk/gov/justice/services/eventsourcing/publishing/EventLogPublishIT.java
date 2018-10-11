@@ -1,14 +1,15 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithRandomUUID;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventStoreInitializer;
@@ -49,10 +50,10 @@ public class EventLogPublishIT {
         final ZonedDateTime now = utcClock.now();
 
         final String eventName = "my-context.some-event-or-other";
-        final JsonEnvelope jsonEnvelope = envelope()
-                .with(metadataWithRandomUUID(eventName))
-                .withPayloadOf("the value", "some-property-name")
-                .build();
+        final JsonEnvelope jsonEnvelope = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId),
+                createObjectBuilder().add("some-property-name", "the value")
+        );
 
         testEventInserter.insertIntoEventLog(eventLogId, streamId, sequenceId, now, eventName, jsonEnvelope);
 

@@ -10,7 +10,7 @@
         <version>1.13.0</version>
     </parent>
 
-    <groupId>uk.gov.justice.services</groupId>
+    <groupId>uk.gov.justice.event-store</groupId>
     <artifactId>event-store</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -20,6 +20,9 @@
 
     <modules>
         <module>event-sourcing</module>
+        <module>persistence</module>
+        <module>test-utils</module>
+        <module>event-buffer</module>
     </modules>
 
     <scm>
@@ -33,6 +36,11 @@
 
         <common-bom.version>1.27.0</common-bom.version>
         <framework-api.version>3.0.0-M14</framework-api.version>
+        <utilities.version>1.15.1</utilities.version>
+        <test-utils.version>1.17.3</test-utils.version>
+        <generator-maven-plugin.version>2.6.1</generator-maven-plugin.version>
+        <file.service.version>1.16.4</file.service.version>
+        <catalog-test-utils.version>1.4.1</catalog-test-utils.version>
     </properties>
     
     <dependencyManagement>

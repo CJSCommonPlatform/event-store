@@ -18,10 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
-import static uk.gov.justice.services.messaging.spi.DefaultJsonMetadata.metadataBuilder;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithDefaults;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithRandomUUIDAndName;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.core.enveloper.Enveloper;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
@@ -90,7 +87,9 @@ public class EventStreamManagerTest {
     public void shouldAppendToStream() throws Exception {
         when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(INITIAL_VERSION);
 
-        final JsonEnvelope event = envelope().with(metadataWithRandomUUIDAndName()).build();
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
 
         eventStreamManager.append(STREAM_ID, Stream.of(event));
 
@@ -100,7 +99,10 @@ public class EventStreamManagerTest {
 
     @Test(expected = EventStreamException.class)
     public void shouldThrowExceptionWhenEnvelopeContainsVersion() throws Exception {
-        eventStreamManager.append(STREAM_ID, Stream.of(envelope().with(metadataWithDefaults().withVersion(INITIAL_VERSION + 1)).build()));
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event").withVersion(INITIAL_VERSION + 1),
+                createObjectBuilder());
+        eventStreamManager.append(STREAM_ID, Stream.of(event));
     }
 
     @Test
@@ -108,7 +110,9 @@ public class EventStreamManagerTest {
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(CURRENT_VERSION);
         final long expectedVersion = CURRENT_VERSION + 1;
 
-        final JsonEnvelope event = envelope().with(metadataWithRandomUUIDAndName()).build();
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
         eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), CURRENT_VERSION);
 
         verify(eventAppender).append(event, STREAM_ID, expectedVersion, EVENT_SOURCE_NAME);
@@ -119,10 +123,11 @@ public class EventStreamManagerTest {
 
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(6L);
 
-        long returnedVersion = eventStreamManager.append(STREAM_ID, Stream.of(
-                envelope()
-                        .with(metadataWithDefaults())
-                        .build()));
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
+
+        long returnedVersion = eventStreamManager.append(STREAM_ID, Stream.of(event));
 
         assertThat(returnedVersion, is(7L));
 
@@ -134,9 +139,13 @@ public class EventStreamManagerTest {
         final long currentVersion = 4L;
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(currentVersion);
 
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
+
         long returnedVersion = eventStreamManager.appendAfter(
                 STREAM_ID,
-                Stream.of(envelope().with(metadataWithDefaults()).build()),
+                Stream.of(event),
                 currentVersion);
 
         assertThat(returnedVersion, is(currentVersion + 1));
@@ -145,21 +154,32 @@ public class EventStreamManagerTest {
 
     @Test(expected = EventStreamException.class)
     public void shouldThrowExceptionOnNullFromVersion() throws Exception {
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(envelope().build()), null);
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
+        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), null);
     }
 
     @Test(expected = VersionMismatchException.class)
     public void shouldThrowExceptionWhenEventsAreMissing() throws Exception {
         when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(envelope().with(metadataWithDefaults()).build()), INVALID_VERSION);
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
+
+        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), INVALID_VERSION);
     }
 
     @Test(expected = OptimisticLockingRetryException.class)
     public void shouldThrowExceptionWhenVersionAlreadyExists() throws Exception {
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(CURRENT_VERSION + 1);
 
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(envelope().with(metadataWithDefaults()).build()), CURRENT_VERSION);
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
+
+        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), CURRENT_VERSION);
     }
 
     @Test
@@ -196,8 +216,12 @@ public class EventStreamManagerTest {
     public void shouldAppendNonConsecutively() throws Exception {
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
-        final JsonEnvelope event1 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event2 = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-1"),
+                createObjectBuilder());
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-2"),
+                createObjectBuilder());
 
         eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event1, event2));
 
@@ -210,8 +234,12 @@ public class EventStreamManagerTest {
     public void shouldReturnCurrentVersionWhenAppendingNonConsecutively() throws Exception {
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
-        final JsonEnvelope event1 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event2 = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-1"),
+                createObjectBuilder());
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-2"),
+                createObjectBuilder());
 
         long returnedVersion = eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event1, event2));
         assertThat(returnedVersion, is(CURRENT_VERSION + 2));
@@ -229,9 +257,15 @@ public class EventStreamManagerTest {
                 .thenReturn(currentVersion).thenReturn(currentVersionAfterException);
 
 
-        final JsonEnvelope event1 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event2 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event3 = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-1"),
+                createObjectBuilder());
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-2"),
+                createObjectBuilder());
+        final JsonEnvelope event3 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-3"),
+                createObjectBuilder());
 
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event2, STREAM_ID, currentVersion + 2, EVENT_SOURCE_NAME);
 
@@ -255,9 +289,15 @@ public class EventStreamManagerTest {
                 .thenReturn(currentVersion).thenReturn(currentVersionAfterException);
 
 
-        final JsonEnvelope event1 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event2 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event3 = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event1 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-1"),
+                createObjectBuilder());
+        final JsonEnvelope event2 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-2"),
+                createObjectBuilder());
+        final JsonEnvelope event3 = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event-3"),
+                createObjectBuilder());
 
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event2, STREAM_ID, currentVersion + 2, EVENT_SOURCE_NAME);
 
@@ -280,7 +320,9 @@ public class EventStreamManagerTest {
                 .thenReturn(currentVersionAfterException1)
                 .thenReturn(currentVersionAfterException2);
 
-        final JsonEnvelope event = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
 
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event, STREAM_ID, currentVersion + 1, EVENT_SOURCE_NAME);
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event, STREAM_ID, currentVersionAfterException1 + 1, EVENT_SOURCE_NAME);
@@ -306,7 +348,9 @@ public class EventStreamManagerTest {
                 .thenReturn(currentVersionAfterException1)
                 .thenReturn(currentVersionAfterException2);
 
-        final JsonEnvelope event = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("my-event"),
+                createObjectBuilder());
 
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event, STREAM_ID, currentVersion + 1, EVENT_SOURCE_NAME);
         doThrow(OptimisticLockingRetryException.class).when(eventAppender).append(event, STREAM_ID, currentVersionAfterException1 + 1, EVENT_SOURCE_NAME);
@@ -366,7 +410,7 @@ public class EventStreamManagerTest {
     }
 
     @Test
-    public void shouldClearEventStream() throws EventStreamException {
+    public void shouldClearEventStream() throws Exception {
         eventStreamManager.clear(STREAM_ID);
 
         verify(eventRepository).clearEventsForStream(STREAM_ID);

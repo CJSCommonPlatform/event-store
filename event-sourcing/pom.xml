@@ -3,9 +3,9 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>microservice-framework</artifactId>
-        <groupId>uk.gov.justice.services</groupId>
-        <version>5.0.0-SNAPSHOT</version>
+        <artifactId>event-store</artifactId>
+        <groupId>uk.gov.justice.event-store</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -20,9 +20,7 @@
         <module>event-source-api-integration-test</module>
         <module>event-subscription</module>
         <module>event-subscription-test-utils</module>
-        <module>subscription-manager</module>
         <module>event-subscription-registry</module>
-        <module>event-publisher-integration-test</module>
     </modules>
 
 </project>

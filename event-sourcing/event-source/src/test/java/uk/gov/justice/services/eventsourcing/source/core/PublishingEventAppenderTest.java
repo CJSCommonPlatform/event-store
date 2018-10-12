@@ -2,15 +2,15 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import static co.unruly.matchers.OptionalMatchers.contains;
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataOf;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithDefaults;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.StoreEventRequestFailedException;
@@ -42,11 +42,17 @@ public class PublishingEventAppenderTest {
 
         final UUID eventId = randomUUID();
         final UUID streamId = randomUUID();
+
+
         eventAppender.append(
-                envelope()
-                        .with(metadataOf(eventId, "name123"))
-                        .withPayloadOf("payloadValue123", "somePayloadField")
-                        .build(),
+                envelopeFrom(
+                        metadataBuilder()
+                                .withName("name123")
+                                .withStreamId(eventId)
+                                .withId(randomUUID()),
+                        createObjectBuilder()
+                                .add("somePayloadField", "payloadValue123")
+                ),
                 streamId,
                 3L, DEFAULT_EVENT_SOURCE_NAME);
 
@@ -64,7 +70,17 @@ public class PublishingEventAppenderTest {
     @Test(expected = EventStreamException.class)
     public void shouldThrowExceptionWhenStoreEventRequestFails() throws Exception {
         doThrow(StoreEventRequestFailedException.class).when(eventRepository).storeEvent(any());
-        eventAppender.append(envelope().with(metadataWithDefaults()).build(), randomUUID(), 1l, DEFAULT_EVENT_SOURCE_NAME);
+
+
+        final JsonEnvelope jsonEnvelope = envelopeFrom(
+                metadataBuilder()
+                        .withName("name123")
+                        .withId(randomUUID()),
+                createObjectBuilder()
+                        .add("somePayloadField", "payloadValue123")
+        );
+
+        eventAppender.append(jsonEnvelope, randomUUID(), 1l, DEFAULT_EVENT_SOURCE_NAME);
     }
 
     @Test
@@ -74,10 +90,14 @@ public class PublishingEventAppenderTest {
 
         final long firstStreamEvent = 1L;
         eventAppender.append(
-                envelope()
-                        .with(metadataOf(eventId, "name456"))
-                        .withPayloadOf("payloadValue456", "someOtherPayloadField")
-                        .build(),
+                envelopeFrom(
+                        metadataBuilder()
+                                .withName("name456")
+                                .withStreamId(streamId)
+                                .withId(eventId),
+                        createObjectBuilder()
+                                .add("somePayloadField", "payloadValue456")
+                ),
                 streamId,
                 firstStreamEvent, DEFAULT_EVENT_SOURCE_NAME);
 
@@ -96,10 +116,14 @@ public class PublishingEventAppenderTest {
         final long secondStreamEvent = 2L;
 
         eventAppender.append(
-                envelope()
-                        .with(metadataOf(eventId, "name456"))
-                        .withPayloadOf("payloadValue456", "someOtherPayloadField")
-                        .build(),
+                envelopeFrom(
+                        metadataBuilder()
+                                .withName("name456")
+                                .withStreamId(streamId)
+                                .withId(eventId),
+                        createObjectBuilder()
+                                .add("somePayloadField", "payloadValue456")
+                ),
                 streamId,
                 secondStreamEvent, DEFAULT_EVENT_SOURCE_NAME);
 

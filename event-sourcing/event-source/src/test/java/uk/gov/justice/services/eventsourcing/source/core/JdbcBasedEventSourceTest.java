@@ -8,7 +8,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
+//import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
@@ -95,9 +96,9 @@ public class JdbcBasedEventSourceTest {
     }
 
     @Test
-    public void shouldReturnEventStreamName() {
+    public void shouldReturnEventStreamName() throws Exception {
         final String eventSourceName = "eventSourceName";
-        setField(eventSource, "name", eventSourceName);
+        ReflectionUtil.setField(eventSource, "name", eventSourceName);
 
         final EnvelopeEventStream eventStream = (EnvelopeEventStream) eventSource.getStreamById(STREAM_ID);
 

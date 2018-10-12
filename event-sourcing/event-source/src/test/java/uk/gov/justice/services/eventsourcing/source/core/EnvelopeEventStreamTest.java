@@ -5,6 +5,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
+import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
@@ -13,9 +14,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
-import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
-import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithDefaults;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -35,11 +35,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EnvelopeEventStreamTest {
 
-    public static final Long POSITION = 3L;
-    public static final Long CURRENT_POSITION = 4L;
-    public static final Long CURRENT_STREAM_POSITION = 8L;
-
-
+    private static final Long POSITION = 3L;
+    private static final Long CURRENT_POSITION = 4L;
+    private static final Long CURRENT_STREAM_POSITION = 8L;
     private static final String EVENT_SOURCE_NAME = "eventSourceName";
     private static final UUID STREAM_ID = randomUUID();
 
@@ -61,13 +59,13 @@ public class EnvelopeEventStreamTest {
     public void setup() {
         envelopeEventStream = new EnvelopeEventStream(STREAM_ID, EVENT_SOURCE_NAME, eventStreamManager);
         when(eventStreamManager.read(STREAM_ID)).thenReturn(Stream.of(
-                envelope().with(metadataWithDefaults().withVersion(1L)).build(),
-                envelope().with(metadataWithDefaults().withVersion(2L)).build(),
-                envelope().with(metadataWithDefaults().withVersion(3L)).build(),
-                envelope().with(metadataWithDefaults().withVersion(4L)).build()));
+                jsonEnvelopeWithVersion(1L),
+                jsonEnvelopeWithVersion(2L),
+                jsonEnvelopeWithVersion(3L),
+                jsonEnvelopeWithVersion(4L)));
         when(eventStreamManager.readFrom(STREAM_ID, POSITION)).thenReturn(Stream.of(
-                envelope().with(metadataWithDefaults().withVersion(3L)).build(),
-                envelope().with(metadataWithDefaults().withVersion(4L)).build()
+                jsonEnvelopeWithVersion(3L),
+                jsonEnvelopeWithVersion(4L)
         ));
     }
 
@@ -143,7 +141,7 @@ public class EnvelopeEventStreamTest {
 
     @Test
     public void shouldAppendToLastReadVersion() throws Exception {
-        final JsonEnvelope event = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event = jsonEnvelopeWithDefaults();
         final Stream<JsonEnvelope> events = Stream.of(event);
 
         envelopeEventStream.read().forEach(e -> {
@@ -158,7 +156,7 @@ public class EnvelopeEventStreamTest {
 
     @Test
     public void shouldAppendAnywhereIfStreamNotRead() throws Exception {
-        final JsonEnvelope event = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event = jsonEnvelopeWithDefaults();
         final Stream<JsonEnvelope> events = Stream.of(event);
 
         envelopeEventStream.append(events);
@@ -171,8 +169,8 @@ public class EnvelopeEventStreamTest {
 
     @Test
     public void shouldAllowTwoAppendsAfterRead() throws Exception {
-        final JsonEnvelope event5 = envelope().with(metadataWithDefaults()).build();
-        final JsonEnvelope event6 = envelope().with(metadataWithDefaults()).build();
+        final JsonEnvelope event5 = jsonEnvelopeWithDefaults();
+        final JsonEnvelope event6 = jsonEnvelopeWithDefaults();
 
         envelopeEventStream.read().forEach(e -> {
         });
@@ -195,14 +193,14 @@ public class EnvelopeEventStreamTest {
     }
 
     @Test
-    public void shouldGetStreamPosition(){
+    public void shouldGetStreamPosition() {
         when(eventStreamManager.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_STREAM_POSITION);
         assertThat(envelopeEventStream.getPosition(), is(CURRENT_STREAM_POSITION));
         verify(eventStreamManager).getStreamPosition(STREAM_ID);
     }
 
     @Test
-    public void shouldGetStreamSize(){
+    public void shouldGetStreamSize() {
         when(eventStreamManager.getSize(STREAM_ID)).thenReturn(CURRENT_POSITION);
         assertThat(envelopeEventStream.size(), is(CURRENT_POSITION));
         verify(eventStreamManager).getSize(STREAM_ID);
@@ -226,5 +224,24 @@ public class EnvelopeEventStreamTest {
         when(eventStreamManager.getSize(STREAM_ID)).thenReturn(lastReadPosition);
 
         assertThat(envelopeEventStream.getCurrentVersion(), is(lastReadPosition));
+    }
+
+    private JsonEnvelope jsonEnvelopeWithDefaults() {
+        return JsonEnvelope.envelopeFrom(
+                metadataBuilder()
+                        .withId(randomUUID())
+                        .withName("name")
+                        .withStreamId(randomUUID()),
+                createObjectBuilder());
+    }
+
+    private JsonEnvelope jsonEnvelopeWithVersion(final long version) {
+        return JsonEnvelope.envelopeFrom(
+                metadataBuilder()
+                        .withId(randomUUID())
+                        .withName("name")
+                        .withStreamId(randomUUID())
+                        .withVersion(version),
+                createObjectBuilder());
     }
 }

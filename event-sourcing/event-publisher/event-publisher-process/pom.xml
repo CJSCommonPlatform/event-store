@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>event-publisher</artifactId>
-        <groupId>uk.gov.justice.services</groupId>
-        <version>5.0.0-SNAPSHOT</version>
+        <groupId>uk.gov.justice.event-store</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,12 +18,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-subscription-registry</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-publisher-jms</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -32,7 +32,7 @@
             <artifactId>framework-api-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-repository-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -49,24 +49,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>test-utils-core</artifactId>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>test-utils</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>test-utils-persistence</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>test-utils-core</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>uk.gov.justice.event-store</groupId>-->
+            <!--<artifactId>test-utils-persistence</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
+            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-repository-liquibase</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

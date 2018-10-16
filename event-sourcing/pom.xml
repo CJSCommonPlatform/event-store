@@ -21,6 +21,7 @@
         <module>event-subscription</module>
         <module>event-subscription-test-utils</module>
         <module>event-subscription-registry</module>
+        <module>subscription-manager</module>
     </modules>
 
 </project>

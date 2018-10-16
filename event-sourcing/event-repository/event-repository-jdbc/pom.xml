@@ -74,6 +74,16 @@
             <artifactId>hamcrest-library</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.services</groupId>
+            <artifactId>test-utils-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.services</groupId>
+            <artifactId>test-utils-persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>uk.gov.justice.event-store</groupId>-->
             <!--<artifactId>test-utils-common</artifactId>-->
@@ -86,12 +96,6 @@
             <!--<version>${project.version}</version>-->
             <!--<scope>test</scope>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>test-utils</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>uk.gov.justice.utils</groupId>
             <artifactId>test-utils-logging-simple</artifactId>

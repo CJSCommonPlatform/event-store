@@ -137,11 +137,11 @@ public class ConsecutiveEventBufferServiceTest {
 
     @Test
     public void shouldIncrementVersionOnIncomingEventInCorrectOrder() {
-        final UUID streamId = randomUUID();
+        final UUID streamId = UUID.fromString("8d104aa3-6ea5-4569-8730-4231e5faaaaa");
 
         final String source = "source";
         final JsonEnvelope incomingEvent = envelopeFrom(
-                metadataBuilder().withId(randomUUID()).withName("an-event").withStreamId(streamId).withVersion(5L),
+                metadataBuilder().withId(randomUUID()).withName("source.event-name").withSource(source).withStreamId(streamId).withVersion(5L),
                 createObjectBuilder()
         );
 

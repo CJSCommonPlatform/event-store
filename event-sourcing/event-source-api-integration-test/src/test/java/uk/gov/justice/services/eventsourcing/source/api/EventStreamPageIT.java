@@ -22,9 +22,13 @@ import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.ObjectToJsonValueConverter;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
+import uk.gov.justice.services.common.rest.BadRequestExceptionMapper;
+import uk.gov.justice.services.common.rest.ForbiddenRequestExceptionMapper;
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.core.cdi.InitialContextProducer;
 import uk.gov.justice.services.core.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.core.enveloper.DefaultEnveloper;
+import uk.gov.justice.services.core.json.DefaultJsonValidationLoggerHelper;
 import uk.gov.justice.services.core.json.JsonValidationLoggerHelper;
 import uk.gov.justice.services.eventsource.DefaultEventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
@@ -59,8 +63,13 @@ import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
 import uk.gov.justice.services.jdbc.persistence.DefaultJdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
+import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
+import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
+import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.YamlFileFinder;
@@ -68,6 +77,7 @@ import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProduce
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
 import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
 
+import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
@@ -163,21 +173,20 @@ public class EventStreamPageIT {
             AccessController.class,
             AnsiSQLEventLogInsertionStrategy.class,
             TestSystemUserProvider.class,
-//            ForbiddenRequestExceptionMapper.class,
+            ForbiddenRequestExceptionMapper.class,
             TestEventInsertionStrategyProducer.class,
             EventStreamPageService.class,
             LoggerProducer.class,
             PositionFactory.class,
             UrlLinkFactory.class,
             PositionValueFactory.class,
-//            BadRequestExceptionMapper.class,
             JdbcRepositoryHelper.class,
             UtcClock.class,
             JdbcDataSourceProvider.class,
             DefaultJdbcDataSourceProvider.class,
             JsonValidationLoggerHelper.class,
-//            BadRequestExceptionMapper.class,
-//            DefaultJsonValidationLoggerHelper.class,
+            BadRequestExceptionMapper.class,
+            DefaultJsonValidationLoggerHelper.class,
             EventSource.class,
             JdbcBasedEventSource.class,
             EventAppender.class,
@@ -192,13 +201,11 @@ public class EventStreamPageIT {
             EventPublisher.class,
             JmsEventPublisher.class,
             DefaultEventDestinationResolver.class,
-//            DefaultJsonObjectEnvelopeConverter.class,
+            DefaultJsonObjectEnvelopeConverter.class,
             ObjectToJsonObjectConverter.class,
-//            DefaultJmsEnvelopeSender.class,
-            EnvelopeConverter.class,
+            DefaultJmsEnvelopeSender.class,
             TraceLogger.class,
-//            DefaultTraceLogger.class,
-//            DefaultEnvelopeConverter.class,
+            DefaultTraceLogger.class,
             JsonObjectToObjectConverter.class,
             EventSourceProducer.class,
             EventSourceDefinitionRegistryProducer.class,
@@ -206,8 +213,10 @@ public class EventStreamPageIT {
             YamlFileFinder.class,
             YamlParser.class,
             YamlSchemaLoader.class,
+            JmsEnvelopeSender.class,
+            DefaultEnvelopeConverter.class,
 
-//            InitialContextProducer.class,
+            InitialContextProducer.class,
 
             EventStreamManagerFactory.class,
             EventJdbcRepositoryFactory.class,

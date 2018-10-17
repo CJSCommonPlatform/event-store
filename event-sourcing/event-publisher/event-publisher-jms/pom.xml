@@ -22,10 +22,6 @@
             <groupId>uk.gov.justice.framework-api</groupId>
             <artifactId>framework-api-messaging-jms</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.framework-api</groupId>-->
-            <!--<artifactId>framework-api-messaging-adapter</artifactId>-->
-        <!--</dependency>-->
 
         <!-- Test Dependencies -->
         <dependency>
@@ -42,12 +38,6 @@
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>core</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>test-utils-core</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
 
     </dependencies>
 

@@ -34,16 +34,6 @@
             <artifactId>event-repository-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>messaging-core</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>core</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-subscription-registry</artifactId>
@@ -54,7 +44,7 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- Test dependency -->
+        <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>test-utils-core</artifactId>
@@ -105,12 +95,6 @@
             <artifactId>weld-se-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>test-utils-persistence</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>

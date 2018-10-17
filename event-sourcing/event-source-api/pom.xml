@@ -35,17 +35,8 @@
             <artifactId>event-source</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>common-rest</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>uk.gov.justice.event-store</groupId>-->
-            <!--<artifactId>test-utils-core</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
+
+        <!--Test Dependencies-->
         <dependency>
             <groupId>uk.gov.justice.framework-api</groupId>
             <artifactId>framework-api-rest-adapter</artifactId>

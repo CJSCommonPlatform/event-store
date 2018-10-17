@@ -23,7 +23,6 @@
         <module>event-buffer</module>
         <module>event-sourcing</module>
         <module>interceptors</module>
-        <module>persistence</module>
     </modules>
 
     <scm>

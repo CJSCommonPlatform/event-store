@@ -2,8 +2,10 @@ package uk.gov.justice.domain.snapshot;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
+import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedException;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -44,6 +46,24 @@ public class AggregateSnapshotTest {
         assertThat(snapshot.getAggregate(streamStrategy), is(aggregate));
     }
 
+    @Test
+    public void shouldThrowAAggregateChangeDetectedExceptionIfTheAggregateCannotBeDeserialised() throws Exception {
+
+        final byte[] aggregate = "Not a serialised Aggregate".getBytes();
+
+        final AggregateSnapshot<TestAggregate> aggregateSnapshot = new AggregateSnapshot<>(
+                STREAM_ID,
+                VERSION_ID,
+                TestAggregate.class,
+                aggregate);
+
+        try {
+            aggregateSnapshot.getAggregate(streamStrategy);
+            fail();
+        } catch (final AggregateChangeDetectedException e) {
+            assertThat(e.getLocalizedMessage(), is("Failed to deserialise Aggregate into uk.gov.justice.domain.snapshot.AggregateSnapshotTest$TestAggregate. Cause: invalid stream header: 4E6F7420"));
+        }
+    }
 
     public static class TestAggregate implements Aggregate, Serializable {
         private static final long serialVersionUID = 42L;

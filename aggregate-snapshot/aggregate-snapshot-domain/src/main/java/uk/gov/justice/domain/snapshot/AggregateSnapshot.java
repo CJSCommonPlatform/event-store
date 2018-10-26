@@ -1,5 +1,6 @@
 package uk.gov.justice.domain.snapshot;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang3.SerializationUtils.serialize;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
@@ -59,7 +60,7 @@ public class AggregateSnapshot<T extends Aggregate> implements Serializable {
         try (final ObjectInputStream objectInputStream = streamStrategy.objectInputStreamOf(new ByteArrayInputStream(aggregateByteRepresentation))) {
             return (T) Class.forName(getType()).cast(objectInputStream.readObject());
         } catch (SerializationException | ClassNotFoundException | IOException e) {
-            throw new AggregateChangeDetectedException(e.getLocalizedMessage());
+            throw new AggregateChangeDetectedException(format("Failed to deserialise Aggregate into %s. Cause: %s", type, e.getLocalizedMessage()));
         }
     }
 

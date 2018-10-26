@@ -34,12 +34,12 @@
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
 
-        <aggregate.version>1.0.0-SNAPSHOT</aggregate.version>
+        <aggregate.version>1.0.0-M1</aggregate.version>
         <catalog-test-utils.version>1.4.1</catalog-test-utils.version>
         <common-bom.version>1.27.0</common-bom.version>
         <file.service.version>1.16.4</file.service.version>
         <framework-api.version>3.0.0-M14</framework-api.version>
-        <framework.version>5.0.0-SNAPSHOT</framework.version>
+        <framework.version>5.0.0-M1</framework.version>
         <framework-generators.version>1.0.0-SNAPSHOT</framework-generators.version>
         <generator-maven-plugin.version>2.6.1</generator-maven-plugin.version>
         <raml-maven-plugin.version>1.6.3</raml-maven-plugin.version>

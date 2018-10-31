@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.0-M2] - 2018-10-31
+
+### Changed
+- Reverted names of event buffer tables to their original names: 
+subscription -> stream_status, event-buffer -> stream buffer
+- Moved test-utils-persistence into this project from 
+[Framework](https://github.com/CJSCommonPlatform/microservice_framework)
+
 ## [1.0.0-M1] - 2018-10-26
 
 ### Added

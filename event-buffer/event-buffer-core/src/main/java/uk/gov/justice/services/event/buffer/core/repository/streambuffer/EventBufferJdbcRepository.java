@@ -21,12 +21,12 @@ import javax.sql.DataSource;
 @ApplicationScoped
 public class EventBufferJdbcRepository {
 
-    private static final String INSERT = "INSERT INTO event_buffer (stream_id, position, event, source) VALUES (?, ?, ?, ?)";
-    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, position, event, source FROM event_buffer WHERE stream_id=? AND source=? ORDER BY position";
-    private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM event_buffer WHERE stream_id=? AND position=? AND source=?";
+    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, version, event, source) VALUES (?, ?, ?, ?)";
+    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, version, event, source FROM stream_buffer WHERE stream_id=? AND source=? ORDER BY version";
+    private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND version=? AND source=?";
 
     private static final String STREAM_ID = "stream_id";
-    private static final String POSITION = "position";
+    private static final String POSITION = "version";
     private static final String EVENT = "event";
     private static final String SOURCE = "source";
 

@@ -31,7 +31,7 @@ public class EventBufferJdbcRepositoryIT {
                 .createDataSource("frameworkviewstore");
         jdbcRepository = new EventBufferJdbcRepository(dataSource, new JdbcRepositoryHelper());
 
-        new DatabaseCleaner().cleanViewStoreTables("framework", "event_buffer", "subscription");
+        new DatabaseCleaner().cleanViewStoreTables("framework", "stream_buffer", "stream_status");
     }
 
     @Test

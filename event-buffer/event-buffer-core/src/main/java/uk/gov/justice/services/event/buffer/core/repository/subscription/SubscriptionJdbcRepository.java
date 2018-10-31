@@ -24,18 +24,18 @@ public class SubscriptionJdbcRepository {
      * Column Names
      */
     private static final String PRIMARY_KEY_ID = "stream_id";
-    private static final String LATEST_POSITION_COLUMN = "latest_position";
+    private static final String LATEST_POSITION_COLUMN = "version";
     private static final String SOURCE = "source";
 
 
     /**
      * Statements
      */
-    private static final String SELECT_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, latest_position, source FROM subscription WHERE stream_id=? AND source in (?,'unknown') FOR UPDATE";
-    private static final String INSERT = "INSERT INTO subscription (latest_position, stream_id, source) VALUES (?, ?, ?)";
+    private static final String SELECT_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, version, source FROM stream_status WHERE stream_id=? AND source in (?,'unknown') FOR UPDATE";
+    private static final String INSERT = "INSERT INTO stream_status (version, stream_id, source) VALUES (?, ?, ?)";
     private static final String INSERT_ON_CONFLICT_DO_NOTHING = new StringBuilder().append(INSERT).append(" ON CONFLICT DO NOTHING").toString();
-    private static final String UPDATE = "UPDATE subscription SET latest_position=?,source=? WHERE stream_id=? and source in (?,'unknown')";
-    private static final String UPDATE_UNKNOWN_SOURCE = "UPDATE subscription SET source=? WHERE stream_id=? and source = 'unknown'";
+    private static final String UPDATE = "UPDATE stream_status SET version=?,source=? WHERE stream_id=? and source in (?,'unknown')";
+    private static final String UPDATE_UNKNOWN_SOURCE = "UPDATE stream_status SET source=? WHERE stream_id=? and source = 'unknown'";
 
     @Inject
     JdbcRepositoryHelper jdbcRepositoryHelper;

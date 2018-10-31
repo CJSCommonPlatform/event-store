@@ -51,7 +51,7 @@ public class SubscriptionJdbcRepositoryTest {
 
         final String source = "a source";
 
-        when(connection.prepareStatement("INSERT INTO subscription (latest_position, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
+        when(connection.prepareStatement("INSERT INTO stream_status (version, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
                 .thenReturn(statement);
 
         final UUID streamId = randomUUID();

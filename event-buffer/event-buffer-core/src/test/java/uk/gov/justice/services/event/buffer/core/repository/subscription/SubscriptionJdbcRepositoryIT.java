@@ -25,7 +25,7 @@ import org.junit.Test;
 
 public class SubscriptionJdbcRepositoryIT {
 
-    private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM subscription WHERE stream_id=?";
+    private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM stream_status WHERE stream_id=?";
 
     private static final long INITIAL_POSITION = 0L;
 
@@ -43,7 +43,7 @@ public class SubscriptionJdbcRepositoryIT {
         jdbcRepositoryHelper = new JdbcRepositoryHelper();
         jdbcRepository = new SubscriptionJdbcRepository(dataSource, jdbcRepositoryHelper);
 
-        new DatabaseCleaner().cleanViewStoreTables("framework", "subscription", "event_buffer");
+        new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer");
     }
 
     @Test

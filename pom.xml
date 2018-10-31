@@ -24,6 +24,7 @@
         <module>event-sourcing</module>
         <module>interceptors</module>
         <module>event-store-bom</module>
+        <module>test-utils-persistence</module>
     </modules>
 
     <scm>
@@ -91,7 +92,7 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>uk.gov.justice.services</groupId>
+                <groupId>uk.gov.justice.framework-domain</groupId>
                 <artifactId>framework-domain-bom</artifactId>
                 <version>${framework-domain.version}</version>
                 <scope>import</scope>

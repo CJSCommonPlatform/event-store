@@ -36,7 +36,6 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>persistence-jdbc</artifactId>
-            <version>${framework.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->

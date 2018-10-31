@@ -23,6 +23,7 @@
         <module>event-buffer</module>
         <module>event-sourcing</module>
         <module>interceptors</module>
+        <module>event-store-bom</module>
     </modules>
 
     <scm>
@@ -34,19 +35,16 @@
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
 
-        <aggregate.version>1.0.0-M1</aggregate.version>
+        <framework-domain.version>1.0.0-M2</framework-domain.version>
         <catalog-test-utils.version>1.4.1</catalog-test-utils.version>
-        <common-bom.version>1.27.0</common-bom.version>
+        <common-bom.version>1.28.0</common-bom.version>
         <file.service.version>1.16.4</file.service.version>
         <framework-api.version>3.0.0-M14</framework-api.version>
-        <framework.version>5.0.0-M1</framework.version>
-        <framework-generators.version>1.0.0-SNAPSHOT</framework-generators.version>
-        <generator-maven-plugin.version>2.6.1</generator-maven-plugin.version>
-        <raml-maven-plugin.version>1.6.3</raml-maven-plugin.version>
-        <test-utils.version>1.17.3</test-utils.version>
+        <framework.version>5.0.0-M2</framework.version>
+        <test-utils.version>1.18.0</test-utils.version>
         <utilities.version>1.15.1</utilities.version>
     </properties>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -89,6 +87,13 @@
                 <groupId>uk.gov.justice.services</groupId>
                 <artifactId>framework-bom</artifactId>
                 <version>${framework.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>uk.gov.justice.services</groupId>
+                <artifactId>framework-domain-bom</artifactId>
+                <version>${framework-domain.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

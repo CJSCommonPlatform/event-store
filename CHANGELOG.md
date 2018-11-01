@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Added
+-event-publisher-process to event-store-bom
+
 ## [1.0.0-M4] - 2018-10-31
 
 ### Changed

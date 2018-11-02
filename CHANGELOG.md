@@ -5,6 +5,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.0-M5] - 2018-11-02
+
 ### Changed
 - Remove requirement to have a subscription-descriptor.yaml on the classpath
 

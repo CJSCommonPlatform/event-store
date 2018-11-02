@@ -24,7 +24,7 @@
         <module>event-sourcing</module>
         <module>interceptors</module>
         <module>event-store-bom</module>
-        <module>test-utils-persistence</module>
+        <module>test-utils-event-store</module>
     </modules>
 
     <scm>

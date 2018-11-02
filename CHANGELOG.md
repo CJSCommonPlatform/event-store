@@ -5,8 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Remove requirement to have a subscription-descriptor.yaml on the classpath
+
 ### Added
--event-publisher-process to event-store-bom
+- event-publisher-process to event-store-bom
+- New test-utils-event-store module to hold TestEventRepository moved from framework
 
 ## [1.0.0-M4] - 2018-10-31
 

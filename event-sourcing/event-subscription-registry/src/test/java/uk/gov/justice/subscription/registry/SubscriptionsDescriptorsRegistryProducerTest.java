@@ -153,15 +153,13 @@ public class SubscriptionsDescriptorsRegistryProducerTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfIfNoSubscriptionDescriptorPathsUrlsFound() throws Exception {
+    public void shouldCreateSubscriptionsDescriptorsRegistryWithEmptySetAndLogIfNoSubscriptionYamls() throws Exception {
 
         when(yamlFileFinder.getEventSourcesPaths()).thenReturn(new ArrayList<>());
 
-        try {
-            subscriptionsDescriptorsRegistryProducer.subscriptionDescriptorRegistry();
-            fail();
-        } catch (final RegistryException e) {
-            assertThat(e.getMessage(), is("No event-sources.yaml files found!"));
-        }
+        final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = subscriptionsDescriptorsRegistryProducer.subscriptionDescriptorRegistry();
+
+        assertThat(subscriptionsDescriptorsRegistry.subscriptionsDescriptors().size(), is(0));
+        verify(logger).info("Failed to find yaml/subscriptions-descriptor.yaml resources on the classpath");
     }
 }

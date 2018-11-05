@@ -16,6 +16,8 @@ import static uk.gov.justice.services.eventsourcing.source.api.service.core.Dire
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Direction.FORWARD;
 import static uk.gov.justice.services.eventsourcing.source.api.util.TestSystemUserProvider.SYSTEM_USER_ID;
 
+import uk.gov.justice.services.cdi.InitialContextProducer;
+import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
 import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
 import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
@@ -25,8 +27,6 @@ import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.common.rest.BadRequestExceptionMapper;
 import uk.gov.justice.services.common.rest.ForbiddenRequestExceptionMapper;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.cdi.InitialContextProducer;
-import uk.gov.justice.services.core.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.core.enveloper.DefaultEnveloper;
 import uk.gov.justice.services.core.json.DefaultJsonValidationLoggerHelper;
 import uk.gov.justice.services.core.json.JsonValidationLoggerHelper;

@@ -2,7 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.manager;
 
 import static java.lang.String.format;
 
-import uk.gov.justice.services.core.cdi.QualifierAnnotationExtractor;
+import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;

@@ -7,10 +7,10 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
 
+import uk.gov.justice.services.cdi.LoggerProducer;
+import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
-import uk.gov.justice.services.core.cdi.LoggerProducer;
-import uk.gov.justice.services.core.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.core.dispatcher.DispatcherFactory;
 import uk.gov.justice.services.core.dispatcher.EnvelopePayloadTypeConverter;
 import uk.gov.justice.services.core.dispatcher.JsonEnvelopeRepacker;

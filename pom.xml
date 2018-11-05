@@ -36,14 +36,14 @@
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
 
-        <framework-domain.version>1.0.0-M3</framework-domain.version>
+        <utilities.version>1.16.0</utilities.version>
+        <test-utils.version>1.18.0</test-utils.version>
+        <framework.version>5.0.0-M3</framework.version>
+        <framework-domain.version>1.0.0-M4</framework-domain.version>
         <catalog-test-utils.version>1.4.1</catalog-test-utils.version>
         <common-bom.version>1.28.0</common-bom.version>
         <file.service.version>1.16.4</file.service.version>
         <framework-api.version>3.0.0-M14</framework-api.version>
-        <framework.version>5.0.0-M2</framework.version>
-        <test-utils.version>1.18.0</test-utils.version>
-        <utilities.version>1.15.1</utilities.version>
     </properties>
 
     <dependencyManagement>

@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.subscription.domain.builders.SubscriptionBuilder.subscription;
 
-import uk.gov.justice.services.core.cdi.QualifierAnnotationExtractor;
+import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;

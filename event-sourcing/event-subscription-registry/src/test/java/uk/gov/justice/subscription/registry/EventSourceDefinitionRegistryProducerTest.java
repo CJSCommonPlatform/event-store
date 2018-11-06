@@ -2,6 +2,7 @@ package uk.gov.justice.subscription.registry;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -39,6 +40,9 @@ public class EventSourceDefinitionRegistryProducerTest {
     @Mock
     private EventSourcesParser eventSourcesParser;
 
+    @Mock
+    private DefaultEventSourceDefinitionFactory defaultEventSourceDefinitionFactory;
+
     @InjectMocks
     private EventSourceDefinitionRegistryProducer eventSourceDefinitionRegistryProducer;
 
@@ -68,8 +72,8 @@ public class EventSourceDefinitionRegistryProducerTest {
 
         assertThat(eventSourceDefinitionRegistry, is(notNullValue()));
 
-        assertThat(eventSourceDefinitionRegistry.getEventSourceDefinitionFor(event_source_name_1), is(Optional.of(eventSourceDefinition1)));
-        assertThat(eventSourceDefinitionRegistry.getEventSourceDefinitionFor(event_source_name_2), is(Optional.of(eventSourceDefinition2)));
+        assertThat(eventSourceDefinitionRegistry.getEventSourceDefinitionFor(event_source_name_1), is(of(eventSourceDefinition1)));
+        assertThat(eventSourceDefinitionRegistry.getEventSourceDefinitionFor(event_source_name_2), is(of(eventSourceDefinition2)));
     }
 
     @Test
@@ -81,7 +85,7 @@ public class EventSourceDefinitionRegistryProducerTest {
         final URL url_1 = new URL("file:/test");
         final URL url_2 = new URL("file:/test");
 
-        final Location location1 = new Location("", "", Optional.of("dataSource"));
+        final Location location1 = new Location("", "", of("dataSource"));
         final Location location2 = new Location("", "", empty());
 
         final EventSourceDefinition eventSourceDefinition1 = eventSourceDefinition()
@@ -105,6 +109,25 @@ public class EventSourceDefinitionRegistryProducerTest {
     }
 
     @Test
+    public void shouldCreateADefaultEventSourceDefinitionIfNoEventSourceUrlsAreFound() throws Exception {
+
+        when(yamlFileFinder.getEventSourcesPaths()).thenReturn(new ArrayList<>());
+
+        final EventSourceDefinition defaultEventSourceDefinition = new EventSourceDefinition(
+                "name",
+                true,
+                new Location("jms uri", "rest uri", of("data source name"))
+        );
+
+        when(defaultEventSourceDefinitionFactory.createDefaultEventSource()).thenReturn(defaultEventSourceDefinition);
+
+        final EventSourceDefinitionRegistry eventSourceDefinitionRegistry =
+                eventSourceDefinitionRegistryProducer.getEventSourceDefinitionRegistry();
+
+        assertThat(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition(), is(defaultEventSourceDefinition));
+    }
+
+    @Test
     public void shouldThrowExceptionIfIOExceptionOccursWhenFindingEventSourcesOnTheClasspath() throws Exception {
 
         when(yamlFileFinder.getEventSourcesPaths()).thenThrow(new IOException());
@@ -115,20 +138,6 @@ public class EventSourceDefinitionRegistryProducerTest {
         } catch (final RegistryException e) {
             assertThat(e.getMessage(), is("Failed to find yaml/event-sources.yaml resources on the classpath"));
             assertThat(e.getCause(), is(instanceOf(IOException.class)));
-        }
-    }
-
-
-    @Test
-    public void shouldThrowExceptionIfIfNoEventSourceUrlsFound() throws Exception {
-
-        when(yamlFileFinder.getEventSourcesPaths()).thenReturn(new ArrayList<>());
-
-        try {
-            eventSourceDefinitionRegistryProducer.getEventSourceDefinitionRegistry();
-            fail();
-        } catch (final RegistryException e) {
-            assertThat(e.getMessage(), is("No event-sources.yaml files found!"));
         }
     }
 }

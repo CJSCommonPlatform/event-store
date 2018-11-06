@@ -1,12 +1,16 @@
 package uk.gov.justice.subscription.registry;
 
+import static java.util.Optional.of;
+
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
+import uk.gov.justice.subscription.domain.eventsource.Location;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +30,9 @@ public class EventSourceDefinitionRegistryProducer {
     @Inject
     YamlFileFinder yamlFileFinder;
 
+    @Inject
+    DefaultEventSourceDefinitionFactory defaultEventSourceDefinitionFactory;
+
     private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
     /**
@@ -38,22 +45,24 @@ public class EventSourceDefinitionRegistryProducer {
     public EventSourceDefinitionRegistry getEventSourceDefinitionRegistry() {
 
         if (null == eventSourceDefinitionRegistry) {
+
+            eventSourceDefinitionRegistry = new EventSourceDefinitionRegistry();
+
             try {
                 final List<URL> eventSourcesPaths = yamlFileFinder.getEventSourcesPaths();
 
                 if (eventSourcesPaths.isEmpty()) {
-                    throw new RegistryException("No event-sources.yaml files found!");
+                    final EventSourceDefinition eventSourceDefinition = defaultEventSourceDefinitionFactory.createDefaultEventSource();
+                    eventSourceDefinitionRegistry.register(eventSourceDefinition);
+                } else {
+                    final Stream<EventSourceDefinition> eventSourcesFrom = eventSourcesParser.eventSourcesFrom(eventSourcesPaths);
+                    eventSourcesFrom.forEach(eventSourceDefinition -> eventSourceDefinitionRegistry.register(eventSourceDefinition));
                 }
-
-                final Stream<EventSourceDefinition> eventSourcesFrom = eventSourcesParser.eventSourcesFrom(eventSourcesPaths);
-
-                eventSourceDefinitionRegistry = new EventSourceDefinitionRegistry();
-                eventSourcesFrom.forEach(eventSourceDefinition -> eventSourceDefinitionRegistry.register(eventSourceDefinition));
-
             } catch (final IOException e) {
                 throw new RegistryException("Failed to find yaml/event-sources.yaml resources on the classpath", e);
             }
         }
+        
         return eventSourceDefinitionRegistry;
     }
 }

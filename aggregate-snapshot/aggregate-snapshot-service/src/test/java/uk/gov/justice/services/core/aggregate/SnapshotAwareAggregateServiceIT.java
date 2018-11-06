@@ -71,6 +71,7 @@ import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
+import uk.gov.justice.subscription.registry.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
@@ -201,7 +202,9 @@ public class SnapshotAwareAggregateServiceIT {
             YamlSchemaLoader.class,
 
             QualifierAnnotationExtractor.class,
-            SnapshotAwareEventSourceFactory.class
+            SnapshotAwareEventSourceFactory.class,
+
+            DefaultEventSourceDefinitionFactory.class
     })
 
     public WebApp war() {

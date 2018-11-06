@@ -34,6 +34,7 @@ import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.YamlFileFinder;
+import uk.gov.justice.subscription.registry.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
@@ -117,7 +118,9 @@ public class EventDeQueuerTimerBeanIT {
             YamlParser.class,
             SubscriptionDataSourceProvider.class,
             TimerConfigFactory.class,
-            TestGlobalValueProducer.class
+            TestGlobalValueProducer.class,
+
+            DefaultEventSourceDefinitionFactory.class
     })
     public WebApp war() {
         return new WebApp()

@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [1.0.0-M6] - 2018-11-06
+
+### Changed
+- Update framework to 5.0.0-M3
+- Removed the need to have event-source.yaml
 
 ## [1.0.0-M5] - 2018-11-02
 

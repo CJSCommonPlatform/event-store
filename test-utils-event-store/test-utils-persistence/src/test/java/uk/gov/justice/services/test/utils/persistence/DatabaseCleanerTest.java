@@ -100,7 +100,7 @@ public class DatabaseCleanerTest {
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
         when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
 
-        databaseCleaner.cleanSubscriptionTable(contextName);
+        databaseCleaner.cleanStreamStatusTable(contextName);
 
         verify(preparedStatement).executeUpdate();
         verify(connection).close();

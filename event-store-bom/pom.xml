@@ -59,6 +59,16 @@
                 <artifactId>command-handler-interceptors</artifactId>
                 <version>${event-store.version}</version>
             </dependency>
+            <dependency>
+                <groupId>uk.gov.justice.event-store</groupId>
+                <artifactId>test-utils-event</artifactId>
+                <version>${event-store.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>uk.gov.justice.event-store</groupId>
+                <artifactId>test-utils-persistence</artifactId>
+                <version>${event-store.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

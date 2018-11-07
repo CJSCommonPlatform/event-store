@@ -5,8 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [1.0.0] - 2018-11-07
+## [1.0.1] - 2018-11-07
+### Changed
+- Update framework to 5.0.2
 
+## [1.0.0] - 2018-11-07
 ### Changed
 - Update framework to 5.0.0
 - Renamed DatabaseCleaner method to match table name

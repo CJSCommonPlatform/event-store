@@ -38,8 +38,8 @@
 
         <utilities.version>1.16.0</utilities.version>
         <test-utils.version>1.18.0</test-utils.version>
-        <framework.version>5.0.1</framework.version>
-        <framework-domain.version>1.0.0</framework-domain.version>
+        <framework.version>5.0.2</framework.version>
+        <framework-domain.version>1.0.1</framework-domain.version>
         <catalog-test-utils.version>1.4.1</catalog-test-utils.version>
         <common-bom.version>1.28.0</common-bom.version>
         <file.service.version>1.16.4</file.service.version>

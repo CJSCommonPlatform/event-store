@@ -62,7 +62,7 @@ public class DatabaseCleaner {
      *
      * @param contextName the name of the context who's tables you are cleaning
      */
-    public void cleanSubscriptionTable(final String contextName) {
+    public void cleanStreamStatusTable(final String contextName) {
         cleanViewStoreTables(contextName, "stream_status");
     }
 

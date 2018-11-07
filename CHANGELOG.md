@@ -4,6 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.0] - 2018-11-07
+
+### Changed
+- Update framework to 5.0.0
+- Renamed DatabaseCleaner method to match table name
+
 ## [1.0.0-M6] - 2018-11-06
 
 ### Changed

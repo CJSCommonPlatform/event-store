@@ -1,6 +1,9 @@
 package uk.gov.justice.services.test.utils.persistence;
 
 import static java.lang.String.format;
+import static javax.naming.Context.INITIAL_CONTEXT_FACTORY;
+import static javax.naming.Context.URL_PKG_PREFIXES;
+import static uk.gov.justice.services.test.utils.common.host.TestHostProvider.getHost;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -15,10 +18,9 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.openejb.resource.jdbc.dbcp.BasicDataSource;
 import org.postgresql.Driver;
 
-
 public class TestEventStoreDataSourceFactory {
 
-    private static final String EVENT_STORE_URL_FORMAT = "jdbc:postgresql://localhost:5432/%s";
+    private static final String EVENT_STORE_URL_FORMAT = "jdbc:postgresql://%s:5432/%s";
     private static final String EVENT_STORE_USER_NAME = "framework";
     private static final String EVENT_STORE_PASSWORD = "framework";
     private final Optional<String> liquibaseLocation;
@@ -33,16 +35,16 @@ public class TestEventStoreDataSourceFactory {
 
     public DataSource createDataSource(final String databaseName) throws LiquibaseException, SQLException {
 
+        final String jdbcUrl = format(EVENT_STORE_URL_FORMAT, getHost(), databaseName);
+
         final BasicDataSource basicDataSource = new BasicDataSource();
         basicDataSource.setJdbcDriver(Driver.class.getName());
-        basicDataSource.setJdbcUrl(format(EVENT_STORE_URL_FORMAT, databaseName));
+        basicDataSource.setJdbcUrl(jdbcUrl);
         basicDataSource.setUserName(EVENT_STORE_USER_NAME);
         basicDataSource.setPassword(EVENT_STORE_PASSWORD);
 
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                "org.apache.naming.java.javaURLContextFactory");
-        System.setProperty(Context.URL_PKG_PREFIXES,
-                "org.apache.naming");
+        System.setProperty(INITIAL_CONTEXT_FACTORY, "org.apache.naming.java.javaURLContextFactory");
+        System.setProperty(URL_PKG_PREFIXES, "org.apache.naming");
 
         if (liquibaseLocation.isPresent()) {
             initDatabase(basicDataSource);

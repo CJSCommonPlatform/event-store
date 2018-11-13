@@ -50,7 +50,7 @@ public class ConsecutiveEventBufferServiceTest {
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
 
     @Mock
-    private BufferInitialisationStrategy bufferInitialisationStrategy;
+    private EventBufferInitialiser eventBufferInitialiser;
 
     @InjectMocks
     private ConsecutiveEventBufferService bufferService;
@@ -95,7 +95,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
 
-        when(bufferInitialisationStrategy.initialiseBuffer(eq(streamId), eq(source))).thenReturn(4L);
+        when(eventBufferInitialiser.initialiseBuffer(eq(streamId), eq(source))).thenReturn(4L);
 
         final JsonEnvelope event_3 = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withVersion(3L),
@@ -121,7 +121,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
 
-        when(bufferInitialisationStrategy.initialiseBuffer(eq(streamId), eq(source))).thenReturn(4L);
+        when(eventBufferInitialiser.initialiseBuffer(eq(streamId), eq(source))).thenReturn(4L);
 
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(Stream.empty());
@@ -145,7 +145,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        when(bufferInitialisationStrategy.initialiseBuffer(streamId, source)).thenReturn(4L);
+        when(eventBufferInitialiser.initialiseBuffer(streamId, source)).thenReturn(4L);
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(Stream.empty());
 
         bufferService.currentOrderedEventsWith(incomingEvent);
@@ -164,7 +164,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        when(bufferInitialisationStrategy.initialiseBuffer(streamId, source)).thenReturn(4L);
+        when(eventBufferInitialiser.initialiseBuffer(streamId, source)).thenReturn(4L);
         when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(Optional.of(new Subscription(streamId, 4L, source)));
 
         when(jsonObjectEnvelopeConverter.asJsonString(incomingEvent)).thenReturn("someStringRepresentation");
@@ -183,7 +183,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
 
-        when(bufferInitialisationStrategy.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
+        when(eventBufferInitialiser.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(
                 Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", "source_4"),
@@ -218,7 +218,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
 
-        when(bufferInitialisationStrategy.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
+        when(eventBufferInitialiser.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
 
         final StreamCloseSpy sourceStreamSpy = new StreamCloseSpy();
 
@@ -247,7 +247,7 @@ public class ConsecutiveEventBufferServiceTest {
         final UUID streamId = randomUUID();
         final String source = "source";
         final String eventName = "source.event.name";
-        when(bufferInitialisationStrategy.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
+        when(eventBufferInitialiser.initialiseBuffer(eq(streamId), eq(source))).thenReturn(2L);
 
 
         final EventBufferEvent event4 = new EventBufferEvent(streamId, 4L, "someEventContent4", "source_1");

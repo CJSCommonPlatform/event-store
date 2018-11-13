@@ -42,7 +42,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
 
     @Inject
-    private BufferInitialisationStrategy bufferInitialisationStrategy;
+    private EventBufferInitialiser eventBufferInitialiser;
 
 
     /**
@@ -64,7 +64,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final long incomingEventVersion = versionOf(incomingEvent);
         final String source = getSource(incomingEvent);
 
-        final long currentVersion = bufferInitialisationStrategy.initialiseBuffer(streamId, source);
+        final long currentVersion = eventBufferInitialiser.initialiseBuffer(streamId, source);
 
         if (incomingEventObsolete(incomingEventVersion, currentVersion)) {
             logger.warn("Message : {} is an obsolete version", incomingEvent);
@@ -115,7 +115,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     }
 
     private Stream<EventBufferEvent> consecutiveEventStreamFromBuffer(final Stream<EventBufferEvent> messageBuffer, final long currentVersion) {
-        return stream(new ConsecutiveEventsSpliterator(messageBuffer, currentVersion), false).onClose(() -> messageBuffer.close());
+        return stream(new ConsecutiveEventsSpliterator(messageBuffer, currentVersion), false).onClose(messageBuffer::close);
     }
 
     private boolean incomingEventNotInOrder(final long incomingEventVersion, final long currentVersion) {

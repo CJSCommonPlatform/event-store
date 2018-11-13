@@ -5,16 +5,22 @@ import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscri
 
 import java.util.UUID;
 
-public class PostgreSQLBasedBufferInitialisationStrategy implements BufferInitialisationStrategy {
+import javax.inject.Inject;
+
+public class EventBufferInitialiser {
+
     private static final long INITIAL_VERSION = 0L;
 
-    private final SubscriptionJdbcRepository subscriptionJdbcRepository;
+    @Inject
+    private SubscriptionJdbcRepository subscriptionJdbcRepository;
 
-    public PostgreSQLBasedBufferInitialisationStrategy(final SubscriptionJdbcRepository subscriptionJdbcRepository) {
-        this.subscriptionJdbcRepository = subscriptionJdbcRepository;
-    }
-
-    @Override
+    /**
+     * Initialises buffer (if not already intialised) and returns the current version of the buffer
+     * status
+     *
+     * @param streamId - id of the stream to be initialised
+     * @return - version of the last event that was in order
+     */
     public long initialiseBuffer(final UUID streamId, final String source) {
         subscriptionJdbcRepository.updateSource(streamId,source);
         subscriptionJdbcRepository.insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));

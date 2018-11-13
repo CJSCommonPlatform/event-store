@@ -68,7 +68,7 @@ import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.buffer.api.AbstractEventFilter;
 import uk.gov.justice.services.event.buffer.api.AllowAllEventFilter;
-import uk.gov.justice.services.event.buffer.core.service.BufferInitialisationStrategyProducer;
+import uk.gov.justice.services.event.buffer.core.service.EventBufferInitialiser;
 import uk.gov.justice.services.event.buffer.core.service.ConsecutiveEventBufferService;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
@@ -160,7 +160,6 @@ public class EventBufferAndFilterChainIT {
 
             ConsecutiveEventBufferService.class,
             EventBufferInterceptor.class,
-            BufferInitialisationStrategyProducer.class,
             LoggerProducer.class,
             EmptySystemUserProvider.class,
             SystemUserUtil.class,
@@ -199,7 +198,9 @@ public class EventBufferAndFilterChainIT {
             BackwardsCompatibleJsonSchemaValidator.class,
 
             MediaTypesMappingCacheInitialiser.class,
-            SchemaIdMappingCacheInitialiser.class
+            SchemaIdMappingCacheInitialiser.class,
+
+            EventBufferInitialiser.class
     })
     public WebApp war() {
         return new WebApp()

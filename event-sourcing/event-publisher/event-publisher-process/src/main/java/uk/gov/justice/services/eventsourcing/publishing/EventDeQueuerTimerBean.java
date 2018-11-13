@@ -45,7 +45,6 @@ public class EventDeQueuerTimerBean {
     }
 
     @Timeout
-    @SuppressWarnings({"StatementWithEmptyBody", "unused"})
     public void doDeQueueAndPublish() {
 
         while (eventDeQueuerAndPublisher.deQueueAndPublish()) {

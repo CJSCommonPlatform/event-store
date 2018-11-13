@@ -13,31 +13,27 @@ import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscri
 
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PostgreSQLBasedBufferInitialisationStrategyTest {
+public class EventBufferInitialiserTest {
 
     @Mock
     private SubscriptionJdbcRepository subscriptionJdbcRepository;
 
-    private BufferInitialisationStrategy bufferInitialisationStrategy;
-
-    @Before
-    public void setUp() throws Exception {
-        bufferInitialisationStrategy = new PostgreSQLBasedBufferInitialisationStrategy(subscriptionJdbcRepository);
-    }
+    @InjectMocks
+    private EventBufferInitialiser eventBufferInitialiser;
 
     @Test
     public void shouldTryInsertingZeroBufferStatus() throws Exception {
         final UUID streamId = randomUUID();
         final String source = "a source";
         when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(new Subscription(streamId, 3, source)));
-        bufferInitialisationStrategy.initialiseBuffer(streamId, source);
+        eventBufferInitialiser.initialiseBuffer(streamId, source);
 
         verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, 0, source));
     }
@@ -48,7 +44,7 @@ public class PostgreSQLBasedBufferInitialisationStrategyTest {
         final String source = "a source";
         when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(new Subscription(streamId, 3, source)));
 
-        final long currentVersion = bufferInitialisationStrategy.initialiseBuffer(streamId, source);
+        final long currentVersion = eventBufferInitialiser.initialiseBuffer(streamId, source);
         assertThat(currentVersion, is(3L));
     }
 
@@ -58,7 +54,7 @@ public class PostgreSQLBasedBufferInitialisationStrategyTest {
         final String source = "a source";
         when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(empty());
 
-        bufferInitialisationStrategy.initialiseBuffer(streamId, source);
+        eventBufferInitialiser.initialiseBuffer(streamId, source);
 
     }
 }

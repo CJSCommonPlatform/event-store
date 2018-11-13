@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.3] - 2018-11-13
+### Changed
+- Removed hard coded localhost from test datasource url
+
 ## [1.0.2] - 2018-11-09
 ### Changed
 - Update framework to 5.0.3

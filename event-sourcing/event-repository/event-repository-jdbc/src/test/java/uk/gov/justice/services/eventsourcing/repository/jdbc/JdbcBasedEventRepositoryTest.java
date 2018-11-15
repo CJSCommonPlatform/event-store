@@ -120,6 +120,20 @@ public class JdbcBasedEventRepositoryTest {
         verify(logger).trace("Retrieving event stream for {} at sequence {}", STREAM_ID, POSITION);
     }
 
+    @Test
+    public void shouldGetByStreamIdAndPositionByPage() throws Exception {
+
+        final Integer pageSize = 1000;
+
+        when(eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, POSITION, pageSize)).thenReturn(Stream.of(event));
+        when(eventConverter.envelopeOf(event)).thenReturn(envelope);
+
+        final Stream<JsonEnvelope> streamOfEnvelopes = jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, POSITION, pageSize);
+
+        assertThat(streamOfEnvelopes, not(nullValue()));
+        assertThat(streamOfEnvelopes.findFirst().get(), equalTo(envelope));
+        verify(logger).trace("Retrieving event stream for {} at sequence {}", STREAM_ID, POSITION);
+    }
 
     @Test(expected = InvalidStreamIdException.class)
     public void shouldThrowExceptionOnNullStreamIdWhenGettingStreamByStreamIdAndSequence() throws Exception {
@@ -131,6 +145,15 @@ public class JdbcBasedEventRepositoryTest {
         jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null);
     }
 
+    @Test(expected = InvalidStreamIdException.class)
+    public void shouldThrowExceptionOnNullStreamIdWhenGettingStreamByStreamIdAndPositionByPage() throws Exception {
+        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(null, POSITION, 10);
+    }
+
+    @Test(expected = JdbcRepositoryException.class)
+    public void shouldThrowExceptionOnNullSequenceIdWhenGettingStreamByStreamIdAndPositonByPage() throws Exception {
+        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null, 10);
+    }
 
     @Test
     public void shouldGetStreamOfStreams() throws Exception {

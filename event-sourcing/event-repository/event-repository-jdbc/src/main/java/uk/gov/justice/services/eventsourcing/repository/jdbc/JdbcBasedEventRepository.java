@@ -75,6 +75,19 @@ public class JdbcBasedEventRepository implements EventRepository {
     }
 
     @Override
+    public Stream<JsonEnvelope> getEventsByStreamIdFromPosition(final UUID streamId, final Long position, final Integer pageSize) {
+        if (streamId == null) {
+            throw new InvalidStreamIdException("streamId is null.");
+        } else if (position == null) {
+            throw new JdbcRepositoryException("position is null.");
+        }
+
+        logger.trace("Retrieving event stream for {} at sequence {}", streamId, position);
+        return eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(streamId, position, pageSize)
+                .map(eventConverter::envelopeOf);
+    }
+
+    @Override
     @Transactional(dontRollbackOn = OptimisticLockingRetryException.class)
     public void storeEvent(final JsonEnvelope envelope) throws StoreEventRequestFailedException {
         try {

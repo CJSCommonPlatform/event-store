@@ -76,6 +76,18 @@ public class EventStreamManager {
     }
 
     /**
+     * Get the stream of events from the given version.
+     *
+     * @param id      the UUID of the stream
+     * @param position the version of the stream,
+     * @param pageSize the size of the page in the result set
+     * @return the stream of events
+     */
+    public Stream<JsonEnvelope> readFrom(final UUID id, final long position, final int pageSize) {
+        return eventRepository.getEventsByStreamIdFromPosition(id, position, pageSize);
+    }
+
+    /**
      * Store a stream of events.
      *
      * @param id     the id of the stream

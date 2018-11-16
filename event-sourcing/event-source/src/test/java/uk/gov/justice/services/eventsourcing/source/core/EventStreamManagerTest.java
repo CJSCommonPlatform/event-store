@@ -186,7 +186,7 @@ public class EventStreamManagerTest {
     public void shouldReadStream() {
         when(eventRepository.getEventsByStreamId(STREAM_ID)).thenReturn(eventStream);
 
-        Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.read(STREAM_ID);
+        final Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.read(STREAM_ID);
 
         assertThat(actualEnvelopeEventStream, equalTo(eventStream));
         verify(eventRepository).getEventsByStreamId(STREAM_ID);
@@ -197,10 +197,24 @@ public class EventStreamManagerTest {
         when(eventRepository.getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION)).thenReturn(eventStream);
         when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
-        Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.readFrom(STREAM_ID, CURRENT_VERSION);
+        final Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.readFrom(STREAM_ID, CURRENT_VERSION);
 
         assertThat(actualEnvelopeEventStream, equalTo(eventStream));
         verify(eventRepository).getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION);
+    }
+
+    @Test
+    public void shouldReadStreamFromVersionByPage() {
+
+        final int pageSize = 1000;
+
+        when(eventRepository.getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION, pageSize)).thenReturn(eventStream);
+        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
+
+        final Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.readFrom(STREAM_ID, CURRENT_VERSION, pageSize);
+
+        assertThat(actualEnvelopeEventStream, equalTo(eventStream));
+        verify(eventRepository).getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION, pageSize);
     }
 
     @Test

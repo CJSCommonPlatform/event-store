@@ -5,6 +5,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.4] - 2018-11-16
+### Changed
+- Updated framework-api to 3.0.1
+- Updated framework to 5.0.4
+- Updated framework-domain to 1.0.3
+
+### Added
+- Added a page size when reading stream of events
+
 ## [1.0.3] - 2018-11-13
 ### Changed
 - Removed hard coded localhost from test datasource url

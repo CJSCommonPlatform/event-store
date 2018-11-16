@@ -42,6 +42,12 @@ public class EnvelopeEventStream implements EventStream {
     }
 
     @Override
+    public Stream<JsonEnvelope> readFrom(final long position, final int pageSize) {
+        markAsReadFrom(position - 1);
+        return eventStreamManager.readFrom(id, position, pageSize).map(this::recordCurrentPosition);
+    }
+
+    @Override
     public long append(final Stream<JsonEnvelope> events) throws EventStreamException {
         return append(events, CONSECUTIVE);
     }

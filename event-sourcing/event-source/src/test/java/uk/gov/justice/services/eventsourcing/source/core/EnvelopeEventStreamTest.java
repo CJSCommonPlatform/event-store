@@ -84,6 +84,20 @@ public class EnvelopeEventStreamTest {
     }
 
     @Test
+    public void shouldReturnStreamFromVersionWithPageSize() throws Exception {
+        final int pageSize = 10;
+
+        when(eventStreamManager.readFrom(STREAM_ID, POSITION, pageSize)).thenReturn(Stream.of(
+                jsonEnvelopeWithVersion(3L),
+                jsonEnvelopeWithVersion(4L)
+        ));
+
+        envelopeEventStream.readFrom(POSITION, pageSize);
+
+        verify(eventStreamManager).readFrom(STREAM_ID, POSITION, pageSize);
+    }
+
+    @Test
     public void shouldAppendStream() throws Exception {
         envelopeEventStream.append(stream);
 

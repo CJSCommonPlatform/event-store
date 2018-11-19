@@ -61,7 +61,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 
 @RunWith(ApplicationComposer.class)
-public class EventDeQueuerTimerBeanIT {
+public class EventPublishIT {
 
     @Resource(name = "openejb/Resource/frameworkeventstore")
     private DataSource dataSource;

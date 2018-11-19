@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="event-store-011" author="TechPod"
+               logicalFilePath="011-rename-publish_queue-table.changelog.xml">
+
+
+        <sql>
+            DROP TRIGGER queue_publish_event on event_log CASCADE;
+        </sql>
+
+        <sql>
+            DROP FUNCTION update_publish_queue();
+        </sql>
+        <renameTable oldTableName="publish_queue" newTableName="pre_publish_queue"/>
+        <dropPrimaryKey tableName="pre_publish_queue" constraintName="PK_PUBLISH_QUEUE"/>
+        <addPrimaryKey tableName="pre_publish_queue" columnNames="id" constraintName="PK_PRE_PUBLISH_QUEUE"/>
+
+        <sqlFile dbms="postgresql"
+                 encoding="utf8"
+                 path="sql-files/update-pre-publish-queue-function.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="false"
+        />
+
+        <sql>
+            CREATE TRIGGER update_pre_publish_queue
+            AFTER INSERT ON event_log
+            FOR EACH ROW EXECUTE PROCEDURE update_pre_publish_queue();
+        </sql>
+
+        <rollback>
+            <sql>
+                DROP TRIGGER update_pre_publish_queue on event_log CASCADE;
+            </sql>
+            <sql>
+                DROP FUNCTION update_pre_publish_queue();
+            </sql>
+            <renameTable oldTableName="pre_publish_queue" newTableName="publish_queue"/>
+
+            <sqlFile dbms="postgresql"
+                     encoding="utf8"
+                     path="sql-files/update-publish-queue-function.sql"
+                     relativeToChangelogFile="true"
+                     splitStatements="false"
+            />
+
+            <sql>
+                CREATE TRIGGER update_publish_queue
+                AFTER INSERT ON event_log
+                FOR EACH ROW EXECUTE PROCEDURE update_publish_queue();
+            </sql>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

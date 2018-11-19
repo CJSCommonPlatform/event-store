@@ -58,7 +58,7 @@ public class EventLogPublishIT {
         testEventInserter.insertIntoEventLog(eventLogId, streamId, sequenceId, now, eventName, jsonEnvelope);
 
         try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM publish_queue");
+             final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM pre_publish_queue");
              final ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {

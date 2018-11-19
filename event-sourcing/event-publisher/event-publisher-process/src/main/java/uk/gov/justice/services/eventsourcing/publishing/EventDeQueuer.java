@@ -25,17 +25,17 @@ import javax.transaction.Transactional;
  */
 public class EventDeQueuer {
 
-    private static final String SELECT_FROM_PUBLISH_QUEUE_QUERY = "SELECT id, event_log_id FROM publish_queue ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
+    private static final String SELECT_FROM_PRE_PUBLISH_QUEUE_QUERY = "SELECT id, event_log_id FROM pre_publish_queue ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
     private static final String SELECT_FROM_EVENT_LOG_QUERY = "SELECT stream_id, sequence_id, name, payload, metadata, date_created " +
             "FROM event_log WHERE id = ?";
-    private static final String DELETE_FROM_PUBLISH_QUEUE_QUERY = "DELETE FROM publish_queue where id = ?";
+    private static final String DELETE_FROM_PRE_PUBLISH_QUEUE_QUERY = "DELETE FROM pre_publish_queue where id = ?";
 
     @Inject
     SubscriptionDataSourceProvider subscriptionDataSourceProvider;
 
     /**
      * Method that gets the next event to process by
-     * querying the publish_queue table for id & event_log_id,
+     * querying the pre_publish_queue table for id & event_log_id,
      * deleting the entry from the publish queue using the id and
      * then gets the record from the event_log table using the event_log_id.
      *
@@ -45,7 +45,7 @@ public class EventDeQueuer {
     public Optional<Event> popNextEvent() {
 
         try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_PUBLISH_QUEUE_QUERY);
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_PRE_PUBLISH_QUEUE_QUERY);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {
@@ -57,7 +57,7 @@ public class EventDeQueuer {
                 return getEventFromEventLogTable(eventLogId, connection);
             }
         } catch (final SQLException e) {
-            throw new PublishQueueException("Failed to publish from publish_queue table", e);
+            throw new PublishQueueException("Failed to publish from pre_publish_queue table", e);
         }
 
         return empty();
@@ -101,11 +101,11 @@ public class EventDeQueuer {
     }
 
     /**
-     * Method that deletes the next event from the publish_queue table using the event_log_id.
+     * Method that deletes the next event from the pre_publish_queue table using the event_log_id.
      */
     private void deletePublishQueueRow(final long eventLogId, final Connection connection) throws SQLException {
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(DELETE_FROM_PUBLISH_QUEUE_QUERY)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(DELETE_FROM_PRE_PUBLISH_QUEUE_QUERY)) {
             preparedStatement.setLong(1, eventLogId);
             preparedStatement.executeUpdate();
         }

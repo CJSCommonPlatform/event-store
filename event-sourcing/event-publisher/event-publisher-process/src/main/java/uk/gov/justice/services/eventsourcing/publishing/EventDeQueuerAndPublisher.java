@@ -1,7 +1,9 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+import static uk.gov.justice.services.eventsourcing.EventDeQueuer.PUBLISH_TABLE_NAME;
 
+import uk.gov.justice.services.eventsourcing.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -42,7 +44,7 @@ public class EventDeQueuerAndPublisher {
     @Transactional(REQUIRES_NEW)
     public boolean deQueueAndPublish() {
 
-        final Optional<Event> event = eventDeQueuer.popNextEvent();
+        final Optional<Event> event = eventDeQueuer.popNextEvent(PUBLISH_TABLE_NAME);
         if (event.isPresent()) {
             logger.debug("Publishing event {}", event.get().getName());
             final JsonEnvelope jsonEnvelope = eventConverter.envelopeOf(event.get());

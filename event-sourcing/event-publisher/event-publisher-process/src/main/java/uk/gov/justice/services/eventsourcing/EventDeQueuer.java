@@ -1,5 +1,6 @@
-package uk.gov.justice.services.eventsourcing.publishing;
+package uk.gov.justice.services.eventsourcing;
 
+import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.fromString;
@@ -25,10 +26,13 @@ import javax.transaction.Transactional;
  */
 public class EventDeQueuer {
 
-    private static final String SELECT_FROM_PRE_PUBLISH_QUEUE_QUERY = "SELECT id, event_log_id FROM pre_publish_queue ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
+    public static final String PRE_PUBLISH_TABLE_NAME = "pre_publish_queue";
+    public static final String PUBLISH_TABLE_NAME = "publish_queue";
+
+    private static final String SELECT_FROM_PUBLISH_TABLE_QUERY_PATTERN = "SELECT id, event_log_id FROM %s ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
     private static final String SELECT_FROM_EVENT_LOG_QUERY = "SELECT stream_id, sequence_id, name, payload, metadata, date_created " +
             "FROM event_log WHERE id = ?";
-    private static final String DELETE_FROM_PRE_PUBLISH_QUEUE_QUERY = "DELETE FROM pre_publish_queue where id = ?";
+    private static final String DELETE_FROM_PUBLISH_TABLE_QUERY_PATTERN = "DELETE FROM %s where id = ?";
 
     @Inject
     SubscriptionDataSourceProvider subscriptionDataSourceProvider;
@@ -42,22 +46,23 @@ public class EventDeQueuer {
      * @return Optional<Event>
      */
     @Transactional(MANDATORY)
-    public Optional<Event> popNextEvent() {
+    public Optional<Event> popNextEvent(final String tableName) {
 
+        final String sql = format(SELECT_FROM_PUBLISH_TABLE_QUERY_PATTERN, tableName);
         try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_PRE_PUBLISH_QUEUE_QUERY);
+             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
 
             if (resultSet.next()) {
                 final long publishQueueId = resultSet.getLong("id");
                 final UUID eventLogId = fromString(resultSet.getString("event_log_id"));
 
-                deletePublishQueueRow(publishQueueId, connection);
+                deletePublishQueueRow(publishQueueId, tableName, connection);
 
                 return getEventFromEventLogTable(eventLogId, connection);
             }
         } catch (final SQLException e) {
-            throw new PublishQueueException("Failed to publish from pre_publish_queue table", e);
+            throw new PublishQueueException(format("Failed to publish from %s table", tableName), e);
         }
 
         return empty();
@@ -103,9 +108,10 @@ public class EventDeQueuer {
     /**
      * Method that deletes the next event from the pre_publish_queue table using the event_log_id.
      */
-    private void deletePublishQueueRow(final long eventLogId, final Connection connection) throws SQLException {
+    private void deletePublishQueueRow(final long eventLogId, final String tableName, final Connection connection) throws SQLException {
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(DELETE_FROM_PRE_PUBLISH_QUEUE_QUERY)) {
+        final String sql = format(DELETE_FROM_PUBLISH_TABLE_QUERY_PATTERN, tableName);
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, eventLogId);
             preparedStatement.executeUpdate();
         }

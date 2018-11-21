@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishing;
+package uk.gov.justice.services.eventsourcing.timer;
 
 import javax.ejb.TimerConfig;
 

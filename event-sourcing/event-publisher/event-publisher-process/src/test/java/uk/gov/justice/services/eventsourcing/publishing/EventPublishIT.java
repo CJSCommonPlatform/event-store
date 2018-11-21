@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
+import static com.jayway.jsonassert.JsonAssert.with;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,8 +10,16 @@ import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.
 
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.cdi.LoggerProducer;
 import uk.gov.justice.services.eventsource.DefaultEventDestinationResolver;
+import uk.gov.justice.services.eventsourcing.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.prepublish.EventPrePublisher;
+import uk.gov.justice.services.eventsourcing.prepublish.MetadataSequenceNumberUpdater;
+import uk.gov.justice.services.eventsourcing.prepublish.PrePublishProcessor;
+import uk.gov.justice.services.eventsourcing.prepublish.PrePublishRepository;
+import uk.gov.justice.services.eventsourcing.prepublish.PrePublishTimerBean;
+import uk.gov.justice.services.eventsourcing.prepublish.PrePublishTimerConfig;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.DummyEventPublisher;
@@ -20,6 +29,9 @@ import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserte
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.timer.TimerConfigFactory;
+import uk.gov.justice.services.eventsourcing.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -86,7 +98,7 @@ public class EventPublishIT {
 
     @Module
     @Classes(cdi = true, value = {
-            EventDeQueuerTimerBean.class,
+            PublisherTimerBean.class,
             EventDeQueuerAndPublisher.class,
             EventDeQueuer.class,
             EventPublisher.class,
@@ -120,7 +132,17 @@ public class EventPublishIT {
             TimerConfigFactory.class,
             TestGlobalValueProducer.class,
 
-            DefaultEventSourceDefinitionFactory.class
+            DefaultEventSourceDefinitionFactory.class,
+            PublisherTimerConfig.class,
+            TimerServiceManager.class,
+            TimerCanceler.class,
+            PrePublishTimerBean.class,
+            PrePublishProcessor.class,
+            PrePublishTimerConfig.class,
+            EventPrePublisher.class,
+            MetadataSequenceNumberUpdater.class,
+            PrePublishRepository.class,
+            UtcClock.class
     })
     public WebApp war() {
         return new WebApp()
@@ -136,6 +158,7 @@ public class EventPublishIT {
                 .build();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void shouldPublishEventsInTheEventLogTable() throws Exception {
 
@@ -156,7 +179,7 @@ public class EventPublishIT {
             return empty();
         });
 
-        if(jsonEnvelopeOptional.isPresent()) {
+        if (jsonEnvelopeOptional.isPresent()) {
             final List<JsonEnvelope> envelopes = jsonEnvelopeOptional.get();
 
             assertThat(envelopes.size(), is(3));
@@ -164,6 +187,23 @@ public class EventPublishIT {
             assertThat(envelopes.get(0).metadata().name(), is("event_1"));
             assertThat(envelopes.get(1).metadata().name(), is("event_2"));
             assertThat(envelopes.get(2).metadata().name(), is("event_3"));
+
+            final String envelopeJson_1 = envelopes.get(0).toDebugStringPrettyPrint();
+            final String envelopeJson_2 = envelopes.get(1).toDebugStringPrettyPrint();
+            final String envelopeJson_3 = envelopes.get(2).toDebugStringPrettyPrint();
+
+            with(envelopeJson_1)
+                    .assertThat("$._metadata.previousSequenceNumber", is(0))
+                    .assertThat("$._metadata.sequenceNumber", is(1))
+            ;
+            with(envelopeJson_2)
+                    .assertThat("$._metadata.previousSequenceNumber", is(1))
+                    .assertThat("$._metadata.sequenceNumber", is(2))
+            ;
+            with(envelopeJson_3)
+                    .assertThat("$._metadata.previousSequenceNumber", is(2))
+                    .assertThat("$._metadata.sequenceNumber", is(3))
+            ;
         } else {
             fail();
         }

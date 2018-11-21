@@ -8,7 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.eventsourcing.EventDeQueuer.PUBLISH_TABLE_NAME;
 
+import uk.gov.justice.services.eventsourcing.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -48,7 +50,7 @@ public class EventDeQueuerAndPublisherTest {
         final Event event = mock(Event.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(eventDeQueuer.popNextEvent()).thenReturn(of(event));
+        when(eventDeQueuer.popNextEvent(PUBLISH_TABLE_NAME)).thenReturn(of(event));
         when(eventConverter.envelopeOf(event)).thenReturn(jsonEnvelope);
         when(event.getName()).thenReturn(eventName);
 
@@ -61,7 +63,7 @@ public class EventDeQueuerAndPublisherTest {
     @Test
     public void shouldNotPublishIfNoEventsAreFoundOnQueue() throws Exception {
 
-        when(eventDeQueuer.popNextEvent()).thenReturn(empty());
+        when(eventDeQueuer.popNextEvent(PUBLISH_TABLE_NAME)).thenReturn(empty());
 
         assertThat(eventDeQueuerAndPublisher.deQueueAndPublish(), is(false));
 

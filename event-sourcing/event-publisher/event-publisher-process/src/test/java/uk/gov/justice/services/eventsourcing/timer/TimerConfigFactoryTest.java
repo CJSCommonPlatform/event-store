@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishing;
+package uk.gov.justice.services.eventsourcing.timer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;

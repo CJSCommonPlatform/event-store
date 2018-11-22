@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="event-store-015" author="TechPod"
+               logicalFilePath="015-rename-sequence-columns-on-event_log.xml">
+
+        <dropIndex indexName="event_log_sequence_number_idx"
+                   tableName="event_log"/>
+
+
+        <renameColumn newColumnName="position_in_stream"
+                      oldColumnName="sequence_id"
+                      tableName="event_log"/>
+
+        <renameColumn newColumnName="event_number"
+                      oldColumnName="sequence_number"
+                      tableName="event_log"/>
+
+        <createIndex indexName="event_log_event_number_idx"
+                     tableName="event_log"
+                     unique="true">
+            <column name="event_number" type="BIGINT"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="event_log_event_number_idx"
+                       tableName="event_log"/>
+
+            <renameColumn newColumnName="sequence_id"
+                          oldColumnName="position_in_stream"
+                          tableName="event_log"/>
+
+            <renameColumn newColumnName="sequence_number"
+                          oldColumnName="event_number"
+                          tableName="event_log"/>
+
+            <createIndex indexName="event_log_sequence_number_idx"
+                         tableName="event_log"
+                         unique="true">
+                <column name="sequence_number" type="BIGINT"/>
+            </createIndex>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

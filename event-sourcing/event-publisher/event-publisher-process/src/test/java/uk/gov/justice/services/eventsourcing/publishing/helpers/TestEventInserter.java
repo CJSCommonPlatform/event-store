@@ -20,7 +20,7 @@ public class TestEventInserter {
 
     private static final String INSERT_INTO_EVENT_LOG_QUERY =
             "INSERT INTO event_log (" +
-                    "id, stream_id, sequence_id, name, payload, metadata, date_created" +
+                    "id, stream_id, position_in_stream, name, payload, metadata, date_created" +
                     ") VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     public void insertIntoEventLog(final Event event) throws SQLException {

@@ -31,7 +31,7 @@ public class EventJdbcRepository {
      */
     static final String PRIMARY_KEY_ID = "id";
     static final String COL_STREAM_ID = "stream_id";
-    static final String COL_POSITION = "sequence_id";
+    static final String COL_POSITION = "position_in_stream";
     static final String COL_NAME = "name";
     static final String COL_METADATA = "metadata";
     static final String COL_PAYLOAD = "payload";
@@ -40,11 +40,11 @@ public class EventJdbcRepository {
     /**
      * Statements
      */
-    static final String SQL_FIND_ALL = "SELECT * FROM event_log ORDER BY sequence_id ASC";
-    static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY sequence_id ASC";
-    static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND sequence_id>=? ORDER BY sequence_id ASC";
-    static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND sequence_id>=? ORDER BY sequence_id ASC LIMIT ?";
-    static final String SQL_FIND_LATEST_POSITION = "SELECT MAX(sequence_id) FROM event_log WHERE stream_id=?";
+    static final String SQL_FIND_ALL = "SELECT * FROM event_log ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC LIMIT ?";
+    static final String SQL_FIND_LATEST_POSITION = "SELECT MAX(position_in_stream) FROM event_log WHERE stream_id=?";
     static final String SQL_DISTINCT_STREAM_ID = "SELECT DISTINCT stream_id FROM event_log";
     static final String SQL_DELETE_STREAM = "DELETE FROM event_log t WHERE t.stream_id=?";
 

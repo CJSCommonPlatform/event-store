@@ -193,16 +193,16 @@ public class EventPublishIT {
             final String envelopeJson_3 = envelopes.get(2).toDebugStringPrettyPrint();
 
             with(envelopeJson_1)
-                    .assertThat("$._metadata.previousSequenceNumber", is(0))
-                    .assertThat("$._metadata.sequenceNumber", is(1))
+                    .assertThat("$._metadata.previousEventNumber", is(0))
+                    .assertThat("$._metadata.eventNumber", is(1))
             ;
             with(envelopeJson_2)
-                    .assertThat("$._metadata.previousSequenceNumber", is(1))
-                    .assertThat("$._metadata.sequenceNumber", is(2))
+                    .assertThat("$._metadata.previousEventNumber", is(1))
+                    .assertThat("$._metadata.eventNumber", is(2))
             ;
             with(envelopeJson_3)
-                    .assertThat("$._metadata.previousSequenceNumber", is(2))
-                    .assertThat("$._metadata.sequenceNumber", is(3))
+                    .assertThat("$._metadata.previousEventNumber", is(2))
+                    .assertThat("$._metadata.eventNumber", is(3))
             ;
         } else {
             fail();

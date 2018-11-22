@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 public abstract class BaseEventInsertStrategy implements EventInsertionStrategy {
 
-    static final String SQL_INSERT_EVENT = "INSERT INTO event_log (id, stream_id, sequence_id, name, metadata, payload, date_created) " +
+    static final String SQL_INSERT_EVENT = "INSERT INTO event_log (id, stream_id, position_in_stream, name, metadata, payload, date_created) " +
             "VALUES(?, ?, ?, ?, ?, ?, ?)";
 
     /**

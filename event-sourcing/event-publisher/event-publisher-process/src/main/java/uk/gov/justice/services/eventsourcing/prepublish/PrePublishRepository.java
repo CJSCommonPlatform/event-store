@@ -14,8 +14,8 @@ import java.util.UUID;
 public class PrePublishRepository {
 
     private static final int NO_PREVIOUS_SEQUENCE_NUMBER = 0;
-    private static final String SELECT_SEQUENCE_NUMBER_SQL = "SELECT sequence_number FROM event_log WHERE id = ?";
-    private static final String SELECT_PREVIOUS_SEQUENCE_NUMBER_SQL = "SELECT sequence_number FROM event_log WHERE sequence_number < ? ORDER BY sequence_number DESC LIMIT 1";
+    private static final String SELECT_SEQUENCE_NUMBER_SQL = "SELECT event_number FROM event_log WHERE id = ?";
+    private static final String SELECT_PREVIOUS_SEQUENCE_NUMBER_SQL = "SELECT event_number FROM event_log WHERE event_number < ? ORDER BY event_number DESC LIMIT 1";
     private static final String UPDATE_METADATA_SQL = "UPDATE event_log SET metadata = ? where id = ?";
     private static final String INSERT_INTO_PUBLISH_QUEUE_SQL = "INSERT INTO publish_queue (event_log_id, date_queued) VALUES (?, ?)";
 
@@ -27,10 +27,10 @@ public class PrePublishRepository {
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    return resultSet.getLong("sequence_number");
+                    return resultSet.getLong("event_number");
                 }
 
-                throw new PublishQueueException("Failed to get sequence_number from event_log table");
+                throw new PublishQueueException("Failed to get event_number from event_log table");
             }
         }
     }
@@ -42,7 +42,7 @@ public class PrePublishRepository {
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    return resultSet.getLong("sequence_number");
+                    return resultSet.getLong("event_number");
                 }
 
                 return NO_PREVIOUS_SEQUENCE_NUMBER;

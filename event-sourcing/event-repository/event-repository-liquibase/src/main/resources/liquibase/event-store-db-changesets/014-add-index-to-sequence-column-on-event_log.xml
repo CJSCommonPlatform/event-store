@@ -14,8 +14,7 @@
         </createIndex>
 
         <rollback>
-            <dropIndex catalogName="cat"
-                       indexName="event_log_sequence_number_idx"
+            <dropIndex indexName="event_log_sequence_number_idx"
                        tableName="event_log"/>
         </rollback>
 

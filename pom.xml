@@ -25,6 +25,7 @@
         <module>interceptors</module>
         <module>event-store-bom</module>
         <module>test-utils-event-store</module>
+        <module>event-source-subscriptions</module>
     </modules>
 
     <scm>

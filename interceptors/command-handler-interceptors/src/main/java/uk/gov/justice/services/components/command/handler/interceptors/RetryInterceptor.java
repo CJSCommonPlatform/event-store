@@ -70,9 +70,8 @@ public class RetryInterceptor implements Interceptor {
     private void waitFor(final int retryWaitTime) {
         try {
             sleep(retryWaitTime);
-        } catch (InterruptedException ex) {
+        } catch (final InterruptedException ex) {
             currentThread().interrupt();
-            throw new RuntimeException(ex);
         }
     }
 }

@@ -23,19 +23,19 @@ import org.slf4j.Logger;
 
 public class EventStreamJdbcRepository {
 
-    private static final String SQL_FIND_BY_POSITION = "SELECT * FROM event_stream WHERE sequence_number>=? ORDER BY sequence_number ASC";
-    private static final String SQL_FIND_POSITION_BY_STREAM = "SELECT sequence_number FROM event_stream s WHERE s.stream_id=?";
+    private static final String SQL_FIND_BY_POSITION = "SELECT * FROM event_stream WHERE position_in_stream>=? ORDER BY position_in_stream ASC";
+    private static final String SQL_FIND_POSITION_BY_STREAM = "SELECT position_in_stream FROM event_stream s WHERE s.stream_id=?";
     private static final String SQL_FIND_EVENT_STREAM = "SELECT * FROM event_stream s WHERE s.stream_id=?";
     private static final String SQL_INSERT_EVENT_STREAM = "INSERT INTO event_stream (stream_id, date_created, active) values (?, ?, ?)";
     private static final String SQL_UPDATE_EVENT_STREAM_ACTIVE = "UPDATE event_stream SET active=? WHERE stream_id=?";
     private static final String SQL_DELETE_EVENT_STREAM = "DELETE FROM event_stream t WHERE t.stream_id=?";
-    private static final String SQL_FIND_ALL = "SELECT * FROM event_stream ORDER BY sequence_number ASC";
-    private static final String SQL_FIND_ALL_ACTIVE = "SELECT * FROM event_stream s WHERE s.active=true ORDER BY sequence_number ASC";
+    private static final String SQL_FIND_ALL = "SELECT * FROM event_stream ORDER BY position_in_stream ASC";
+    private static final String SQL_FIND_ALL_ACTIVE = "SELECT * FROM event_stream s WHERE s.active=true ORDER BY position_in_stream ASC";
 
     private static final String READING_STREAM_EXCEPTION = "Exception while reading stream";
 
     private static final String COL_STREAM_ID = "stream_id";
-    private static final String COL_POSITION = "sequence_number";
+    private static final String COL_POSITION = "position_in_stream";
     private static final String COL_ACTIVE = "active";
     private static final String COL_DATE_CREATED = "date_created";
     private static final String EVENT_STREAM_EXCEPTION_MESSAGE = "Exception while deleting stream %s";

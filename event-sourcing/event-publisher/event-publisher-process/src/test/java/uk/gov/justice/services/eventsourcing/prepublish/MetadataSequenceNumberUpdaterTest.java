@@ -48,8 +48,8 @@ public class MetadataSequenceNumberUpdaterTest {
                 .assertThat("$.name", is("example.first-event"))
                 .assertThat("$.stream.id", is("031e1bec-8c3d-45fb-b206-c70f33678f58"))
                 .assertThat("$.source", is("event source"))
-                .assertThat("$.previousSequenceNumber", is((int) previousSequenceNumber))
-                .assertThat("$.sequenceNumber", is((int) sequenceNumber))
+                .assertThat("$.previousEventNumber", is((int) previousSequenceNumber))
+                .assertThat("$.eventNumber", is((int) sequenceNumber))
         ;
     }
 }

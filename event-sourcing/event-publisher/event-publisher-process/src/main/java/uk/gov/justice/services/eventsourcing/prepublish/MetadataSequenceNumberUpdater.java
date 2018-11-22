@@ -18,8 +18,8 @@ public class MetadataSequenceNumberUpdater {
     public String updateMetadataJson(final String metadataJson, final long previousSequenceNumber, final long sequenceNumber) {
         final ObjectNode objectNode = asObjectNode(metadataJson);
 
-        objectNode.put("previousSequenceNumber", previousSequenceNumber);
-        objectNode.put("sequenceNumber", sequenceNumber);
+        objectNode.put("previousEventNumber", previousSequenceNumber);
+        objectNode.put("eventNumber", sequenceNumber);
 
         return objectNode.toString();
     }

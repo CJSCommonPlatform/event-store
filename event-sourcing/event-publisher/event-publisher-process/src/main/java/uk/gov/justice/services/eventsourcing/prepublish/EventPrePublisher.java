@@ -47,7 +47,7 @@ public class EventPrePublisher {
             prePublishRepository.addToPublishQueueTable(eventId, clock.now(), connection);
 
         } catch (final SQLException e) {
-            throw new PublishQueueException(format("Failed to insert sequence_number into metadata in event_log table for event id %s", eventId), e);
+            throw new PublishQueueException(format("Failed to insert event_number into metadata in event_log table for event id %s", eventId), e);
         }
     }
 }

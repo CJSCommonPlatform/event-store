@@ -30,7 +30,7 @@ public class EventDeQueuer {
     public static final String PUBLISH_TABLE_NAME = "publish_queue";
 
     private static final String SELECT_FROM_PUBLISH_TABLE_QUERY_PATTERN = "SELECT id, event_log_id FROM %s ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
-    private static final String SELECT_FROM_EVENT_LOG_QUERY = "SELECT stream_id, sequence_id, name, payload, metadata, date_created " +
+    private static final String SELECT_FROM_EVENT_LOG_QUERY = "SELECT stream_id, position_in_stream, name, payload, metadata, date_created " +
             "FROM event_log WHERE id = ?";
     private static final String DELETE_FROM_PUBLISH_TABLE_QUERY_PATTERN = "DELETE FROM %s where id = ?";
 
@@ -83,7 +83,7 @@ public class EventDeQueuer {
 
                 if (resultSet.next()) {
                     final UUID streamId = fromString(resultSet.getString("stream_id"));
-                    final Long sequenceId = resultSet.getLong("sequence_id");
+                    final Long postitionInStream = resultSet.getLong("position_in_stream");
                     final String name = resultSet.getString("name");
                     final String metadata = resultSet.getString("metadata");
                     final String payload = resultSet.getString("payload");
@@ -92,7 +92,7 @@ public class EventDeQueuer {
                     return of(new Event(
                             eventLogId,
                             streamId,
-                            sequenceId,
+                            postitionInStream,
                             name,
                             metadata,
                             payload,

@@ -4,6 +4,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Updated publish process to add events into a pre_publish_queue table
+- Renamed the sequence_id column in event_log to position_in_stream
+_ Renamed the sequence_number column in event_stream to position_in_stream 
+
+### Added
+- Added a new TimerBean 'PrePublishBean'
+- Added a new auto incrementing column event_number to event_log table
 
 ## [1.0.4] - 2018-11-16
 ### Changed

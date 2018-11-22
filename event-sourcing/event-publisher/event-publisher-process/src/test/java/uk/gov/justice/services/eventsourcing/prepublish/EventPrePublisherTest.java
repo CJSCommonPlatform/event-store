@@ -98,7 +98,7 @@ public class EventPrePublisherTest {
             fail();
         } catch (final PublishQueueException expected) {
             assertThat(expected.getCause(), is(sqlException));
-            assertThat(expected.getMessage(), is("Failed to insert sequence_number into metadata in event_log table for event id 5dd46779-07a6-4772-b5e8-e9d280708269"));
+            assertThat(expected.getMessage(), is("Failed to insert event_number into metadata in event_log table for event id 5dd46779-07a6-4772-b5e8-e9d280708269"));
         }
 
     }

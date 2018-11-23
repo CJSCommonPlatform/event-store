@@ -13,12 +13,16 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
+
+import javax.json.JsonObject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +46,9 @@ public class EventPrePublisherTest {
     @Mock
     private UtcClock clock;
 
+    @Mock
+    private EventConverter eventConverter;
+
     @InjectMocks
     private EventPrePublisher eventPrePublisher;
 
@@ -49,8 +56,10 @@ public class EventPrePublisherTest {
     public void shouldAddSequenceNumberIntoTheEventMetadataAndSetItForPublishing() throws Exception {
 
         final UUID eventId = randomUUID();
-        final String originalMetadata = "original metadata";
-        final String updatedMetadata = "updated metadata";
+        final Metadata originalMetadata = mock(Metadata.class);
+        final Metadata updatedMetadata = mock(Metadata.class);
+        final JsonObject metadataJsonObject = mock(JsonObject.class);
+        final String updatedMetadataString = "updated metadata";
 
         final long sequenceNumber = 982L;
         final long previousSequenceNumber = 981L;
@@ -64,18 +73,21 @@ public class EventPrePublisherTest {
         when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
         when(prePublishRepository.getSequenceNumber(eventId, connection)).thenReturn(sequenceNumber);
         when(prePublishRepository.getPreviousSequenceNumber(sequenceNumber, connection)).thenReturn(previousSequenceNumber);
-        when(event.getMetadata()).thenReturn(originalMetadata);
         when(clock.now()).thenReturn(now);
+        when(eventConverter.metadataOf(event)).thenReturn(originalMetadata);
 
         when(metadataSequenceNumberUpdater.updateMetadataJson(
                 originalMetadata,
                 previousSequenceNumber,
                 sequenceNumber)).thenReturn(updatedMetadata);
 
+        when(updatedMetadata.asJsonObject()).thenReturn(metadataJsonObject);
+        when(metadataJsonObject.toString()).thenReturn(updatedMetadataString);
+
         eventPrePublisher.prePublish(event);
 
         final InOrder inOrder = inOrder(prePublishRepository);
-        inOrder.verify(prePublishRepository).updateMetadata(eventId, updatedMetadata, connection);
+        inOrder.verify(prePublishRepository).updateMetadata(eventId, updatedMetadataString, connection);
         inOrder.verify(prePublishRepository).addToPublishQueueTable(eventId, now, connection);
     }
 

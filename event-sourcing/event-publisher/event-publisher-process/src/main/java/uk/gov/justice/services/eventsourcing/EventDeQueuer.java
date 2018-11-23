@@ -83,7 +83,7 @@ public class EventDeQueuer {
 
                 if (resultSet.next()) {
                     final UUID streamId = fromString(resultSet.getString("stream_id"));
-                    final Long postitionInStream = resultSet.getLong("position_in_stream");
+                    final Long positionInStream = resultSet.getLong("position_in_stream");
                     final String name = resultSet.getString("name");
                     final String metadata = resultSet.getString("metadata");
                     final String payload = resultSet.getString("payload");
@@ -92,7 +92,7 @@ public class EventDeQueuer {
                     return of(new Event(
                             eventLogId,
                             streamId,
-                            postitionInStream,
+                            positionInStream,
                             name,
                             metadata,
                             payload,

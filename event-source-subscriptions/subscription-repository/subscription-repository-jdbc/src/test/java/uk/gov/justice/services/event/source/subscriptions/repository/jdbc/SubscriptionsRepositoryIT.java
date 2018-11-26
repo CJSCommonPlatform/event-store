@@ -55,6 +55,21 @@ public class SubscriptionsRepositoryIT {
     }
 
     @Test
+    public void shouldNotWriteTheCurrentEventNumberIdNewEventNumberIsLessThanCurrentEventNumber() throws Exception {
+
+        when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
+
+        assertThat(subscriptionsRepository.startSubscription(SUBSCRIPTION_NAME), is(0L));
+
+        final long currentEventNumber = 98234L;
+
+        subscriptionsRepository.updateCurrentEventNumber(currentEventNumber, SUBSCRIPTION_NAME);
+        subscriptionsRepository.updateCurrentEventNumber(currentEventNumber - 1L, SUBSCRIPTION_NAME);
+
+        assertThat(subscriptionsRepository.getCurrentEventNumber(SUBSCRIPTION_NAME), is(currentEventNumber));
+    }
+
+    @Test
     public void shouldDeleteSubscription() throws Exception {
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 

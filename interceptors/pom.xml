@@ -15,6 +15,7 @@
     <modules>
         <module>command-handler-interceptors</module>
         <module>event-listener-interceptors</module>
+        <module>subscription-event-interceptors</module>
     </modules>
 
 </project>

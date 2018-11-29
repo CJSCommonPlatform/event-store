@@ -15,7 +15,7 @@ public class SubscriptionsRepository {
 
     private static final long SUBSCRIPTION_EVENT_NUMBER_START_VALUE = 0;
 
-    private static final String UPDATE_EVENT_NUMBER_SQL = "UPDATE subscriptions SET current_event_number = ? WHERE subscription_name = ?";
+    private static final String UPDATE_EVENT_NUMBER_SQL = "UPDATE subscriptions SET current_event_number = ? WHERE subscription_name = ? AND current_event_number < ?";
     private static final String SELECT_CURRENT_EVENT_NUMBER_SQL = "SELECT current_event_number FROM subscriptions WHERE subscription_name = ?";
     private static final String CREATE_SUBSCRIPTION_SQL = "INSERT INTO subscriptions (subscription_name, current_event_number) VALUES (?, ?)";
 
@@ -49,10 +49,14 @@ public class SubscriptionsRepository {
 
     public void updateCurrentEventNumber(final long eventNumber, final String subscriptionName) {
 
+        //TODO: Remove the line below after the start up bean has been completed
+        startSubscription(subscriptionName);
+
         try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_EVENT_NUMBER_SQL)) {
             preparedStatement.setLong(1, eventNumber);
             preparedStatement.setString(2, subscriptionName);
+            preparedStatement.setLong(3, eventNumber);
             preparedStatement.executeUpdate();
         } catch (final SQLException e) {
             throw new SubscriptionRepositoryException("Failed to update current event number " + eventNumber, e);

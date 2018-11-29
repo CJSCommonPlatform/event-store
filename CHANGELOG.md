@@ -14,6 +14,7 @@ _ Renamed the sequence_number column in event_stream to position_in_stream
 - Added a new auto incrementing column event_number to event_log table
 - Subscription liquibase for subscription table
 - Subscription repository
+- Subscription event interceptor to update the current event number in the subscriptions table
 
 ## [1.0.4] - 2018-11-16
 ### Changed

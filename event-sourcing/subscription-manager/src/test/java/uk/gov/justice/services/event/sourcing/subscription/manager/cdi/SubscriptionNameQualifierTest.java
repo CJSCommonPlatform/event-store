@@ -1,7 +1,11 @@
-package uk.gov.justice.services.event.sourcing.subscription.manager;
+package uk.gov.justice.services.event.sourcing.subscription.manager.cdi;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+
+import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.SubscriptionNameQualifier;
 
 import org.junit.Test;
 
@@ -12,13 +16,13 @@ public class SubscriptionNameQualifierTest {
     public void shouldReturnFalseForDifferentSubscriptionNameQualifiers() {
         final SubscriptionNameQualifier subscriptionNameQualifier1 = new SubscriptionNameQualifier("ABC");
         final SubscriptionNameQualifier subscriptionNameQualifier2 = new SubscriptionNameQualifier("EFG");
-        assertFalse(subscriptionNameQualifier1.equals(subscriptionNameQualifier2));
+        assertNotEquals(subscriptionNameQualifier1, subscriptionNameQualifier2);
     }
 
     @Test
     public void shouldReturnTrueForSameSubscriptionNameQualifiers() {
         final SubscriptionNameQualifier subscriptionNameQualifier1 = new SubscriptionNameQualifier("ABC");
         final SubscriptionNameQualifier subscriptionNameQualifier2 = new SubscriptionNameQualifier("ABC");
-        assertTrue(subscriptionNameQualifier1.equals(subscriptionNameQualifier2));
+        assertEquals(subscriptionNameQualifier1, subscriptionNameQualifier2);
     }
 }

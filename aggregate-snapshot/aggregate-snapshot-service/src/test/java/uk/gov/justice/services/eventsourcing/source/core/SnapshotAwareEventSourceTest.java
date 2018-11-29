@@ -7,14 +7,19 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -34,12 +39,15 @@ public class SnapshotAwareEventSourceTest {
     @Mock
     private JdbcBasedEventRepository eventRepository;
 
+    @Mock
+    private EventConverter eventConverter;
+
     @InjectMocks
-    SnapshotAwareEventSource eventSource;
+    private SnapshotAwareEventSource snapshotAwareEventSource;
 
     @Test
     public void shouldReturnEventStream() {
-        EnvelopeEventStream eventStream = (EnvelopeEventStream) eventSource.getStreamById(STREAM_ID);
+        EnvelopeEventStream eventStream = (EnvelopeEventStream) snapshotAwareEventSource.getStreamById(STREAM_ID);
 
         assertThat(eventStream.getId(), equalTo(STREAM_ID));
     }
@@ -53,7 +61,7 @@ public class SnapshotAwareEventSourceTest {
         when(eventRepository.getEventStreamsFromPosition(position)).thenReturn(eventStreamMetadatas);
         when(eventStreamManager.getStreamPosition(streamId)).thenReturn(1l);
 
-        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = eventSource.getStreamsFrom(position);
+        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = snapshotAwareEventSource.getStreamsFrom(position);
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(1));
@@ -69,9 +77,26 @@ public class SnapshotAwareEventSourceTest {
 
         when(eventRepository.getEventStreamsFromPosition(sequenceNumber)).thenReturn(Stream.empty());
 
-        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = eventSource.getStreamsFrom(sequenceNumber);
+        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = snapshotAwareEventSource.getStreamsFrom(sequenceNumber);
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(0));
+    }
+
+    @Test
+    public void shouldFindEventsByEventNumber() throws Exception {
+
+        final long eventNumber = 92834L;
+
+        final Event event = mock(Event.class);
+        final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
+
+        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(event));
+        when(eventConverter.envelopeOf(event)).thenReturn(jsonEnvelope);
+
+        final List<JsonEnvelope> envelopes = snapshotAwareEventSource.findEventsSince(eventNumber).collect(toList());
+
+        assertThat(envelopes.size(), is(1));
+        assertThat(envelopes.get(0), is(jsonEnvelope));
     }
 }

@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.manager;
+package uk.gov.justice.services.event.sourcing.subscription.startup;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.EMPTY_LIST;
@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.SubscriptionNameQualifier;
 import uk.gov.justice.services.subscription.SubscriptionManager;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
-import java.util.List;
-
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.inject.Instance;
 
 import com.google.common.collect.Sets;
@@ -27,18 +27,22 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SubscriptionManagerStartUpTest {
+public class SubscriptionManagerStartUpBeanTest {
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private Instance<SubscriptionManager> subscriptionManagerBeans;
 
     @Mock
     private SubscriptionsDescriptorsRegistry descriptorRegistry;
+
     @Mock
     private SubscriptionsDescriptor descriptor;
 
+    @Mock
+    private ManagedExecutorService managedExecutorService;
+
     @InjectMocks
-    private SubscriptionManagerStartUp subscriptionManagerStartUp;
+    private SubscriptionManagerStartUpBean subscriptionManagerStartUpBean;
 
     @SuppressWarnings("unchecked")
     @Test
@@ -50,27 +54,31 @@ public class SubscriptionManagerStartUpTest {
         when(descriptor.getSubscriptions()).thenReturn(asList(mock(Subscription.class)));
         when(subscriptionManagerBeans.select(any(SubscriptionNameQualifier.class)).get()).thenReturn(subscriptionManager);
 
-        subscriptionManagerStartUp.start();
+        subscriptionManagerStartUpBean.start();
 
-        verify(subscriptionManager).startSubscription();
+        verify(managedExecutorService).execute(new StartSubscriptionTask(subscriptionManager));
     }
 
     @Test
     public void shouldStartAllAvailableSubscription() {
 
-        List<SubscriptionManager> subscriptionManagers = asList(mock(SubscriptionManager.class), mock(SubscriptionManager.class));
+        final Subscription subscription_1 = mock(Subscription.class);
+        final Subscription subscription_2 = mock(Subscription.class);
+
+        final SubscriptionManager subscriptionManager_1 = mock(SubscriptionManager.class);
+        final SubscriptionManager subscriptionManager_2 = mock(SubscriptionManager.class);
 
         when(descriptorRegistry.subscriptionsDescriptors()).thenReturn(Sets.newHashSet(descriptor));
-        when(descriptor.getSubscriptions()).thenReturn(asList(mock(Subscription.class), mock(Subscription.class)));
+        when(descriptor.getSubscriptions()).thenReturn(asList(subscription_1, subscription_2));
 
         when(subscriptionManagerBeans.select(any(SubscriptionNameQualifier.class)).get())
-                .thenReturn(subscriptionManagers.get(0))
-                .thenReturn(subscriptionManagers.get(1));
+                .thenReturn(subscriptionManager_1)
+                .thenReturn(subscriptionManager_2);
 
-        subscriptionManagerStartUp.start();
+        subscriptionManagerStartUpBean.start();
 
-        verify(subscriptionManagers.get(0)).startSubscription();
-        verify(subscriptionManagers.get(1)).startSubscription();
+        verify(managedExecutorService).execute(new StartSubscriptionTask(subscriptionManager_1));
+        verify(managedExecutorService).execute(new StartSubscriptionTask(subscriptionManager_2));
     }
 
     @SuppressWarnings("unchecked")
@@ -80,10 +88,8 @@ public class SubscriptionManagerStartUpTest {
         when(descriptorRegistry.subscriptionsDescriptors()).thenReturn(Sets.newHashSet(descriptor));
         when(descriptor.getSubscriptions()).thenReturn(EMPTY_LIST);
 
-        subscriptionManagerStartUp.start();
+        subscriptionManagerStartUpBean.start();
 
         verifyZeroInteractions(subscriptionManagerBeans);
     }
-
-
 }

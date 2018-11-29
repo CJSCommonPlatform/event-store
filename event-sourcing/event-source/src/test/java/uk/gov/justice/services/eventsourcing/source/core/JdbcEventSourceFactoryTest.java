@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
@@ -21,21 +22,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class JdbcEventSourceFactoryTest {
 
     @Mock
-    EventStreamManagerFactory eventStreamManagerFactory;
+    private EventStreamManagerFactory eventStreamManagerFactory;
 
     @Mock
-    EventRepositoryFactory eventRepositoryFactory;
+    private EventRepositoryFactory eventRepositoryFactory;
 
     @Mock
-    EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
+    private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
 
     @Mock
-    EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
+    private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
+
+    @Mock
+    private EventConverter eventConverter;
 
     @InjectMocks
     private JdbcEventSourceFactory jdbcEventSourceFactory;
@@ -65,6 +68,7 @@ public class JdbcEventSourceFactoryTest {
 
         assertThat(fieldValueAs(jdbcBasedEventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
         assertThat(fieldValueAs(jdbcBasedEventSource, "eventRepository", EventRepository.class), is(eventRepository));
+        assertThat(fieldValueAs(jdbcBasedEventSource, "eventConverter", EventConverter.class), is(eventConverter));
         assertThat(fieldValueAs(jdbcBasedEventSource, "name", String.class), is(eventSourceName));
     }
 

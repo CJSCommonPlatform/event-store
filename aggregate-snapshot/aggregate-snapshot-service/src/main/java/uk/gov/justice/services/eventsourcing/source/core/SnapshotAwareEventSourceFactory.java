@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
@@ -25,6 +26,9 @@ public class SnapshotAwareEventSourceFactory {
     EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
 
     @Inject
+    EventConverter eventConverter;
+
+    @Inject
     SnapshotService snapshotService;
 
     public EventSource create(final String jndiDatasource, final String eventSourceName) {
@@ -38,6 +42,11 @@ public class SnapshotAwareEventSourceFactory {
 
         final EventStreamManager eventStreamManager = eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName);
 
-        return new SnapshotAwareEventSource(eventStreamManager, eventRepository, snapshotService, eventSourceName);
+        return new SnapshotAwareEventSource(
+                eventStreamManager,
+                eventRepository,
+                snapshotService,
+                eventConverter,
+                eventSourceName);
     }
 }

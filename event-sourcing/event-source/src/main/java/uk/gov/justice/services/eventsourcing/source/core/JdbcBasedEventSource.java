@@ -2,6 +2,10 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelope;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -15,11 +19,16 @@ public class JdbcBasedEventSource implements EventSource {
     private final EventStreamManager eventStreamManager;
     private final EventRepository eventRepository;
     private final String name;
+    private final EventConverter eventConverter;
 
-
-    public JdbcBasedEventSource(final EventStreamManager eventStreamManager, final EventRepository eventRepository , final String name) {
+    public JdbcBasedEventSource(
+            final EventStreamManager eventStreamManager,
+            final EventRepository eventRepository,
+            final EventConverter eventConverter,
+            final String name) {
         this.eventStreamManager = eventStreamManager;
         this.eventRepository = eventRepository;
+        this.eventConverter = eventConverter;
         this.name = name;
     }
 
@@ -39,9 +48,14 @@ public class JdbcBasedEventSource implements EventSource {
                 .map(toEventStream());
     }
 
+    @Override
+    public Stream<JsonEnvelope> findEventsSince(final long eventNumber) {
+
+        return eventRepository.findEventsSince(eventNumber)
+                .map(eventConverter::envelopeOf);
+    }
+
     private Function<EventStreamMetadata, EventStream> toEventStream() {
         return eventStream -> new EnvelopeEventStream(eventStream.getStreamId(), eventStream.getPosition(), eventStreamManager);
     }
-
-
 }

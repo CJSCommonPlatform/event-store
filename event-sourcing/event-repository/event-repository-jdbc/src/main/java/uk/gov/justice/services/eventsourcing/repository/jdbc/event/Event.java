@@ -1,9 +1,10 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import uk.gov.justice.services.common.converter.ZonedDateTimes;
+import static java.util.Optional.empty;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -19,6 +20,11 @@ public class Event {
     private final String metadata;
     private final ZonedDateTime createdAt;
 
+    /**
+     * Note: event number is inserted by the database using a sequence. This value will never
+     * be inserted by the repositories, and before the event is inserted should always be empty
+     */
+    private final Optional<Long> eventNumber;
 
     public Event(final UUID id,
                  final UUID streamId,
@@ -27,6 +33,27 @@ public class Event {
                  final String metadata,
                  final String payload,
                  final ZonedDateTime createdAt) {
+        this(
+                id,
+                streamId,
+                sequenceId,
+                name,
+                metadata,
+                payload,
+                createdAt,
+                empty()
+        );
+    }
+
+    // package protected as should only be used by the EventJdbcRepository
+    Event(final UUID id,
+          final UUID streamId,
+          final Long sequenceId,
+          final String name,
+          final String metadata,
+          final String payload,
+          final ZonedDateTime createdAt,
+          final Optional<Long> eventNumber) {
         this.id = id;
         this.streamId = streamId;
         this.sequenceId = sequenceId;
@@ -34,6 +61,7 @@ public class Event {
         this.metadata = metadata;
         this.payload = payload;
         this.createdAt = createdAt;
+        this.eventNumber = eventNumber;
     }
 
     public UUID getId() {
@@ -64,35 +92,47 @@ public class Event {
         return createdAt;
     }
 
+    /**
+     * The event number inserted by a sequence in the database. Before insertion an event should
+     * always have an empty event number
+     *
+     * @return The event_number if it exists
+     */
+    public Optional<Long> getEventNumber() {
+        return eventNumber;
+    }
 
-    @Override
     @SuppressWarnings({"squid:MethodCyclomaticComplexity", "squid:S1067", "squid:S00122"})
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         final Event event = (Event) o;
         return Objects.equals(id, event.id) &&
                 Objects.equals(streamId, event.streamId) &&
                 Objects.equals(sequenceId, event.sequenceId) &&
+                Objects.equals(name, event.name) &&
                 Objects.equals(payload, event.payload) &&
                 Objects.equals(metadata, event.metadata) &&
-                Objects.equals(name, event.name) &&
                 Objects.equals(createdAt, event.createdAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, streamId, sequenceId, payload, name, metadata, createdAt);
+        return Objects.hash(id, streamId, sequenceId, name, payload, metadata, createdAt, eventNumber);
     }
 
     @Override
     public String toString() {
-        return String.format("Event [id=%s, streamId=%s, sequenceId=%s, name=%s, payload=%s, metadata=%s, createdAt=$s, source=$s]", id,
-                streamId, sequenceId, name, payload, metadata, ZonedDateTimes.toString(createdAt));
+        return "Event{" +
+                "id=" + id +
+                ", streamId=" + streamId +
+                ", sequenceId=" + sequenceId +
+                ", name='" + name + '\'' +
+                ", payload='" + payload + '\'' +
+                ", metadata='" + metadata + '\'' +
+                ", createdAt=" + createdAt +
+                ", eventNumber=" + eventNumber +
+                '}';
     }
-
 }

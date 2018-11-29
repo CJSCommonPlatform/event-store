@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
@@ -43,6 +44,9 @@ public class SnapshotAwareEventSourceFactoryTest {
     @Mock
     SnapshotService snapshotService;
 
+    @Mock
+    EventConverter eventConverter;
+
     @InjectMocks
     private SnapshotAwareEventSourceFactory snapshotAwareEventSourceFactory;
 
@@ -74,6 +78,7 @@ public class SnapshotAwareEventSourceFactoryTest {
         assertThat(fieldValueAs(eventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
         assertThat(fieldValueAs(eventSource, "eventRepository", EventRepository.class), is(eventRepository));
         assertThat(fieldValueAs(eventSource, "snapshotService", SnapshotService.class), is(snapshotService));
+        assertThat(fieldValueAs(eventSource, "eventConverter", EventConverter.class), is(eventConverter));
         assertThat(fieldValueAs(eventSource, "name", String.class), is(eventSourceName));
     }
 

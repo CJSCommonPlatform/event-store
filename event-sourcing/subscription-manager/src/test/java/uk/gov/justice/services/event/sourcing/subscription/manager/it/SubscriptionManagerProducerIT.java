@@ -17,7 +17,7 @@ import uk.gov.justice.services.core.dispatcher.JsonEnvelopeRepacker;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.sourcing.subscription.manager.DefaultSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferSelector;
-import uk.gov.justice.services.event.sourcing.subscription.manager.SubscriptionManagerProducer;
+import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.SubscriptionManagerProducer;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -80,10 +80,14 @@ public class SubscriptionManagerProducerIT {
 
         final DefaultSubscriptionManager defaultSubscriptionManager = (DefaultSubscriptionManager) subscriptionManager;
 
-        final Optional<Object> actualEventSource = fieldValue(defaultSubscriptionManager, "eventSource");
+        final Optional<Object> eventCatchupProcessor = fieldValue(defaultSubscriptionManager, "eventCatchupProcessor");
+
+        assertThat(eventCatchupProcessor.isPresent(), is(true));
+
+        final Optional<Object> actualEventSource = fieldValue(eventCatchupProcessor.get(), "eventSource");
         assertThat(actualEventSource, is(Optional.ofNullable(testEventSourceProducer.getEventSource())));
 
-        final Optional<Object> subscription = fieldValue(defaultSubscriptionManager, "subscription");
+        final Optional<Object> subscription = fieldValue(eventCatchupProcessor.get(), "subscription");
         assertThat(subscription.isPresent(), is(true));
         assertThat(((Subscription) subscription.get()).getName(), is(SUBSCRIPTION_NAME));
         assertThat(((Subscription) subscription.get()).getEventSourceName(), is(EVENT_SOURCE_NAME));

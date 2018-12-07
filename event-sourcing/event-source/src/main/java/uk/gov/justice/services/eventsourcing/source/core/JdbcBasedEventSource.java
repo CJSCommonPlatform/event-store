@@ -2,10 +2,8 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelope;
 
 import java.util.UUID;
 import java.util.function.Function;

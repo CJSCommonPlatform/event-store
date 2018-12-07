@@ -1,14 +1,8 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static uk.gov.justice.services.core.interceptor.InterceptorContext.interceptorContextWithInput;
 
-import uk.gov.justice.services.core.interceptor.InterceptorContext;
-import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import org.junit.Test;

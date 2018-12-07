@@ -6,8 +6,6 @@ import static java.util.Optional.of;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.domain.eventsource.Location;
 
-import java.util.Optional;
-
 import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 

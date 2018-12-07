@@ -10,7 +10,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventBuilder.eventBuilder;
 
-import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
@@ -20,17 +19,14 @@ import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
 
 import java.sql.SQLException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 

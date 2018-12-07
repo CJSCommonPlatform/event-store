@@ -1,11 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager.cdi;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.SubscriptionNameQualifier;
 
 import org.junit.Test;
 

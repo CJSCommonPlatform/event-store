@@ -67,7 +67,6 @@ import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
-import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
@@ -78,7 +77,6 @@ import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProduce
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
 import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
 
-import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;

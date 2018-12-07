@@ -3,12 +3,14 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static uk.gov.justice.test.utils.FieldAccessor.getFieldFrom;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
+
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +34,8 @@ public class EventBufferProcessorFactoryTest {
 
         final EventBufferProcessor eventBufferProcessor = eventBufferProcessorFactory.create(interceptorChainProcessor, eventBufferService, interceptorContextProvider);
 
-        assertThat(getFieldFrom(eventBufferProcessor, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
-        assertThat(getFieldFrom(eventBufferProcessor, "eventBufferService", EventBufferService.class), is(eventBufferService));
-        assertThat(getFieldFrom(eventBufferProcessor, "interceptorContextProvider", InterceptorContextProvider.class), is(interceptorContextProvider));
-
+        assertThat(getValueOfField(eventBufferProcessor, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
+        assertThat(getValueOfField(eventBufferProcessor, "eventBufferService", EventBufferService.class), is(eventBufferService));
+        assertThat(getValueOfField(eventBufferProcessor, "interceptorContextProvider", InterceptorContextProvider.class), is(interceptorContextProvider));
     }
 }

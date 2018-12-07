@@ -53,6 +53,11 @@
             <artifactId>subscription-repository-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>event-subscription-registry</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--Test Dependencies-->
         <dependency>

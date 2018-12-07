@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 
@@ -29,7 +29,7 @@ public class PublishingEventAppenderFactoryTest {
 
         assertThat(publishingEventAppender, is(notNullValue()));
 
-        final Optional<Object> eventRepositoryField = fieldValue(publishingEventAppender, "eventRepository");
-        assertThat(eventRepositoryField, is(Optional.of(eventRepository)));
+        final EventRepository eventRepositoryField = getValueOfField(publishingEventAppender, "eventRepository", EventRepository.class);
+        assertThat(eventRepositoryField, is(eventRepository));
     }
 }

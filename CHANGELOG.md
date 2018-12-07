@@ -10,6 +10,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 _ Renamed the sequence_number column in event_stream to position_in_stream
 
 ### Added
+- Event Catchup on startup, where all unknown events are retrieved from the EventSource and played
+- An event-number to each event to allow for event catchup
 - Added a new TimerBean 'PrePublishBean'
 - Added a new auto incrementing column event_number to event_log table
 - Subscription liquibase for subscription table

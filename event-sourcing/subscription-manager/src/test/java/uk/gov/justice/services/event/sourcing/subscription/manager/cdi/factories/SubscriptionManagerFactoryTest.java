@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
@@ -20,7 +21,6 @@ import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.Intercept
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
-import uk.gov.justice.test.utils.FieldAccessor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,8 +83,8 @@ public class SubscriptionManagerFactoryTest {
 
         final DefaultSubscriptionManager defaultSubscriptionManager = (DefaultSubscriptionManager) subscriptionManagerFactory.create(subscription);
 
-        assertThat(FieldAccessor.getFieldFrom(defaultSubscriptionManager, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
-        assertThat(FieldAccessor.getFieldFrom(defaultSubscriptionManager, "eventCatchupProcessor", EventCatchupProcessor.class), is(eventCatchupProcessor));
+        assertThat(getValueOfField(defaultSubscriptionManager, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
+        assertThat(getValueOfField(defaultSubscriptionManager, "eventCatchupProcessor", EventCatchupProcessor.class), is(eventCatchupProcessor));
     }
 
     @Test
@@ -108,6 +108,6 @@ public class SubscriptionManagerFactoryTest {
 
         final BackwardsCompatibleSubscriptionManager backwardsCompatibleSubscriptionManager = (BackwardsCompatibleSubscriptionManager) subscriptionManagerFactory.create(subscription);
 
-        assertThat(FieldAccessor.getFieldFrom(backwardsCompatibleSubscriptionManager, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
+        assertThat(getValueOfField(backwardsCompatibleSubscriptionManager, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
     }
 }

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 import static uk.gov.justice.subscription.domain.builders.EventSourceDefinitionBuilder.eventSourceDefinition;
 import static uk.gov.justice.subscription.domain.builders.LocationBuilder.location;
 
@@ -71,7 +71,7 @@ public class EventSourceTransformationProducerTest {
 
         final DefaultEventSourceTransformation defaultEventSourceTransformation = (DefaultEventSourceTransformation) eventSourceTransformation;
 
-        final Optional<Object> eventStreamManagerField = fieldValue(defaultEventSourceTransformation, "eventStreamManager");
-        assertThat(eventStreamManagerField, is(of(eventStreamManager)));
+        final EventStreamManager eventStreamManagerField = getValueOfField(defaultEventSourceTransformation, "eventStreamManager", EventStreamManager.class);
+        assertThat(eventStreamManagerField, is(eventStreamManager));
     }
 }

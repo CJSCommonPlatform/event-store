@@ -3,12 +3,13 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static uk.gov.justice.test.utils.FieldAccessor.getFieldFrom;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import org.junit.Test;
@@ -35,9 +36,9 @@ public class EventCatchupProcessorFactoryTest {
 
         final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.create(subscription, eventSource, eventBufferProcessor);
 
-        assertThat(getFieldFrom(eventCatchupProcessor, "subscription", Subscription.class), is(subscription));
-        assertThat(getFieldFrom(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
-        assertThat(getFieldFrom(eventCatchupProcessor, "eventSource", EventSource.class), is(eventSource));
-        assertThat(getFieldFrom(eventCatchupProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
+        assertThat(getValueOfField(eventCatchupProcessor, "subscription", Subscription.class), is(subscription));
+        assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
+        assertThat(getValueOfField(eventCatchupProcessor, "eventSource", EventSource.class), is(eventSource));
+        assertThat(getValueOfField(eventCatchupProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
     }
 }

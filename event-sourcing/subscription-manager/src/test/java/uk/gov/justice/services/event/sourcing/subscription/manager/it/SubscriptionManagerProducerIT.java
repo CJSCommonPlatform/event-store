@@ -2,10 +2,11 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.it;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
@@ -17,6 +18,7 @@ import uk.gov.justice.services.core.dispatcher.JsonEnvelopeRepacker;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.sourcing.subscription.manager.DefaultSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferSelector;
+import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.SubscriptionManagerProducer;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName;
@@ -80,17 +82,16 @@ public class SubscriptionManagerProducerIT {
 
         final DefaultSubscriptionManager defaultSubscriptionManager = (DefaultSubscriptionManager) subscriptionManager;
 
-        final Optional<Object> eventCatchupProcessor = fieldValue(defaultSubscriptionManager, "eventCatchupProcessor");
+        final EventCatchupProcessor eventCatchupProcessor = getValueOfField(defaultSubscriptionManager, "eventCatchupProcessor", EventCatchupProcessor.class);
 
-        assertThat(eventCatchupProcessor.isPresent(), is(true));
+        assertThat(eventCatchupProcessor, is(notNullValue()));
 
-        final Optional<Object> actualEventSource = fieldValue(eventCatchupProcessor.get(), "eventSource");
-        assertThat(actualEventSource, is(Optional.ofNullable(testEventSourceProducer.getEventSource())));
+        final EventSource actualEventSource = getValueOfField(eventCatchupProcessor, "eventSource", EventSource.class);
+        assertThat(actualEventSource, is(testEventSourceProducer.getEventSource()));
 
-        final Optional<Object> subscription = fieldValue(eventCatchupProcessor.get(), "subscription");
-        assertThat(subscription.isPresent(), is(true));
-        assertThat(((Subscription) subscription.get()).getName(), is(SUBSCRIPTION_NAME));
-        assertThat(((Subscription) subscription.get()).getEventSourceName(), is(EVENT_SOURCE_NAME));
+        final Subscription subscription = getValueOfField(eventCatchupProcessor, "subscription", Subscription.class);
+        assertThat(subscription.getName(), is(SUBSCRIPTION_NAME));
+        assertThat(subscription.getEventSourceName(), is(EVENT_SOURCE_NAME));
     }
 
     @ApplicationScoped

@@ -1,16 +1,12 @@
 package uk.gov.justice.subscription.registry;
 
-import static java.util.Optional.of;
-
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
-import uk.gov.justice.subscription.domain.eventsource.Location;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;

@@ -10,8 +10,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.swing.text.html.Option;
-
 public class EventBuilder {
 
     private UUID id = randomUUID();

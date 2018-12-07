@@ -8,7 +8,6 @@ import static uk.gov.justice.services.test.utils.common.host.TestHostProvider.ge
 import java.sql.SQLException;
 import java.util.Optional;
 
-import javax.naming.Context;
 import javax.sql.DataSource;
 
 import liquibase.Liquibase;

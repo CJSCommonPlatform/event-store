@@ -2,7 +2,6 @@ package uk.gov.justice.services.event.sourcing.subscription.startup;
 
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.services.event.sourcing.subscription.startup.StartSubscriptionTask;
 import uk.gov.justice.services.subscription.SubscriptionManager;
 
 import org.junit.Test;

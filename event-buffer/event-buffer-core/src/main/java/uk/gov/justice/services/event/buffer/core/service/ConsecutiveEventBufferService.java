@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 @Priority(2)
 public class ConsecutiveEventBufferService implements EventBufferService {
 
-    private static final long INITIAL_VERSION = 1l;
+    static final long INITIAL_VERSION = 0L;
 
     @Inject
     private Logger logger;
@@ -40,9 +40,6 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
     @Inject
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
-
-    @Inject
-    private BufferInitialisationStrategy bufferInitialisationStrategy;
 
 
     /**
@@ -64,7 +61,11 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final long incomingEventVersion = versionOf(incomingEvent);
         final String source = getSource(incomingEvent);
 
-        final long currentVersion = bufferInitialisationStrategy.initialiseBuffer(streamId, source);
+        subscriptionJdbcRepository.updateSource(streamId, source);
+        subscriptionJdbcRepository.insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        final long currentVersion = subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)
+                .orElseThrow(() -> new IllegalStateException("stream status cannot be empty"))
+                .getPosition();
 
         if (incomingEventObsolete(incomingEventVersion, currentVersion)) {
             logger.warn("Message : {} is an obsolete version", incomingEvent);
@@ -84,14 +85,12 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
     private long versionOf(final JsonEnvelope event) {
         final long incomingEventVersion = event.metadata().position().orElseThrow(() -> new IllegalStateException("Event must have a version"));
-        if (smallerThanInitial(incomingEventVersion)) {
+
+        if (incomingEventVersion == 0) {
             throw new IllegalStateException("Version cannot be zero");
         }
+        
         return incomingEventVersion;
-    }
-
-    private boolean smallerThanInitial(final long incomingEventVersion) {
-        return incomingEventVersion < INITIAL_VERSION;
     }
 
     private Stream<JsonEnvelope> bufferedEvents(final UUID streamId, final JsonEnvelope incomingEvent, final long incomingEventVersion) {

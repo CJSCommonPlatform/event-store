@@ -10,7 +10,6 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 import liquibase.exception.LiquibaseException;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 public class EventStoreDataSourceFactoryIT {

@@ -9,15 +9,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-//import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import java.util.List;
 import java.util.UUID;

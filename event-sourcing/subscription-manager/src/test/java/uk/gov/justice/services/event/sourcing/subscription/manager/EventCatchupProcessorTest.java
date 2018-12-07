@@ -4,7 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;

@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
@@ -10,9 +11,12 @@ import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -36,11 +40,13 @@ public class EventJdbcRepository {
     static final String COL_METADATA = "metadata";
     static final String COL_PAYLOAD = "payload";
     static final String COL_TIMESTAMP = "date_created";
+    static final String COL_EVENT_NUMBER = "event_number";
 
     /**
      * Statements
      */
     static final String SQL_FIND_ALL = "SELECT * FROM event_log ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_ALL_SINCE = "SELECT * FROM event_log WHERE event_number > ? ORDER BY event_number ASC";
     static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC LIMIT ?";
@@ -233,7 +239,9 @@ public class EventJdbcRepository {
                         resultSet.getString(COL_NAME),
                         resultSet.getString(COL_METADATA),
                         resultSet.getString(COL_PAYLOAD),
-                        fromSqlTimestamp(resultSet.getTimestamp(COL_TIMESTAMP)));
+                        fromSqlTimestamp(resultSet.getTimestamp(COL_TIMESTAMP)),
+                        ofNullable(resultSet.getLong(COL_EVENT_NUMBER))
+                );
             } catch (final SQLException e) {
                 throw new JdbcRepositoryException(e);
             }
@@ -254,6 +262,19 @@ public class EventJdbcRepository {
             }
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format(DELETING_STREAM_EXCEPTION, streamId), e);
+        }
+    }
+
+    public Stream<Event> findEventsSince(final long eventNumber) {
+
+        try {
+            final PreparedStatementWrapper psWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_ALL_SINCE);
+
+            psWrapper.setLong(1, eventNumber);
+
+            return jdbcRepositoryHelper.streamOf(psWrapper, entityFromFunction());
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(format("Failed to find events since event_number %d", eventNumber), e);
         }
     }
 }

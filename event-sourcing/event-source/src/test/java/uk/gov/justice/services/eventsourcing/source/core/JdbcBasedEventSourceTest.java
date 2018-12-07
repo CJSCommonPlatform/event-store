@@ -7,8 +7,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 //import static uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils.setField;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
@@ -30,18 +34,21 @@ public class JdbcBasedEventSourceTest {
 
     private static final UUID STREAM_ID = randomUUID();
 
-    @InjectMocks
-    JdbcBasedEventSource eventSource;
-
     @Mock
     private EventStreamManager eventStreamManager;
 
     @Mock
     private EventRepository eventRepository;
 
+    @Mock
+    private EventConverter eventConverter;
+
+    @InjectMocks
+    private JdbcBasedEventSource jdbcBasedEventSource;
+
     @Test
     public void shouldReturnEventStream() {
-        EnvelopeEventStream eventStream = (EnvelopeEventStream) eventSource.getStreamById(STREAM_ID);
+        EnvelopeEventStream eventStream = (EnvelopeEventStream) jdbcBasedEventSource.getStreamById(STREAM_ID);
 
         assertThat(eventStream.getId(), equalTo(STREAM_ID));
     }
@@ -54,7 +61,7 @@ public class JdbcBasedEventSourceTest {
         final Stream<EventStreamMetadata> eventStreamObjectStream = Stream.of(new DefaultEventStreamMetadata(streamId, position, true, now()));
         when(eventRepository.getEventStreamsFromPosition(position)).thenReturn(eventStreamObjectStream);
 
-        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = eventSource.getStreamsFrom(position);
+        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = jdbcBasedEventSource.getStreamsFrom(position);
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(1));
@@ -70,7 +77,7 @@ public class JdbcBasedEventSourceTest {
 
         when(eventRepository.getEventStreamsFromPosition(position)).thenReturn(Stream.empty());
 
-        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = eventSource.getStreamsFrom(position);
+        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = jdbcBasedEventSource.getStreamsFrom(position);
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(0));
@@ -85,7 +92,7 @@ public class JdbcBasedEventSourceTest {
         final Stream<EventStreamMetadata> eventStreamObjectStream = Stream.of(new DefaultEventStreamMetadata(streamId, position, true, now()));
         when(eventRepository.getStreams()).thenReturn(eventStreamObjectStream);
 
-        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = eventSource.getStreams();
+        final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = jdbcBasedEventSource.getStreams();
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(1));
@@ -98,10 +105,27 @@ public class JdbcBasedEventSourceTest {
     @Test
     public void shouldReturnEventStreamName() throws Exception {
         final String eventSourceName = "eventSourceName";
-        ReflectionUtil.setField(eventSource, "name", eventSourceName);
+        ReflectionUtil.setField(jdbcBasedEventSource, "name", eventSourceName);
 
-        final EnvelopeEventStream eventStream = (EnvelopeEventStream) eventSource.getStreamById(STREAM_ID);
+        final EnvelopeEventStream eventStream = (EnvelopeEventStream) jdbcBasedEventSource.getStreamById(STREAM_ID);
 
         assertThat(eventStream.getName(), equalTo(eventSourceName));
+    }
+
+    @Test
+    public void shouldFindEventsByEventNumber() throws Exception {
+
+        final long eventNumber = 972834L;
+
+        final Event event = mock(Event.class);
+        final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
+
+        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(event));
+        when(eventConverter.envelopeOf(event)).thenReturn(jsonEnvelope);
+
+        final List<JsonEnvelope> envelopes = jdbcBasedEventSource.findEventsSince(eventNumber).collect(toList());
+
+        assertThat(envelopes.size(), is(1));
+        assertThat(envelopes.get(0), is(jsonEnvelope));
     }
 }

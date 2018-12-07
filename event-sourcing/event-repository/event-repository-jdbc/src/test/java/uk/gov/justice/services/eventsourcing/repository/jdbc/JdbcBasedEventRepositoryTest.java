@@ -405,6 +405,18 @@ public class JdbcBasedEventRepositoryTest {
         verify(eventStreamJdbcRepository).insert(STREAM_ID);
     }
 
+    @Test
+    public void shouldFindEventsFromEventNumber() throws Exception {
+
+        final long eventNumber = 32498L;
+
+        final Stream<Event> streamOfEvents = Stream.of(mock(Event.class));
+
+        when(eventJdbcRepository.findEventsSince(eventNumber)).thenReturn(streamOfEvents);
+
+        assertThat(jdbcBasedEventRepository.findEventsSince(eventNumber), is(streamOfEvents));
+    }
+
     private EventStream buildEventStreamFor(final UUID streamId, final Long sequence) {
         return new EventStream(streamId, sequence, true, TIMESTAMP);
     }

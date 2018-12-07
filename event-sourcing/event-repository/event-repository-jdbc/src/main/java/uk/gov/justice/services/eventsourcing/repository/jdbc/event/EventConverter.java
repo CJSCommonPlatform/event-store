@@ -36,17 +36,16 @@ public class EventConverter {
 
         final Metadata eventMetadata = envelope.metadata();
 
-        return new Event(eventMetadata.id(),
+        return new Event(
+                eventMetadata.id(),
                 eventMetadata.streamId().orElseThrow(() -> new InvalidStreamIdException("StreamId missing in envelope.")),
                 eventMetadata.position().orElse(null),
                 eventMetadata.name(),
                 envelope.metadata().asJsonObject().toString(),
                 extractPayloadAsString(envelope),
-                eventMetadata
-                        .createdAt()
-                        .map(createdAt -> createdAt)
-                        .orElseThrow(() -> new IllegalArgumentException("createdAt field missing in envelope")
-                        ));
+                eventMetadata.createdAt().orElseThrow(() -> new IllegalArgumentException("createdAt field missing in envelope")),
+                eventMetadata.eventNumber()
+        );
     }
 
     /**

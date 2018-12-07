@@ -12,9 +12,7 @@
     <artifactId>event-source-subscriptions</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>subscription-event-catchup</module>
         <module>subscription-repository</module>
     </modules>
-
 
 </project>

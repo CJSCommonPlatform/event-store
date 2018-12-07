@@ -163,6 +163,11 @@ public class JdbcBasedEventRepository implements EventRepository {
         return eventStreamJdbcRepository.getPosition(streamId);
     }
 
+    @Override
+    public Stream<Event> findEventsSince(final long eventNumber) {
+        return eventJdbcRepository.findEventsSince(eventNumber);
+    }
+
     private Function<EventStream, EventStreamMetadata> toEventStreamMetadata() {
         return e -> new DefaultEventStreamMetadata(e.getStreamId(), e.getPosition(),
                 e.isActive(), e.getCreatedAt());

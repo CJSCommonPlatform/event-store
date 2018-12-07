@@ -10,8 +10,10 @@ import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 
 import java.util.Optional;
 
+import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.CreationException;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
@@ -21,6 +23,8 @@ import javax.inject.Inject;
  * points
  */
 @ApplicationScoped
+@Default
+@Priority(200)
 public class EventSourceProducer {
 
     @Inject

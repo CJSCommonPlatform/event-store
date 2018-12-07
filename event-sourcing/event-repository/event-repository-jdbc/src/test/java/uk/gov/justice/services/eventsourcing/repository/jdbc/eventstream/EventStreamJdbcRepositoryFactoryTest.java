@@ -1,8 +1,9 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
@@ -16,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventStreamJdbcRepositoryFactoryTest {
@@ -40,16 +42,16 @@ public class EventStreamJdbcRepositoryFactoryTest {
 
         assertThat(eventStreamJdbcRepository, is(CoreMatchers.notNullValue()));
 
-        final Optional<Object> eventStreamJdbcRepositoryHelperField = fieldValue(eventStreamJdbcRepository, "eventStreamJdbcRepositoryHelper");
-        assertThat(eventStreamJdbcRepositoryHelperField, is(Optional.of(eventStreamJdbcRepositoryHelper)));
+        final JdbcRepositoryHelper eventStreamJdbcRepositoryHelperField = getValueOfField(eventStreamJdbcRepository, "eventStreamJdbcRepositoryHelper", JdbcRepositoryHelper.class);
+        assertThat(eventStreamJdbcRepositoryHelperField, is(eventStreamJdbcRepositoryHelper));
 
-        final Optional<Object> jdbcDataSourceProviderField = fieldValue(eventStreamJdbcRepository, "jdbcDataSourceProvider");
-        assertThat(jdbcDataSourceProviderField, is(Optional.of(jdbcDataSourceProvider)));
+        final JdbcDataSourceProvider jdbcDataSourceProviderField = getValueOfField(eventStreamJdbcRepository, "jdbcDataSourceProvider", JdbcDataSourceProvider.class);
+        assertThat(jdbcDataSourceProviderField, is(jdbcDataSourceProvider));
 
-        final Optional<Object> jndiDatasourceField = fieldValue(eventStreamJdbcRepository, "jndiDatasource");
-        assertThat(jndiDatasourceField, is(Optional.of(jndiDatasource)));
+        final String jndiDatasourceField = getValueOfField(eventStreamJdbcRepository, "jndiDatasource", String.class);
+        assertThat(jndiDatasourceField, is(jndiDatasource));
 
-        final Optional<Object> loggerField = fieldValue(eventStreamJdbcRepository, "logger");
-        assertThat(loggerField.isPresent(), is(true));
+        final Logger loggerField = getValueOfField(eventStreamJdbcRepository, "logger", Logger.class);
+        assertThat(loggerField, is(notNullValue()));
     }
 }

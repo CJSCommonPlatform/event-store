@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.fieldValue;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventRepositoryFactoryTest {
@@ -36,16 +37,16 @@ public class EventRepositoryFactoryTest {
 
         assertThat(eventRepository, is(notNullValue()));
 
-        final Optional<Object> eventJdbcRepositoryField = fieldValue(eventRepository, "eventJdbcRepository");
-        assertThat(eventJdbcRepositoryField, is(Optional.of(eventJdbcRepository)));
+        final EventJdbcRepository eventJdbcRepositoryField = getValueOfField(eventRepository, "eventJdbcRepository", EventJdbcRepository.class);
+        assertThat(eventJdbcRepositoryField, is(eventJdbcRepository));
 
-        final Optional<Object> eventStreamJdbcRepositoryField = fieldValue(eventRepository, "eventStreamJdbcRepository");
-        assertThat(eventStreamJdbcRepositoryField, is(Optional.of(eventStreamJdbcRepository)));
+        final EventStreamJdbcRepository eventStreamJdbcRepositoryField = getValueOfField(eventRepository, "eventStreamJdbcRepository", EventStreamJdbcRepository.class);
+        assertThat(eventStreamJdbcRepositoryField, is(eventStreamJdbcRepository));
 
-        final Optional<Object> eventConverterField = fieldValue(eventRepository, "eventConverter");
-        assertThat(eventConverterField, is(Optional.of(eventConverter)));
+        final EventConverter eventConverterField = getValueOfField(eventRepository, "eventConverter", EventConverter.class);
+        assertThat(eventConverterField, is(eventConverter));
 
-        final Optional<Object> loggerField = fieldValue(eventRepository, "logger");
-        assertThat(loggerField.isPresent(), is(true));
+        final Logger loggerField = getValueOfField(eventRepository, "logger", Logger.class);
+        assertThat(loggerField, is(notNullValue()));
     }
 }

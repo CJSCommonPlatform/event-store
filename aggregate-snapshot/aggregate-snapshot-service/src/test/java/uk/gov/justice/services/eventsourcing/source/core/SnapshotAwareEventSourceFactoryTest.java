@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
@@ -75,16 +76,10 @@ public class SnapshotAwareEventSourceFactoryTest {
         assertThat(eventSource, is(instanceOf(SnapshotAwareEventSource.class)));
 
 
-        assertThat(fieldValueAs(eventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
-        assertThat(fieldValueAs(eventSource, "eventRepository", EventRepository.class), is(eventRepository));
-        assertThat(fieldValueAs(eventSource, "snapshotService", SnapshotService.class), is(snapshotService));
-        assertThat(fieldValueAs(eventSource, "eventConverter", EventConverter.class), is(eventConverter));
-        assertThat(fieldValueAs(eventSource, "name", String.class), is(eventSourceName));
-    }
-
-    private <T> T fieldValueAs(final Object object, final String fieldName, final Class<T> type) throws Exception {
-        final Optional<T> optional = ReflectionUtil.fieldValueAs(object, fieldName, type);
-
-        return optional.get();
+        assertThat(getValueOfField(eventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
+        assertThat(getValueOfField(eventSource, "eventRepository", EventRepository.class), is(eventRepository));
+        assertThat(getValueOfField(eventSource, "snapshotService", SnapshotService.class), is(snapshotService));
+        assertThat(getValueOfField(eventSource, "eventConverter", EventConverter.class), is(eventConverter));
+        assertThat(getValueOfField(eventSource, "name", String.class), is(eventSourceName));
     }
 }

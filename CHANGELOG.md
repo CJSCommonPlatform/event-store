@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.1.0-M1]
 ### Changed
 - Updated publish process to add events into a pre_publish_queue table
 - Renamed the sequence_id column in event_log to position_in_stream

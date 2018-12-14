@@ -1,6 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factories;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
@@ -9,7 +10,6 @@ import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.Subscr
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import org.junit.Test;
@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventCatchupProcessorFactoryTest {
@@ -40,5 +41,6 @@ public class EventCatchupProcessorFactoryTest {
         assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
         assertThat(getValueOfField(eventCatchupProcessor, "eventSource", EventSource.class), is(eventSource));
         assertThat(getValueOfField(eventCatchupProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
+        assertThat(getValueOfField(eventCatchupProcessor, "logger", Logger.class), is(notNullValue()));
     }
 }

@@ -23,7 +23,7 @@ public class EventCatchupProcessor {
     }
 
     public void performEventCatchup() {
-        final long eventNumber = subscriptionsRepository.getCurrentEventNumber(subscription.getName());
+        final long eventNumber = subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscription.getName());
         eventSource.findEventsSince(eventNumber)
                 .forEach(eventBufferProcessor::processWithEventBuffer);
     }

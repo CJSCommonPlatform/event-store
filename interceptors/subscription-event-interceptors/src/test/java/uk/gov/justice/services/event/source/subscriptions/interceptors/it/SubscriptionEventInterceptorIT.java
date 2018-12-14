@@ -61,6 +61,7 @@ import uk.gov.justice.services.core.mapping.SchemaIdMappingObserver;
 import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.source.subscriptions.interceptors.SubscriptionEventInterceptor;
+import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsJdbc;
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
@@ -196,7 +197,9 @@ public class SubscriptionEventInterceptorIT {
             BackwardsCompatibleJsonSchemaValidator.class,
 
             MediaTypesMappingCacheInitialiser.class,
-            SchemaIdMappingCacheInitialiser.class
+            SchemaIdMappingCacheInitialiser.class,
+
+            SubscriptionsJdbc.class
     })
 
     public WebApp war() {
@@ -221,11 +224,11 @@ public class SubscriptionEventInterceptorIT {
                         .withPreviousEventNumber(0L),
                 createObjectBuilder().build());
 
-        assertThat(subscriptionsRepository.startSubscription(SOURCE), is(0L));
+        assertThat(subscriptionsRepository.getOrInitialiseCurrentEventNumber(SOURCE), is(0L));
 
         interceptorChainProcessor.process(interceptorContextWithInput(envelope));
 
-        assertThat(subscriptionsRepository.getCurrentEventNumber(SOURCE), is(1L));
+        assertThat(subscriptionsRepository.getOrInitialiseCurrentEventNumber(SOURCE), is(1L));
     }
 
     @ServiceComponent(EVENT_LISTENER)

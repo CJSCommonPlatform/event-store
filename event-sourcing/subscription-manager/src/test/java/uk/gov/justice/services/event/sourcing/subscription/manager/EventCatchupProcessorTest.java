@@ -47,7 +47,7 @@ public class EventCatchupProcessorTest {
         final JsonEnvelope event_3 = mock(JsonEnvelope.class);
 
         when(subscription.getName()).thenReturn(subscriptionName);
-        when(subscriptionsRepository.getCurrentEventNumber(subscriptionName)).thenReturn(eventNumber);
+        when(subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscriptionName)).thenReturn(eventNumber);
         when(eventSource.findEventsSince(eventNumber)).thenReturn(Stream.of(event_1, event_2, event_3));
 
         eventCatchupProcessor.performEventCatchup();

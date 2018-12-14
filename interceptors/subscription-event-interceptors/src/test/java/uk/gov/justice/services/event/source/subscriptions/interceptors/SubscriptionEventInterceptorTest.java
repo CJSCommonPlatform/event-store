@@ -59,7 +59,7 @@ public class SubscriptionEventInterceptorTest {
 
         assertThat(resultInterceptorContext, is(interceptorContext));
 
-        verify(subscriptionsRepository).updateCurrentEventNumber(eventNumber, subscriptionName);
+        verify(subscriptionsRepository).insertOrUpdateCurrentEventNumber(eventNumber, subscriptionName);
     }
 
     @Test

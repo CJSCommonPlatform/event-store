@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+### Added
+- Better logging for event catchup 
 ### Changed
 - Current event number is initialised to zero if it does not exist on app startup
 

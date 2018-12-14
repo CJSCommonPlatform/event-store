@@ -23,13 +23,13 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SubscriptionJdbcRepositoryIT {
+public class StreamStatusJdbcRepositoryIT {
 
     private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM stream_status WHERE stream_id=?";
 
     private static final long INITIAL_POSITION = 0L;
 
-    private SubscriptionJdbcRepository jdbcRepository;
+    private StreamStatusJdbcRepository jdbcRepository;
 
     private DataSource dataSource;
 
@@ -41,7 +41,7 @@ public class SubscriptionJdbcRepositoryIT {
                 .createDataSource("frameworkviewstore");
 
         jdbcRepositoryHelper = new JdbcRepositoryHelper();
-        jdbcRepository = new SubscriptionJdbcRepository(dataSource, jdbcRepositoryHelper);
+        jdbcRepository = new StreamStatusJdbcRepository(dataSource, jdbcRepositoryHelper);
 
         new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer");
     }

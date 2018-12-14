@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 @ApplicationScoped
-public class SubscriptionJdbcRepository {
+public class StreamStatusJdbcRepository {
 
     /**
      * Column Names
@@ -45,9 +45,9 @@ public class SubscriptionJdbcRepository {
 
     DataSource dataSource;
 
-    public SubscriptionJdbcRepository() {}
+    public StreamStatusJdbcRepository() {}
 
-    public SubscriptionJdbcRepository(final DataSource dataSource, final JdbcRepositoryHelper jdbcRepositoryHelper) {
+    public StreamStatusJdbcRepository(final DataSource dataSource, final JdbcRepositoryHelper jdbcRepositoryHelper) {
         this.dataSource = dataSource;
         this.jdbcRepositoryHelper = jdbcRepositoryHelper;
     }

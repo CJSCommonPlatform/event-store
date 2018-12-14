@@ -21,10 +21,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SubscriptionJdbcRepositoryTest {
+public class StreamStatusJdbcRepositoryTest {
 
     @InjectMocks
-    private SubscriptionJdbcRepository repository;
+    private StreamStatusJdbcRepository repository;
 
     @Mock
     DataSource dataSource;

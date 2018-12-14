@@ -32,7 +32,7 @@ public class SubscriptionEventInterceptor implements Interceptor {
         final Optional<String> source = metadata.source();
 
         if (eventNumber.isPresent() && source.isPresent()) {
-            subscriptionsRepository.updateCurrentEventNumber(eventNumber.get(), source.get());
+            subscriptionsRepository.insertOrUpdateCurrentEventNumber(eventNumber.get(), source.get());
         } else {
             if (!eventNumber.isPresent()) {
                 logger.warn(format("Event with name %s has no event number.", metadata.name()));

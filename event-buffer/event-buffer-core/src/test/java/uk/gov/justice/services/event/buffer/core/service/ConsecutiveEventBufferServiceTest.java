@@ -19,7 +19,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferEvent;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
-import uk.gov.justice.services.event.buffer.core.repository.subscription.SubscriptionJdbcRepository;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
@@ -43,7 +43,7 @@ public class ConsecutiveEventBufferServiceTest {
     private Logger logger;
 
     @Mock
-    private SubscriptionJdbcRepository subscriptionJdbcRepository;
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
 
     @Mock
     private EventBufferJdbcRepository streamBufferRepository;
@@ -96,7 +96,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
 
         final JsonEnvelope event_3 = envelopeFrom(
@@ -115,11 +115,11 @@ public class ConsecutiveEventBufferServiceTest {
 
         verifyZeroInteractions(streamBufferRepository);
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
         
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
 
     }
 
@@ -131,7 +131,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(Stream.empty());
@@ -144,11 +144,11 @@ public class ConsecutiveEventBufferServiceTest {
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
         assertThat(returnedEvents, contains(incomingEvent));
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
 
     }
 
@@ -164,18 +164,18 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(Stream.empty());
 
         bufferService.currentOrderedEventsWith(incomingEvent);
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).update(new Subscription(streamId, 5L, source));
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).update(new Subscription(streamId, 5L, source));
 
     }
 
@@ -192,19 +192,19 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(new Subscription(streamId, 4L, source)));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(new Subscription(streamId, 4L, source)));
 
         when(jsonObjectEnvelopeConverter.asJsonString(incomingEvent)).thenReturn("someStringRepresentation");
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository, streamBufferRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository, streamBufferRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
         inOrder.verify(streamBufferRepository).insert(new EventBufferEvent(streamId, 6L, "someStringRepresentation", source));
 
         assertThat(returnedEvents, empty());
@@ -219,7 +219,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(
@@ -247,11 +247,11 @@ public class ConsecutiveEventBufferServiceTest {
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
         assertThat(returnedEvents, contains(incomingEvent, bufferedEvent4, bufferedEvent5, bufferedEvent6));
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
 
     }
 
@@ -264,7 +264,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
         final StreamCloseSpy sourceStreamSpy = new StreamCloseSpy();
@@ -287,11 +287,11 @@ public class ConsecutiveEventBufferServiceTest {
 
         assertThat(sourceStreamSpy.streamClosed(), is(true));
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
 
     }
 
@@ -303,7 +303,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String eventName = "source.event.name";
         final Subscription subscription = mock(Subscription.class);
 
-        when(subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
 
@@ -331,11 +331,11 @@ public class ConsecutiveEventBufferServiceTest {
 
         assertThat(returnedEvents, contains(incomingEvent, bufferedEvent4, bufferedEvent5, bufferedEvent6));
 
-        final InOrder inOrder = inOrder(subscriptionJdbcRepository);
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
-        inOrder.verify(subscriptionJdbcRepository).updateSource(streamId, source);
-        inOrder.verify(subscriptionJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        inOrder.verify(subscriptionJdbcRepository).findByStreamIdAndSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
+        inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
 
         verify(streamBufferRepository).remove(event4);
         verify(streamBufferRepository).remove(event5);

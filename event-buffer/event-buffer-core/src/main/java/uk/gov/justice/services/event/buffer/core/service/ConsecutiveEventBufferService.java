@@ -7,7 +7,7 @@ import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferEvent;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
-import uk.gov.justice.services.event.buffer.core.repository.subscription.SubscriptionJdbcRepository;
+import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 
@@ -36,7 +36,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     private EventBufferJdbcRepository streamBufferRepository;
 
     @Inject
-    private SubscriptionJdbcRepository subscriptionJdbcRepository;
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
 
     @Inject
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
@@ -61,9 +61,9 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final long incomingEventVersion = versionOf(incomingEvent);
         final String source = getSource(incomingEvent);
 
-        subscriptionJdbcRepository.updateSource(streamId, source);
-        subscriptionJdbcRepository.insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
-        final long currentVersion = subscriptionJdbcRepository.findByStreamIdAndSource(streamId, source)
+        streamStatusJdbcRepository.updateSource(streamId, source);
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        final long currentVersion = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)
                 .orElseThrow(() -> new IllegalStateException("stream status cannot be empty"))
                 .getPosition();
 
@@ -78,7 +78,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
         } else {
             logger.trace("Message : {} version is valid sending stream to dispatcher", incomingEvent);
-            subscriptionJdbcRepository.update(new Subscription(streamId, incomingEventVersion, source));
+            streamStatusJdbcRepository.update(new Subscription(streamId, incomingEventVersion, source));
             return bufferedEvents(streamId, incomingEvent, incomingEventVersion);
         }
     }
@@ -97,7 +97,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final String source = getSource(incomingEvent);
         return concat(Stream.of(incomingEvent), consecutiveEventStreamFromBuffer(streamBufferRepository.findStreamByIdAndSource(streamId, source), incomingEventVersion)
                 .peek(streamBufferEvent -> streamBufferRepository.remove(streamBufferEvent))
-                .peek(streamBufferEvent -> subscriptionJdbcRepository.update(new Subscription(
+                .peek(streamBufferEvent -> streamStatusJdbcRepository.update(new Subscription(
                         streamBufferEvent.getStreamId(),
                         streamBufferEvent.getPosition(),
                         source)))

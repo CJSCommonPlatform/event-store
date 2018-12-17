@@ -5,6 +5,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+
+## [1.1.0-M2]
 ### Added
 - Better logging for event catchup 
 ### Changed

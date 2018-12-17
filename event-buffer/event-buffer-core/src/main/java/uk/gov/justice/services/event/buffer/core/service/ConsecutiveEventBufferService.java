@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 @Priority(2)
 public class ConsecutiveEventBufferService implements EventBufferService {
 
-    static final long INITIAL_VERSION = 0L;
+    static final long INITIAL_POSITION = 1L;
 
     @Inject
     private Logger logger;
@@ -62,7 +62,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final String source = getSource(incomingEvent);
 
         streamStatusJdbcRepository.updateSource(streamId, source);
-        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, INITIAL_VERSION, source));
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, 0L, source));
         final long currentVersion = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)
                 .orElseThrow(() -> new IllegalStateException("stream status cannot be empty"))
                 .getPosition();
@@ -86,8 +86,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     private long versionOf(final JsonEnvelope event) {
         final long incomingEventVersion = event.metadata().position().orElseThrow(() -> new IllegalStateException("Event must have a version"));
 
-        if (incomingEventVersion == 0) {
-            throw new IllegalStateException("Version cannot be zero");
+        if (incomingEventVersion < INITIAL_POSITION) {
+            throw new IllegalStateException("Version cannot be less than " + INITIAL_POSITION);
         }
         
         return incomingEventVersion;
@@ -114,7 +114,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     }
 
     private Stream<EventBufferEvent> consecutiveEventStreamFromBuffer(final Stream<EventBufferEvent> messageBuffer, final long currentVersion) {
-        return stream(new ConsecutiveEventsSpliterator(messageBuffer, currentVersion), false).onClose(() -> messageBuffer.close());
+        return stream(new ConsecutiveEventsSpliterator(messageBuffer, currentVersion), false).onClose(messageBuffer::close);
     }
 
     private boolean incomingEventNotInOrder(final long incomingEventVersion, final long currentVersion) {

@@ -9,6 +9,7 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
+import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
@@ -40,7 +41,9 @@ public class EventCatchupProcessorFactoryTest {
         assertThat(getValueOfField(eventCatchupProcessor, "subscription", Subscription.class), is(subscription));
         assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
         assertThat(getValueOfField(eventCatchupProcessor, "eventSource", EventSource.class), is(eventSource));
-        assertThat(getValueOfField(eventCatchupProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
         assertThat(getValueOfField(eventCatchupProcessor, "logger", Logger.class), is(notNullValue()));
+
+        final TransactionalEventProcessor transactionalEventProcessor = getValueOfField(eventCatchupProcessor, "transactionalEventProcessor", TransactionalEventProcessor.class);
+        assertThat(getValueOfField(transactionalEventProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
     }
 }

@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- A new transaction is started for each event during event catchup
+
 
 
 ## [1.1.0-M2] - 2018-12-17

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,7 +35,7 @@ public class EventCatchupProcessorTest {
     private EventSource eventSource;
 
     @Mock
-    private EventBufferProcessor eventBufferProcessor;
+    private TransactionalEventProcessor transactionalEventProcessor;
 
     @Mock
     private Logger logger;
@@ -55,16 +56,17 @@ public class EventCatchupProcessorTest {
         when(subscription.getName()).thenReturn(subscriptionName);
         when(subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscriptionName)).thenReturn(eventNumber);
         when(eventSource.findEventsSince(eventNumber)).thenReturn(Stream.of(event_1, event_2, event_3));
+        when(transactionalEventProcessor.processWithEventBuffer(any(JsonEnvelope.class))).thenReturn(1);
 
         eventCatchupProcessor.performEventCatchup();
 
-        final InOrder inOrder = inOrder(logger, eventBufferProcessor);
+        final InOrder inOrder = inOrder(logger, transactionalEventProcessor);
 
         inOrder.verify(logger).info("Event catchup started");
         inOrder.verify(logger).info("Performing catchup of events...");
-        inOrder.verify(eventBufferProcessor).processWithEventBuffer(event_1);
-        inOrder.verify(eventBufferProcessor).processWithEventBuffer(event_2);
-        inOrder.verify(eventBufferProcessor).processWithEventBuffer(event_3);
+        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_1);
+        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_2);
+        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_3);
         inOrder.verify(logger).info("Event catchup retrieved and processed 3 new events");
         inOrder.verify(logger).info("Event catchup complete");
     }

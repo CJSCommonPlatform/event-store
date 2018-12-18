@@ -6,8 +6,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
 ### Changed
 - A new transaction is started for each event during event catchup
-
-
+### Added
+- New util module
 
 ## [1.1.0-M2] - 2018-12-17
 ### Added

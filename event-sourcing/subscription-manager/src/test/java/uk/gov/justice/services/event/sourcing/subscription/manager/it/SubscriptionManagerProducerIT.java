@@ -31,7 +31,6 @@ import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistryProd
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
 import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;

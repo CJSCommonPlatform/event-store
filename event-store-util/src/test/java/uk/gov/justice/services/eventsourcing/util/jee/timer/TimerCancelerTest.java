@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.timer;
+package uk.gov.justice.services.eventsourcing.util.jee.timer;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;

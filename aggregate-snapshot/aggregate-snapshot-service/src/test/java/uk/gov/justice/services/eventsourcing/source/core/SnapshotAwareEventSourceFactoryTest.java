@@ -15,9 +15,6 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepo
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
-
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

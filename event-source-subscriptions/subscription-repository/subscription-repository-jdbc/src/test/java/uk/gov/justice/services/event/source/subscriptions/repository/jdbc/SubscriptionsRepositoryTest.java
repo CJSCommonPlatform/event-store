@@ -2,36 +2,25 @@ package uk.gov.justice.services.event.source.subscriptions.repository.jdbc;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.junit.Assert.*;
-
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Optional;
-
-import javax.inject.Inject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriptionsRepositoryTest {

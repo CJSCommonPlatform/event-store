@@ -11,8 +11,6 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import javax.inject.Inject;
 
-import org.slf4j.LoggerFactory;
-
 public class EventCatchupProcessorFactory {
 
     @Inject

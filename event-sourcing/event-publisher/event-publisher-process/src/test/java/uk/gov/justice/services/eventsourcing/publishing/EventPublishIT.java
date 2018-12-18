@@ -29,9 +29,9 @@ import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserte
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.timer.TimerCanceler;
-import uk.gov.justice.services.eventsourcing.timer.TimerConfigFactory;
-import uk.gov.justice.services.eventsourcing.timer.TimerServiceManager;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;

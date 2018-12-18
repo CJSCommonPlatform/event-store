@@ -19,6 +19,7 @@
     <description>Event Source for Microservices Framework</description>
 
     <modules>
+        <module>event-store-util</module>
         <module>aggregate-snapshot</module>
         <module>event-buffer</module>
         <module>event-sourcing</module>

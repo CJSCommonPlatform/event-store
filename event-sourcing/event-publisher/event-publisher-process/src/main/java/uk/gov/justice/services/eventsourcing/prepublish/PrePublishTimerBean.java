@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventsourcing.prepublish;
 
-import uk.gov.justice.services.eventsourcing.timer.TimerCanceler;
-import uk.gov.justice.services.eventsourcing.timer.TimerServiceManager;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
 public class PrePublishTimerBean {
 
     private static final int THRESHOLD = 10;
-    private static final String TIMER_JOB = "framework.pre-publish-events.job";
+    private static final String TIMER_JOB_NAME = "event-store.pre-publish-events.job";
 
     @Resource
     TimerService timerService;
@@ -35,9 +35,9 @@ public class PrePublishTimerBean {
 
     @PostConstruct
     public void startTimerService() {
-        timerCanceler.cancelTimer(TIMER_JOB, timerService);
+        timerCanceler.cancelTimer(TIMER_JOB_NAME, timerService);
         timerServiceManager.createIntervalTimer(
-                TIMER_JOB,
+                TIMER_JOB_NAME,
                 prePublishTimerConfig.getTimerStartWaitMilliseconds(),
                 prePublishTimerConfig.getTimerIntervalMilliseconds(),
                 timerService);
@@ -47,7 +47,7 @@ public class PrePublishTimerBean {
     public void performPrePublish() {
 
         while (prePublishProcessor.prePublishNextEvent()) {
-            timerServiceManager.cancelOverlappingTimers(TIMER_JOB, THRESHOLD, timerService);
+            timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
         }
     }
 }

@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.timer;
+package uk.gov.justice.services.eventsourcing.util.jee.timer;
 
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
@@ -23,6 +23,18 @@ public class TimerServiceManager {
         timerConfig.setInfo(timerJobName);
 
         timerService.createIntervalTimer(timerStartWaitMilliseconds, timerIntervalMilliseconds, timerConfig);
+    }
+
+    public void createSingleActionTimer(
+            final String timerJobName,
+            final long duration,
+            final TimerService timerService) {
+        final TimerConfig timerConfig = timerConfigFactory.createNew();
+
+        timerConfig.setPersistent(false);
+        timerConfig.setInfo(timerJobName);
+
+        timerService.createSingleActionTimer(duration, timerConfig);
     }
 
     public void cancelOverlappingTimers(final String timerJobName, final int threshold, final TimerService timerService){

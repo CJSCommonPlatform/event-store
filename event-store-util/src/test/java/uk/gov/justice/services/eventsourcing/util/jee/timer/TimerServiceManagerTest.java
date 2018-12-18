@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.timer;
+package uk.gov.justice.services.eventsourcing.util.jee.timer;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.inOrder;
@@ -17,7 +17,6 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class TimerServiceManagerTest {
@@ -49,6 +48,25 @@ public class TimerServiceManagerTest {
         inOrder.verify(timerConfig).setPersistent(false);
         inOrder.verify(timerConfig).setInfo(timerJobName);
         inOrder.verify(timerService).createIntervalTimer(timerStartWaitMilliseconds, timerIntervalMilliseconds, timerConfig);
+    }
+
+    @Test
+    public void shouldCreateASingleActionTimer() throws Exception {
+
+        final String timerJobName = "timer job name";
+        final long duration = 9839798342L;
+        final TimerService timerService = mock(TimerService.class);
+        final TimerConfig timerConfig = mock(TimerConfig.class);
+
+        when(timerConfigFactory.createNew()).thenReturn(timerConfig);
+
+        timerServiceManager.createSingleActionTimer(timerJobName, duration, timerService);
+
+        final InOrder inOrder = inOrder(timerConfig, timerService);
+
+        inOrder.verify(timerConfig).setPersistent(false);
+        inOrder.verify(timerConfig).setInfo(timerJobName);
+        inOrder.verify(timerService).createSingleActionTimer(duration, timerConfig);
     }
 
     @Test

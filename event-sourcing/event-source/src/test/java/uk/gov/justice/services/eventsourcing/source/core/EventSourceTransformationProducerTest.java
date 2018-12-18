@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
-import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -19,8 +18,6 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventSt
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
-
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

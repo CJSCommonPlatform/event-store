@@ -4,8 +4,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventsourcing.timer.TimerCanceler;
-import uk.gov.justice.services.eventsourcing.timer.TimerServiceManager;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.ejb.TimerService;
 
@@ -47,9 +47,9 @@ public class PublisherTimerBeanTest {
 
         publisherTimerBean.startTimerService();
 
-        verify(timerCanceler).cancelTimer("framework.de-queue-events-and-publish.job", timerService);
+        verify(timerCanceler).cancelTimer("event-store.de-queue-events-and-publish.job", timerService);
         verify(timerServiceManager).createIntervalTimer(
-                "framework.de-queue-events-and-publish.job",
+                "event-store.de-queue-events-and-publish.job",
                 timerStartValue,
                 timerIntervalValue,
                 timerService);
@@ -63,6 +63,6 @@ public class PublisherTimerBeanTest {
         publisherTimerBean.doDeQueueAndPublish();
 
         verify(eventDeQueuerAndPublisher, times(3)).deQueueAndPublish();
-        verify(timerServiceManager, times(2)).cancelOverlappingTimers("framework.de-queue-events-and-publish.job", 10, timerService);
+        verify(timerServiceManager, times(2)).cancelOverlappingTimers("event-store.de-queue-events-and-publish.job", 10, timerService);
     }
 }

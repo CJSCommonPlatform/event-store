@@ -3,7 +3,6 @@ package uk.gov.justice.services.event.sourcing.subscription.manager;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;

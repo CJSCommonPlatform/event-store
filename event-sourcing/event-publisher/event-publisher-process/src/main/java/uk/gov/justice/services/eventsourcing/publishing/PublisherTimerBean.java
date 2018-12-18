@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
-import uk.gov.justice.services.eventsourcing.timer.TimerCanceler;
-import uk.gov.justice.services.eventsourcing.timer.TimerServiceManager;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
 public class PublisherTimerBean {
 
     private static final int THRESHOLD = 10;
-    private static final String TIMER_JOB_NAME = "framework.de-queue-events-and-publish.job";
+    private static final String TIMER_JOB_NAME = "event-store.de-queue-events-and-publish.job";
 
     @Resource
     TimerService timerService;

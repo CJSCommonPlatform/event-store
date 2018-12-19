@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.6] - 2018-12-19
+### Changed
+- Updated framework to 5.0.5
+- Updated framework-domain to 1.0.4
+
 ## [1.0.5] - 2018-11-16
 ### Fixed
 - Fixed liquibase rollback issue

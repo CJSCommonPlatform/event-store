@@ -7,6 +7,8 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 
 import java.util.Collection;
 import java.util.Set;
+
+
 /**
  * Registry containing {@link SubscriptionsDescriptor}s set
  */
@@ -32,6 +34,14 @@ public class SubscriptionsDescriptorsRegistry {
     }
 
     /**
+     * Gets athe set of all SubscriptionDescriptors that have been defined
+     * @return the set of all SubscriptionDescriptors
+     */
+    public Set<SubscriptionsDescriptor> getAll() {
+        return registry;
+    }
+
+    /**
      * Return a subscription component name
      *
      * @param subscriptionName the subscription name to look up
@@ -40,20 +50,16 @@ public class SubscriptionsDescriptorsRegistry {
     public String findComponentNameBy(final String subscriptionName) {
         final SubscriptionsDescriptor first = registry
                 .stream()
-                .filter(subscriptionDescriptorDefinition -> isSubscriptionNameExist(subscriptionName, subscriptionDescriptorDefinition))
+                .filter(subscriptionDescriptorDefinition -> subscriptionNameExists(subscriptionName, subscriptionDescriptorDefinition))
                 .findFirst()
                 .orElseThrow(() -> new RegistryException(format("Failed to find service component name in registry for subscription '%s' ", subscriptionName)));
         return first.getServiceComponent();
     }
 
-    private boolean isSubscriptionNameExist(final String subscriptionName, final SubscriptionsDescriptor subscriptionsDescriptor) {
+    private boolean subscriptionNameExists(final String subscriptionName, final SubscriptionsDescriptor subscriptionsDescriptor) {
         return subscriptionsDescriptor
                 .getSubscriptions()
                 .stream()
                 .anyMatch(subscription -> subscription.getName().equals(subscriptionName));
-    }
-
-    public Set<SubscriptionsDescriptor> subscriptionsDescriptors() {
-        return registry;
     }
 }

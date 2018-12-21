@@ -4,14 +4,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
+import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
+import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
+import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
+import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
+import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +28,19 @@ import org.slf4j.Logger;
 public class EventCatchupProcessorFactoryTest {
 
     @Mock
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+
+    @Mock
+    private EventBufferService eventBufferService;
+
+    @Mock
     private SubscriptionsRepository subscriptionsRepository;
+
+    @Mock
+    private EventSourceProvider eventSourceProvider;
+
+    @Mock
+    private InterceptorContextProvider interceptorContextProvider;
 
     @InjectMocks
     private EventCatchupProcessorFactory eventCatchupProcessorFactory;
@@ -32,18 +48,22 @@ public class EventCatchupProcessorFactoryTest {
     @Test
     public void shouldCreateEventCatchupProcessorFactory() throws Exception {
 
-        final Subscription subscription = mock(Subscription.class);
-        final EventSource eventSource = mock(EventSource.class);
-        final EventBufferProcessor eventBufferProcessor = mock(EventBufferProcessor.class);
+        final String componentName = "component name";
 
-        final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.create(subscription, eventSource, eventBufferProcessor);
+        final InterceptorChainProcessor interceptorChainProcessor = mock(InterceptorChainProcessor.class);
 
-        assertThat(getValueOfField(eventCatchupProcessor, "subscription", Subscription.class), is(subscription));
+        when(interceptorChainProcessorProducer.produceLocalProcessor(componentName)).thenReturn(interceptorChainProcessor );
+
+        final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.createFor(componentName);
+
         assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
-        assertThat(getValueOfField(eventCatchupProcessor, "eventSource", EventSource.class), is(eventSource));
         assertThat(getValueOfField(eventCatchupProcessor, "logger", Logger.class), is(notNullValue()));
 
         final TransactionalEventProcessor transactionalEventProcessor = getValueOfField(eventCatchupProcessor, "transactionalEventProcessor", TransactionalEventProcessor.class);
-        assertThat(getValueOfField(transactionalEventProcessor, "eventBufferProcessor", EventBufferProcessor.class), is(eventBufferProcessor));
+        final EventBufferProcessor eventBufferProcessor = getValueOfField(transactionalEventProcessor, "eventBufferProcessor", EventBufferProcessor.class);;
+
+        assertThat(getValueOfField(eventBufferProcessor, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
+        assertThat(getValueOfField(eventBufferProcessor, "eventBufferService", EventBufferService.class), is(eventBufferService));
+        assertThat(getValueOfField(eventBufferProcessor, "interceptorContextProvider", InterceptorContextProvider.class), is(interceptorContextProvider));
     }
 }

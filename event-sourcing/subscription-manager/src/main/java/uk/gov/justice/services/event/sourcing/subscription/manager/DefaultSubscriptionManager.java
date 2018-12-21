@@ -6,12 +6,9 @@ import uk.gov.justice.services.subscription.SubscriptionManager;
 public class DefaultSubscriptionManager implements SubscriptionManager {
 
     private final EventBufferProcessor eventBufferProcessor;
-    private final EventCatchupProcessor eventCatchupProcessor;
 
-    public DefaultSubscriptionManager(final EventBufferProcessor eventBufferProcessor,
-                                      final EventCatchupProcessor eventCatchupProcessor) {
+    public DefaultSubscriptionManager(final EventBufferProcessor eventBufferProcessor) {
         this.eventBufferProcessor = eventBufferProcessor;
-        this.eventCatchupProcessor = eventCatchupProcessor;
     }
 
     @Override
@@ -19,8 +16,8 @@ public class DefaultSubscriptionManager implements SubscriptionManager {
         eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope);
     }
 
+    // TODO: remove when removed from framework-api
     @Override
     public void startSubscription() {
-        eventCatchupProcessor.performEventCatchup();
     }
 }

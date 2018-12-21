@@ -70,7 +70,7 @@ public class SubscriptionsDescriptorsRegistryProducerTest {
         final SubscriptionsDescriptorsRegistry subscriptionDescriptorRegistry = subscriptionsDescriptorsRegistryProducer.subscriptionDescriptorRegistry();
 
         assertThat(subscriptionDescriptorRegistry, is(notNullValue()));
-        assertThat(subscriptionDescriptorRegistry.subscriptionsDescriptors().size(), is(2));
+        assertThat(subscriptionDescriptorRegistry.getAll().size(), is(2));
     }
 
     @Test
@@ -159,7 +159,7 @@ public class SubscriptionsDescriptorsRegistryProducerTest {
 
         final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = subscriptionsDescriptorsRegistryProducer.subscriptionDescriptorRegistry();
 
-        assertThat(subscriptionsDescriptorsRegistry.subscriptionsDescriptors().size(), is(0));
+        assertThat(subscriptionsDescriptorsRegistry.getAll().size(), is(0));
         verify(logger).info("Failed to find yaml/subscriptions-descriptor.yaml resources on the classpath");
     }
 }

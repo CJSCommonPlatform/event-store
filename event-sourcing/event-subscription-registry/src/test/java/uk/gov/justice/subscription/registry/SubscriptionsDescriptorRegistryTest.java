@@ -115,7 +115,7 @@ public class SubscriptionsDescriptorRegistryTest {
 
         final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
 
-        assertThat(subscriptionsDescriptorsRegistry.subscriptionsDescriptors().size(), is(1));
+        assertThat(subscriptionsDescriptorsRegistry.getAll().size(), is(1));
 
     }
 

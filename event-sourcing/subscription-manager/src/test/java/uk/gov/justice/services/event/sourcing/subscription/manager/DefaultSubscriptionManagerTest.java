@@ -14,12 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultSubscriptionManagerTest {
 
-
     @Mock
     private EventBufferProcessor eventBufferProcessor;
-
-    @Mock
-    private EventCatchupProcessor eventCatchupProcessor;
 
     @InjectMocks
     private DefaultSubscriptionManager defaultSubscriptionManager;
@@ -27,19 +23,10 @@ public class DefaultSubscriptionManagerTest {
     @Test
     public void shouldProcessWithEventBuffer() {
 
-
         final JsonEnvelope incomingJsonEnvelope = mock(JsonEnvelope.class);
 
         defaultSubscriptionManager.process(incomingJsonEnvelope);
 
         verify(eventBufferProcessor).processWithEventBuffer(incomingJsonEnvelope);
-    }
-
-    @Test
-    public void shouldPerformEventCatchupOnStartupIfTheEventBufferIsPresent() {
-
-        defaultSubscriptionManager.startSubscription();
-
-        verify(eventCatchupProcessor).performEventCatchup();
     }
 }

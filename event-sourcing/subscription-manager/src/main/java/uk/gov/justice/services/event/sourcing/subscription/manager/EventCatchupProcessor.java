@@ -1,35 +1,38 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
 import static java.lang.String.format;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 
 public class EventCatchupProcessor {
 
-    private final Subscription subscription;
     private final SubscriptionsRepository subscriptionsRepository;
-    private final EventSource eventSource;
+    private final EventSourceProvider eventSourceProvider;
     private final TransactionalEventProcessor transactionalEventProcessor;
     private final Logger logger;
 
     public EventCatchupProcessor(
-            final Subscription subscription,
-            final EventSource eventSource,
             final SubscriptionsRepository subscriptionsRepository,
+            final EventSourceProvider eventSourceProvider,
             final TransactionalEventProcessor transactionalEventProcessor,
             final Logger logger) {
-        this.subscription = subscription;
         this.subscriptionsRepository = subscriptionsRepository;
-        this.eventSource = eventSource;
+        this.eventSourceProvider = eventSourceProvider;
         this.transactionalEventProcessor = transactionalEventProcessor;
         this.logger = logger;
     }
 
-    public void performEventCatchup() {
+    @Transactional(REQUIRES_NEW)
+    public void performEventCatchup(final Subscription subscription) {
+
+        final EventSource eventSource = eventSourceProvider.getEventSource(subscription.getEventSourceName());
 
         logger.info("Event catchup started");
         logger.info("Performing catchup of events...");
@@ -42,6 +45,4 @@ public class EventCatchupProcessor {
         logger.info(format("Event catchup retrieved and processed %d new events", totalEventsProcessed));
         logger.info("Event catchup complete");
     }
-
-
 }

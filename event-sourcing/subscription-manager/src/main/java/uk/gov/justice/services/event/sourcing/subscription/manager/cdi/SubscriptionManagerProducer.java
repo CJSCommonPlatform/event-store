@@ -1,7 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager.cdi;
 
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
-import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factories.SubscriptionManagerFactory;
+import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factories.SubscriptionManagerSelector;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.subscription.SubscriptionManager;
 import uk.gov.justice.services.subscription.annotation.SubscriptionName;
@@ -24,7 +24,7 @@ public class SubscriptionManagerProducer {
     private final Map<String, SubscriptionManager> subscriptionManagerMap = new ConcurrentHashMap<>();
 
     @Inject
-    SubscriptionManagerFactory subscriptionManagerFactory;
+    SubscriptionManagerSelector subscriptionManagerSelector;
 
     @Inject
     @Any
@@ -36,7 +36,6 @@ public class SubscriptionManagerProducer {
     @Inject
     QualifierAnnotationExtractor qualifierAnnotationExtractor;
 
-
     @Produces
     @SubscriptionName
     public SubscriptionManager subscriptionManager(final InjectionPoint injectionPoint) {
@@ -44,7 +43,7 @@ public class SubscriptionManagerProducer {
 
         final Subscription subscription = subscriptionDescriptorRegistry.getSubscriptionFor(subscriptionName.value());
 
-        return subscriptionManagerMap.computeIfAbsent(subscription.getName(), k -> subscriptionManagerFactory.create(subscription));
+        return subscriptionManagerMap.computeIfAbsent(subscription.getName(), k -> subscriptionManagerSelector.selectFor(subscription));
     }
 }
 

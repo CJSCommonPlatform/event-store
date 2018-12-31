@@ -5,12 +5,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [1.1.0-M4] - 2018-12-28
+## [1.1.0-M5] - 2018-12-31
 ### Changed
 - Event catchup now delegated to a separate session bean to allow for running in RequestScope
 - A new transaction is started for each event during event catchup
 ### Added
 - New util module
+
+## [1.1.0-M4] - 2018-12-28
+- Release failed
 
 ## [1.1.0-M3] - 2018-12-28
 - Release failed

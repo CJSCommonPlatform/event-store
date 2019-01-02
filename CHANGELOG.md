@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.0-M6] - 2019-01-02
+### Changed
+- Event catchup only runs with event listener components
+
 ## [1.1.0-M5] - 2018-12-31
 ### Changed
 - Event catchup now delegated to a separate session bean to allow for running in RequestScope

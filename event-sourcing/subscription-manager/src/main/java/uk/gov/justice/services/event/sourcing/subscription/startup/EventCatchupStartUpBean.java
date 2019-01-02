@@ -1,5 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup;
 
+import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
+
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
@@ -44,9 +46,11 @@ public class EventCatchupStartUpBean {
 
         final String componentName = subscriptionsDescriptor.getServiceComponent();
 
-        subscriptionsDescriptor
-                .getSubscriptions()
-                .forEach(subscription -> startSubscription(componentName, subscription));
+        if (componentName.contains(EVENT_LISTENER)) {
+            subscriptionsDescriptor
+                    .getSubscriptions()
+                    .forEach(subscription -> startSubscription(componentName, subscription));
+        }
     }
 
     private void startSubscription(final String componentName, final Subscription subscription) {
@@ -55,7 +59,7 @@ public class EventCatchupStartUpBean {
                 componentName,
                 subscription,
                 eventCatchupProcessorBean);
-        
+
         managedExecutorService.execute(eventCatchupTask);
     }
 }

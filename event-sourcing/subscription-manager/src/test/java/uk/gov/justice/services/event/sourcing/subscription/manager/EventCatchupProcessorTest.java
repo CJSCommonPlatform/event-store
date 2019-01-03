@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class EventCatchupProcessorTest {
 
@@ -43,7 +42,6 @@ public class EventCatchupProcessorTest {
     @Test
     public void shouldFetchAllMissingEventsAndProcess() throws Exception {
 
-        final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
         final long eventNumber = 983745987L;
 
@@ -56,8 +54,7 @@ public class EventCatchupProcessorTest {
 
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
         when(eventSourceProvider.getEventSource(eventSourceName)).thenReturn(eventSource);
-        when(subscription.getName()).thenReturn(subscriptionName);
-        when(subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscriptionName)).thenReturn(eventNumber);
+        when(subscriptionsRepository.getOrInitialiseCurrentEventNumber(eventSourceName)).thenReturn(eventNumber);
         when(eventSource.findEventsSince(eventNumber)).thenReturn(Stream.of(event_1, event_2, event_3));
         when(transactionalEventProcessor.processWithEventBuffer(any(JsonEnvelope.class))).thenReturn(1);
 

@@ -1,6 +1,3 @@
---
--- This function has been replaced by update-pre-publish-queue-function.sql
--- 
 CREATE OR REPLACE FUNCTION update_publish_queue()
  RETURNS trigger
  LANGUAGE plpgsql

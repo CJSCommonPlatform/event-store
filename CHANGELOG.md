@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.0-M7] - 2019-01-03
+### Changed
+- Fix checksum issue with liquibase scripts
+
 ## [1.1.0-M6] - 2019-01-02
 ### Changed
 - Event catchup only runs with event listener components

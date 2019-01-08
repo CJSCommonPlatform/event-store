@@ -36,7 +36,7 @@ public class EventCatchupProcessor {
 
         logger.info("Event catchup started");
         logger.info("Performing catchup of events...");
-        final long eventNumber = subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscription.getName());
+        final long eventNumber = subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscription.getEventSourceName());
 
         final int totalEventsProcessed = eventSource.findEventsSince(eventNumber)
                 .mapToInt(transactionalEventProcessor::processWithEventBuffer)

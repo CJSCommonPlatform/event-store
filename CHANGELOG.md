@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.0-M8] - 2019-01-08
+### Fixed
+- Fixed error of two subscriptions created in database for each subscription
+
 ## [1.1.0-M7] - 2019-01-03
 ### Changed
 - Fix checksum issue with liquibase scripts

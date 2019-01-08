@@ -1,6 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
-import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
@@ -14,7 +14,7 @@ public class TransactionalEventProcessor {
         this.eventBufferProcessor = eventBufferProcessor;
     }
 
-    @Transactional(REQUIRES_NEW)
+    @Transactional(REQUIRED)
     public int processWithEventBuffer(final JsonEnvelope event) {
         eventBufferProcessor.processWithEventBuffer(event);
         return 1;

@@ -6,6 +6,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
 
 ## [1.1.0-M8] - 2019-01-08
+### Changed
+- Tightened up transaction boundaries for event catchup so that each event is run in its own transaction
 ### Fixed
 - Fixed error of two subscriptions created in database for each subscription
 

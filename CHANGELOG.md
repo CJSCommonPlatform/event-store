@@ -5,6 +5,29 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.0] - 2019-01-08
+
+### Added
+- Event Catchup on startup, where all unknown events are retrieved from the EventSource and played
+- An event-number to each event to allow for event catchup
+- Added a new TimerBean 'PrePublishBean'
+- Added a new auto incrementing column event_number to event_log table
+- Subscription event interceptor to update the current event number in the subscriptions table
+- New util module
+- Subscription repository
+- Subscription liquibase for subscription table
+- Better logging for event catchup 
+- A new transaction is started for each event during event catchup
+- Event catchup only runs with event listener components
+
+### Changed
+- Updated publish process to add events into a pre_publish_queue table
+- Renamed the sequence_number column in event_stream to position_in_stream
+- Renamed the sequence_id column in event_log to position_in_stream
+- Tightened up transaction boundaries for event catchup so that each event is run in its own transaction
+- Event catchup now delegated to a separate session bean to allow for running in RequestScope
+- Current event number is initialised to zero if it does not exist on app startup
+
 ## [1.1.0-M8] - 2019-01-08
 ### Changed
 - Tightened up transaction boundaries for event catchup so that each event is run in its own transaction
@@ -42,7 +65,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### Changed
 - Updated publish process to add events into a pre_publish_queue table
 - Renamed the sequence_id column in event_log to position_in_stream
-_ Renamed the sequence_number column in event_stream to position_in_stream
+- Renamed the sequence_number column in event_stream to position_in_stream
 
 ### Added
 - Event Catchup on startup, where all unknown events are retrieved from the EventSource and played

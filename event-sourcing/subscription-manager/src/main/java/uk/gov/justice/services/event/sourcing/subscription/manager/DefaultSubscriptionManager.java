@@ -15,9 +15,4 @@ public class DefaultSubscriptionManager implements SubscriptionManager {
     public void process(final JsonEnvelope incomingJsonEnvelope) {
         eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope);
     }
-
-    // TODO: remove when removed from framework-api
-    @Override
-    public void startSubscription() {
-    }
 }

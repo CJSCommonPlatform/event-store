@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [1.1.0] - 2019-01-08
+## [1.1.0] - 2019-01-09
 
 ### Added
 - Event Catchup on startup, where all unknown events are retrieved from the EventSource and played

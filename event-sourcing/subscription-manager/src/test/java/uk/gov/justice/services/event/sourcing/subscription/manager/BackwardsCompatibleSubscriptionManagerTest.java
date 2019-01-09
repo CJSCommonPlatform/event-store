@@ -50,12 +50,4 @@ public class BackwardsCompatibleSubscriptionManagerTest {
 
         assertThat(interceptorContextCaptor.getValue(), is(interceptorContext));
     }
-
-    @Test
-    public void shouldDoNothingOnStartup() throws Exception {
-
-        backwardsCompatibleSubscriptionManager.startSubscription();
-        verifyZeroInteractions(interceptorChainProcessor);
-    }
-
 }

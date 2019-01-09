@@ -21,9 +21,4 @@ public class BackwardsCompatibleSubscriptionManager implements SubscriptionManag
     public void process(final JsonEnvelope incomingJsonEnvelope) {
         interceptorChainProcessor.process(interceptorContextProvider.getInterceptorContext(incomingJsonEnvelope));
     }
-
-    @Override
-    public void startSubscription() {
-         // do nothing as there are no subscriptions to start
-    }
 }

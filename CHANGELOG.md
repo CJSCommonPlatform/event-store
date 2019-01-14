@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.0.8] - 2019-01-14
+### Added
+- Added indexes to 'name' and 'date_created' the event_log table
+
 ## [1.0.7] - 2018-12-20
 ### Changed
 - Updated framework to 5.0.6

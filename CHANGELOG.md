@@ -5,11 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-### Added
-- Added indexes to 'name' and 'date_created' the event_log table
-
-## [1.1.0] - 2019-01-09
-
+## [1.1.1] - 2019-01-15
 ### Added
 - Event Catchup on startup, where all unknown events are retrieved from the EventSource and played
 - An event-number to each event to allow for event catchup
@@ -22,6 +18,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Better logging for event catchup 
 - A new transaction is started for each event during event catchup
 - Event catchup only runs with event listener components
+- Indexes to 'name' and 'date_created' columns in the event_log table
 
 ### Changed
 - Updated publish process to add events into a pre_publish_queue table

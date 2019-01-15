@@ -4,8 +4,8 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="event-store-013" author="TechPod"
-               logicalFilePath="013-add-sequence-column-to-event_log.xml">
+    <changeSet id="event-store-014" author="TechPod"
+               logicalFilePath="014-add-sequence-column-to-event_log.xml">
 
         <createSequence cycle="false"
                         sequenceName="event_sequence_seq"

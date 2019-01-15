@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [1.0.8] - 2019-01-14
+## [1.0.8] - 2019-01-15
 ### Added
 - Added indexes to 'name' and 'date_created' the event_log table
 

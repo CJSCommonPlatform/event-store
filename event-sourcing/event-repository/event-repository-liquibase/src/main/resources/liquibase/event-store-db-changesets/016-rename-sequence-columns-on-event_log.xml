@@ -4,8 +4,8 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="event-store-015" author="TechPod"
-               logicalFilePath="015-rename-sequence-columns-on-event_log.xml">
+    <changeSet id="event-store-016" author="TechPod"
+               logicalFilePath="016-rename-sequence-columns-on-event_log.xml">
 
         <dropIndex indexName="event_log_sequence_number_idx"
                    tableName="event_log"/>

@@ -4,8 +4,8 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
-    <changeSet id="event-store-012" author="TechPod"
-               logicalFilePath="012-recreate-publish-queue-table.changelog.xml">
+    <changeSet id="event-store-013" author="TechPod"
+               logicalFilePath="013-recreate-publish-queue-table.changelog.xml">
 
         <createTable tableName="publish_queue">
             <column name="id" type="BIGSERIAL">

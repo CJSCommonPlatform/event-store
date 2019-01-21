@@ -31,29 +31,41 @@ public class EventCatchupStartUpBean {
     ManagedExecutorService managedExecutorService;
 
     @Inject
+    EventCatchupConfig eventCatchupConfig;
+
+    @Inject
     Logger logger;
 
     @PostConstruct
     public void start() {
+
+        if(eventCatchupConfig.isEventCatchupEnabled()) {
+            runEventCatchup();
+        } else {
+            logger.info("Not performing event Event Catchup: Event catchup disabled");
+        }
+    }
+
+    private void runEventCatchup() {
         logger.info("SubscriptionManagerStartUp started");
         final Set<SubscriptionsDescriptor> subscriptionsDescriptors =
                 subscriptionsDescriptorsRegistry.getAll();
 
-        subscriptionsDescriptors.forEach(this::startSubscriptions);
+        subscriptionsDescriptors.forEach(this::runEventCatchupForSubscription);
     }
 
-    private void startSubscriptions(final SubscriptionsDescriptor subscriptionsDescriptor) {
+    private void runEventCatchupForSubscription(final SubscriptionsDescriptor subscriptionsDescriptor) {
 
         final String componentName = subscriptionsDescriptor.getServiceComponent();
 
         if (componentName.contains(EVENT_LISTENER)) {
             subscriptionsDescriptor
                     .getSubscriptions()
-                    .forEach(subscription -> startSubscription(componentName, subscription));
+                    .forEach(subscription -> runEventCatchupForComponent(componentName, subscription));
         }
     }
 
-    private void startSubscription(final String componentName, final Subscription subscription) {
+    private void runEventCatchupForComponent(final String componentName, final Subscription subscription) {
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
                 componentName,

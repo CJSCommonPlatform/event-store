@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
@@ -35,6 +36,9 @@ public class EventCatchupStartUpBeanTest {
     private ManagedExecutorService managedExecutorService;
 
     @Mock
+    private EventCatchupConfig eventCatchupConfig;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -62,6 +66,7 @@ public class EventCatchupStartUpBeanTest {
                 subscriptionsDescriptor_2,
                 subscriptionsDescriptor_3);
 
+        when(eventCatchupConfig.isEventCatchupEnabled()).thenReturn(true);
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(subscriptionsDescriptors);
 
         when(subscriptionsDescriptor_1.getServiceComponent()).thenReturn(componentName_1);
@@ -80,6 +85,17 @@ public class EventCatchupStartUpBeanTest {
 
         verify(subscriptionsDescriptor_3).getServiceComponent();
         verifyNoMoreInteractions(subscriptionsDescriptor_3);
+    }
 
+    @Test
+    public void shouldNotPerformCatchupIfDisabled() throws Exception {
+
+        when(eventCatchupConfig.isEventCatchupEnabled()).thenReturn(false);
+
+        eventCatchupStartUpBean.start();
+
+        verify(logger).info("Not performing event Event Catchup: Event catchup disabled");
+        verifyZeroInteractions(subscriptionsDescriptorsRegistry);
+        verifyZeroInteractions(managedExecutorService);
     }
 }

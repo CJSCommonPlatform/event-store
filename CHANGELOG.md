@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.2] - 2019-01-22
+### Added
+- JNDI configuration variable to enable/disable Event Catchup
+
+
 ## [1.1.1] - 2019-01-15
 ### Added
 - Event Catchup on startup, where all unknown events are retrieved from the EventSource and played

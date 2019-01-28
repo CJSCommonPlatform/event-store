@@ -6,6 +6,7 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimes
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidStreamIdException;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.OptimisticLockingRetryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
@@ -26,7 +27,7 @@ public class EventStreamJdbcRepository {
     private static final String SQL_FIND_BY_POSITION = "SELECT * FROM event_stream WHERE position_in_stream>=? ORDER BY position_in_stream ASC";
     private static final String SQL_FIND_POSITION_BY_STREAM = "SELECT position_in_stream FROM event_stream s WHERE s.stream_id=?";
     private static final String SQL_FIND_EVENT_STREAM = "SELECT * FROM event_stream s WHERE s.stream_id=?";
-    private static final String SQL_INSERT_EVENT_STREAM = "INSERT INTO event_stream (stream_id, date_created, active) values (?, ?, ?)";
+    private static final String SQL_INSERT_EVENT_STREAM = "INSERT INTO event_stream (stream_id, date_created, active) values (?, ?, ?) ON CONFLICT DO NOTHING";
     private static final String SQL_UPDATE_EVENT_STREAM_ACTIVE = "UPDATE event_stream SET active=? WHERE stream_id=?";
     private static final String SQL_DELETE_EVENT_STREAM = "DELETE FROM event_stream t WHERE t.stream_id=?";
     private static final String SQL_FIND_ALL = "SELECT * FROM event_stream ORDER BY position_in_stream ASC";
@@ -72,7 +73,10 @@ public class EventStreamJdbcRepository {
                 ps.setTimestamp(2, toSqlTimestamp(clock.now()));
                 ps.setBoolean(3, active);
 
-                ps.executeUpdate();
+                final int updatedRows = ps.executeUpdate();
+                if (updatedRows == 0) {
+                    throw new OptimisticLockingRetryException(format("Locking Exception while storing stream %s", streamId));
+                }
             } catch (final SQLException e) {
                 throw new JdbcRepositoryException(format("Exception while storing stream %s", streamId), e);
             }

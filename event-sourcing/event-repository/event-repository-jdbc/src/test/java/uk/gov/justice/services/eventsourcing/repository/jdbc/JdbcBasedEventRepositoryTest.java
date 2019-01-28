@@ -77,7 +77,7 @@ public class JdbcBasedEventRepositoryTest {
     @InjectMocks
     private JdbcBasedEventRepository jdbcBasedEventRepository;
 
-    private final static ZonedDateTime TIMESTAMP = new UtcClock().now();
+    private static final ZonedDateTime TIMESTAMP = new UtcClock().now();
 
     @Test
     public void shouldGetAllEvents() throws Exception {

@@ -11,6 +11,7 @@ public final class SubscriptionBuilder {
     private String name;
     private final List<Event> events = new ArrayList<>();
     private String eventSourceName;
+    private String prioritisation;
 
     private SubscriptionBuilder() {
     }
@@ -39,7 +40,12 @@ public final class SubscriptionBuilder {
         return this;
     }
 
+    public SubscriptionBuilder withPrioritisation(final String prioritisation) {
+        this.prioritisation = prioritisation;
+        return this;
+    }
+
     public Subscription build() {
-        return new Subscription(name, events, eventSourceName);
+        return new Subscription(name, events, eventSourceName, prioritisation);
     }
 }

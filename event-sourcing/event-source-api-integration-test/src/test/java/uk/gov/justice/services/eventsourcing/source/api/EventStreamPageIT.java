@@ -71,6 +71,7 @@ import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
 import uk.gov.justice.subscription.ParserProducer;
+import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.registry.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
@@ -223,7 +224,8 @@ public class EventStreamPageIT {
             QualifierAnnotationExtractor.class,
             JdbcEventSourceFactory.class,
 
-            DefaultEventSourceDefinitionFactory.class
+            DefaultEventSourceDefinitionFactory.class,
+            SubscriptionHelper.class
     })
 
     public WebApp war() {

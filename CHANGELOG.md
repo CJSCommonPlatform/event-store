@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Added
+- Subscription prioritisation  
+
 ## [1.1.3] - 2019-02-04
 ### Changed
 -Update utilities to 1.16.4

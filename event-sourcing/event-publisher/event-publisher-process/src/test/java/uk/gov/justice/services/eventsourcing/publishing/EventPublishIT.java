@@ -45,6 +45,7 @@ import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
+import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.registry.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
@@ -142,7 +143,8 @@ public class EventPublishIT {
             EventPrePublisher.class,
             MetadataSequenceNumberUpdater.class,
             PrePublishRepository.class,
-            UtcClock.class
+            UtcClock.class,
+            SubscriptionHelper.class
     })
     public WebApp war() {
         return new WebApp()

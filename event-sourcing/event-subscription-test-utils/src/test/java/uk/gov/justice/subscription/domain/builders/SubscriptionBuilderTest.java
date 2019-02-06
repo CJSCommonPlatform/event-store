@@ -22,15 +22,18 @@ public class SubscriptionBuilderTest {
         final Event event_1 = mock(Event.class);
         final Event event_2 = mock(Event.class);
         final String eventSourceName = "eventSoureName";
+        final String prioritisation = "1";
 
         final Subscription subscription = subscription()
                 .withName(name)
                 .withEvents(asList(event_1, event_2))
                 .withEventSourceName(eventSourceName)
+                .withPrioritisation(prioritisation)
                 .build();
 
         assertThat(subscription.getName(), is(name));
         assertThat(subscription.getEventSourceName(), is(eventSourceName));
+        assertThat(subscription.getPrioritisation(), is(prioritisation));
         assertThat(subscription.getEvents(), hasItem(event_1));
         assertThat(subscription.getEvents(), hasItem(event_2));
     }
@@ -42,16 +45,19 @@ public class SubscriptionBuilderTest {
         final Event event_1 = mock(Event.class);
         final Event event_2 = mock(Event.class);
         final String eventSourceName = "eventSourceName";
+        final String prioritisation = "1";
 
         final Subscription subscription = subscription()
                 .withName(name)
                 .withEvent(event_1)
                 .withEvent(event_2)
                 .withEventSourceName(eventSourceName)
+                .withPrioritisation(prioritisation)
                 .build();
 
         assertThat(subscription.getName(), is(name));
         assertThat(subscription.getEventSourceName(), is(eventSourceName));
+        assertThat(subscription.getPrioritisation(), is(prioritisation));
         assertThat(subscription.getEvents(), hasItem(event_1));
         assertThat(subscription.getEvents(), hasItem(event_2));
     }

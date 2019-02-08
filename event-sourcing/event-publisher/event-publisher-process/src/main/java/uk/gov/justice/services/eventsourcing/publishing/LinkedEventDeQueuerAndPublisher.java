@@ -1,15 +1,20 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
+import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 import static uk.gov.justice.services.eventsourcing.EventDeQueuer.PUBLISH_TABLE_NAME;
 
 import uk.gov.justice.services.eventsourcing.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.EventFetcher;
+import uk.gov.justice.services.eventsourcing.EventFetchingException;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,7 +25,7 @@ import org.slf4j.Logger;
  * The EventDeQueuerAndPublisher class provides a method that returns an event from the EventDeQueuer
  * and publishes the event.
  */
-public class EventDeQueuerAndPublisher {
+public class LinkedEventDeQueuerAndPublisher {
 
     @Inject
     EventDeQueuer eventDeQueuer;
@@ -32,7 +37,7 @@ public class EventDeQueuerAndPublisher {
     EventConverter eventConverter;
 
     @Inject
-    Logger logger;
+    EventFetcher eventFetcher;
 
     /**
      * Method that gets the next event to process from the EventDeQueuer,
@@ -44,13 +49,19 @@ public class EventDeQueuerAndPublisher {
     @Transactional(REQUIRES_NEW)
     public boolean deQueueAndPublish() {
 
-        final Optional<Event> event = eventDeQueuer.popNextEvent(PUBLISH_TABLE_NAME);
-        if (event.isPresent()) {
-            logger.debug("Publishing event {}", event.get().getName());
-            final JsonEnvelope jsonEnvelope = eventConverter.envelopeOf(event.get());
-            eventPublisher.publish(jsonEnvelope);
+        final Optional<UUID> eventId = eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME);
+        if (eventId.isPresent()) {
+            final Optional<LinkedEvent> linkedEvent = eventFetcher.getLinkedEvent(eventId.get());
 
-            return true;
+            if(linkedEvent.isPresent()) {
+                final JsonEnvelope jsonEnvelope = eventConverter.envelopeOf(linkedEvent.get());
+                eventPublisher.publish(jsonEnvelope);
+
+                return true;
+            } else {
+                throw new EventFetchingException(format("Failed to find LinkedEvent with id '%s'", eventId.get()));
+            }
+
         }
         return false;
     }

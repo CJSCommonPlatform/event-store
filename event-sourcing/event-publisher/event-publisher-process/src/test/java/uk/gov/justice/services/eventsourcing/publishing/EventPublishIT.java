@@ -14,8 +14,11 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.cdi.LoggerProducer;
 import uk.gov.justice.services.eventsource.DefaultEventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.EventFetcher;
+import uk.gov.justice.services.eventsourcing.EventFetcherRepository;
 import uk.gov.justice.services.eventsourcing.prepublish.EventPrePublisher;
-import uk.gov.justice.services.eventsourcing.prepublish.MetadataSequenceNumberUpdater;
+import uk.gov.justice.services.eventsourcing.prepublish.LinkedEventFactory;
+import uk.gov.justice.services.eventsourcing.prepublish.MetadataEventNumberUpdater;
 import uk.gov.justice.services.eventsourcing.prepublish.PrePublishProcessor;
 import uk.gov.justice.services.eventsourcing.prepublish.PrePublishRepository;
 import uk.gov.justice.services.eventsourcing.prepublish.PrePublishTimerBean;
@@ -99,7 +102,7 @@ public class EventPublishIT {
     @Module
     @Classes(cdi = true, value = {
             PublisherTimerBean.class,
-            EventDeQueuerAndPublisher.class,
+            LinkedEventDeQueuerAndPublisher.class,
             EventDeQueuer.class,
             EventPublisher.class,
             DummyEventPublisher.class,
@@ -140,9 +143,12 @@ public class EventPublishIT {
             PrePublishProcessor.class,
             PrePublishTimerConfig.class,
             EventPrePublisher.class,
-            MetadataSequenceNumberUpdater.class,
+            MetadataEventNumberUpdater.class,
             PrePublishRepository.class,
-            UtcClock.class
+            UtcClock.class,
+            EventFetcher.class,
+            EventFetcherRepository.class,
+            LinkedEventFactory.class
     })
     public WebApp war() {
         return new WebApp()

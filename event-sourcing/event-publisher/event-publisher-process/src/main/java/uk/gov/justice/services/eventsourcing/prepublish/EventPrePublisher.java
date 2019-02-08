@@ -7,6 +7,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -23,7 +24,7 @@ public class EventPrePublisher {
     SubscriptionDataSourceProvider subscriptionDataSourceProvider;
 
     @Inject
-    MetadataSequenceNumberUpdater metadataSequenceNumberUpdater;
+    MetadataEventNumberUpdater metadataEventNumberUpdater;
 
     @Inject
     PrePublishRepository prePublishRepository;
@@ -34,21 +35,30 @@ public class EventPrePublisher {
     @Inject
     EventConverter eventConverter;
 
+    @Inject
+    LinkedEventFactory linkedEventFactory;
+
     @Transactional(MANDATORY)
     public void prePublish(final Event event) {
 
         final UUID eventId = event.getId();
 
         try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
-            final long sequenceNumber = prePublishRepository.getSequenceNumber(eventId, connection);
-            final long previousSequenceNumber = prePublishRepository.getPreviousSequenceNumber(sequenceNumber, connection);
+            final long eventNumber = prePublishRepository.getEventNumber(eventId, connection);
+            final long previousEventNumber = prePublishRepository.getPreviousEventNumber(eventNumber, connection);
 
-            final Metadata updatedMetadata = metadataSequenceNumberUpdater.updateMetadataJson(
+            final Metadata updatedMetadata = metadataEventNumberUpdater.updateMetadataJson(
                     eventConverter.metadataOf(event),
-                    previousSequenceNumber,
-                    sequenceNumber);
+                    previousEventNumber,
+                    eventNumber);
 
-            prePublishRepository.updateMetadata(eventId, updatedMetadata.asJsonObject().toString(), connection);
+            final LinkedEvent linkedEvent = linkedEventFactory.create(
+                    event,
+                    updatedMetadata,
+                    eventNumber,
+                    previousEventNumber);
+
+            prePublishRepository.insertLinkedEvent(linkedEvent, connection);
             prePublishRepository.addToPublishQueueTable(eventId, clock.now(), connection);
 
         } catch (final SQLException e) {

@@ -31,7 +31,7 @@ public class PublisherTimerBean {
     TimerCanceler timerCanceler;
 
     @Inject
-    EventDeQueuerAndPublisher eventDeQueuerAndPublisher;
+    LinkedEventDeQueuerAndPublisher linkedEventDeQueuerAndPublisher;
 
     @PostConstruct
     public void startTimerService() {
@@ -46,7 +46,7 @@ public class PublisherTimerBean {
     @Timeout
     public void doDeQueueAndPublish() {
 
-        while (eventDeQueuerAndPublisher.deQueueAndPublish()) {
+        while (linkedEventDeQueuerAndPublisher.deQueueAndPublish()) {
             timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
         }
     }

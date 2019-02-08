@@ -15,10 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetadataSequenceNumberUpdaterTest {
+public class MetadataEventNumberUpdaterTest {
 
     @InjectMocks
-    private MetadataSequenceNumberUpdater metadataSequenceNumberUpdater;
+    private MetadataEventNumberUpdater metadataEventNumberUpdater;
 
     @Test
     public void shouldAddPreviousAndNextSequenceNumberIntoMetadataJson() throws Exception {
@@ -37,7 +37,7 @@ public class MetadataSequenceNumberUpdaterTest {
                 .withSource(eventSource)
                 .build();
 
-        final Metadata updatedMetadata = metadataSequenceNumberUpdater.updateMetadataJson(
+        final Metadata updatedMetadata = metadataEventNumberUpdater.updateMetadataJson(
                 originalMetadata,
                 previousSequenceNumber,
                 sequenceNumber);

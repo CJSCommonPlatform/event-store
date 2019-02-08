@@ -7,11 +7,16 @@ import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProduce
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
+import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupProcessor;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.ConcurrentEventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
 
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 
 public class EventCatchupProcessorFactory {
@@ -31,6 +36,9 @@ public class EventCatchupProcessorFactory {
     @Inject
     InterceptorContextProvider interceptorContextProvider;
 
+    @Resource
+    ManagedExecutorService managedExecutorService;
+
     public EventCatchupProcessor createFor(final String componentName) {
 
         final InterceptorChainProcessor interceptorChainProcessor = interceptorChainProcessorProducer
@@ -42,11 +50,13 @@ public class EventCatchupProcessorFactory {
                 interceptorContextProvider);
 
         final TransactionalEventProcessor transactionalEventProcessor = new TransactionalEventProcessor(eventBufferProcessor);
+        final ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory = new ConsumeEventQueueTaskFactory(transactionalEventProcessor);
+        final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(managedExecutorService, consumeEventQueueTaskFactory);
 
         return new EventCatchupProcessor(
                 subscriptionsRepository,
                 eventSourceProvider,
-                transactionalEventProcessor,
+                eventStreamConsumerManager,
                 getLogger(EventCatchupProcessor.class)
         );
     }

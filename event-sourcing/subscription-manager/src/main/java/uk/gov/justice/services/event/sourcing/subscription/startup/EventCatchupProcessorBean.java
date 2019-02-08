@@ -2,7 +2,6 @@ package uk.gov.justice.services.event.sourcing.subscription.startup;
 
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factories.EventCatchupProcessorFactory;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 

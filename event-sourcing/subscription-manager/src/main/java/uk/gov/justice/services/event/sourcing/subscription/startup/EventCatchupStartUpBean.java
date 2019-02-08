@@ -2,6 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.startup;
 
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.EventCatchupTask;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
@@ -39,7 +40,7 @@ public class EventCatchupStartUpBean {
     @PostConstruct
     public void start() {
 
-        if(eventCatchupConfig.isEventCatchupEnabled()) {
+        if (eventCatchupConfig.isEventCatchupEnabled()) {
             runEventCatchup();
         } else {
             logger.info("Not performing event Event Catchup: Event catchup disabled");

@@ -5,6 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.3-M1] - 2019-02-08
 ### Added
 - Subscription prioritisation  
 

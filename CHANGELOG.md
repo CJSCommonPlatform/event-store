@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Catchup lifecycle listener classes and events
 
 ## [1.2.0-M1] - 2019-02-08
 ### Added

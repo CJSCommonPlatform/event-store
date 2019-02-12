@@ -1,5 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -19,7 +21,7 @@ public class EventCatchupTaskTest {
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(componentName, subscription, eventCatchupProcessorBean);
 
-        eventCatchupTask.run();
+        assertThat(eventCatchupTask.call(), is(true));
 
         verify(eventCatchupProcessorBean).performEventCatchup(
                 componentName,

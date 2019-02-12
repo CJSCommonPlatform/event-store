@@ -78,10 +78,10 @@ public class EventCatchupStartUpBeanTest {
 
         eventCatchupStartUpBean.start();
 
-        verify(managedExecutorService).execute(new EventCatchupTask(componentName_1, subscription_1_1, eventCatchupProcessorBean));
-        verify(managedExecutorService).execute(new EventCatchupTask(componentName_1, subscription_1_2, eventCatchupProcessorBean));
-        verify(managedExecutorService).execute(new EventCatchupTask(componentName_2, subscription_2_1, eventCatchupProcessorBean));
-        verify(managedExecutorService).execute(new EventCatchupTask(componentName_2, subscription_2_2, eventCatchupProcessorBean));
+        verify(managedExecutorService).submit(new EventCatchupTask(componentName_1, subscription_1_1, eventCatchupProcessorBean));
+        verify(managedExecutorService).submit(new EventCatchupTask(componentName_1, subscription_1_2, eventCatchupProcessorBean));
+        verify(managedExecutorService).submit(new EventCatchupTask(componentName_2, subscription_2_1, eventCatchupProcessorBean));
+        verify(managedExecutorService).submit(new EventCatchupTask(componentName_2, subscription_2_2, eventCatchupProcessorBean));
 
         verify(subscriptionsDescriptor_3).getServiceComponent();
         verifyNoMoreInteractions(subscriptionsDescriptor_3);

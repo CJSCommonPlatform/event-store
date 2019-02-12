@@ -72,6 +72,6 @@ public class EventCatchupStartUpBean {
                 subscription,
                 eventCatchupProcessorBean);
 
-        managedExecutorService.execute(eventCatchupTask);
+        managedExecutorService.submit(eventCatchupTask);
     }
 }

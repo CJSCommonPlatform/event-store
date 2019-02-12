@@ -3,8 +3,9 @@ package uk.gov.justice.services.event.sourcing.subscription.startup;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
-public class EventCatchupTask implements Runnable {
+public class EventCatchupTask implements Callable<Boolean> {
 
     private final String componentName;
     private final Subscription subscription;
@@ -19,12 +20,15 @@ public class EventCatchupTask implements Runnable {
         this.eventCatchupProcessorBean = eventCatchupProcessorBean;
     }
 
+
     @Override
-    public void run() {
+    public Boolean call() {
         eventCatchupProcessorBean.performEventCatchup(
                 componentName,
                 subscription
         );
+
+        return true;
     }
 
     @Override

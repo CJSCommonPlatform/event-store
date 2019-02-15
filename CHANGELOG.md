@@ -4,6 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+-Update utilities to 1.16.2
+-Update test-utils to 1.19.1
+-Update framework to 5.1.0
+-Update framework-domain to 1.1.0
+-Update common-bom to 1.28.0
+-Update framework-api to 3.1.0
 
 ## [1.1.3] - 2019-02-04
 ### Changed

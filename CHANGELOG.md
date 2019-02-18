@@ -4,13 +4,18 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.1.4] - 2019-02-18
+### Added
+- New linked_event table for the publish process
+
 ### Changed
--Update utilities to 1.16.2
--Update test-utils to 1.19.1
--Update framework to 5.1.0
--Update framework-domain to 1.1.0
--Update common-bom to 1.28.0
--Update framework-api to 3.1.0
+-Revert utilities to 1.16.2
+-Revert test-utils to 1.19.1
+-Revert framework to 5.1.0
+-Revert framework-domain to 1.1.0
+-Revert common-bom to 1.28.0
+-Revert framework-api to 3.1.0
 
 ## [1.1.3] - 2019-02-04
 ### Changed

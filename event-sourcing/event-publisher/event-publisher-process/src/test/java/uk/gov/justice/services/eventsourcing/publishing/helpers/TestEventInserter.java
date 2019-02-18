@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.publishing.helpers;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
@@ -22,6 +23,11 @@ public class TestEventInserter {
             "INSERT INTO event_log (" +
                     "id, stream_id, position_in_stream, name, payload, metadata, date_created" +
                     ") VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String INSERT_INTO_LINKED_EVENT_QUERY =
+            "INSERT INTO linked_event (" +
+                    "id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number" +
+                    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     public void insertIntoEventLog(final Event event) throws SQLException {
         insertIntoEventLog(
@@ -74,6 +80,26 @@ public class TestEventInserter {
                 preparedStatement.setString(5, payload);
                 preparedStatement.setString(6, metadata);
                 preparedStatement.setObject(7, toSqlTimestamp(now));
+
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
+    public void insertIntoLinkedEvent(final LinkedEvent linkedEvent) throws SQLException {
+
+        try (final Connection connection = eventStoreDataSource.getConnection()) {
+
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_LINKED_EVENT_QUERY)) {
+                preparedStatement.setObject(1, linkedEvent.getId());
+                preparedStatement.setObject(2, linkedEvent.getStreamId());
+                preparedStatement.setLong(3, linkedEvent.getSequenceId());
+                preparedStatement.setString(4, linkedEvent.getName());
+                preparedStatement.setString(5, linkedEvent.getPayload());
+                preparedStatement.setString(6, linkedEvent.getMetadata());
+                preparedStatement.setObject(7, toSqlTimestamp(linkedEvent.getCreatedAt()));
+                preparedStatement.setLong(8, linkedEvent.getEventNumber().get());
+                preparedStatement.setLong(9, linkedEvent.getPreviousEventNumber());
 
                 preparedStatement.executeUpdate();
             }

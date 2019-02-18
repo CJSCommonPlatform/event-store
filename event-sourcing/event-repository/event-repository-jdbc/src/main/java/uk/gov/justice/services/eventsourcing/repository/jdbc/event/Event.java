@@ -45,8 +45,7 @@ public class Event {
         );
     }
 
-    // package protected as should only be used by the EventJdbcRepository
-    Event(final UUID id,
+    public Event(final UUID id,
           final UUID streamId,
           final Long sequenceId,
           final String name,

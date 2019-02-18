@@ -4,7 +4,7 @@ import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
 
 import uk.gov.justice.services.messaging.Metadata;
 
-public class MetadataSequenceNumberUpdater {
+public class MetadataEventNumberUpdater {
 
     public Metadata updateMetadataJson(final Metadata metadata, final long previousSequenceNumber, final long sequenceNumber) {
         return metadataFrom(metadata)

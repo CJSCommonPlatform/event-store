@@ -11,7 +11,11 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.eventsourcing.EventDeQueuer.PRE_PUBLISH_TABLE_NAME;
 
 import uk.gov.justice.services.eventsourcing.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.EventFetcher;
+import uk.gov.justice.services.eventsourcing.EventFetchingException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +30,10 @@ public class PrePublishProcessorTest {
     private EventDeQueuer eventDeQueuer;
 
     @Mock
-    private EventPrePublisher prePublishDelegate;
+    private EventPrePublisher eventPrePublisher;
+
+    @Mock
+    private EventFetcher eventFetcher;
 
     @InjectMocks
     private PrePublishProcessor prePublishProcessor;
@@ -34,22 +41,41 @@ public class PrePublishProcessorTest {
     @Test
     public void shouldRunPrePublishIfAnEventIsAvailableForPublishing() throws Exception {
 
+        final UUID eventId = UUID.randomUUID();
         final Event event = mock(Event.class);
 
-        when(eventDeQueuer.popNextEvent(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(event));
+        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(eventFetcher.getEvent(eventId)).thenReturn(of(event));
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(true));
 
-        verify(prePublishDelegate).prePublish(event);
+        verify(eventPrePublisher).prePublish(event);
     }
 
     @Test
     public void shouldDoNothingIfNoEventIsAvailableForPublishing() throws Exception {
 
-        when(eventDeQueuer.popNextEvent(PRE_PUBLISH_TABLE_NAME)).thenReturn(empty());
+        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(empty());
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(false));
 
-        verifyZeroInteractions(prePublishDelegate);
+        verifyZeroInteractions(eventPrePublisher);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfEventNotFoundInEventLogTable() throws Exception {
+
+        final UUID eventId = UUID.randomUUID();
+
+        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(eventFetcher.getEvent(eventId)).thenReturn(empty());
+
+        try {
+            prePublishProcessor.prePublishNextEvent();
+        } catch (final EventFetchingException expected) {
+            assertThat(expected.getMessage(), is("Failed to find Event with id '" + eventId + "'"));
+        }
+
+        verifyZeroInteractions(eventPrePublisher);
     }
 }

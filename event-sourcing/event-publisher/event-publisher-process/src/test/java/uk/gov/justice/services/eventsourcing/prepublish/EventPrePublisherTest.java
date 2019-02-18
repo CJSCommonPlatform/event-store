@@ -14,6 +14,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -26,6 +27,8 @@ import javax.json.JsonObject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,7 +41,7 @@ public class EventPrePublisherTest {
     private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
 
     @Mock
-    private MetadataSequenceNumberUpdater metadataSequenceNumberUpdater;
+    private MetadataEventNumberUpdater metadataEventNumberUpdater;
 
     @Mock
     private PrePublishRepository prePublishRepository;
@@ -48,6 +51,9 @@ public class EventPrePublisherTest {
 
     @Mock
     private EventConverter eventConverter;
+
+    @Mock
+    private LinkedEventFactory linkedEventFactory;
 
     @InjectMocks
     private EventPrePublisher eventPrePublisher;
@@ -61,25 +67,27 @@ public class EventPrePublisherTest {
         final JsonObject metadataJsonObject = mock(JsonObject.class);
         final String updatedMetadataString = "updated metadata";
 
-        final long sequenceNumber = 982L;
-        final long previousSequenceNumber = 981L;
+        final long eventNumber = 982L;
+        final long previousEventNumber = 981L;
 
         final ZonedDateTime now = new UtcClock().now();
 
         final Connection connection = mock(Connection.class);
         final Event event = mock(Event.class);
+        final LinkedEvent linkedEvent = mock(LinkedEvent.class);
 
         when(event.getId()).thenReturn(eventId);
         when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
-        when(prePublishRepository.getSequenceNumber(eventId, connection)).thenReturn(sequenceNumber);
-        when(prePublishRepository.getPreviousSequenceNumber(sequenceNumber, connection)).thenReturn(previousSequenceNumber);
+        when(prePublishRepository.getEventNumber(eventId, connection)).thenReturn(eventNumber);
+        when(prePublishRepository.getPreviousEventNumber(eventNumber, connection)).thenReturn(previousEventNumber);
         when(clock.now()).thenReturn(now);
         when(eventConverter.metadataOf(event)).thenReturn(originalMetadata);
 
-        when(metadataSequenceNumberUpdater.updateMetadataJson(
+        when(metadataEventNumberUpdater.updateMetadataJson(
                 originalMetadata,
-                previousSequenceNumber,
-                sequenceNumber)).thenReturn(updatedMetadata);
+                previousEventNumber,
+                eventNumber)).thenReturn(updatedMetadata);
+        when(linkedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber)).thenReturn(linkedEvent);
 
         when(updatedMetadata.asJsonObject()).thenReturn(metadataJsonObject);
         when(metadataJsonObject.toString()).thenReturn(updatedMetadataString);
@@ -87,7 +95,7 @@ public class EventPrePublisherTest {
         eventPrePublisher.prePublish(event);
 
         final InOrder inOrder = inOrder(prePublishRepository);
-        inOrder.verify(prePublishRepository).updateMetadata(eventId, updatedMetadataString, connection);
+        inOrder.verify(prePublishRepository).insertLinkedEvent(linkedEvent, connection);
         inOrder.verify(prePublishRepository).addToPublishQueueTable(eventId, now, connection);
     }
 
@@ -103,7 +111,7 @@ public class EventPrePublisherTest {
 
         when(event.getId()).thenReturn(eventId);
         when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
-        when(prePublishRepository.getSequenceNumber(eventId, connection)).thenThrow(sqlException);
+        when(prePublishRepository.getEventNumber(eventId, connection)).thenThrow(sqlException);
 
         try {
             eventPrePublisher.prePublish(event);
@@ -112,6 +120,5 @@ public class EventPrePublisherTest {
             assertThat(expected.getCause(), is(sqlException));
             assertThat(expected.getMessage(), is("Failed to insert event_number into metadata in event_log table for event id 5dd46779-07a6-4772-b5e8-e9d280708269"));
         }
-
     }
 }

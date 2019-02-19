@@ -1,23 +1,23 @@
 package uk.gov.justice.services.eventsourcing.prepublish;
 
-import static com.jayway.jsonassert.JsonAssert.with;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
-import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class PrePublishRepositoryTest {
@@ -61,10 +60,10 @@ public class PrePublishRepositoryTest {
         testEventInserter.insertIntoEventLog(event_4);
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            assertThat(prePublishRepository.getSequenceNumber(event_1.getId(), connection), is(1L));
-            assertThat(prePublishRepository.getSequenceNumber(event_2.getId(), connection), is(2L));
-            assertThat(prePublishRepository.getSequenceNumber(event_3.getId(), connection), is(3L));
-            assertThat(prePublishRepository.getSequenceNumber(event_4.getId(), connection), is(4L));
+            assertThat(prePublishRepository.getEventNumber(event_1.getId(), connection), is(1L));
+            assertThat(prePublishRepository.getEventNumber(event_2.getId(), connection), is(2L));
+            assertThat(prePublishRepository.getEventNumber(event_3.getId(), connection), is(3L));
+            assertThat(prePublishRepository.getEventNumber(event_4.getId(), connection), is(4L));
         }
     }
 
@@ -83,33 +82,11 @@ public class PrePublishRepositoryTest {
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
 
-            assertThat(prePublishRepository.getPreviousSequenceNumber(1, connection), is(0L));
-            assertThat(prePublishRepository.getPreviousSequenceNumber(2, connection), is(1L));
-            assertThat(prePublishRepository.getPreviousSequenceNumber(3, connection), is(2L));
-            assertThat(prePublishRepository.getPreviousSequenceNumber(4, connection), is(3L));
+            assertThat(prePublishRepository.getPreviousEventNumber(1, connection), is(0L));
+            assertThat(prePublishRepository.getPreviousEventNumber(2, connection), is(1L));
+            assertThat(prePublishRepository.getPreviousEventNumber(3, connection), is(2L));
+            assertThat(prePublishRepository.getPreviousEventNumber(4, connection), is(3L));
         }
-    }
-
-    @Test
-    public void shouldUpdateTheMetadataOfAnEvent() throws Exception {
-
-        final String eventName = "an-event";
-        final Event event = eventFactory.createEvent(eventName, 101);
-
-        testEventInserter.insertIntoEventLog(event);
-
-        final String metadataOfEvent = getMetadataOfEvent(event.getId());
-
-        with(metadataOfEvent)
-                .assertThat("$.name", is(eventName))
-        ;
-
-        try (final Connection connection = eventStoreDataSource.getConnection()) {
-
-            prePublishRepository.updateMetadata(event.getId(), "new metadata", connection);
-        }
-
-        assertThat(getMetadataOfEvent(event.getId()), is("new metadata"));
     }
 
     @Test
@@ -130,7 +107,7 @@ public class PrePublishRepositoryTest {
                 assertThat(resultSet.next(), is(true));
                 final long id = resultSet.getLong("id");
                 final UUID eventLogId = (UUID) resultSet.getObject("event_log_id");
-                final ZonedDateTime dateQueued = ZonedDateTimes.fromSqlTimestamp(resultSet.getTimestamp("date_queued"));
+                final ZonedDateTime dateQueued = fromSqlTimestamp(resultSet.getTimestamp("date_queued"));
 
                 assertThat(id, is(1L));
                 assertThat(eventLogId, is(eventId));
@@ -141,18 +118,42 @@ public class PrePublishRepositoryTest {
         }
     }
 
-    private String getMetadataOfEvent(final UUID eventId) throws SQLException {
+    @Test
+    public void shouldInsertALinkedEvent() throws Exception {
+
+        final LinkedEvent linkedEvent = new LinkedEvent(
+                randomUUID(),
+                randomUUID(),
+                982347L,
+                "an-event.name",
+                "{\"some\": \"metadata\"}",
+                "{\"the\": \"payload\"}",
+                new UtcClock().now(),
+                23L,
+                22L
+        );
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            try (final PreparedStatement preparedStatement = connection.prepareStatement("SELECT metadata FROM event_log WHERE id = ?")) {
+            prePublishRepository.insertLinkedEvent(linkedEvent, connection);
+        }
 
-                preparedStatement.setObject(1, eventId);
+        try (final Connection connection = eventStoreDataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM linked_event");
+             final ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                try (final ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                    resultSet.next();
-                    return resultSet.getString(1);
-                }
+            if(resultSet.next()) {
+                assertThat(resultSet.getObject(1), is(linkedEvent.getId()));
+                assertThat(resultSet.getObject(2), is(linkedEvent.getStreamId()));
+                assertThat(resultSet.getObject(3), is(linkedEvent.getSequenceId()));
+                assertThat(resultSet.getString(4), is(linkedEvent.getName()));
+                assertThat(resultSet.getString(5), is(linkedEvent.getPayload()));
+                assertThat(resultSet.getString(6), is(linkedEvent.getMetadata()));
+                assertThat(fromSqlTimestamp(resultSet.getTimestamp(7)), is(linkedEvent.getCreatedAt()));
+                assertThat(resultSet.getLong(8), is(linkedEvent.getEventNumber().get()));
+                assertThat(resultSet.getObject(9), is(linkedEvent.getPreviousEventNumber()));
+            } else {
+                fail();
             }
         }
     }

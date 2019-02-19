@@ -53,7 +53,7 @@ public class EventDeQueuerIT {
 
         when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(dataSource);
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).isPresent(), is(false));
+        assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
         final Event event_1 = eventFactory.createEvent("example.first-event", 1L);
         final Event event_2 = eventFactory.createEvent("example.second-event", 2L);
@@ -63,11 +63,11 @@ public class EventDeQueuerIT {
         testEventInserter.insertIntoEventLog(event_2);
         testEventInserter.insertIntoEventLog(event_3);
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_1));
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_2));
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_3));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_1.getId()));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_2.getId()));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_3.getId()));
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).isPresent(), is(false));
+        assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class EventDeQueuerIT {
 
         when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(dataSource);
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).isPresent(), is(false));
+        assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
         final Event event_1 = eventFactory.createEvent("example.first-event", 1L);
         final Event event_2 = eventFactory.createEvent("example.second-event", 2L);
@@ -89,11 +89,11 @@ public class EventDeQueuerIT {
         testEventInserter.insertIntoEventLog(event_2);
         testEventInserter.insertIntoEventLog(event_3);
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_1));
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_2));
-        assertThat(eventDeQueuer.popNextEvent(tableName).get(), is(event_3));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_1.getId()));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_2.getId()));
+        assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_3.getId()));
 
-        assertThat(eventDeQueuer.popNextEvent(tableName).isPresent(), is(false));
+        assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
     }
 
     private void insertInPublishQueue(final Event... events) throws SQLException {

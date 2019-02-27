@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.2.0-M2] - 2019-02-27
+### Changed
+- Replaced BackwardsCompatibleJsonSchemaValidator with DummyJsonSchemaValidator in Integration Tests
+-Update framework-api to 3.4.0-M1
+-Update framework to 5.3.0-M2
+
 ## [1.2.0-M1] - 2019-02-08
 ### Added
 - Subscription prioritisation  

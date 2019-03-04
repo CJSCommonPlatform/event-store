@@ -1,10 +1,11 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup;
+package uk.gov.justice.services.event.sourcing.subscription.startup.task;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupProcessorBean;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import org.junit.Test;

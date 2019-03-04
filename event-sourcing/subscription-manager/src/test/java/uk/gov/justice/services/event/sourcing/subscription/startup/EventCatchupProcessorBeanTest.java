@@ -4,7 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factories.EventCatchupProcessorFactory;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 

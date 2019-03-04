@@ -1,11 +1,12 @@
-package uk.gov.justice.services.event.sourcing.subscription.manager;
+package uk.gov.justice.services.event.sourcing.subscription.startup;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
+import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 @RunWith(MockitoJUnitRunner.class)
 public class EventCatchupProcessorTest {
 
-
     @Mock
     private SubscriptionsRepository subscriptionsRepository;
 
@@ -32,7 +32,7 @@ public class EventCatchupProcessorTest {
     private EventSourceProvider eventSourceProvider;
 
     @Mock
-    private TransactionalEventProcessor transactionalEventProcessor;
+    private EventStreamConsumerManager eventStreamConsumerManager;
 
     @Mock
     private Logger logger;
@@ -57,17 +57,16 @@ public class EventCatchupProcessorTest {
         when(eventSourceProvider.getEventSource(eventSourceName)).thenReturn(eventSource);
         when(subscriptionsRepository.getOrInitialiseCurrentEventNumber(eventSourceName)).thenReturn(eventNumber);
         when(eventSource.findEventsSince(eventNumber)).thenReturn(Stream.of(event_1, event_2, event_3));
-        when(transactionalEventProcessor.processWithEventBuffer(any(JsonEnvelope.class))).thenReturn(1);
 
         eventCatchupProcessor.performEventCatchup(subscription);
 
-        final InOrder inOrder = inOrder(logger, transactionalEventProcessor);
+        final InOrder inOrder = inOrder(logger, eventStreamConsumerManager);
 
         inOrder.verify(logger).info("Event catchup started");
         inOrder.verify(logger).info("Performing catchup of events...");
-        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_1);
-        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_2);
-        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_3);
+        inOrder.verify(eventStreamConsumerManager).add(event_1);
+        inOrder.verify(eventStreamConsumerManager).add(event_2);
+        inOrder.verify(eventStreamConsumerManager).add(event_3);
         inOrder.verify(logger).info("Event catchup retrieved and processed 3 new events");
         inOrder.verify(logger).info("Event catchup complete");
     }

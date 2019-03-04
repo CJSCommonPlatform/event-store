@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Create concurrent catchup process, replays events on different streams concurrently
+
 ## [1.2.0-M3] - 2019-03-01
 ### Changed
 - Update framework to 5.3.0-M3
@@ -26,12 +29,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [1.1.3] - 2019-02-04
 ### Changed
--Update utilities to 1.16.4
--Update test-utils to 1.22.0
--Update framework to 5.1.1
--Update framework-domain to 1.1.1
--Update common-bom to 1.29.0
--Update framework-api to 3.2.0
+- Update utilities to 1.16.4
+- Update test-utils to 1.22.0
+- Update framework to 5.1.1
+- Update framework-domain to 1.1.1
+- Update common-bom to 1.29.0
+- Update framework-api to 3.2.0
 
 ## [1.1.2] - 2019-01-22
 ### Added

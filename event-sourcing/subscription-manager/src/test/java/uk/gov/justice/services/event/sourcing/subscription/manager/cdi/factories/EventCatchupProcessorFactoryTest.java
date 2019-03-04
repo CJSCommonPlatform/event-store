@@ -12,10 +12,12 @@ import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProduce
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
+import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupProcessor;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,15 +54,17 @@ public class EventCatchupProcessorFactoryTest {
 
         final InterceptorChainProcessor interceptorChainProcessor = mock(InterceptorChainProcessor.class);
 
-        when(interceptorChainProcessorProducer.produceLocalProcessor(componentName)).thenReturn(interceptorChainProcessor );
+        when(interceptorChainProcessorProducer.produceLocalProcessor(componentName)).thenReturn(interceptorChainProcessor);
 
         final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.createFor(componentName);
 
         assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
         assertThat(getValueOfField(eventCatchupProcessor, "logger", Logger.class), is(notNullValue()));
 
-        final TransactionalEventProcessor transactionalEventProcessor = getValueOfField(eventCatchupProcessor, "transactionalEventProcessor", TransactionalEventProcessor.class);
-        final EventBufferProcessor eventBufferProcessor = getValueOfField(transactionalEventProcessor, "eventBufferProcessor", EventBufferProcessor.class);;
+        final EventStreamConsumerManager eventStreamConsumerManager = getValueOfField(eventCatchupProcessor, "eventStreamConsumerManager", EventStreamConsumerManager.class);
+        final ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory = getValueOfField(eventStreamConsumerManager, "consumeEventQueueTaskFactory", ConsumeEventQueueTaskFactory.class);
+        final TransactionalEventProcessor transactionalEventProcessor = getValueOfField(consumeEventQueueTaskFactory, "transactionalEventProcessor", TransactionalEventProcessor.class);
+        final EventBufferProcessor eventBufferProcessor = getValueOfField(transactionalEventProcessor, "eventBufferProcessor", EventBufferProcessor.class);
 
         assertThat(getValueOfField(eventBufferProcessor, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
         assertThat(getValueOfField(eventBufferProcessor, "eventBufferService", EventBufferService.class), is(eventBufferService));

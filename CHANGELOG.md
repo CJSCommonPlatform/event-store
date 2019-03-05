@@ -5,7 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.2.0-M4] - 2019-03-05
 ### Changed
+- Update framework to 5.3.0-M5
+- Update framework-api to 3.4.0-M2
 - Create concurrent catchup process, replays events on different streams concurrently
 
 ## [1.2.0-M3] - 2019-03-01

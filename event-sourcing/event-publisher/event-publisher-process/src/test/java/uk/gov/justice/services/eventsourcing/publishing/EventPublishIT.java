@@ -50,7 +50,7 @@ import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
-import uk.gov.justice.subscription.registry.DefaultEventSourceDefinitionFactory;
+import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;

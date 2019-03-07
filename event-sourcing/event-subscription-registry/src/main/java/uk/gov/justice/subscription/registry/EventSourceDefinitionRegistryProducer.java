@@ -2,6 +2,7 @@ package uk.gov.justice.subscription.registry;
 
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.YamlFileFinder;
+import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 
 import java.io.IOException;

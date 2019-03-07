@@ -15,8 +15,6 @@
     <modules>
         <module>event-buffer-liquibase</module>
         <module>event-buffer-core</module>
-        <module>event-buffer-api</module>
     </modules>
-
 
 </project>

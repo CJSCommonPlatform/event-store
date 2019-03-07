@@ -18,8 +18,6 @@
         <module>event-repository</module>
         <module>event-source-api</module>
         <module>event-source-api-integration-test</module>
-        <module>event-subscription</module>
-        <module>event-subscription-test-utils</module>
         <module>event-subscription-registry</module>
         <module>subscription-manager</module>
     </modules>

@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Added
+- Support to for linked events after stream transformation
+- truncate() method to the EventSource interface
+- populate() method to the EventSource interface
+
 ## [2.0.0-M6] - 2019-03-20
 ### Fixed
 - Moved test-utils into correct maven test scope

@@ -65,7 +65,7 @@ public class EventFetcherRepositoryIT {
     @Test
     public void shouldFetchLinkedEventById() throws Exception {
 
-        final LinkedEvent linkedEvent = eventFactory.createLinkedEvent("example.linked-event", 1L, 1L, 0L);
+        final LinkedEvent linkedEvent = eventFactory.createLinkedEvent(randomUUID(),"example.linked-event", 1L, 1L, 0L);
 
         testEventInserter.insertIntoLinkedEvent(linkedEvent);
 

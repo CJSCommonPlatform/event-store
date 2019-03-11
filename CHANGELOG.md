@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.5] 2019-03-14
+### Added
+- Support to for linked events after stream transformation
+- truncate() method to the EventSource interface
+- populate() method to the EventSource interface
+
 ## [1.1.4] - 2019-02-18
 ### Added
 - New linked_event table for the publish process

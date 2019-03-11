@@ -6,8 +6,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+
+import javax.sql.DataSource;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -28,6 +31,9 @@ public class EventStreamJdbcRepositoryFactoryTest {
 
     @Mock
     private UtcClock clock;
+
+    @Mock
+    private DataSource datasource;
 
     @InjectMocks
     private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;

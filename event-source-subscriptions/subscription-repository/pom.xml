@@ -12,7 +12,6 @@
     <artifactId>subscription-repository</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>subscription-repository-jdbc</module>
         <module>subscription-repository-liquibase</module>
     </modules>
 

@@ -8,7 +8,6 @@ import uk.gov.justice.services.eventsourcing.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.EventFetcher;
 import uk.gov.justice.services.eventsourcing.EventFetchingException;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -18,8 +17,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-
-import org.slf4j.Logger;
 
 /**
  * The EventDeQueuerAndPublisher class provides a method that returns an event from the EventDeQueuer

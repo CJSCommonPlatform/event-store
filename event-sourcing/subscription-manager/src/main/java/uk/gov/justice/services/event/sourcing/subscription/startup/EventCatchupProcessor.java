@@ -3,11 +3,11 @@ package uk.gov.justice.services.event.sourcing.subscription.startup;
 import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
-import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.stream.Stream;
@@ -18,17 +18,17 @@ import org.slf4j.Logger;
 
 public class EventCatchupProcessor {
 
-    private final SubscriptionsRepository subscriptionsRepository;
+    private final ProcessedEventTrackingService processedEventTrackingService;
     private final EventSourceProvider eventSourceProvider;
     private final EventStreamConsumerManager eventStreamConsumerManager;
     private final Logger logger;
 
     public EventCatchupProcessor(
-            final SubscriptionsRepository subscriptionsRepository,
+            final ProcessedEventTrackingService processedEventTrackingService,
             final EventSourceProvider eventSourceProvider,
             final EventStreamConsumerManager eventStreamConsumerManager,
             final Logger logger) {
-        this.subscriptionsRepository = subscriptionsRepository;
+        this.processedEventTrackingService = processedEventTrackingService;
         this.eventSourceProvider = eventSourceProvider;
         this.eventStreamConsumerManager = eventStreamConsumerManager;
         this.logger = logger;
@@ -41,9 +41,9 @@ public class EventCatchupProcessor {
 
         logger.info("Event catchup started");
         logger.info("Performing catchup of events...");
-        final long eventNumber = subscriptionsRepository.getOrInitialiseCurrentEventNumber(subscription.getEventSourceName());
+        final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(subscription.getEventSourceName());
 
-        final Stream<JsonEnvelope> events = eventSource.findEventsSince(eventNumber);
+        final Stream<JsonEnvelope> events = eventSource.findEventsSince(latestProcessedEventNumber);
         final int totalEventsProcessed = events.mapToInt(this::process).sum();
 
         logger.info(format("Event catchup retrieved and processed %d new events", totalEventsProcessed));

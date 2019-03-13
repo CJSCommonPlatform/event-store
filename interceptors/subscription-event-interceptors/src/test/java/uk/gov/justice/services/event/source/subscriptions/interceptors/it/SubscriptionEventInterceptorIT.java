@@ -60,8 +60,6 @@ import uk.gov.justice.services.core.mapping.SchemaIdMappingObserver;
 import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.source.subscriptions.interceptors.SubscriptionEventInterceptor;
-import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsJdbc;
-import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
@@ -69,6 +67,8 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
+import uk.gov.justice.services.subscription.ProcessedEventTrackingRepository;
+import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.services.test.utils.common.envelope.TestEnvelopeRecorder;
 import uk.gov.justice.services.test.utils.common.validator.DummyJsonSchemaValidator;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
@@ -112,13 +112,13 @@ public class SubscriptionEventInterceptorIT {
     private AbcEventHandler abcEventHandler;
 
     @Inject
-    private SubscriptionsRepository subscriptionsRepository;
+    private ProcessedEventTrackingService processedEventTrackingService;
 
     @Before
     public void setup() throws Exception {
         final InitialContext initialContext = new InitialContext();
         initialContext.bind("java:/DS.SubscriptionEventInterceptorIT", dataSource);
-        new DatabaseCleaner().cleanViewStoreTables("framework", "subscriptions");
+        new DatabaseCleaner().cleanViewStoreTables("framework", "processed_event");
     }
 
     @Configuration
@@ -174,7 +174,6 @@ public class SubscriptionEventInterceptorIT {
             DefaultTraceLogger.class,
             JdbcRepositoryHelper.class,
             ViewStoreJdbcDataSourceProvider.class,
-            SubscriptionsRepository.class,
 
             SchemaCatalogAwareJsonSchemaValidator.class,
             PayloadExtractor.class,
@@ -199,7 +198,8 @@ public class SubscriptionEventInterceptorIT {
             MediaTypesMappingCacheInitialiser.class,
             SchemaIdMappingCacheInitialiser.class,
 
-            SubscriptionsJdbc.class
+            ProcessedEventTrackingService.class,
+            ProcessedEventTrackingRepository.class
     })
 
     public WebApp war() {
@@ -224,11 +224,11 @@ public class SubscriptionEventInterceptorIT {
                         .withPreviousEventNumber(0L),
                 createObjectBuilder().build());
 
-        assertThat(subscriptionsRepository.getOrInitialiseCurrentEventNumber(SOURCE), is(0L));
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE), is(0L));
 
         interceptorChainProcessor.process(interceptorContextWithInput(envelope));
 
-        assertThat(subscriptionsRepository.getOrInitialiseCurrentEventNumber(SOURCE), is(1L));
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE), is(1L));
     }
 
     @ServiceComponent(EVENT_LISTENER)

@@ -5,7 +5,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
-import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
@@ -14,6 +13,7 @@ import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupP
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
+import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -28,7 +28,7 @@ public class EventCatchupProcessorFactory {
     EventBufferService eventBufferService;
 
     @Inject
-    SubscriptionsRepository subscriptionsRepository;
+    ProcessedEventTrackingService processedEventTrackingService;
 
     @Inject
     EventSourceProvider eventSourceProvider;
@@ -54,7 +54,7 @@ public class EventCatchupProcessorFactory {
         final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(managedExecutorService, consumeEventQueueTaskFactory);
 
         return new EventCatchupProcessor(
-                subscriptionsRepository,
+                processedEventTrackingService,
                 eventSourceProvider,
                 eventStreamConsumerManager,
                 getLogger(EventCatchupProcessor.class)

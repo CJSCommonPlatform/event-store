@@ -27,6 +27,7 @@
         <module>event-store-bom</module>
         <module>test-utils-event-store</module>
         <module>event-source-subscriptions</module>
+        <module>subscription-event-tracking</module>
     </modules>
 
     <scm>

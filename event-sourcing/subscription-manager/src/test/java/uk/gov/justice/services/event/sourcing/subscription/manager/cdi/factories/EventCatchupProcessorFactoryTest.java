@@ -10,7 +10,6 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
-import uk.gov.justice.services.event.source.subscriptions.repository.jdbc.SubscriptionsRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
@@ -18,6 +17,7 @@ import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.Intercept
 import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
+import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ public class EventCatchupProcessorFactoryTest {
     private EventBufferService eventBufferService;
 
     @Mock
-    private SubscriptionsRepository subscriptionsRepository;
+    private ProcessedEventTrackingService processedEventTrackingService;
 
     @Mock
     private EventSourceProvider eventSourceProvider;
@@ -58,7 +58,7 @@ public class EventCatchupProcessorFactoryTest {
 
         final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.createFor(componentName);
 
-        assertThat(getValueOfField(eventCatchupProcessor, "subscriptionsRepository", SubscriptionsRepository.class), is(subscriptionsRepository));
+        assertThat(getValueOfField(eventCatchupProcessor, "processedEventTrackingService", ProcessedEventTrackingService.class), is(processedEventTrackingService));
         assertThat(getValueOfField(eventCatchupProcessor, "logger", Logger.class), is(notNullValue()));
 
         final EventStreamConsumerManager eventStreamConsumerManager = getValueOfField(eventCatchupProcessor, "eventStreamConsumerManager", EventStreamConsumerManager.class);

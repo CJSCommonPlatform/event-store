@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="subscription-repository-003" author="TechPod"
+               logicalFilePath="003-initial-schema.changelog.xml">
+
+        <createTable tableName="processed_event">
+            <column name="event_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_event_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="processed_event"
+                constraintName="processed_event_pkey"
+                columnNames="event_number,source"/>
+
+        <rollback>
+            <dropTable tableName="processed_event"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

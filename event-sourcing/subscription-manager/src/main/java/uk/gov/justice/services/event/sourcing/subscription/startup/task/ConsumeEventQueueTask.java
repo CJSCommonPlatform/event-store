@@ -1,7 +1,5 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup.task;
 
-import static java.lang.String.format;
-
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;

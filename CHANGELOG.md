@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Added
+- Add event linked tracking for processed events
+
+### Removed
+- Subscription current event number 
+
 ## [2.0.0-M3] - 2019-03-12
 - Update framework to 6.0.0-M3
 

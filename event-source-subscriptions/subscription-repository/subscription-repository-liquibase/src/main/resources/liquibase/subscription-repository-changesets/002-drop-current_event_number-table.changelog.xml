@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet
+            id="subscription-repository-002"
+            author="TechPod"
+            logicalFilePath="002-drop-current_event_number-table.changelog.xml">
+
+        <dropTable tableName="subscriptions"/>
+
+        <rollback>
+            <createTable tableName="subscriptions">
+                <column name="subscription_name" type="TEXT">
+                    <constraints primaryKey="true" nullable="false"/>
+                </column>
+                <column name="current_event_number" type="BIGINT">
+                    <constraints nullable="false"/>
+                </column>
+            </createTable>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

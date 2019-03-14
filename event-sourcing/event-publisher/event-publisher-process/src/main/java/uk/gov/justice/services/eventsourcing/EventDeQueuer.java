@@ -6,7 +6,6 @@ import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;

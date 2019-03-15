@@ -5,6 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M4] - 2019-03-15
 ### Added
 - Add event linked tracking for processed events
 

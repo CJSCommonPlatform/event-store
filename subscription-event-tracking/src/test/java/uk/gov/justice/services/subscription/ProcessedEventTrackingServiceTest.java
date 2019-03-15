@@ -3,6 +3,7 @@ package uk.gov.justice.services.subscription;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Stream.empty;
@@ -10,6 +11,7 @@ import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
@@ -20,6 +22,7 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -346,5 +349,29 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(0).getMissingEventTo(), is(1L));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+    }
+
+    @Test
+    public void shouldGetTheEventNumberOfTheLatestProcessedEvent() throws Exception {
+
+        final String source = "example-context";
+
+        final long latestEventNumber = 2384L;
+
+        final ProcessedEventTrackItem processedEventTrackItem = mock(ProcessedEventTrackItem.class);
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source)).thenReturn(of(processedEventTrackItem));
+        when(processedEventTrackItem.getEventNumber()).thenReturn(latestEventNumber);
+
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(source), is(latestEventNumber));
+    }
+
+    @Test
+    public void shouldReturnZeroAsTheEventNumberOfTheLatestProcessedEventIfNoEventsProcessedYet() throws Exception {
+
+        final String source = "example-context";
+
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source)).thenReturn(Optional.empty());
+
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(source), is(0L));
     }
 }

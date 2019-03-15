@@ -1,9 +1,9 @@
 package uk.gov.justice.services.eventsourcing.prepublish;
 
+
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.common.util.Clock;
@@ -11,8 +11,8 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserter;
+import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -34,6 +34,7 @@ public class PrePublishRepositoryTest {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
     private final TestEventInserter testEventInserter = new TestEventInserter();
+    private final TestEventStreamInserter testEventStreamInserter = new TestEventStreamInserter();
     private final EventFactory eventFactory = new EventFactory();
     private final Clock clock = new UtcClock();
 
@@ -70,15 +71,21 @@ public class PrePublishRepositoryTest {
     @Test
     public void shouldGetThePreviousSequenceNumberOfAnEvent() throws Exception {
 
-        final Event event_1 = eventFactory.createEvent("event-1", 101);
-        final Event event_2 = eventFactory.createEvent("event-2", 102);
-        final Event event_3 = eventFactory.createEvent("event-3", 103);
-        final Event event_4 = eventFactory.createEvent("event-4", 104);
+        final String s = "stream-1";
+
+        final UUID streamId = randomUUID();
+        testEventStreamInserter.insertIntoEventStream(streamId, 1l, true, clock.now());
+
+        final Event event_1 = eventFactory.createEvent(streamId, randomUUID(), "event-1", 1l, 101);
+        final Event event_2 = eventFactory.createEvent(streamId, randomUUID(), "event-2", 2l, 102);
+        final Event event_3 = eventFactory.createEvent(streamId, randomUUID(), "event-3", 3l, 103);
+        final Event event_4 = eventFactory.createEvent(streamId, randomUUID(), "event-4", 4l, 104);
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);
         testEventInserter.insertIntoEventLog(event_3);
         testEventInserter.insertIntoEventLog(event_4);
+
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
 
@@ -118,43 +125,5 @@ public class PrePublishRepositoryTest {
         }
     }
 
-    @Test
-    public void shouldInsertALinkedEvent() throws Exception {
 
-        final LinkedEvent linkedEvent = new LinkedEvent(
-                randomUUID(),
-                randomUUID(),
-                982347L,
-                "an-event.name",
-                "{\"some\": \"metadata\"}",
-                "{\"the\": \"payload\"}",
-                new UtcClock().now(),
-                23L,
-                22L
-        );
-
-        try (final Connection connection = eventStoreDataSource.getConnection()) {
-            prePublishRepository.insertLinkedEvent(linkedEvent, connection);
-        }
-
-        try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM linked_event");
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
-
-
-            if(resultSet.next()) {
-                assertThat(resultSet.getObject(1), is(linkedEvent.getId()));
-                assertThat(resultSet.getObject(2), is(linkedEvent.getStreamId()));
-                assertThat(resultSet.getObject(3), is(linkedEvent.getSequenceId()));
-                assertThat(resultSet.getString(4), is(linkedEvent.getName()));
-                assertThat(resultSet.getString(5), is(linkedEvent.getPayload()));
-                assertThat(resultSet.getString(6), is(linkedEvent.getMetadata()));
-                assertThat(fromSqlTimestamp(resultSet.getTimestamp(7)), is(linkedEvent.getCreatedAt()));
-                assertThat(resultSet.getLong(8), is(linkedEvent.getEventNumber().get()));
-                assertThat(resultSet.getObject(9), is(linkedEvent.getPreviousEventNumber()));
-            } else {
-                fail();
-            }
-        }
-    }
 }

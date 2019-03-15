@@ -9,6 +9,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrat
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 
+import javax.sql.DataSource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,6 +29,9 @@ public class EventJdbcRepositoryFactoryTest {
 
     @Mock
     private JdbcDataSourceProvider jdbcDataSourceProvider;
+
+    @Mock
+    private DataSource datasource;
 
     @InjectMocks
     private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;

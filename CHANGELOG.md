@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [1.1.5] 2019-03-14
+## [1.1.6] 2019-03-15
 ### Added
 - Support to for linked events after stream transformation
 - truncate() method to the EventSource interface

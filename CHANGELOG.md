@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.7] 2019-03-19
+### Changed
+-Revert framework-domain to 1.1.2
+
 ## [1.1.6] 2019-03-15
 ### Added
 - Support to for linked events after stream transformation

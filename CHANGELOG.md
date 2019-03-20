@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M6] - 2019-03-20
+### Fixed
+- Moved test-utils into correct maven test scope
+
 ## [2.0.0-M5] - 2019-03-20
 ### Fixed
 - Added missing beans.xml

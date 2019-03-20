@@ -47,6 +47,7 @@
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>test-utils-persistence</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

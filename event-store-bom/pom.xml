@@ -74,6 +74,11 @@
                 <artifactId>subscription-event-interceptors</artifactId>
                 <version>${event-store.version}</version>
             </dependency>
+            <dependency>
+                <groupId>uk.gov.justice.event-store</groupId>
+                <artifactId>subscription-event-tracking</artifactId>
+                <version>${event-store.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

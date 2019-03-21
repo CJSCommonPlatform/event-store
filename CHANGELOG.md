@@ -5,9 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.8] 2019-03-21
+### Fixed
+- Use correct maven scope for test jars
+
 ## [1.1.7] 2019-03-19
 ### Changed
--Revert framework-domain to 1.1.2
+- Revert framework-domain to 1.1.2
 
 ## [1.1.6] 2019-03-15
 ### Added

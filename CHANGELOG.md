@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Fixed
+- Use correct maven scope for test jars
+
 ### Added
 - Support to for linked events after stream transformation
 - truncate() method to the EventSource interface

@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup;
+package uk.gov.justice.services.event.sourcing.subscription.catchup;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
 import uk.gov.justice.services.event.sourcing.subscription.startup.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.startup.util.TestCatchupBean;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -48,6 +49,7 @@ public class EventStreamCatchupIT {
     @Classes(cdi = true, value = {
             TestCatchupBean.class,
             DummyTransactionalEventProcessor.class,
+            EventStreamsInProgressList.class,
             LoggerProducer.class
     })
     public WebApp war() {

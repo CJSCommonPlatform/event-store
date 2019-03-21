@@ -14,7 +14,11 @@ public interface EventStreamConsumerManager {
      * Add an JsonEnvelope event to the EventStreamConsumerManager
      *
      * @param event - the JsonEnvelope to be consumed
+     *
+     * @return The number of events added to the stream. Note this is always one and is used
+     *         to count the number of events consumed
      */
-    void add(final JsonEnvelope event);
+    int add(final JsonEnvelope event);
 
+    void waitForCompletion();
 }

@@ -6,6 +6,7 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 
@@ -13,9 +14,9 @@ import java.util.Set;
  * Registry containing {@link SubscriptionsDescriptor}s set
  */
 public class SubscriptionsDescriptorsRegistry {
-    private final Set<SubscriptionsDescriptor> registry;
+    private final List<SubscriptionsDescriptor> registry;
 
-    public SubscriptionsDescriptorsRegistry(final Set<SubscriptionsDescriptor> subscriptionsDescriptors) {
+    public SubscriptionsDescriptorsRegistry(final List<SubscriptionsDescriptor> subscriptionsDescriptors) {
         this.registry = subscriptionsDescriptors;
     }
     /**
@@ -34,10 +35,10 @@ public class SubscriptionsDescriptorsRegistry {
     }
 
     /**
-     * Gets athe set of all SubscriptionDescriptors that have been defined
+     * Gets the set of all SubscriptionDescriptors that have been defined
      * @return the set of all SubscriptionDescriptors
      */
-    public Set<SubscriptionsDescriptor> getAll() {
+    public List<SubscriptionsDescriptor> getAll() {
         return registry;
     }
 

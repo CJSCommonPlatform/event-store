@@ -1,8 +1,8 @@
 package uk.gov.justice.subscription.registry;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import uk.gov.justice.subscription.SubscriptionsDescriptorParser;
 import uk.gov.justice.subscription.YamlFileFinder;
@@ -11,7 +11,6 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.enterprise.inject.Produces;
@@ -57,12 +56,12 @@ public class SubscriptionsDescriptorsRegistryProducer {
 
                 if (subscriptionsDescriptorsPaths.isEmpty()) {
                     logger.info("Failed to find yaml/subscriptions-descriptor.yaml resources on the classpath");
-                    subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(emptySet());
+                    subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(emptyList());
                 } else {
 
-                    final Set<SubscriptionsDescriptor> subscriptionsDescriptors = subscriptionsDescriptorParser
+                    final List<SubscriptionsDescriptor> subscriptionsDescriptors = subscriptionsDescriptorParser
                             .getSubscriptionDescriptorsFrom(subscriptionsDescriptorsPaths)
-                            .peek(logRegisteredSubscriptionNames).collect(toSet());
+                            .peek(logRegisteredSubscriptionNames).collect(toList());
 
                     subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
                 }

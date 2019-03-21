@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup;
+package uk.gov.justice.services.event.sourcing.subscription.catchup;
 
 import static java.lang.Boolean.valueOf;
 

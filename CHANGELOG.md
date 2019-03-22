@@ -5,6 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M7] - 2019-03-22
 ### Fixed
 - Use correct maven scope for test jars
 

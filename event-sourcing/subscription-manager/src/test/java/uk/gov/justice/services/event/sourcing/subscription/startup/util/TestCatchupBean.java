@@ -2,6 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.startup.util;
 
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
@@ -25,13 +26,16 @@ public class TestCatchupBean {
     DummyTransactionalEventProcessor transactionalEventProcessor;
 
     @Inject
+    EventStreamsInProgressList eventStreamsInProgressList;
+
+    @Inject
     Logger logger;
 
     public void run(final StopWatch stopWatch) {
         logger.info("running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
         final int numberOfStreams = 10;
-        final int numberOfEventsToCreate = 60;
+        final int numberOfEventsToCreate = 600;
         final int numberOfUniqueEventNames = 10;
 
         transactionalEventProcessor.setExpectedNumberOfEvents(numberOfEventsToCreate);
@@ -41,13 +45,17 @@ public class TestCatchupBean {
 
         final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
                 managedExecutorService,
-                new ConsumeEventQueueTaskFactory(transactionalEventProcessor));
+                new ConsumeEventQueueTaskFactory(transactionalEventProcessor),
+                eventStreamsInProgressList);
 
         stopWatch.start();
         final int totalEventsProcessed = eventStream.mapToInt(event -> {
             eventStreamConsumerManager.add(event);
             return 1;
         }).sum();
+
+
+        eventStreamConsumerManager.waitForCompletion();
 
         logger.info("Total events processed: " + totalEventsProcessed);
     }

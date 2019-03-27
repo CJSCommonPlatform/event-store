@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup;
+package uk.gov.justice.services.event.sourcing.subscription.catchup;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

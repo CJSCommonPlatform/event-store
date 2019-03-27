@@ -1,8 +1,9 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup.manager;
 
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 
-import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupException;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTask;
@@ -29,15 +30,17 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     private static final Object EXCLUSIVE_LOCK = new Object();
 
     private final ConcurrentHashMap<UUID, Queue<JsonEnvelope>> allEventStreams = new ConcurrentHashMap<>();
-    private final ConcurrentLinkedQueue<Queue<JsonEnvelope>> eventStreamsInProgress = new ConcurrentLinkedQueue<>();
 
     private final ManagedExecutorService managedExecutorService;
     private final ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory;
+    private final EventStreamsInProgressList eventStreamsInProgressList;
 
     public ConcurrentEventStreamConsumerManager(final ManagedExecutorService managedExecutorService,
-                                                final ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory) {
+                                                final ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory,
+                                                final EventStreamsInProgressList eventStreamsInProgressList) {
         this.managedExecutorService = managedExecutorService;
         this.consumeEventQueueTaskFactory = consumeEventQueueTaskFactory;
+        this.eventStreamsInProgressList = eventStreamsInProgressList;
     }
 
     /**
@@ -52,9 +55,11 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
      * processed by the current ConsumeEventQueueTask.
      *
      * @param event - the JsonEnvelope to be consumed
+     * @return The number of events added to the stream. Note this is always one and is used to
+     * count the number of events consumed
      */
     @Override
-    public void add(final JsonEnvelope event) {
+    public int add(final JsonEnvelope event) {
 
         final UUID streamId = event.metadata()
                 .streamId()
@@ -69,6 +74,8 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
                 createAndSubmitTaskFor(events);
             }
         }
+
+        return 1;
     }
 
     /**
@@ -83,32 +90,36 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
         synchronized (EXCLUSIVE_LOCK) {
             final Queue<JsonEnvelope> finishedProcessingMessageQueue = finishedProcessingMessage.getQueue();
 
-
             final boolean finishedProcessingMessageQueueEmpty = finishedProcessingMessageQueue.isEmpty();
 
-            if(finishedProcessingMessageQueueEmpty) {
-                eventStreamsInProgress.remove(finishedProcessingMessageQueue);
-
+            if (finishedProcessingMessageQueueEmpty) {
+                eventStreamsInProgressList.remove(finishedProcessingMessageQueue);
             }
 
             return finishedProcessingMessageQueueEmpty;
         }
     }
 
+    @Override
+    public void waitForCompletion() {
+        eventStreamsInProgressList.blockUntilEmpty();
+    }
+
     private EventCatchupException missingStreamIdException(final UUID eventId) {
         return new EventCatchupException(format("Event with id '%s' has no streamId", eventId));
     }
 
-    private boolean notInProgress(final Queue<JsonEnvelope> events) {
-        return !eventStreamsInProgress.contains(events);
+    private boolean notInProgress(final Queue<JsonEnvelope> eventStream) {
+        return !eventStreamsInProgressList.contains(eventStream);
     }
 
-    private void createAndSubmitTaskFor(final Queue<JsonEnvelope> events) {
+    private void createAndSubmitTaskFor(final Queue<JsonEnvelope> eventStream) {
 
-        eventStreamsInProgress.add(events);
+        eventStreamsInProgressList.add(eventStream);
 
-        final ConsumeEventQueueTask consumeEventQueueTask = consumeEventQueueTaskFactory.createWith(events, this);
+        final ConsumeEventQueueTask consumeEventQueueTask = consumeEventQueueTaskFactory.createWith(eventStream, this);
 
         managedExecutorService.submit(consumeEventQueueTask);
+
     }
 }

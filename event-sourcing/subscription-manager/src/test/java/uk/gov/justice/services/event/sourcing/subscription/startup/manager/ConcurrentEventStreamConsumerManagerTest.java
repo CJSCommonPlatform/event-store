@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
-import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupException;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTask;
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
@@ -31,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,6 +42,9 @@ public class ConcurrentEventStreamConsumerManagerTest {
 
     @Mock
     private ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory;
+
+    @Spy
+    private EventStreamsInProgressList eventStreamsInProgressList = new EventStreamsInProgressList();
 
     @InjectMocks
     private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
@@ -154,14 +158,20 @@ public class ConcurrentEventStreamConsumerManagerTest {
                         .withSource("test_source"),
                 createObjectBuilder().build());
 
-        final ConsumeEventQueueTask consumeEventQueueTask = mock(ConsumeEventQueueTask.class);
-
         try {
             concurrentEventStreamConsumerManager.add(event);
             fail("Expected EventCatchupException to be thrown");
         } catch (final EventCatchupException e) {
             assertThat(e.getMessage(), is("Event with id 'caeb2531-02f7-49d4-97da-11a692801035' has no streamId"));
         }
+    }
+
+    @Test
+    public void shouldBlockOnTheEventsStreamInProgressListWhenWaitingForCompletion() throws Exception {
+
+        concurrentEventStreamConsumerManager.waitForCompletion();
+
+        verify(eventStreamsInProgressList).blockUntilEmpty();
     }
 
     private JsonEnvelope generateJsonEnvelope(final UUID streamId, final int version) {

@@ -1,6 +1,6 @@
 package uk.gov.justice.subscription.registry;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -10,7 +10,7 @@ import static uk.gov.justice.subscription.domain.builders.SubscriptionsDescripto
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
-import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class SubscriptionsDescriptorsRegistryTest {
                 .withService("service 2")
                 .build();
 
-        final HashSet<SubscriptionsDescriptor> subscriptionsDescriptors = newHashSet(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
         final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
 
         assertThat(subscriptionsDescriptorsRegistry.getSubscriptionFor(subscription_3.getName()), is(subscription_3));
@@ -66,7 +66,7 @@ public class SubscriptionsDescriptorsRegistryTest {
                 .withServiceComponent(componentName_2)
                 .build();
 
-        final HashSet<SubscriptionsDescriptor> subscriptionsDescriptors = newHashSet(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
         final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
 
         assertThat(subscriptionsDescriptorsRegistry.findComponentNameBy(subscription_4.getName()), is(componentName_2));
@@ -91,7 +91,7 @@ public class SubscriptionsDescriptorsRegistryTest {
                 .withService("service 2")
                 .build();
 
-        final HashSet<SubscriptionsDescriptor> subscriptionsDescriptors = newHashSet(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(subscriptionsDescriptor_1, subscriptionsDescriptor_2);
         final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
 
 

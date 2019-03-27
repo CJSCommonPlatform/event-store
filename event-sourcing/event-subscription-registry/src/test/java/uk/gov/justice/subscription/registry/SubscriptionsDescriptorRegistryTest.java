@@ -10,13 +10,11 @@ import static uk.gov.justice.subscription.domain.builders.SubscriptionsDescripto
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
-import java.util.Set;
+import java.util.List;
 
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
 public class SubscriptionsDescriptorRegistryTest {
-
 
     @Test
     public void shouldGetASubscriptionByNameBySearchingAllASubscriptionDescriptorDefinitions() {
@@ -46,7 +44,7 @@ public class SubscriptionsDescriptorRegistryTest {
                 ))
                 .build();
 
-        final Set<SubscriptionsDescriptor> subscriptionDescriptors = Sets.newHashSet(
+        final List<SubscriptionsDescriptor> subscriptionDescriptors = asList(
                 subscriptionsDescriptor_1,
                 subscriptionsDescriptor_2
         );
@@ -82,7 +80,7 @@ public class SubscriptionsDescriptorRegistryTest {
                 ))
                 .build();
 
-        final Set<SubscriptionsDescriptor> subscriptionsDescriptors = Sets.newHashSet(
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(
                 subscriptionsDescriptor_1,
                 subscriptionsDescriptor_2
         );
@@ -95,28 +93,6 @@ public class SubscriptionsDescriptorRegistryTest {
         } catch (final RegistryException expected) {
             assertThat(expected.getMessage(), is("Failed to find subscription 'thisSubscriptionDoesNotExist' in registry"));
         }
-    }
-
-    @Test
-    public void shouldNotAllowDuplicateSubscriptionDescriptorDefinition() {
-
-        final SubscriptionsDescriptor subscriptionsDescriptor_1 = subscriptionsDescriptor()
-                .withServiceComponent("EVENT_LISTENER")
-                .build();
-
-        final SubscriptionsDescriptor subscriptionsDescriptor_2 = subscriptionsDescriptor()
-                .withServiceComponent("EVENT_LISTENER")
-                .build();
-
-        final Set<SubscriptionsDescriptor> subscriptionsDescriptors = Sets.newHashSet(
-                subscriptionsDescriptor_1,
-                subscriptionsDescriptor_2
-        );
-
-        final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry = new SubscriptionsDescriptorsRegistry(subscriptionsDescriptors);
-
-        assertThat(subscriptionsDescriptorsRegistry.getAll().size(), is(1));
-
     }
 
     @Test
@@ -145,7 +121,7 @@ public class SubscriptionsDescriptorRegistryTest {
                 ))
                 .build();
 
-        final Set<SubscriptionsDescriptor> subscriptionsDescriptors = Sets.newHashSet(
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(
                 subscriptionsDescriptor_1,
                 subscriptionsDescriptor_2
         );
@@ -187,7 +163,7 @@ public class SubscriptionsDescriptorRegistryTest {
                 ))
                 .build();
 
-        final Set<SubscriptionsDescriptor> subscriptionsDescriptors = Sets.newHashSet(
+        final List<SubscriptionsDescriptor> subscriptionsDescriptors = asList(
                 subscriptionsDescriptor_1,
                 subscriptionsDescriptor_2
         );

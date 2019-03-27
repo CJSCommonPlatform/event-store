@@ -1,6 +1,5 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.task;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.task;
 
-import uk.gov.justice.services.event.sourcing.subscription.startup.EventCatchupProcessorBean;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.Objects;

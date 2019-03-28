@@ -1,8 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.runners;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
@@ -14,16 +13,16 @@ import javax.inject.Inject;
 public class EventCatchupRunner {
 
     @Inject
-    SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry;
+    private SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry;
 
     @Inject
-    Event<CatchupStartedEvent> catchupStartedEventFirer;
+    private Event<CatchupStartedEvent> catchupStartedEventFirer;
 
     @Inject
-    EventCatchupByComponentRunner eventCatchupByComponentRunner;
+    private EventCatchupByComponentRunner eventCatchupByComponentRunner;
 
     @Inject
-    UtcClock clock;
+    private UtcClock clock;
 
     public void runEventCatchup() {
         catchupStartedEventFirer.fire(new CatchupStartedEvent(clock.now()));

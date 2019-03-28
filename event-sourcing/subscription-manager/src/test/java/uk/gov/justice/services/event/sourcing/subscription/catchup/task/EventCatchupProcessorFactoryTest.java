@@ -10,8 +10,8 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
@@ -23,10 +23,8 @@ import uk.gov.justice.services.event.sourcing.subscription.startup.manager.Event
 import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 
-import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.event.Event;
-import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,34 +36,34 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventCatchupProcessorFactoryTest {
 
     @Mock
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
 
     @Mock
-    EventBufferService eventBufferService;
+    private EventBufferService eventBufferService;
 
     @Mock
-    ProcessedEventTrackingService processedEventTrackingService;
+    private ProcessedEventTrackingService processedEventTrackingService;
 
     @Mock
-    EventSourceProvider eventSourceProvider;
+    private EventSourceProvider eventSourceProvider;
 
     @Mock
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Mock
-    ManagedExecutorService managedExecutorService;
+    private ManagedExecutorService managedExecutorService;
 
     @Mock
-    EventStreamsInProgressList eventStreamsInProgressList;
+    private EventStreamsInProgressList eventStreamsInProgressList;
 
     @Mock
-    ConcurrentEventStreamConsumerManager eventStreamConsumerManager;
+    private ConcurrentEventStreamConsumerManager eventStreamConsumerManager;
 
     @Mock
-    Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
+    private Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
 
     @Mock
-    Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
+    private Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
 
     @Mock
     UtcClock clock;

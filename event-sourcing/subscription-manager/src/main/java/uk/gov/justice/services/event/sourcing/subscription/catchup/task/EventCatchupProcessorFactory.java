@@ -3,8 +3,8 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.task;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
@@ -24,34 +24,34 @@ import javax.inject.Inject;
 public class EventCatchupProcessorFactory {
 
     @Inject
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
 
     @Inject
-    EventBufferService eventBufferService;
+    private EventBufferService eventBufferService;
 
     @Inject
-    ProcessedEventTrackingService processedEventTrackingService;
+    private ProcessedEventTrackingService processedEventTrackingService;
 
     @Inject
-    EventSourceProvider eventSourceProvider;
+    private EventSourceProvider eventSourceProvider;
 
     @Inject
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Resource
-    ManagedExecutorService managedExecutorService;
+    private ManagedExecutorService managedExecutorService;
 
     @Inject
-    EventStreamsInProgressList eventStreamsInProgressList;
+    private EventStreamsInProgressList eventStreamsInProgressList;
 
     @Inject
-    Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
+    private Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
 
     @Inject
-    Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
+    private Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
 
     @Inject
-    UtcClock clock;
+    private UtcClock clock;
 
     public EventCatchupProcessor createFor(final String componentName) {
 

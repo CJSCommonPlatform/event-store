@@ -3,10 +3,10 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.lifecycle;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -22,19 +22,19 @@ import org.slf4j.Logger;
 public class CatchupObserver {
 
     @Inject
-    CatchupsInProgressCache catchupsInProgressCache;
+    private CatchupsInProgressCache catchupsInProgressCache;
 
     @Inject
-    CatchupDurationCalculator catchupDurationCalculator;
+    private CatchupDurationCalculator catchupDurationCalculator;
 
     @Inject
-    Event<CatchupCompletedEvent> catchupCompletedEventFirer;
+    private Event<CatchupCompletedEvent> catchupCompletedEventFirer;
 
     @Inject
-    UtcClock clock;
+    private UtcClock clock;
 
     @Inject
-    Logger logger;
+    private Logger logger;
 
     public void onCatchupStarted(@Observes final CatchupStartedEvent catchupStartedEvent) {
         logger.info("Event catchup started at " + catchupStartedEvent.getCatchupStartedAt());
@@ -53,7 +53,7 @@ public class CatchupObserver {
         logger.info(format("Event catchup for subscription '%s' started at %s", subscriptionName, catchupStartedAt));
     }
 
-    public void onCatchupCompleteForSubscription(@Observes final CatchupCompletedForSubscriptionEvent  catchupCompletedForSubscriptionEvent) {
+    public void onCatchupCompleteForSubscription(@Observes final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
 
         final String subscriptionName = catchupCompletedForSubscriptionEvent.getSubscriptionName();
         final ZonedDateTime catchupCompletedAt = catchupCompletedForSubscriptionEvent.getCatchupCompletedAt();

@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 ### Changed
-- Event Catchup is now Observable using the jee event system
+- Event Catchup is now Observable using the JEE event system
 
 ## [2.0.0-M7] - 2019-03-22
 ### Fixed

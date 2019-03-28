@@ -11,10 +11,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;

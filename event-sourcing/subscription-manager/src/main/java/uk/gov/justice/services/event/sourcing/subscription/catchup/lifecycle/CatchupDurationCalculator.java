@@ -2,7 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.lifecycle;
 
 import static java.time.Duration.between;
 
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
 
 import java.time.Duration;
 import java.time.Instant;

@@ -3,8 +3,8 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.task;
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.core.lifecycle.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;

@@ -35,6 +35,7 @@ import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+import uk.gov.justice.services.jmx.lifecycle.ShutteringFlagProducerBean;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -151,7 +152,8 @@ public class EventPublishIT {
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
-            SubscriptionHelper.class
+            SubscriptionHelper.class,
+            ShutteringFlagProducerBean.class
 
     })
     public WebApp war() {

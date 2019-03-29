@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
+import uk.gov.justice.services.jmx.lifecycle.ShutteringFlagProducerBean;
 
 import javax.ejb.TimerService;
 
@@ -33,6 +34,9 @@ public class PublisherTimerBeanTest {
     @Mock
     private TimerCanceler timerCanceler;
 
+    @Mock
+    private ShutteringFlagProducerBean shutteringFlagProducerBean;
+
     @InjectMocks
     private PublisherTimerBean publisherTimerBean;
 
@@ -59,6 +63,7 @@ public class PublisherTimerBeanTest {
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
         when(linkedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true, false);
+        when(shutteringFlagProducerBean.isDoShuttering()).thenReturn(false);
 
         publisherTimerBean.doDeQueueAndPublish();
 

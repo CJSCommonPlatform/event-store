@@ -13,8 +13,10 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.runners.EventCatchupRunner;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -32,6 +34,9 @@ import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CatchupObserverTest {
+
+    @Mock
+    private EventCatchupRunner eventCatchupRunner;
 
     @Mock
     private CatchupsInProgressCache catchupsInProgressCache;
@@ -53,6 +58,15 @@ public class CatchupObserverTest {
 
     @Captor
     private ArgumentCaptor<CatchupInProgress> catchupInProgressCaptor;
+
+    @Test
+    public void shouldCallTheCatchupRunnerOnCatchupRequested() throws Exception {
+
+        catchupObserver.onCatchupRequested(mock(CatchupRequestedEvent.class));
+
+        verify(logger).info("Event catchup requested");
+        verify(eventCatchupRunner).runEventCatchup();
+    }
 
     @Test
     public void shouldClearEventsInProgressOnCatchupStart() throws Exception {

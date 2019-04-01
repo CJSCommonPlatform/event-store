@@ -5,8 +5,10 @@ import static java.lang.String.format;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.runners.EventCatchupRunner;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -22,6 +24,9 @@ import org.slf4j.Logger;
 public class CatchupObserver {
 
     @Inject
+    private EventCatchupRunner eventCatchupRunner;
+
+    @Inject
     private CatchupsInProgressCache catchupsInProgressCache;
 
     @Inject
@@ -35,6 +40,11 @@ public class CatchupObserver {
 
     @Inject
     private Logger logger;
+
+    public void onCatchupRequested(@SuppressWarnings("unused") @Observes final CatchupRequestedEvent catchupRequestedEvent) {
+        logger.info("Event catchup requested");
+        eventCatchupRunner.runEventCatchup();
+    }
 
     public void onCatchupStarted(@Observes final CatchupStartedEvent catchupStartedEvent) {
         logger.info("Event catchup started at " + catchupStartedEvent.getCatchupStartedAt());

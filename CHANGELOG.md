@@ -6,6 +6,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
 ### Changed
 
+## [2.0.0-M9] - 2019-04-02
+- Add Shuttering implementation to PublisherTimerBean
+
 ## [2.0.0-M8] - 2019-04-01
 - Event Catchup is now Observable using the JEE event system
 - Catchup now callable from JMX bean

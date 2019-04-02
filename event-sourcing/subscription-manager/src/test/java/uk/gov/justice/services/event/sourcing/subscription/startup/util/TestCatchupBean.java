@@ -1,9 +1,10 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup.util;
 
+import static org.junit.Assert.fail;
+
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.stream.Stream;
@@ -43,20 +44,22 @@ public class TestCatchupBean {
         final EventFactory eventFactory = new EventFactory(numberOfStreams, numberOfUniqueEventNames);
         final Stream<JsonEnvelope> eventStream = eventFactory.generateEvents(numberOfEventsToCreate).stream();
 
-        final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
-                managedExecutorService,
-                new ConsumeEventQueueTaskFactory(transactionalEventProcessor),
-                eventStreamsInProgressList);
+//        final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
+//                managedExecutorService,
+//                new ConsumeEventQueueTaskFactory(transactionalEventProcessor),
+//                eventStreamsInProgressList);
+//
+//        stopWatch.start();
+//        final int totalEventsProcessed = eventStream.mapToInt(event -> {
+//            eventStreamConsumerManager.add(event);
+//            return 1;
+//        }).sum();
+//
+//
+//        eventStreamConsumerManager.waitForCompletion();
+//
+//        logger.info("Total events processed: " + totalEventsProcessed);
 
-        stopWatch.start();
-        final int totalEventsProcessed = eventStream.mapToInt(event -> {
-            eventStreamConsumerManager.add(event);
-            return 1;
-        }).sum();
-
-
-        eventStreamConsumerManager.waitForCompletion();
-
-        logger.info("Total events processed: " + totalEventsProcessed);
+        fail();
     }
 }

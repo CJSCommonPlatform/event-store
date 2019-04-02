@@ -17,7 +17,7 @@ public class EventCatchupProcessorBean {
     @Transactional(NOT_SUPPORTED)
     public void performEventCatchup(final String componentName, final Subscription subscription) {
 
-        final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.createFor(componentName);
+        final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.createFor();
 
         eventCatchupProcessor.performEventCatchup(subscription);
     }

@@ -26,12 +26,12 @@ public class EventQueueConsumer {
         this.logger = logger;
     }
 
-    public boolean consumeEventQueue(final Queue<JsonEnvelope> events) {
+    public boolean consumeEventQueue(final Queue<JsonEnvelope> events, final String subscriptionName) {
         while (!events.isEmpty()) {
             final JsonEnvelope event = events.poll();
 
             try {
-                transactionalEventProcessor.processWithEventBuffer(event);
+                transactionalEventProcessor.processWithEventBuffer(event, subscriptionName);
             } catch (final RuntimeException e) {
                 logger.error(
                         format("Failed to process event with metadata: %s", event.metadata().asJsonObject().toString()),

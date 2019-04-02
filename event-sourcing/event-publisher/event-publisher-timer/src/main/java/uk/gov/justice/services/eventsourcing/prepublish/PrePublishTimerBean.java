@@ -45,7 +45,6 @@ public class PrePublishTimerBean {
 
     @Timeout
     public void performPrePublish() {
-
         while (prePublishProcessor.prePublishNextEvent()) {
             timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
         }

@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.publishing;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
+import uk.gov.justice.services.jmx.lifecycle.ShutteringFlagProducerBean;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -33,6 +34,9 @@ public class PublisherTimerBean {
     @Inject
     LinkedEventDeQueuerAndPublisher linkedEventDeQueuerAndPublisher;
 
+    @Inject
+    ShutteringFlagProducerBean shutteringFlagProducerBean;
+
     @PostConstruct
     public void startTimerService() {
         timerCanceler.cancelTimer(TIMER_JOB_NAME, timerService);
@@ -45,9 +49,12 @@ public class PublisherTimerBean {
 
     @Timeout
     public void doDeQueueAndPublish() {
-
-        while (linkedEventDeQueuerAndPublisher.deQueueAndPublish()) {
+        if (shutteringFlagProducerBean.isDoShuttering())
             timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
+        else{
+            while (linkedEventDeQueuerAndPublisher.deQueueAndPublish()) {
+                timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
+            }
         }
     }
 }

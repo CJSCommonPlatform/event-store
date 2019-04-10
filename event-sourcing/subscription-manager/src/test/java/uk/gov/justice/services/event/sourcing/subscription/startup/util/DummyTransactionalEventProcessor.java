@@ -6,26 +6,22 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import javax.ejb.Singleton;
+import org.apache.openejb.testing.Default;
 
-@Singleton
-public class DummyTransactionalEventProcessor extends TransactionalEventProcessor {
+@Default
+public class DummyTransactionalEventProcessor implements TransactionalEventProcessor {
 
     private static final int SLEEP_TIME = 10;
 
     private final Queue<JsonEnvelope> events = new ConcurrentLinkedQueue<>();
     private int expectedNumberOfEvents = 0;
 
-    public DummyTransactionalEventProcessor() {
-        super(null);
-    }
-
     public void setExpectedNumberOfEvents(final int expectedNumberOfEvents) {
         this.expectedNumberOfEvents = expectedNumberOfEvents;
     }
 
     @Override
-    public int processWithEventBuffer(final JsonEnvelope event) {
+    public int processWithEventBuffer(final JsonEnvelope event, final String subscriptionName) {
 
         events.add(event);
 

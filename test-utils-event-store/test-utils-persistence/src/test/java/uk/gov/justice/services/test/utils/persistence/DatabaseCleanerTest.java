@@ -61,12 +61,13 @@ public class DatabaseCleanerTest {
         when(connection.prepareStatement("DELETE FROM " + "event_log")).thenReturn(preparedStatement);
         when(connection.prepareStatement("DELETE FROM " + "event_stream")).thenReturn(preparedStatement);
         when(connection.prepareStatement("DELETE FROM " + "pre_publish_queue")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("DELETE FROM " + "linked_event")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanEventStoreTables(contextName);
 
-        verify(preparedStatement, times(3)).executeUpdate();
+        verify(preparedStatement, times(4)).executeUpdate();
         verify(connection).close();
-        verify(preparedStatement, times(3)).close();
+        verify(preparedStatement, times(4)).close();
     }
 
     @Test

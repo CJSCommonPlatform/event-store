@@ -5,6 +5,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFact
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
@@ -14,22 +15,25 @@ import javax.inject.Inject;
 public class SnapshotAwareEventSourceFactory {
 
     @Inject
-    EventStreamManagerFactory eventStreamManagerFactory;
+    private EventStreamManagerFactory eventStreamManagerFactory;
 
     @Inject
-    EventRepositoryFactory eventRepositoryFactory;
+    private EventRepositoryFactory eventRepositoryFactory;
 
     @Inject
-    EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
+    private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
 
     @Inject
-    EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
+    private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
 
     @Inject
-    EventConverter eventConverter;
+    private EventConverter eventConverter;
 
     @Inject
-    SnapshotService snapshotService;
+    private SnapshotService snapshotService;
+
+    @Inject
+    private LinkedEventFinder linkedEventFinder;
 
     public EventSource create(final String jndiDatasource, final String eventSourceName) {
 
@@ -38,7 +42,8 @@ public class SnapshotAwareEventSourceFactory {
 
         final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
-                eventStreamJdbcRepository);
+                eventStreamJdbcRepository,
+                linkedEventFinder);
 
         final EventStreamManager eventStreamManager = eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName);
 

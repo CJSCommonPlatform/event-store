@@ -6,10 +6,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.publishing.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;

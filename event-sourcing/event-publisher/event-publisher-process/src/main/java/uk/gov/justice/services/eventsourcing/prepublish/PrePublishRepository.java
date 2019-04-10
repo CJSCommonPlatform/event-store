@@ -3,7 +3,6 @@ package uk.gov.justice.services.eventsourcing.prepublish;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,23 +51,6 @@ public class PrePublishRepository {
 
                 return NO_PREVIOUS_EVENT_NUMBER;
             }
-        }
-    }
-
-    public void insertLinkedEvent(final LinkedEvent linkedEvent, final Connection connection) throws SQLException {
-
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_LINKED_EVENT_SQL)) {
-            preparedStatement.setObject(1, linkedEvent.getId());
-            preparedStatement.setObject(2, linkedEvent.getStreamId());
-            preparedStatement.setLong(3, linkedEvent.getSequenceId());
-            preparedStatement.setString(4, linkedEvent.getName());
-            preparedStatement.setString(5, linkedEvent.getPayload());
-            preparedStatement.setString(6, linkedEvent.getMetadata());
-            preparedStatement.setObject(7, toSqlTimestamp(linkedEvent.getCreatedAt()));
-            preparedStatement.setLong(8, linkedEvent.getEventNumber().orElseThrow(() -> new MissingEventNumberException("Event with id '%s' does not have an event number")));
-            preparedStatement.setLong(9, linkedEvent.getPreviousEventNumber());
-
-            preparedStatement.execute();
         }
     }
 

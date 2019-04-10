@@ -38,8 +38,8 @@ public class EventCatchupByComponentRunnerTest {
 
         eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor);
 
-        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_1, componentName);
-        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_2, componentName);
+        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_1);
+        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_2);
     }
 
     @Test

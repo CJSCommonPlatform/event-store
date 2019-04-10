@@ -6,17 +6,8 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import javax.transaction.Transactional;
 
-public class TransactionalEventProcessor {
-
-    private final EventBufferProcessor eventBufferProcessor;
-
-    public TransactionalEventProcessor(final EventBufferProcessor eventBufferProcessor) {
-        this.eventBufferProcessor = eventBufferProcessor;
-    }
+public interface TransactionalEventProcessor {
 
     @Transactional(REQUIRED)
-    public int processWithEventBuffer(final JsonEnvelope event) {
-        eventBufferProcessor.processWithEventBuffer(event);
-        return 1;
-    }
+    int processWithEventBuffer(JsonEnvelope event, String subscriptionName);
 }

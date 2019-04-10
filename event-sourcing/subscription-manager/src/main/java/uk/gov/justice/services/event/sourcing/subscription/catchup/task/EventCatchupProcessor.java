@@ -44,6 +44,7 @@ public class EventCatchupProcessor {
     @Transactional(NOT_SUPPORTED)
     public void performEventCatchup(final Subscription subscription) {
 
+        final String subscriptionName = subscription.getName();
         final String eventSourceName = subscription.getEventSourceName();
         final EventSource eventSource = eventSourceProvider.getEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName);
@@ -53,7 +54,7 @@ public class EventCatchupProcessor {
                 clock.now()));
 
         final Stream<JsonEnvelope> events = eventSource.findEventsSince(latestProcessedEventNumber);
-        final int totalEventsProcessed = events.mapToInt(eventStreamConsumerManager::add).sum();
+        final int totalEventsProcessed = events.mapToInt(event -> eventStreamConsumerManager.add(event, subscriptionName)).sum();
 
         eventStreamConsumerManager.waitForCompletion();
 

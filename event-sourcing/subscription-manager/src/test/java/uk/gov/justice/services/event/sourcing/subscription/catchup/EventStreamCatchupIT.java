@@ -6,7 +6,9 @@ import static org.junit.Assert.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventQueueConsumerFactory;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.startup.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.startup.util.TestCatchupBean;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -16,8 +18,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Queue;
 
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -41,15 +41,13 @@ public class EventStreamCatchupIT {
 
     private final Poller poller = new Poller(60, 1000L);
 
-    @Resource
-    ManagedExecutorService managedExecutorService;
-
-
     @Module
     @Classes(cdi = true, value = {
             TestCatchupBean.class,
             DummyTransactionalEventProcessor.class,
             EventStreamsInProgressList.class,
+            ConsumeEventQueueBean.class,
+            EventQueueConsumerFactory.class,
             LoggerProducer.class
     })
     public WebApp war() {

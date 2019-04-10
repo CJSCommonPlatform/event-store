@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc;
 
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.StoreEventRequestFailedException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
@@ -142,6 +142,6 @@ public interface EventRepository {
      *
      * @return A Stream of events since the supplied eventNumber
      */
-    Stream<Event> findEventsSince(final long eventNumber);
+    Stream<LinkedEvent> findEventsSince(final long eventNumber);
 
 }

@@ -42,6 +42,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.eventsourcing.source.api.resource.EventPageResource;
@@ -231,7 +232,8 @@ public class EventsPageIT {
             JdbcEventSourceFactory.class,
 
             DefaultEventSourceDefinitionFactory.class,
-            SubscriptionHelper.class
+            SubscriptionHelper.class,
+            LinkedEventFinder.class
     })
     public WebApp war() {
         return new WebApp()

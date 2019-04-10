@@ -8,9 +8,9 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimes
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.publishing.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 

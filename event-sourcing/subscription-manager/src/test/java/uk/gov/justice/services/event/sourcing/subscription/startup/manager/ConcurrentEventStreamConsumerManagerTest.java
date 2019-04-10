@@ -15,15 +15,13 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTask;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.EventQueueConsumer;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
-
-import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,10 +36,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ConcurrentEventStreamConsumerManagerTest {
 
     @Mock
-    private ManagedExecutorService managedExecutorService;
+    private ConsumeEventQueueBean consumeEventQueueBean;
 
     @Mock
-    private ConsumeEventQueueTaskFactory consumeEventQueueTaskFactory;
+    private EventQueueConsumerFactory eventQueueConsumerFactory;
 
     @Spy
     private EventStreamsInProgressList eventStreamsInProgressList = new EventStreamsInProgressList();
@@ -55,57 +53,61 @@ public class ConcurrentEventStreamConsumerManagerTest {
     @Test
     public void shouldCreateQueueAndCreateTaskToConsumeQueueForNewStreamId() {
 
+        final String subscriptionName = "subscriptionName";
         final JsonEnvelope event = generateJsonEnvelope(randomUUID(), 1);
-        final ConsumeEventQueueTask consumeEventQueueTask = mock(ConsumeEventQueueTask.class);
 
-        when(consumeEventQueueTaskFactory.createWith(eventQueueCaptor.capture(), eq(concurrentEventStreamConsumerManager)))
-                .thenReturn(consumeEventQueueTask);
+        final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
-        concurrentEventStreamConsumerManager.add(event);
+        when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
+
+        concurrentEventStreamConsumerManager.add(event, subscriptionName);
+
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
         final Queue<JsonEnvelope> events = eventQueueCaptor.getValue();
         assertThat(events.size(), is(1));
         assertThat(events.poll(), is(event));
 
-        verify(managedExecutorService).submit(consumeEventQueueTask);
     }
 
     @Test
     public void shouldNotCreateQueueOrCreateTaskIfEventIsSameStreamId() {
 
+        final String subscriptionName = "subscriptionName";
         final UUID streamId = randomUUID();
         final JsonEnvelope event_1 = generateJsonEnvelope(streamId, 1);
         final JsonEnvelope event_2 = generateJsonEnvelope(streamId, 2);
-        final ConsumeEventQueueTask consumeEventQueueTask = mock(ConsumeEventQueueTask.class);
+        final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
-        when(consumeEventQueueTaskFactory.createWith(eventQueueCaptor.capture(), eq(concurrentEventStreamConsumerManager)))
-                .thenReturn(consumeEventQueueTask);
+        when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
 
-        concurrentEventStreamConsumerManager.add(event_1);
-        concurrentEventStreamConsumerManager.add(event_2);
+        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
+        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
         final Queue<JsonEnvelope> eventsStream = eventQueueCaptor.getValue();
         assertThat(eventsStream.size(), is(2));
         assertThat(eventsStream.poll(), is(event_1));
         assertThat(eventsStream.poll(), is(event_2));
-
-        verify(managedExecutorService, times(1)).submit(consumeEventQueueTask);
     }
 
     @Test
     public void shouldCreateQueueForEachStreamId() {
 
+        final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
         final JsonEnvelope event_1 = generateJsonEnvelope(streamId_1, 1);
         final JsonEnvelope event_2 = generateJsonEnvelope(streamId_2, 1);
-        final ConsumeEventQueueTask consumeEventQueueTask = mock(ConsumeEventQueueTask.class);
+        final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
-        when(consumeEventQueueTaskFactory.createWith(eventQueueCaptor.capture(), eq(concurrentEventStreamConsumerManager)))
-                .thenReturn(consumeEventQueueTask);
+        when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
 
-        concurrentEventStreamConsumerManager.add(event_1);
-        concurrentEventStreamConsumerManager.add(event_2);
+        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
+        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+
+        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
         final List<Queue<JsonEnvelope>> allValues = eventQueueCaptor.getAllValues();
 
@@ -116,41 +118,42 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final Queue<JsonEnvelope> eventsStream_2 = allValues.get(1);
         assertThat(eventsStream_2.size(), is(1));
         assertThat(eventsStream_2.poll(), is(event_2));
-
-        verify(managedExecutorService, times(2)).submit(consumeEventQueueTask);
     }
 
     @Test
     public void shouldBeAbleToFinishQueueAndAllowAnotherProcessToPickupQueueIfNotEmpty() {
 
+        final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
         final JsonEnvelope event_1 = generateJsonEnvelope(streamId_1, 1);
         final JsonEnvelope event_2 = generateJsonEnvelope(streamId_2, 1);
-        final ConsumeEventQueueTask consumeEventQueueTask = mock(ConsumeEventQueueTask.class);
+        final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
-        when(consumeEventQueueTaskFactory.createWith(eventQueueCaptor.capture(), eq(concurrentEventStreamConsumerManager)))
-                .thenReturn(consumeEventQueueTask);
+        when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
 
-        concurrentEventStreamConsumerManager.add(event_1);
+        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
+
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
         final Queue<JsonEnvelope> eventsStream_1 = eventQueueCaptor.getValue();
         assertThat(eventsStream_1.size(), is(1));
         assertThat(eventsStream_1.poll(), is(event_1));
 
         concurrentEventStreamConsumerManager.isEventConsumptionComplete(new FinishedProcessingMessage(eventsStream_1));
-        concurrentEventStreamConsumerManager.add(event_2);
+        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+
+        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
         final Queue<JsonEnvelope> eventsStream_2 = eventQueueCaptor.getValue();
         assertThat(eventsStream_2.size(), is(1));
         assertThat(eventsStream_2.poll(), is(event_2));
-
-        verify(managedExecutorService, times(2)).submit(consumeEventQueueTask);
     }
 
     @Test
     public void shouldThrowExceptionIfStreamIdIsMissingFromEvent() {
 
+        final String subscriptionName = "subscriptionName";
         final JsonEnvelope event = envelopeFrom(metadataBuilder()
                         .withId(UUID.fromString("caeb2531-02f7-49d4-97da-11a692801035"))
                         .withName("testEvent")
@@ -159,7 +162,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
                 createObjectBuilder().build());
 
         try {
-            concurrentEventStreamConsumerManager.add(event);
+            concurrentEventStreamConsumerManager.add(event, subscriptionName);
             fail("Expected EventCatchupException to be thrown");
         } catch (final EventCatchupException e) {
             assertThat(e.getMessage(), is("Event with id 'caeb2531-02f7-49d4-97da-11a692801035' has no streamId"));

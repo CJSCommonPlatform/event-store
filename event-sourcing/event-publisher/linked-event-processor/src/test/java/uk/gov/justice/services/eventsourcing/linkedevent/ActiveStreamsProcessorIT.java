@@ -11,7 +11,6 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.eventsourcing.EventFetcherRepository;
 import uk.gov.justice.services.eventsourcing.linkedevent.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.linkedevent.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.linkedevent.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.linkedevent.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.prepublish.LinkedEventFactory;
@@ -22,8 +21,10 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;

@@ -12,6 +12,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFact
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
@@ -28,22 +29,25 @@ public class SnapshotAwareEventSourceFactoryTest {
     private static final String EVENT_SOURCE_NAME = "eventSourceName";
 
     @Mock
-    EventStreamManagerFactory eventStreamManagerFactory;
+    private EventStreamManagerFactory eventStreamManagerFactory;
 
     @Mock
-    EventRepositoryFactory eventRepositoryFactory;
+    private EventRepositoryFactory eventRepositoryFactory;
 
     @Mock
-    EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
+    private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
 
     @Mock
-    EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
+    private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
 
     @Mock
-    SnapshotService snapshotService;
+    private SnapshotService snapshotService;
 
     @Mock
-    EventConverter eventConverter;
+    private EventConverter eventConverter;
+
+    @Mock
+    private LinkedEventFinder linkedEventFinder;
 
     @InjectMocks
     private SnapshotAwareEventSourceFactory snapshotAwareEventSourceFactory;
@@ -64,7 +68,8 @@ public class SnapshotAwareEventSourceFactoryTest {
 
         when(eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
-                eventStreamJdbcRepository)).thenReturn(eventRepository);
+                eventStreamJdbcRepository,
+                linkedEventFinder)).thenReturn(eventRepository);
 
         when(eventStreamManagerFactory.eventStreamManager(eventRepository, EVENT_SOURCE_NAME)).thenReturn(eventStreamManager);
 

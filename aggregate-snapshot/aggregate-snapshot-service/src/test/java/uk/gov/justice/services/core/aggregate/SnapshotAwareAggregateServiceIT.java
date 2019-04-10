@@ -45,6 +45,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrat
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.EventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
@@ -207,8 +208,8 @@ public class SnapshotAwareAggregateServiceIT {
 
             DefaultEventSourceDefinitionFactory.class,
 
-            SubscriptionHelper.class
-
+            SubscriptionHelper.class,
+            LinkedEventFinder.class
     })
 
     public WebApp war() {

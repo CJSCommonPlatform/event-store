@@ -134,7 +134,7 @@ public class EventStreamJdbcRepository {
         }
     }
 
-    private DataSource getDataSource() {
+    public DataSource getDataSource() {
         if (null == dataSource) {
             dataSource = jdbcDataSourceProvider.getDataSource(jndiDatasource);
         }

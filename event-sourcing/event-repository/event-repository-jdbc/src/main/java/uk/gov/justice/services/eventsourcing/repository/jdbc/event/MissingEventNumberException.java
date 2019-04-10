@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.prepublish;
+package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 public class MissingEventNumberException extends RuntimeException {
 

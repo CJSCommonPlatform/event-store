@@ -39,6 +39,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFact
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PostgresSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.api.resource.EventSourceApiApplication;
@@ -225,7 +226,8 @@ public class EventStreamPageIT {
             JdbcEventSourceFactory.class,
 
             DefaultEventSourceDefinitionFactory.class,
-            SubscriptionHelper.class
+            SubscriptionHelper.class,
+            LinkedEventFinder.class
     })
 
     public WebApp war() {

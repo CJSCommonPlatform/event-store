@@ -1,9 +1,6 @@
-package uk.gov.justice.services.eventsourcing.linkedevent;
+package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
-
-import uk.gov.justice.services.eventsourcing.prepublish.MissingEventNumberException;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -46,6 +43,4 @@ public class LinkedEventJdbcRepository {
             preparedStatement.execute();
         }
     }
-
-
 }

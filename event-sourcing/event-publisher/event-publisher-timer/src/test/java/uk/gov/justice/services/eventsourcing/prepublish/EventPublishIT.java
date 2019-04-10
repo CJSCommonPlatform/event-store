@@ -20,7 +20,6 @@ import uk.gov.justice.services.eventsourcing.EventFetcher;
 import uk.gov.justice.services.eventsourcing.EventFetcherRepository;
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.DummyEventPublisher;
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.prepublish.helpers.EventStoreInitializer;
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.TestGlobalValueProducer;
@@ -31,6 +30,7 @@ import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -44,6 +44,7 @@ import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
+import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 import uk.gov.justice.subscription.EventSourcesParser;
@@ -153,6 +154,7 @@ public class EventPublishIT {
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
             SubscriptionHelper.class,
+            LinkedEventJdbcRepository.class,
             ShutteringFlagProducerBean.class
 
     })

@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
@@ -87,11 +87,11 @@ public class SnapshotAwareEventSourceTest {
 
         final long eventNumber = 92834L;
 
-        final Event event = mock(Event.class);
+        final LinkedEvent linkedEvent = mock(LinkedEvent.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(event));
-        when(eventConverter.envelopeOf(event)).thenReturn(jsonEnvelope);
+        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(linkedEvent));
+        when(eventConverter.envelopeOf(linkedEvent)).thenReturn(jsonEnvelope);
 
         final List<JsonEnvelope> envelopes = snapshotAwareEventSource.findEventsSince(eventNumber).collect(toList());
 

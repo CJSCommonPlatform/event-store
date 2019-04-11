@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishing.helpers;
+package uk.gov.justice.services.test.utils.core.eventsource;
 
 import java.sql.SQLException;
 

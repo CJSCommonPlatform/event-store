@@ -18,7 +18,7 @@ public class EventCatchupByComponentRunner {
         if (componentName.contains(EVENT_LISTENER)) {
             subscriptionsDescriptor
                     .getSubscriptions()
-                    .forEach(subscription -> eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(subscription, componentName));
+                    .forEach(subscription -> eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(subscription));
         }
     }
 }

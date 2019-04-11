@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc;
 
 import static java.time.ZonedDateTime.now;
+import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -18,6 +19,8 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStream;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -29,10 +32,14 @@ import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+
+import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +79,7 @@ public class JdbcBasedEventRepositoryTest {
     private EventStream eventStream;
 
     @Mock
-    private DefaultEventStreamMetadata eventStreamMetadata;
+    private LinkedEventFinder linkedEventFinder;
 
     @InjectMocks
     private JdbcBasedEventRepository jdbcBasedEventRepository;
@@ -406,15 +413,17 @@ public class JdbcBasedEventRepositoryTest {
     }
 
     @Test
-    public void shouldFindEventsFromEventNumber() throws Exception {
+    public void shouldUseTheLinkedEventFinderToFendEventsToCatchup() throws Exception {
 
-        final long eventNumber = 32498L;
+        final long eventNumber = 23L;
 
-        final Stream<Event> streamOfEvents = Stream.of(mock(Event.class));
+        final Stream<LinkedEvent> linkedEventStream = Stream.of(mock(LinkedEvent.class));
+        final DataSource dataSource = mock(DataSource.class);
 
-        when(eventJdbcRepository.findEventsSince(eventNumber)).thenReturn(streamOfEvents);
+        when(eventStreamJdbcRepository.getDataSource()).thenReturn(dataSource);
+        when(linkedEventFinder.findEventsSince(eventNumber, dataSource)).thenReturn(linkedEventStream);
 
-        assertThat(jdbcBasedEventRepository.findEventsSince(eventNumber), is(streamOfEvents));
+        assertThat(linkedEventFinder.findEventsSince(eventNumber, dataSource), is(linkedEventStream));
     }
 
     private EventStream buildEventStreamFor(final UUID streamId, final Long sequence) {

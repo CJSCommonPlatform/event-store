@@ -7,7 +7,6 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 
 /**

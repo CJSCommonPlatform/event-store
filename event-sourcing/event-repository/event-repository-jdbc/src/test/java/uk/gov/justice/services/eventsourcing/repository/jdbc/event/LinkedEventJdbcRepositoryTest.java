@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.linkedevent;
+package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,8 +7,7 @@ import static org.junit.Assert.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.linkedevent.helpers.EventStoreInitializer;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;

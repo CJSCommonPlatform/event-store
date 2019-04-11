@@ -8,6 +8,7 @@ import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -21,22 +22,25 @@ import javax.transaction.Transactional;
 public class EventPrePublisher {
 
     @Inject
-    SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
 
     @Inject
-    MetadataEventNumberUpdater metadataEventNumberUpdater;
+    private MetadataEventNumberUpdater metadataEventNumberUpdater;
 
     @Inject
-    PrePublishRepository prePublishRepository;
+    private PrePublishRepository prePublishRepository;
 
     @Inject
-    UtcClock clock;
+    private LinkedEventJdbcRepository linkedEventJdbcRepository;
 
     @Inject
-    EventConverter eventConverter;
+    private UtcClock clock;
 
     @Inject
-    LinkedEventFactory linkedEventFactory;
+    private EventConverter eventConverter;
+
+    @Inject
+    private LinkedEventFactory linkedEventFactory;
 
     @Transactional(MANDATORY)
     public void prePublish(final Event event) {
@@ -58,7 +62,7 @@ public class EventPrePublisher {
                     eventNumber,
                     previousEventNumber);
 
-            prePublishRepository.insertLinkedEvent(linkedEvent, connection);
+            linkedEventJdbcRepository.insertLinkedEvent(linkedEvent, connection);
             prePublishRepository.addToPublishQueueTable(eventId, clock.now(), connection);
 
         } catch (final SQLException e) {

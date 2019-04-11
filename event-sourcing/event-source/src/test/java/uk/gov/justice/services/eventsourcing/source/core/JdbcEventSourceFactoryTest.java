@@ -11,6 +11,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFact
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 
@@ -38,6 +39,9 @@ public class JdbcEventSourceFactoryTest {
     @Mock
     private EventConverter eventConverter;
 
+    @Mock
+    private LinkedEventFinder linkedEventFinder;
+
     @InjectMocks
     private JdbcEventSourceFactory jdbcEventSourceFactory;
 
@@ -57,7 +61,8 @@ public class JdbcEventSourceFactoryTest {
 
         when(eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
-                eventStreamJdbcRepository)).thenReturn(eventRepository);
+                eventStreamJdbcRepository,
+                linkedEventFinder)).thenReturn(eventRepository);
 
         when(eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName)).thenReturn(eventStreamManager);
 

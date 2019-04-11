@@ -1,29 +1,43 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup.task;
 
+import static java.util.UUID.fromString;
+import static java.util.UUID.randomUUID;
+import static javax.json.Json.createObjectBuilder;
+import static org.junit.Assert.*;
+
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
+import static org.mockito.Mockito.*;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.messaging.Metadata;
 
-import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
+import javax.json.Json;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventQueueConsumerTest {
@@ -37,112 +51,57 @@ public class EventQueueConsumerTest {
     @Mock
     private Logger logger;
 
-    @Captor
-    private ArgumentCaptor<FinishedProcessingMessage> finishedProcessingMessageArgumentCaptor;
+
+    @InjectMocks
+    private EventQueueConsumer eventQueueConsumer;
 
     @Test
-    public void shouldConsumeQueueAndCallFinishedListener() {
+    public void shouldProcessAllEventsOnQueueAndReturnTrueIfComplete() throws Exception {
 
         final JsonEnvelope event_1 = mock(JsonEnvelope.class);
         final JsonEnvelope event_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_3 = mock(JsonEnvelope.class);
 
-        final LinkedList<JsonEnvelope> events = new LinkedList<>();
-        events.add(event_1);
-        events.add(event_2);
-        events.add(event_3);
+        final Queue<JsonEnvelope> eventQueue = new ConcurrentLinkedQueue<>();
 
-        final EventQueueConsumer eventQueueConsumer = new EventQueueConsumer(
-                transactionalEventProcessor,
-                eventStreamConsumptionResolver,
-                logger);
+        when(eventStreamConsumptionResolver.isEventConsumptionComplete(new FinishedProcessingMessage(eventQueue))).thenReturn(true);
 
-        when(eventStreamConsumptionResolver.isEventConsumptionComplete(any(FinishedProcessingMessage.class))).thenReturn(true);
+        eventQueue.add(event_1);
+        eventQueue.add(event_2);
+        final String subscriptionName = "subscriptionName";
 
-        final Boolean result = eventQueueConsumer.consumeEventQueue(events);
+        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName);
 
-        assertThat(result, is(true));
+        final InOrder inOrder = inOrder(transactionalEventProcessor);
 
-        verify(transactionalEventProcessor).processWithEventBuffer(event_1);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_2);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_3);
-        verify(eventStreamConsumptionResolver).isEventConsumptionComplete(finishedProcessingMessageArgumentCaptor.capture());
-
-        assertThat(finishedProcessingMessageArgumentCaptor.getValue().getQueue(), is(events));
+        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
+        inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
     }
 
     @Test
-    public void shouldLogExceptionAndContinueToProcessEventQueue() {
+    public void shouldLogAnyExceptionsThrownWhilstProcessing() throws Exception {
+
+        final NullPointerException nullPointerException = new NullPointerException("Ooops");
 
         final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_3 = mock(JsonEnvelope.class);
+        final UUID eventId = fromString("1b352632-b62c-49d4-a5fd-546ce9cbd2f1");
+        final JsonEnvelope event_2 = envelopeFrom(
+                metadataBuilder().withId(eventId).withName("an-event"),
+                createObjectBuilder());
 
-        final LinkedList<JsonEnvelope> events = new LinkedList<>();
-        events.add(event_1);
-        events.add(event_2);
-        events.add(event_3);
+        final Queue<JsonEnvelope> eventQueue = new ConcurrentLinkedQueue<>();
 
-        final Metadata metadata = metadataBuilder()
-                .withId(UUID.fromString("c263b05f-d27a-4032-a20f-0665e9f897ca"))
-                .withName("event.test")
-                .withEventNumber(2)
-                .withStreamId(UUID.fromString("93a0a3c5-6937-4f7a-aea8-16983066fac7"))
-                .withPosition(2)
-                .build();
-        final RuntimeException runtimeException = new RuntimeException("Failed");
+        when(eventStreamConsumptionResolver.isEventConsumptionComplete(new FinishedProcessingMessage(eventQueue))).thenReturn(true);
 
-        final EventQueueConsumer eventQueueConsumer = new EventQueueConsumer(
-                transactionalEventProcessor,
-                eventStreamConsumptionResolver,
-                logger);
+        eventQueue.add(event_1);
+        eventQueue.add(event_2);
+        final String subscriptionName = "subscriptionName";
 
+        doThrow(nullPointerException).when(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
 
-        when(transactionalEventProcessor.processWithEventBuffer(event_2)).thenThrow(runtimeException);
-        when(event_2.metadata()).thenReturn(metadata);
-        when(eventStreamConsumptionResolver.isEventConsumptionComplete(any(FinishedProcessingMessage.class))).thenReturn(true);
+        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName);
 
-        final Boolean result = eventQueueConsumer.consumeEventQueue(events);
+        verify(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
 
-        assertThat(result, is(true));
-
-        verify(transactionalEventProcessor).processWithEventBuffer(event_1);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_2);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_3);
-        verify(eventStreamConsumptionResolver).isEventConsumptionComplete(finishedProcessingMessageArgumentCaptor.capture());
-        verify(logger).error("Failed to process event with metadata: {\"stream\":{\"id\":\"93a0a3c5-6937-4f7a-aea8-16983066fac7\",\"version\":2},\"name\":\"event.test\",\"id\":\"c263b05f-d27a-4032-a20f-0665e9f897ca\",\"event\":{\"eventNumber\":2}}", runtimeException);
-
-        assertThat(finishedProcessingMessageArgumentCaptor.getValue().getQueue(), is(events));
-    }
-
-    @Test
-    public void shouldConsumeQueueAndFinishedListenerShouldReturnFalseIfQueueNotFullyConsumed() throws Exception {
-
-        final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_3 = mock(JsonEnvelope.class);
-
-        final LinkedList<JsonEnvelope> events = new LinkedList<>();
-        events.add(event_1);
-        events.add(event_2);
-        events.add(event_3);
-
-        final EventQueueConsumer eventQueueConsumer = new EventQueueConsumer(
-                transactionalEventProcessor,
-                eventStreamConsumptionResolver,
-                logger);
-
-        when(eventStreamConsumptionResolver.isEventConsumptionComplete(any(FinishedProcessingMessage.class))).thenReturn(false);
-
-        final Boolean result = eventQueueConsumer.consumeEventQueue(events);
-
-        assertThat(result, is(false));
-
-        verify(transactionalEventProcessor).processWithEventBuffer(event_1);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_2);
-        verify(transactionalEventProcessor).processWithEventBuffer(event_3);
-        verify(eventStreamConsumptionResolver).isEventConsumptionComplete(finishedProcessingMessageArgumentCaptor.capture());
-
-        assertThat(finishedProcessingMessageArgumentCaptor.getValue().getQueue(), is(events));
+        verify(logger).error("Failed to process event with metadata: {\"name\":\"an-event\",\"id\":\"1b352632-b62c-49d4-a5fd-546ce9cbd2f1\"}", nullPointerException);
     }
 }

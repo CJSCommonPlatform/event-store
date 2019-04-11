@@ -1,9 +1,10 @@
 package uk.gov.justice.services.event.sourcing.subscription.startup.util;
 
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.ConcurrentEventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventQueueConsumerFactory;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueTaskFactory;
+import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.stream.Stream;
@@ -29,13 +30,19 @@ public class TestCatchupBean {
     EventStreamsInProgressList eventStreamsInProgressList;
 
     @Inject
+    private ConsumeEventQueueBean consumeEventQueueBean;
+
+    @Inject
+    private EventQueueConsumerFactory eventQueueConsumerFactory;
+
+    @Inject
     Logger logger;
 
     public void run(final StopWatch stopWatch) {
         logger.info("running!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
         final int numberOfStreams = 10;
-        final int numberOfEventsToCreate = 600;
+        final int numberOfEventsToCreate = 60;
         final int numberOfUniqueEventNames = 10;
 
         transactionalEventProcessor.setExpectedNumberOfEvents(numberOfEventsToCreate);
@@ -44,16 +51,15 @@ public class TestCatchupBean {
         final Stream<JsonEnvelope> eventStream = eventFactory.generateEvents(numberOfEventsToCreate).stream();
 
         final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
-                managedExecutorService,
-                new ConsumeEventQueueTaskFactory(transactionalEventProcessor),
-                eventStreamsInProgressList);
+                eventStreamsInProgressList,
+                consumeEventQueueBean,
+                eventQueueConsumerFactory);
 
         stopWatch.start();
         final int totalEventsProcessed = eventStream.mapToInt(event -> {
-            eventStreamConsumerManager.add(event);
+            eventStreamConsumerManager.add(event, "");
             return 1;
         }).sum();
-
 
         eventStreamConsumerManager.waitForCompletion();
 

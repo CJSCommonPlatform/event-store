@@ -18,7 +18,7 @@ public interface EventStreamConsumerManager {
      * @return The number of events added to the stream. Note this is always one and is used
      *         to count the number of events consumed
      */
-    int add(final JsonEnvelope event);
+    int add(final JsonEnvelope event, final String subscriptionName);
 
     void waitForCompletion();
 }

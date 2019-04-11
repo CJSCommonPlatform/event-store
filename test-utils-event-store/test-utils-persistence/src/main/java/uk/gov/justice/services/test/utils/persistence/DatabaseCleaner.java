@@ -78,6 +78,7 @@ public class DatabaseCleaner {
             cleanTable("event_log", connection);
             cleanTable("event_stream", connection);
             cleanTable("pre_publish_queue", connection);
+            cleanTable("linked_event", connection);
 
         } catch (SQLException e) {
             throw new DataAccessException("Failed to commit or close database connection", e);

@@ -16,10 +16,9 @@ public class EventCatchupBySubscriptionRunner {
     @Resource
     ManagedExecutorService managedExecutorService;
 
-    public void runEventCatchupForSubscription(final Subscription subscription, final String componentName) {
+    public void runEventCatchupForSubscription(final Subscription subscription) {
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
-                componentName,
                 subscription,
                 eventCatchupProcessorBean);
 

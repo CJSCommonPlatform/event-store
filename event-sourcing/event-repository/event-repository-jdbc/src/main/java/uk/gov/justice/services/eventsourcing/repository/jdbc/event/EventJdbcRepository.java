@@ -43,7 +43,6 @@ public class EventJdbcRepository {
      * Statements
      */
     static final String SQL_FIND_ALL = "SELECT * FROM event_log ORDER BY position_in_stream ASC";
-    static final String SQL_FIND_ALL_SINCE = "SELECT * FROM event_log WHERE event_number > ? ORDER BY event_number ASC";
     static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC LIMIT ?";
@@ -262,16 +261,4 @@ public class EventJdbcRepository {
         }
     }
 
-    public Stream<Event> findEventsSince(final long eventNumber) {
-
-        try {
-            final PreparedStatementWrapper psWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_ALL_SINCE);
-
-            psWrapper.setLong(1, eventNumber);
-
-            return jdbcRepositoryHelper.streamOf(psWrapper, entityFromFunction());
-        } catch (final SQLException e) {
-            throw new JdbcRepositoryException(format("Failed to find events since event_number %d", eventNumber), e);
-        }
     }
-}

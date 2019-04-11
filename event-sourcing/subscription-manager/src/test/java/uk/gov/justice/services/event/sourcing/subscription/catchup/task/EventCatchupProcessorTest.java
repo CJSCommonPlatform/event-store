@@ -65,6 +65,7 @@ public class EventCatchupProcessorTest {
     @Test
     public void shouldFetchAllMissingEventsAndProcess() throws Exception {
 
+        final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
         final long eventNumber = 983745987L;
 
@@ -80,14 +81,15 @@ public class EventCatchupProcessorTest {
 
         final List<JsonEnvelope> events = asList(event_1, event_2, event_3);
 
+        when(subscription.getName()).thenReturn(subscriptionName);
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
         when(clock.now()).thenReturn(catchupStartedAt, catchupCompetedAt);
         when(eventSourceProvider.getEventSource(eventSourceName)).thenReturn(eventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName)).thenReturn(eventNumber);
         when(eventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
-        when(eventStreamConsumerManager.add(event_1)).thenReturn(1);
-        when(eventStreamConsumerManager.add(event_2)).thenReturn(1);
-        when(eventStreamConsumerManager.add(event_3)).thenReturn(1);
+        when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
+        when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
+        when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);
 
         eventCatchupProcessor.performEventCatchup(subscription);
 
@@ -100,9 +102,9 @@ public class EventCatchupProcessorTest {
                 eventSourceName,
                 catchupStartedAt));
 
-        inOrder.verify(eventStreamConsumerManager).add(event_1);
-        inOrder.verify(eventStreamConsumerManager).add(event_2);
-        inOrder.verify(eventStreamConsumerManager).add(event_3);
+        inOrder.verify(eventStreamConsumerManager).add(event_1, subscriptionName);
+        inOrder.verify(eventStreamConsumerManager).add(event_2, subscriptionName);
+        inOrder.verify(eventStreamConsumerManager).add(event_3, subscriptionName);
         inOrder.verify(eventStreamConsumerManager).waitForCompletion();
 
         inOrder.verify(catchupCompletedForSubscriptionEventFirer).fire(new CatchupCompletedForSubscriptionEvent(

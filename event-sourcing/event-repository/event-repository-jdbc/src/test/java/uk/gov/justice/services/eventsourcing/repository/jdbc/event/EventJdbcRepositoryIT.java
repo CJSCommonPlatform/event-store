@@ -216,35 +216,4 @@ public class EventJdbcRepositoryIT {
         final Long deletedStreamLatestSequenceId = jdbcRepository.getStreamSize(STREAM_ID);
         assertThat(deletedStreamLatestSequenceId, equalTo(0L));
     }
-
-    @Test
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public void shouldGetEventsSinceEventNumber() throws Exception {
-
-        final Event event_1 = eventBuilder().build();
-        final Event event_2 = eventBuilder().build();
-        final Event event_3 = eventBuilder().build();
-        final Event event_4 = eventBuilder().build();
-        final Event event_5 = eventBuilder().build();
-
-        jdbcRepository.insert(event_1);
-        jdbcRepository.insert(event_2);
-        jdbcRepository.insert(event_3);
-        jdbcRepository.insert(event_4);
-        jdbcRepository.insert(event_5);
-
-        final Long event_3_eventNumber = jdbcRepository.findAll()
-                .filter(event -> event.getId().equals(event_3.getId()))
-                .findFirst().get()
-                .getEventNumber().get();
-
-        final List<Event> events = jdbcRepository
-                .findEventsSince(event_3_eventNumber)
-                .collect(toList());
-
-        assertThat(events.size(), is(2));
-
-        assertThat(events.get(0).getId(), is(event_4.getId()));
-        assertThat(events.get(1).getId(), is(event_5.getId()));
-    }
 }

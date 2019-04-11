@@ -3,6 +3,8 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStream;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -30,12 +32,15 @@ public class JdbcBasedEventRepository implements EventRepository {
     private final EventConverter eventConverter;
     private final EventJdbcRepository eventJdbcRepository;
     private final EventStreamJdbcRepository eventStreamJdbcRepository;
+    private final LinkedEventFinder linkedEventFinder;
 
     public JdbcBasedEventRepository(
             final EventConverter eventConverter,
             final EventJdbcRepository eventJdbcRepository,
             final EventStreamJdbcRepository eventStreamJdbcRepository,
+            final LinkedEventFinder linkedEventFinder,
             final Logger logger) {
+        this.linkedEventFinder = linkedEventFinder;
 
         this.logger = logger;
         this.eventConverter = eventConverter;
@@ -164,8 +169,8 @@ public class JdbcBasedEventRepository implements EventRepository {
     }
 
     @Override
-    public Stream<Event> findEventsSince(final long eventNumber) {
-        return eventJdbcRepository.findEventsSince(eventNumber);
+    public Stream<LinkedEvent> findEventsSince(final long eventNumber) {
+        return linkedEventFinder.findEventsSince(eventNumber, eventStreamJdbcRepository.getDataSource());
     }
 
     private Function<EventStream, EventStreamMetadata> toEventStreamMetadata() {

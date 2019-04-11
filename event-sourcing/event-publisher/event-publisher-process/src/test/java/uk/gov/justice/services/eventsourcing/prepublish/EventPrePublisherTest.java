@@ -9,19 +9,17 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -46,6 +44,9 @@ public class EventPrePublisherTest {
 
     @Mock
     private PrePublishRepository prePublishRepository;
+
+    @Mock
+    private LinkedEventJdbcRepository linkedEventJdbcRepository;
 
     @Mock
     private UtcClock clock;
@@ -95,8 +96,8 @@ public class EventPrePublisherTest {
 
         eventPrePublisher.prePublish(event);
 
-        final InOrder inOrder = inOrder(prePublishRepository);
-        inOrder.verify(prePublishRepository).insertLinkedEvent(linkedEvent, connection);
+        final InOrder inOrder = inOrder(linkedEventJdbcRepository, prePublishRepository);
+        inOrder.verify(linkedEventJdbcRepository).insertLinkedEvent(linkedEvent, connection);
         inOrder.verify(prePublishRepository).addToPublishQueueTable(eventId, now, connection);
     }
 

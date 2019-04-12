@@ -25,12 +25,12 @@ import uk.gov.justice.services.eventsourcing.prepublish.helpers.TestEventStreamI
 import uk.gov.justice.services.eventsourcing.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
-import uk.gov.justice.services.eventsourcing.publishing.LinkedEventDeQueuerAndPublisher;
+import uk.gov.justice.services.eventsourcing.publishing.PublishedEventDeQueuerAndPublisher;
 import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -106,7 +106,7 @@ public class EventPublishIT {
 
     @Module
     @Classes(cdi = true, value = {
-            LinkedEventDeQueuerAndPublisher.class,
+            PublishedEventDeQueuerAndPublisher.class,
             EventDeQueuer.class,
             EventPublisher.class,
             DummyEventPublisher.class,
@@ -148,13 +148,13 @@ public class EventPublishIT {
             UtcClock.class,
             EventFetcher.class,
             EventFetcherRepository.class,
-            LinkedEventFactory.class,
+            PublishedEventFactory.class,
             PublisherTimerBean.class,
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
             SubscriptionHelper.class,
-            LinkedEventJdbcRepository.class,
+            PublishedEventJdbcRepository.class,
             ShutteringFlagProducerBean.class
 
     })

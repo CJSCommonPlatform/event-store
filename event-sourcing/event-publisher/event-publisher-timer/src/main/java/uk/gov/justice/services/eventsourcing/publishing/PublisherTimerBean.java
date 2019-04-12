@@ -20,22 +20,22 @@ public class PublisherTimerBean {
     private static final String TIMER_JOB_NAME = "event-store.de-queue-events-and-publish.job";
 
     @Resource
-    TimerService timerService;
+    private TimerService timerService;
 
     @Inject
-    PublisherTimerConfig publisherTimerConfig;
+    private PublisherTimerConfig publisherTimerConfig;
 
     @Inject
-    TimerServiceManager timerServiceManager;
+    private TimerServiceManager timerServiceManager;
 
     @Inject
-    TimerCanceler timerCanceler;
+    private TimerCanceler timerCanceler;
 
     @Inject
-    LinkedEventDeQueuerAndPublisher linkedEventDeQueuerAndPublisher;
+    private PublishedEventDeQueuerAndPublisher publishedEventDeQueuerAndPublisher;
 
     @Inject
-    ShutteringFlagProducerBean shutteringFlagProducerBean;
+    private ShutteringFlagProducerBean shutteringFlagProducerBean;
 
     @PostConstruct
     public void startTimerService() {
@@ -52,7 +52,7 @@ public class PublisherTimerBean {
         if (shutteringFlagProducerBean.isDoShuttering())
             timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
         else{
-            while (linkedEventDeQueuerAndPublisher.deQueueAndPublish()) {
+            while (publishedEventDeQueuerAndPublisher.deQueueAndPublish()) {
                 timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
             }
         }

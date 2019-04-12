@@ -14,7 +14,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamM
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
@@ -87,11 +87,11 @@ public class SnapshotAwareEventSourceTest {
 
         final long eventNumber = 92834L;
 
-        final LinkedEvent linkedEvent = mock(LinkedEvent.class);
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(linkedEvent));
-        when(eventConverter.envelopeOf(linkedEvent)).thenReturn(jsonEnvelope);
+        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(publishedEvent));
+        when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
 
         final List<JsonEnvelope> envelopes = snapshotAwareEventSource.findEventsSince(eventNumber).collect(toList());
 

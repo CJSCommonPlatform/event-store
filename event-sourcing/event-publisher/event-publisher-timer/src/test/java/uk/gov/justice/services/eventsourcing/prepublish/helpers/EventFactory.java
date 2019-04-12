@@ -8,7 +8,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.time.ZonedDateTime;
@@ -45,7 +45,7 @@ public class EventFactory {
                 of(eventNumber));
     }
 
-    public LinkedEvent createLinkedEvent(final UUID streamId, final String name, final long sequenceId, final long eventNumber, final long previousEventNumber) {
+    public PublishedEvent createPublishedEvent(final UUID streamId, final String name, final long sequenceId, final long eventNumber, final long previousEventNumber) {
         final UUID eventId = randomUUID();
         final String source = "event source";
         final JsonEnvelope envelope = envelopeFrom(
@@ -62,7 +62,7 @@ public class EventFactory {
 
         final ZonedDateTime createdAt = clock.now();
 
-        return new LinkedEvent(
+        return new PublishedEvent(
                 eventId,
                 streamId,
                 sequenceId,

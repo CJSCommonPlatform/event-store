@@ -17,11 +17,6 @@ public class PrePublishRepository {
     private static final String SELECT_EVENT_NUMBER_SQL = "SELECT event_number FROM event_log WHERE id = ?";
     private static final String SELECT_PREVIOUS_EVENT_NUMBER_SQL = "SELECT event_number FROM event_log, event_stream WHERE event_number < ? and event_log.stream_id = event_stream.stream_id and  event_stream.active = true ORDER BY event_number DESC LIMIT 1";
     private static final String INSERT_INTO_PUBLISH_QUEUE_SQL = "INSERT INTO publish_queue (event_log_id, date_queued) VALUES (?, ?)";
-    private static final String INSERT_INTO_LINKED_EVENT_SQL = "INSERT into linked_event (" +
-            "id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number) " +
-            "VALUES " +
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
 
     public long getEventNumber(final UUID eventId, final Connection connection) throws SQLException {
 

@@ -6,7 +6,7 @@ import static java.util.UUID.fromString;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,7 +25,7 @@ public class EventFetcherRepository {
 
     private static final String SELECT_FROM_LINKED_EVENT_QUERY =
             "SELECT stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number " +
-                    "FROM linked_event " +
+                    "FROM published_event " +
                     "WHERE id = ?";
 
     /**
@@ -65,7 +65,7 @@ public class EventFetcherRepository {
         return empty();
     }
 
-    public Optional<LinkedEvent> getLinkedEvent(final UUID id, final Connection connection) throws SQLException {
+    public Optional<PublishedEvent> getPublishedEvent(final UUID id, final Connection connection) throws SQLException {
 
         try (final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_LINKED_EVENT_QUERY)) {
 
@@ -83,7 +83,7 @@ public class EventFetcherRepository {
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
 
-                    return of(new LinkedEvent(
+                    return of(new PublishedEvent(
                             id,
                             streamId,
                             positionInStream,

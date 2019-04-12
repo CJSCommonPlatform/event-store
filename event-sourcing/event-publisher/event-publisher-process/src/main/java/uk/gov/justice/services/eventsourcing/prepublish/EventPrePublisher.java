@@ -7,8 +7,8 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -31,7 +31,7 @@ public class EventPrePublisher {
     private PrePublishRepository prePublishRepository;
 
     @Inject
-    private LinkedEventJdbcRepository linkedEventJdbcRepository;
+    private PublishedEventJdbcRepository publishedEventJdbcRepository;
 
     @Inject
     private UtcClock clock;
@@ -40,7 +40,7 @@ public class EventPrePublisher {
     private EventConverter eventConverter;
 
     @Inject
-    private LinkedEventFactory linkedEventFactory;
+    private PublishedEventFactory publishedEventFactory;
 
     @Transactional(MANDATORY)
     public void prePublish(final Event event) {
@@ -56,13 +56,13 @@ public class EventPrePublisher {
                     previousEventNumber,
                     eventNumber);
 
-            final LinkedEvent linkedEvent = linkedEventFactory.create(
+            final PublishedEvent publishedEvent = publishedEventFactory.create(
                     event,
                     updatedMetadata,
                     eventNumber,
                     previousEventNumber);
 
-            linkedEventJdbcRepository.insertLinkedEvent(linkedEvent, connection);
+            publishedEventJdbcRepository.insertPublishedEvent(publishedEvent, connection);
             prePublishRepository.addToPublishQueueTable(eventId, clock.now(), connection);
 
         } catch (final SQLException e) {

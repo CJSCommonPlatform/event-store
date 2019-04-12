@@ -14,8 +14,8 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -46,7 +46,7 @@ public class EventPrePublisherTest {
     private PrePublishRepository prePublishRepository;
 
     @Mock
-    private LinkedEventJdbcRepository linkedEventJdbcRepository;
+    private PublishedEventJdbcRepository publishedEventJdbcRepository;
 
     @Mock
     private UtcClock clock;
@@ -55,7 +55,7 @@ public class EventPrePublisherTest {
     private EventConverter eventConverter;
 
     @Mock
-    private LinkedEventFactory linkedEventFactory;
+    private PublishedEventFactory publishedEventFactory;
 
     @InjectMocks
     private EventPrePublisher eventPrePublisher;
@@ -76,7 +76,7 @@ public class EventPrePublisherTest {
 
         final Connection connection = mock(Connection.class);
         final Event event = mock(Event.class);
-        final LinkedEvent linkedEvent = mock(LinkedEvent.class);
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
         when(event.getId()).thenReturn(eventId);
         when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
@@ -89,15 +89,15 @@ public class EventPrePublisherTest {
                 originalMetadata,
                 previousEventNumber,
                 eventNumber)).thenReturn(updatedMetadata);
-        when(linkedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber)).thenReturn(linkedEvent);
+        when(publishedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber)).thenReturn(publishedEvent);
 
         when(updatedMetadata.asJsonObject()).thenReturn(metadataJsonObject);
         when(metadataJsonObject.toString()).thenReturn(updatedMetadataString);
 
         eventPrePublisher.prePublish(event);
 
-        final InOrder inOrder = inOrder(linkedEventJdbcRepository, prePublishRepository);
-        inOrder.verify(linkedEventJdbcRepository).insertLinkedEvent(linkedEvent, connection);
+        final InOrder inOrder = inOrder(publishedEventJdbcRepository, prePublishRepository);
+        inOrder.verify(publishedEventJdbcRepository).insertPublishedEvent(publishedEvent, connection);
         inOrder.verify(prePublishRepository).addToPublishQueueTable(eventId, now, connection);
     }
 

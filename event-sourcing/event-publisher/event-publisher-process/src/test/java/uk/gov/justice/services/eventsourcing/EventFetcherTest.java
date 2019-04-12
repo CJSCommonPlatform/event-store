@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
@@ -79,24 +79,24 @@ public class EventFetcherTest {
     }
 
     @Test
-    public void shouldRetrieveLinkedEventFromTheRepository() throws Exception {
+    public void shouldRetrievePublishedEventFromTheRepository() throws Exception {
 
         final UUID id = randomUUID();
 
         final DataSource eventStoreDataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
-        final Optional<LinkedEvent> linkedEvent = of(mock(LinkedEvent.class));
+        final Optional<PublishedEvent> publishedEvent = of(mock(PublishedEvent.class));
 
         when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
-        when(eventFetcherRepository.getLinkedEvent(id, connection)).thenReturn(linkedEvent);
+        when(eventFetcherRepository.getPublishedEvent(id, connection)).thenReturn(publishedEvent);
 
-        assertThat(eventFetcher.getLinkedEvent(id), is(linkedEvent));
+        assertThat(eventFetcher.getPublishedEvent(id), is(publishedEvent));
     }
 
     @Test
-    public void shouldThowExceptionIfGettingLInkedEventFails() throws Exception {
+    public void shouldThowExceptionIfGettingPublishedEventFails() throws Exception {
 
         final SQLException sqlException = new SQLException("Ooops");
 
@@ -108,14 +108,14 @@ public class EventFetcherTest {
         when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
-        when(eventFetcherRepository.getLinkedEvent(id, connection)).thenThrow(sqlException);
+        when(eventFetcherRepository.getPublishedEvent(id, connection)).thenThrow(sqlException);
 
         try {
-            eventFetcher.getLinkedEvent(id);
+            eventFetcher.getPublishedEvent(id);
             fail();
         } catch (final EventFetchingException expected) {
             assertThat(expected.getCause(), is(sqlException));
-            assertThat(expected.getMessage(), is("Failed to get LinkedEvent with id '" + id + "'"));
+            assertThat(expected.getMessage(), is("Failed to get PublishedEvent with id '" + id + "'"));
         }
     }
 }

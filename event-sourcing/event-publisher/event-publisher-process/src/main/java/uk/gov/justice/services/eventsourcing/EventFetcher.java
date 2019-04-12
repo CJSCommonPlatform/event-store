@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventsourcing;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
@@ -38,17 +38,17 @@ public class EventFetcher {
     }
 
     /**
-     * Method that gets an LinkedEvent from the linked_event table by id.
+     * Method that gets an PublishedEvent from the published_event table by id.
      *
      * @return Optional<Event>
      */
-    public Optional<LinkedEvent> getLinkedEvent(final UUID id) {
+    public Optional<PublishedEvent> getPublishedEvent(final UUID id) {
 
         final DataSource eventStoreDataSource = subscriptionDataSourceProvider.getEventStoreDataSource();
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            return eventFetcherRepository.getLinkedEvent(id, connection);
+            return eventFetcherRepository.getPublishedEvent(id, connection);
         } catch (final SQLException e) {
-            throw new EventFetchingException(format("Failed to get LinkedEvent with id '%s'", id), e);
+            throw new EventFetchingException(format("Failed to get PublishedEvent with id '%s'", id), e);
         }
     }
 }

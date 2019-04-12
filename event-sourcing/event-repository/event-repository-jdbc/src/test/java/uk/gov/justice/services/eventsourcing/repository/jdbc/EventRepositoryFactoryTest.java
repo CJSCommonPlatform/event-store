@@ -8,7 +8,7 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 
 import org.junit.Test;
@@ -31,12 +31,12 @@ public class EventRepositoryFactoryTest {
     public void shouldProduceEventStreamManager() throws Exception {
         final EventJdbcRepository eventJdbcRepository = mock(EventJdbcRepository.class);
         final EventStreamJdbcRepository eventStreamJdbcRepository = mock(EventStreamJdbcRepository.class);
-        final LinkedEventFinder linkedEventFinder = mock(LinkedEventFinder.class);
+        final PublishedEventFinder publishedEventFinder = mock(PublishedEventFinder.class);
 
         final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                linkedEventFinder);
+                publishedEventFinder);
 
         assertThat(eventRepository, is(notNullValue()));
 
@@ -49,8 +49,8 @@ public class EventRepositoryFactoryTest {
         final EventConverter eventConverterField = getValueOfField(eventRepository, "eventConverter", EventConverter.class);
         assertThat(eventConverterField, is(eventConverter));
 
-        final LinkedEventFinder linkedEventFinderField = getValueOfField(eventRepository, "linkedEventFinder", LinkedEventFinder.class);
-        assertThat(linkedEventFinderField, is(linkedEventFinder));
+        final PublishedEventFinder publishedEventFinderField = getValueOfField(eventRepository, "publishedEventFinder", PublishedEventFinder.class);
+        assertThat(publishedEventFinderField, is(publishedEventFinder));
 
         final Logger loggerField = getValueOfField(eventRepository, "logger", Logger.class);
         assertThat(loggerField, is(notNullValue()));

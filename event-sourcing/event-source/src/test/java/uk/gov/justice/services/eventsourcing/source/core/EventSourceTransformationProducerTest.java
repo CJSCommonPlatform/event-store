@@ -15,7 +15,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
@@ -46,7 +46,7 @@ public class EventSourceTransformationProducerTest {
     private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
     @Mock
-    private LinkedEventFinder linkedEventFinder;
+    private PublishedEventFinder publishedEventFinder;
 
     @InjectMocks
     private EventSourceTransformationProducer eventSourceTransformationProducer;
@@ -64,7 +64,7 @@ public class EventSourceTransformationProducerTest {
                         .withDataSource("jndi:datasource")
                         .build())
                 .build();
-        when(eventRepositoryFactory.eventRepository(any(EventJdbcRepository.class), any(EventStreamJdbcRepository.class), eq(linkedEventFinder))).thenReturn(eventRepository);
+        when(eventRepositoryFactory.eventRepository(any(EventJdbcRepository.class), any(EventStreamJdbcRepository.class), eq(publishedEventFinder))).thenReturn(eventRepository);
         when(eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceDefinition.getName())).thenReturn(eventStreamManager);
         when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
         final EventSourceTransformation eventSourceTransformation = eventSourceTransformationProducer.eventSourceTransformation();

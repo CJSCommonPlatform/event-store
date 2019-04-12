@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,13 +19,13 @@ public class EventRepositoryFactory {
     public EventRepository eventRepository(
             final EventJdbcRepository eventJdbcRepository,
             final EventStreamJdbcRepository eventStreamJdbcRepository,
-            final LinkedEventFinder linkedEventFinder) {
+            final PublishedEventFinder publishedEventFinder) {
 
         return new JdbcBasedEventRepository(
                 eventConverter,
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                linkedEventFinder,
+                publishedEventFinder,
                 LoggerFactory.getLogger(EventRepository.class)
         );
     }

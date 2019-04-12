@@ -4,7 +4,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.LinkedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
@@ -33,7 +33,7 @@ public class EventSourceTransformationProducer {
     private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
     @Inject
-    private LinkedEventFinder linkedEventFinder;
+    private PublishedEventFinder publishedEventFinder;
 
     @Produces
     public EventSourceTransformation eventSourceTransformation() {
@@ -47,7 +47,7 @@ public class EventSourceTransformationProducer {
         final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                linkedEventFinder);
+                publishedEventFinder);
 
         final EventStreamManager eventStreamManager = eventStreamManagerFactory.eventStreamManager(eventRepository, defaultEventSourceDefinition.getName());
 

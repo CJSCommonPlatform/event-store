@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.EventSourceNameQualifier;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 
 import javax.enterprise.inject.Instance;
 
@@ -18,23 +18,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EventSourceProviderTest {
+public class PublishedEventSourceProviderTest {
 
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private Instance<EventSource> eventSourceInstance;
+    private Instance<PublishedEventSource> publishedEventSources;
 
     @InjectMocks
-    private EventSourceProvider eventSourceProvider;
+    private PublishedEventSourceProvider publishedEventSourceProvider;
 
     @Test
     public void shouldGetTheCorrectEventSourceByName() throws Exception {
 
         final String eventSourceName = "eventSourceName";
 
-        final EventSource eventSource = mock(EventSource.class);
+        final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
 
-        when(eventSourceInstance.select(new EventSourceNameQualifier(eventSourceName)).get()).thenReturn(eventSource);
+        when(publishedEventSources.select(new EventSourceNameQualifier(eventSourceName)).get()).thenReturn(publishedEventSource);
 
-        assertThat(eventSourceProvider.getEventSource(eventSourceName), is(eventSource));
+        assertThat(publishedEventSourceProvider.getPublishedEventSource(eventSourceName), is(publishedEventSource));
     }
 }

@@ -13,10 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class JdbcEventSourceFactory {
-
-    @Inject
-    private EventStreamManagerFactory eventStreamManagerFactory;
+public class JdbcPublishedEventSourceFactory {
 
     @Inject
     private EventRepositoryFactory eventRepositoryFactory;
@@ -31,9 +28,9 @@ public class JdbcEventSourceFactory {
     private EventConverter eventConverter;
 
     @Inject
-    private PublishedEventFinder publishedEventFinder;
+    private PublishedEventFinder linkedEventFinder;
 
-    public JdbcBasedEventSource create(final String jndiDatasource, String eventSourceName) {
+    public JdbcBasedPublishedEventSource create(final String jndiDatasource) {
 
         final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource);
         final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource);
@@ -41,13 +38,8 @@ public class JdbcEventSourceFactory {
         final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                publishedEventFinder);
+                linkedEventFinder);
 
-        final EventStreamManager eventStreamManager = eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName);
-
-        return new JdbcBasedEventSource(
-                eventStreamManager,
-                eventRepository,
-                eventSourceName);
+        return new JdbcBasedPublishedEventSource(eventRepository, eventConverter);
     }
 }

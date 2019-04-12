@@ -3,7 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.task;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
+import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 
@@ -16,7 +16,7 @@ public class EventCatchupProcessorFactory {
     private ProcessedEventTrackingService processedEventTrackingService;
 
     @Inject
-    private EventSourceProvider eventSourceProvider;
+    private PublishedEventSourceProvider publishedEventSourceProvider;
 
     @Inject
     private Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
@@ -36,7 +36,7 @@ public class EventCatchupProcessorFactory {
 
         return new EventCatchupProcessor(
                 processedEventTrackingService,
-                eventSourceProvider,
+                publishedEventSourceProvider,
                 eventStreamConsumerManager,
                 catchupStartedForSubscriptionEventFirer,
                 catchupCompletedForSubscriptionEventFirer,

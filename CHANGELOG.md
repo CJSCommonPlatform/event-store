@@ -4,16 +4,28 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### [2.0.0-M11] - 2019-04-11
+
+### Added
+- Add Published Event Source
+
+### Changed
+- Updated framework-api to 4.0.0-M7
+- Update framework to 6.0.0-M11
+
+## [2.0.0-M11] - 2019-04-11
+### Changed
 - Catchup now returns events from linked_event rather than from event_log
 
 ## [2.0.0-M10] - 2019-04-05
+### Changed
 - Update framework to 6.0.0-M10
 
 ## [2.0.0-M9] - 2019-04-02
+### Added
 - Add Shuttering implementation to PublisherTimerBean
 
 ## [2.0.0-M8] - 2019-04-01
+### Added
 - Event Catchup is now Observable using the JEE event system
 - Catchup now callable from JMX bean
 

@@ -1,21 +1,21 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.EventSourceNameQualifier;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-public class EventSourceProvider {
+public class PublishedEventSourceProvider {
 
     @Inject
     @Any
-    Instance<EventSource> eventSourceInstance;
+    Instance<PublishedEventSource> publishedEventSources;
 
-    public EventSource getEventSource(final String eventSourceName) {
+    public PublishedEventSource getPublishedEventSource(final String eventSourceName) {
 
-        return eventSourceInstance
+        return publishedEventSources
                 .select(new EventSourceNameQualifier(eventSourceName))
                 .get();
     }

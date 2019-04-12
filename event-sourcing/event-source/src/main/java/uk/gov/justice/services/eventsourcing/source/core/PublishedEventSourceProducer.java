@@ -18,45 +18,42 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 
-/**
- * Producer for EventSource, backwards compatible supports Named and Unnamed EventSource injection
- * points
- */
 @ApplicationScoped
 @Default
 @Priority(200)
-public class EventSourceProducer {
+public class PublishedEventSourceProducer {
 
     @Inject
     private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
     @Inject
-    private JdbcEventSourceFactory jdbcEventSourceFactory;
+    private JdbcPublishedEventSourceFactory jdbcPublishedEventSourceFactory;
 
     @Inject
     private QualifierAnnotationExtractor qualifierAnnotationExtractor;
 
     /**
-     * Backwards compatible support for Unnamed EventSource injection points. Uses the injected
-     * container JNDI name to lookup the EventSource
+     * Backwards compatible support for Unnamed PublishedEventSource injection points. Uses the
+     * injected container JNDI name to lookup the EventSource
      *
-     * @return {@link EventSource}
+     * @return {@link PublishedEventSource}
      */
     @Produces
-    public EventSource eventSource() {
+    public PublishedEventSource publishedEventSource() {
         return createEventSourceFrom(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition());
     }
 
     /**
-     * Support for Named EventSource injection points.  Annotate injection point with {@code
+     * Support for Named PublishedEventSource injection points.  Annotate injection point with
+     * {@code
      *
      * @param injectionPoint the injection point for the EventSource
-     * @return {@link EventSource}
+     * @return {@link PublishedEventSource}
      * @EventSourceName("name")}
      */
     @Produces
     @EventSourceName
-    public EventSource eventSource(final InjectionPoint injectionPoint) {
+    public PublishedEventSource publishedEventSource(final InjectionPoint injectionPoint) {
 
         final String eventSourceName = qualifierAnnotationExtractor.getFrom(injectionPoint, EventSourceName.class).value();
         final Optional<EventSourceDefinition> eventSourceDefinition = eventSourceDefinitionRegistry.getEventSourceDefinitionFor(eventSourceName);
@@ -66,12 +63,12 @@ public class EventSourceProducer {
                 .orElseThrow(() -> new CreationException(format("Failed to find EventSource named '%s' in event-sources.yaml", eventSourceName)));
     }
 
-    private EventSource createEventSourceFrom(final EventSourceDefinition eventSourceDefinition) {
+    private PublishedEventSource createEventSourceFrom(final EventSourceDefinition eventSourceDefinition) {
         final Location location = eventSourceDefinition.getLocation();
         final Optional<String> dataSourceOptional = location.getDataSource();
 
         return dataSourceOptional
-                .map(dataSource -> jdbcEventSourceFactory.create(dataSource, eventSourceDefinition.getName()))
+                .map(dataSource -> jdbcPublishedEventSourceFactory.create(dataSource))
                 .orElseThrow(() -> new CreationException(
                         format("No DataSource specified for EventSource '%s' specified in event-sources.yaml", eventSourceDefinition.getName())
                 ));

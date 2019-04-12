@@ -7,15 +7,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import java.util.List;
@@ -38,9 +34,6 @@ public class JdbcBasedEventSourceTest {
 
     @Mock
     private EventRepository eventRepository;
-
-    @Mock
-    private EventConverter eventConverter;
 
     @InjectMocks
     private JdbcBasedEventSource jdbcBasedEventSource;
@@ -109,22 +102,5 @@ public class JdbcBasedEventSourceTest {
         final EnvelopeEventStream eventStream = (EnvelopeEventStream) jdbcBasedEventSource.getStreamById(STREAM_ID);
 
         assertThat(eventStream.getName(), equalTo(eventSourceName));
-    }
-
-    @Test
-    public void shouldFindEventsByEventNumber() throws Exception {
-
-        final long eventNumber = 972834L;
-
-        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
-        final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
-
-        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(publishedEvent));
-        when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
-
-        final List<JsonEnvelope> envelopes = jdbcBasedEventSource.findEventsSince(eventNumber).collect(toList());
-
-        assertThat(envelopes.size(), is(1));
-        assertThat(envelopes.get(0), is(jsonEnvelope));
     }
 }

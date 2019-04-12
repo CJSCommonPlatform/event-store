@@ -5,9 +5,9 @@ import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
+import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
@@ -20,7 +20,7 @@ import javax.transaction.Transactional;
 public class EventCatchupProcessor {
 
     private final ProcessedEventTrackingService processedEventTrackingService;
-    private final EventSourceProvider eventSourceProvider;
+    private final PublishedEventSourceProvider publishedEventSourceProvider;
     private final EventStreamConsumerManager eventStreamConsumerManager;
     private final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
     private final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
@@ -28,13 +28,13 @@ public class EventCatchupProcessor {
 
     public EventCatchupProcessor(
             final ProcessedEventTrackingService processedEventTrackingService,
-            final EventSourceProvider eventSourceProvider,
+            final PublishedEventSourceProvider publishedEventSourceProvider,
             final EventStreamConsumerManager eventStreamConsumerManager,
             final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer,
             final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer,
             final UtcClock clock) {
         this.processedEventTrackingService = processedEventTrackingService;
-        this.eventSourceProvider = eventSourceProvider;
+        this.publishedEventSourceProvider = publishedEventSourceProvider;
         this.eventStreamConsumerManager = eventStreamConsumerManager;
         this.catchupStartedForSubscriptionEventFirer = catchupStartedForSubscriptionEventFirer;
         this.catchupCompletedForSubscriptionEventFirer = catchupCompletedForSubscriptionEventFirer;
@@ -46,7 +46,7 @@ public class EventCatchupProcessor {
 
         final String subscriptionName = subscription.getName();
         final String eventSourceName = subscription.getEventSourceName();
-        final EventSource eventSource = eventSourceProvider.getEventSource(eventSourceName);
+        final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName);
 
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(

@@ -7,15 +7,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
 import java.util.UUID;
@@ -80,22 +77,5 @@ public class SnapshotAwareEventSourceTest {
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());
 
         assertThat(eventStreamList.size(), is(0));
-    }
-
-    @Test
-    public void shouldFindEventsByEventNumber() throws Exception {
-
-        final long eventNumber = 92834L;
-
-        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
-        final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
-
-        when(eventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(publishedEvent));
-        when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
-
-        final List<JsonEnvelope> envelopes = snapshotAwareEventSource.findEventsSince(eventNumber).collect(toList());
-
-        assertThat(envelopes.size(), is(1));
-        assertThat(envelopes.get(0), is(jsonEnvelope));
     }
 }

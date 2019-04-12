@@ -3,7 +3,6 @@ package uk.gov.justice.services.eventsourcing.source.core;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -49,11 +48,5 @@ public class SnapshotAwareEventSource implements EventSource {
                 .map(e -> new EnvelopeEventStream(e.getStreamId(), e.getPosition(),
                         eventStreamManager));
 
-    }
-
-    @Override
-    public Stream<JsonEnvelope> findEventsSince(final long eventNumber) {
-        return eventRepository.findEventsSince(eventNumber)
-                .map(eventConverter::envelopeOf);
     }
 }

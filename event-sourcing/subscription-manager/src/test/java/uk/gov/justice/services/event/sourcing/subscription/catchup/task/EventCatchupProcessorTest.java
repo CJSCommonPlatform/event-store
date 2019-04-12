@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.event.sourcing.subscription.manager.EventSourceProvider;
+import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
-import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
@@ -34,7 +34,7 @@ public class EventCatchupProcessorTest {
     private ProcessedEventTrackingService processedEventTrackingService;
 
     @Mock
-    private EventSourceProvider eventSourceProvider;
+    private PublishedEventSourceProvider publishedEventSourceProvider;
 
     @Mock
     private EventStreamConsumerManager eventStreamConsumerManager;
@@ -54,7 +54,7 @@ public class EventCatchupProcessorTest {
     public void createClassUnderTest() {
         eventCatchupProcessor = new EventCatchupProcessor(
                 processedEventTrackingService,
-                eventSourceProvider,
+                publishedEventSourceProvider,
                 eventStreamConsumerManager,
                 catchupStartedForSubscriptionEventFirer,
                 catchupCompletedForSubscriptionEventFirer,
@@ -73,7 +73,7 @@ public class EventCatchupProcessorTest {
         final ZonedDateTime catchupCompetedAt = catchupStartedAt.plusMinutes(23);
 
         final Subscription subscription = mock(Subscription.class);
-        final EventSource eventSource = mock(EventSource.class);
+        final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
 
         final JsonEnvelope event_1 = mock(JsonEnvelope.class);
         final JsonEnvelope event_2 = mock(JsonEnvelope.class);
@@ -84,9 +84,9 @@ public class EventCatchupProcessorTest {
         when(subscription.getName()).thenReturn(subscriptionName);
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
         when(clock.now()).thenReturn(catchupStartedAt, catchupCompetedAt);
-        when(eventSourceProvider.getEventSource(eventSourceName)).thenReturn(eventSource);
+        when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName)).thenReturn(eventNumber);
-        when(eventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
+        when(publishedEventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
         when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);

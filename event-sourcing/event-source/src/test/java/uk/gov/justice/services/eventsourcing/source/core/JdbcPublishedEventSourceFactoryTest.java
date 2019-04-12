@@ -22,10 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JdbcEventSourceFactoryTest {
-
-    @Mock
-    private EventStreamManagerFactory eventStreamManagerFactory;
+public class JdbcPublishedEventSourceFactoryTest {
 
     @Mock
     private EventRepositoryFactory eventRepositoryFactory;
@@ -40,21 +37,19 @@ public class JdbcEventSourceFactoryTest {
     private EventConverter eventConverter;
 
     @Mock
-    private PublishedEventFinder publishedEventFinder;
+    private PublishedEventFinder linkedEventFinder;
 
     @InjectMocks
-    private JdbcEventSourceFactory jdbcEventSourceFactory;
+    private JdbcPublishedEventSourceFactory jdbcPublishedEventSourceFactory;
 
     @Test
-    public void shouldCreateJdbcBasedEventSource() throws Exception {
+    public void shouldCreateJdbcBasedPublishedEventSource() throws Exception {
 
         final String jndiDatasource = "jndiDatasource";
-        final String eventSourceName = "eventSourceName";
 
         final EventJdbcRepository eventJdbcRepository = mock(EventJdbcRepository.class);
         final EventStreamJdbcRepository eventStreamJdbcRepository = mock(EventStreamJdbcRepository.class);
         final EventRepository eventRepository = mock(EventRepository.class);
-        final EventStreamManager eventStreamManager = mock(EventStreamManager.class);
 
         when(eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource)).thenReturn(eventJdbcRepository);
         when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource)).thenReturn(eventStreamJdbcRepository);
@@ -62,14 +57,11 @@ public class JdbcEventSourceFactoryTest {
         when(eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                publishedEventFinder)).thenReturn(eventRepository);
+                linkedEventFinder)).thenReturn(eventRepository);
 
-        when(eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName)).thenReturn(eventStreamManager);
+        final JdbcBasedPublishedEventSource jdbcBasedPublishedEventSource = jdbcPublishedEventSourceFactory.create(jndiDatasource);
 
-        final JdbcBasedEventSource jdbcBasedEventSource = jdbcEventSourceFactory.create(jndiDatasource, eventSourceName);
-
-        assertThat(getValueOfField(jdbcBasedEventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
-        assertThat(getValueOfField(jdbcBasedEventSource, "eventRepository", EventRepository.class), is(eventRepository));
-        assertThat(getValueOfField(jdbcBasedEventSource, "name", String.class), is(eventSourceName));
+        assertThat(getValueOfField(jdbcBasedPublishedEventSource, "eventRepository", EventRepository.class), is(eventRepository));
+        assertThat(getValueOfField(jdbcBasedPublishedEventSource, "eventConverter", EventConverter.class), is(eventConverter));
     }
 }

@@ -41,7 +41,7 @@
 
         <utilities.version>1.16.4</utilities.version>
         <test-utils.version>1.22.0</test-utils.version>
-        <framework.version>6.0.0-M11</framework.version>
+        <framework.version>6.0.0-M12</framework.version>
         <common-bom.version>1.29.0</common-bom.version>
         <framework-api.version>4.0.0-M7</framework-api.version>
     </properties>

@@ -3,8 +3,8 @@ package uk.gov.justice.services.event.buffer.core.repository.subscription;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.sql.ResultSet;
@@ -27,7 +27,6 @@ public class StreamStatusJdbcRepository {
     private static final String LATEST_POSITION_COLUMN = "version";
     private static final String SOURCE = "source";
 
-
     /**
      * Statements
      */
@@ -38,18 +37,18 @@ public class StreamStatusJdbcRepository {
     private static final String UPDATE_UNKNOWN_SOURCE = "UPDATE stream_status SET source=? WHERE stream_id=? and source = 'unknown'";
 
     @Inject
-    JdbcRepositoryHelper jdbcRepositoryHelper;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Inject
-    ViewStoreJdbcDataSourceProvider dataSourceProvider;
+    private ViewStoreJdbcDataSourceProvider dataSourceProvider;
 
-    DataSource dataSource;
+    private DataSource dataSource;
 
     public StreamStatusJdbcRepository() {}
 
-    public StreamStatusJdbcRepository(final DataSource dataSource, final JdbcRepositoryHelper jdbcRepositoryHelper) {
+    public StreamStatusJdbcRepository(final DataSource dataSource, final PreparedStatementWrapperFactory preparedStatementWrapperFactory) {
         this.dataSource = dataSource;
-        this.jdbcRepositoryHelper = jdbcRepositoryHelper;
+        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
     }
 
     @PostConstruct
@@ -64,7 +63,7 @@ public class StreamStatusJdbcRepository {
      * @param subscription the status of the stream to insert
      */
     public void insert(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, INSERT)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT)) {
             ps.setLong(1, subscription.getPosition());
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
@@ -81,7 +80,7 @@ public class StreamStatusJdbcRepository {
      * @param subscription the status of the stream to insert
      */
     public void insertOrDoNothing(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING)) {
             ps.setLong(1, subscription.getPosition());
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
@@ -98,7 +97,7 @@ public class StreamStatusJdbcRepository {
      * @param subscription the event to insert
      */
     public void update(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, UPDATE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE)) {
             ps.setLong(1, subscription.getPosition());
             ps.setString(2, subscription.getSource());
             ps.setObject(3, subscription.getStreamId());
@@ -116,7 +115,7 @@ public class StreamStatusJdbcRepository {
      * @return a {@link Subscription}.
      */
     public Optional<Subscription> findByStreamIdAndSource(final UUID streamId, final String source) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, SELECT_BY_STREAM_ID_AND_SOURCE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_BY_STREAM_ID_AND_SOURCE)) {
             ps.setObject(1, streamId);
             ps.setObject(2, source);
             return subscriptionFrom(ps);
@@ -139,7 +138,7 @@ public class StreamStatusJdbcRepository {
     }
 
     public void updateSource(final UUID streamId, final String source) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, UPDATE_UNKNOWN_SOURCE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_UNKNOWN_SOURCE)) {
             ps.setString(1, source);
             ps.setObject(2, streamId);
             ps.executeUpdate();

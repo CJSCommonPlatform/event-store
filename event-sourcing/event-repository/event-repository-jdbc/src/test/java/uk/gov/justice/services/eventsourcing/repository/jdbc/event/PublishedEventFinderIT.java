@@ -5,7 +5,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventBuilder.publishedEventBuilder;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
 
@@ -18,28 +19,25 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PublishedEventFinderIT {
 
-    private PublishedEventJdbcRepository publishedEventJdbcRepository = new PublishedEventJdbcRepository();
+    private PublishedEventInserter publishedEventInserter = new PublishedEventInserter();
     private DataSource dataSource;
 
-    @Spy
-    @SuppressWarnings("unused")
-    private JdbcRepositoryHelper jdbcRepositoryHelper = new JdbcRepositoryHelper();
-
-    @InjectMocks
     private PublishedEventFinder publishedEventFinder;
 
     @Before
     public void initialize() throws Exception {
         dataSource = new TestEventStoreDataSourceFactory().createDataSource("frameworkeventstore");
         new DatabaseCleaner().cleanEventStoreTables("framework");
+
+        final JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();
+        final PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
+        publishedEventFinder = new PublishedEventFinder(
+                jdbcResultSetStreamer,
+                preparedStatementWrapperFactory,
+                dataSource);
     }
 
     @After
@@ -58,14 +56,14 @@ public class PublishedEventFinderIT {
 
         final Connection connection = dataSource.getConnection();
 
-        publishedEventJdbcRepository.insertPublishedEvent(event_1, connection);
-        publishedEventJdbcRepository.insertPublishedEvent(event_2, connection);
-        publishedEventJdbcRepository.insertPublishedEvent(event_3, connection);
-        publishedEventJdbcRepository.insertPublishedEvent(event_4, connection);
-        publishedEventJdbcRepository.insertPublishedEvent(event_5, connection);
+        publishedEventInserter.insertPublishedEvent(event_1, connection);
+        publishedEventInserter.insertPublishedEvent(event_2, connection);
+        publishedEventInserter.insertPublishedEvent(event_3, connection);
+        publishedEventInserter.insertPublishedEvent(event_4, connection);
+        publishedEventInserter.insertPublishedEvent(event_5, connection);
 
 
-        final List<PublishedEvent> publishedEvents = publishedEventFinder.findEventsSince(3, dataSource)
+        final List<PublishedEvent> publishedEvents = publishedEventFinder.findEventsSince(3)
                 .collect(toList());
 
         assertThat(publishedEvents.size(), is(2));

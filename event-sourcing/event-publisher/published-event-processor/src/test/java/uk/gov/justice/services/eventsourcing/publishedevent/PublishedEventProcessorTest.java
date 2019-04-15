@@ -18,7 +18,7 @@ import uk.gov.justice.services.eventsourcing.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -52,7 +52,7 @@ public class PublishedEventProcessorTest {
     private PublishedEventFactory publishedEventFactory;
 
     @Mock
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     @InjectMocks
     private PublishedEventProcessor publishedEventProcessor;
@@ -78,7 +78,7 @@ public class PublishedEventProcessorTest {
 
         publishedEventProcessor.createPublishedEvent(event);
 
-        verify(publishedEventJdbcRepository).insertPublishedEvent(publishedEvent, connection);
+        verify(publishedEventInserter).insertPublishedEvent(publishedEvent, connection);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class PublishedEventProcessorTest {
             assertThat(expected.getMessage(), is("Unable to get previous event number for event with id 'df7958f4-ce50-45a1-a8ee-501d55475e69'"));
         }
 
-        verifyZeroInteractions(publishedEventJdbcRepository);
+        verifyZeroInteractions(publishedEventInserter);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class PublishedEventProcessorTest {
         when(metadataEventNumberUpdater.updateMetadataJson(metadata, previousEventNumber, eventNumber)).thenReturn(updatedMetadata);
         when(publishedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber)).thenReturn(publishedEvent);
 
-        doThrow(sqlException).when(publishedEventJdbcRepository).insertPublishedEvent(publishedEvent, connection);
+        doThrow(sqlException).when(publishedEventInserter).insertPublishedEvent(publishedEvent, connection);
 
         try {
             publishedEventProcessor.createPublishedEvent(event);

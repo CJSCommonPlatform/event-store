@@ -4,7 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -18,31 +18,35 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StreamStatusJdbcRepositoryTest {
 
+    @SuppressWarnings("unused")
+    @Spy
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
+
+    @Mock
+    private DataSource dataSource;
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private DatabaseMetaData databaseMetaData;
+
+    @Mock
+    private PreparedStatement preparedStatement;
+
     @InjectMocks
-    private StreamStatusJdbcRepository repository;
-
-    @Mock
-    DataSource dataSource;
-
-    @Mock
-    Connection connection;
-
-    @Mock
-    DatabaseMetaData dbMetadata;
-
-    @Mock
-    PreparedStatement statement;
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
 
     @Before
     public void setUp() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.getMetaData()).thenReturn(dbMetadata);
-        repository.jdbcRepositoryHelper = new JdbcRepositoryHelper();
+        when(connection.getMetaData()).thenReturn(databaseMetaData);
     }
 
     @Test
@@ -52,15 +56,15 @@ public class StreamStatusJdbcRepositoryTest {
         final String source = "a source";
 
         when(connection.prepareStatement("INSERT INTO stream_status (version, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
-                .thenReturn(statement);
+                .thenReturn(preparedStatement);
 
         final UUID streamId = randomUUID();
         final long version = 1l;
-        repository.insertOrDoNothing(new Subscription(streamId, version, source));
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, version, source));
 
-        verify(statement).setLong(1, version);
-        verify(statement).setObject(2, streamId);
-        verify(statement).executeUpdate();
+        verify(preparedStatement).setLong(1, version);
+        verify(preparedStatement).setObject(2, streamId);
+        verify(preparedStatement).executeUpdate();
     }
 
 }

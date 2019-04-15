@@ -8,7 +8,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
 
@@ -20,16 +21,18 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class EventBufferJdbcRepositoryIT {
 
-    private EventBufferJdbcRepository jdbcRepository;
+    private EventBufferJdbcRepository eventBufferJdbcRepository;
 
     @Before
     public void initDatabase() throws Exception {
         final DataSource dataSource = new TestEventStoreDataSourceFactory()
                 .createDataSource("frameworkviewstore");
-        jdbcRepository = new EventBufferJdbcRepository(dataSource, new JdbcRepositoryHelper());
+        eventBufferJdbcRepository = new EventBufferJdbcRepository(
+                new JdbcResultSetStreamer(),
+                new PreparedStatementWrapperFactory(),
+                dataSource);
 
         new DatabaseCleaner().cleanViewStoreTables("framework", "stream_buffer", "stream_status");
     }
@@ -40,12 +43,12 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id2 = randomUUID();
         final String source = "source";
 
-        jdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source));
-        jdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
-        jdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
-        jdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
 
-        final List<EventBufferEvent> events = jdbcRepository.findStreamByIdAndSource(id1, source)
+        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
                 .collect(toList());
 
         assertThat(events, hasSize(3));
@@ -72,12 +75,12 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id2 = randomUUID();
         final String source = "source";
 
-        jdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source"));
-        jdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
-        jdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
-        jdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source"));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
 
-        final List<EventBufferEvent> events = jdbcRepository.findStreamByIdAndSource(id1, source)
+        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
                 .collect(toList());
 
         assertThat(events, hasSize(2));
@@ -99,12 +102,12 @@ public class EventBufferJdbcRepositoryIT {
         final String source = "someOtherSource";
         final EventBufferEvent eventBufferEvent = new EventBufferEvent(id1, 2L, "someOtherEvent", source);
 
-        jdbcRepository.insert(eventBufferEvent);
+        eventBufferJdbcRepository.insert(eventBufferEvent);
 
-        assertThat(jdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), hasItem(eventBufferEvent));
+        assertThat(eventBufferJdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), hasItem(eventBufferEvent));
 
-        jdbcRepository.remove(eventBufferEvent);
+        eventBufferJdbcRepository.remove(eventBufferEvent);
 
-        assertThat(jdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), empty());
+        assertThat(eventBufferJdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), empty());
     }
 }

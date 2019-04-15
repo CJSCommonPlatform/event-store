@@ -3,58 +3,48 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import javax.sql.DataSource;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventStreamJdbcRepositoryFactoryTest {
 
     @Mock
-    private JdbcRepositoryHelper eventStreamJdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
     @Mock
-    private JdbcDataSourceProvider jdbcDataSourceProvider;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Mock
     private UtcClock clock;
-
-    @Mock
-    private DataSource datasource;
 
     @InjectMocks
     private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
 
     @Test
     public void shouldProduceEventStreamJdbcRepository() throws Exception {
-        final String jndiDatasource = "java:/app/example/DS.eventstore";
 
-        final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource);
+        final DataSource dataSource = mock(DataSource.class);
+        final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(dataSource);
 
-        assertThat(eventStreamJdbcRepository, is(CoreMatchers.notNullValue()));
+        assertThat(eventStreamJdbcRepository, is(notNullValue()));
 
-        final JdbcRepositoryHelper eventStreamJdbcRepositoryHelperField = getValueOfField(eventStreamJdbcRepository, "eventStreamJdbcRepositoryHelper", JdbcRepositoryHelper.class);
-        assertThat(eventStreamJdbcRepositoryHelperField, is(eventStreamJdbcRepositoryHelper));
+        assertThat(getValueOfField(eventStreamJdbcRepository, "jdbcResultSetStreamer", JdbcResultSetStreamer.class), is(jdbcResultSetStreamer));
+        assertThat(getValueOfField(eventStreamJdbcRepository, "preparedStatementWrapperFactory", PreparedStatementWrapperFactory.class), is(preparedStatementWrapperFactory));
 
-        final JdbcDataSourceProvider jdbcDataSourceProviderField = getValueOfField(eventStreamJdbcRepository, "jdbcDataSourceProvider", JdbcDataSourceProvider.class);
-        assertThat(jdbcDataSourceProviderField, is(jdbcDataSourceProvider));
-
-        final String jndiDatasourceField = getValueOfField(eventStreamJdbcRepository, "jndiDatasource", String.class);
-        assertThat(jndiDatasourceField, is(jndiDatasource));
-
-        final Logger loggerField = getValueOfField(eventStreamJdbcRepository, "logger", Logger.class);
-        assertThat(loggerField, is(notNullValue()));
+        assertThat(getValueOfField(eventStreamJdbcRepository, "dataSource", DataSource.class), is(dataSource));
+        assertThat(getValueOfField(eventStreamJdbcRepository, "clock", UtcClock.class), is(clock));
     }
 }

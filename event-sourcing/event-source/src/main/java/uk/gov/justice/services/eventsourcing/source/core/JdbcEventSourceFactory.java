@@ -2,15 +2,16 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 @ApplicationScoped
 public class JdbcEventSourceFactory {
@@ -28,15 +29,13 @@ public class JdbcEventSourceFactory {
     private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
 
     @Inject
-    private EventConverter eventConverter;
+    private PublishedEventFinderFactory publishedEventFinderFactory;
 
-    @Inject
-    private PublishedEventFinder publishedEventFinder;
+    public JdbcBasedEventSource create(final DataSource dataSource, String eventSourceName) {
 
-    public JdbcBasedEventSource create(final String jndiDatasource, String eventSourceName) {
-
-        final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource);
-        final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource);
+        final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(dataSource);
+        final EventStreamJdbcRepository eventStreamJdbcRepository = eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(dataSource);
+        final PublishedEventFinder publishedEventFinder = publishedEventFinderFactory.create(dataSource);
 
         final EventRepository eventRepository = eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,

@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class PublishedEventJdbcRepository {
+public class PublishedEventInserter {
     private static final String TRUNCATE_LINKED_EVENT = "TRUNCATE published_event";
     private static final String TRUNCATE_PREPUBLISH_QUEUE = "TRUNCATE pre_publish_queue";
 

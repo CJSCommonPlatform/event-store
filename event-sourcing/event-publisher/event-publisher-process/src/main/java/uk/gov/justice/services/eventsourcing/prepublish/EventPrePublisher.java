@@ -8,7 +8,7 @@ import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -31,7 +31,7 @@ public class EventPrePublisher {
     private PrePublishRepository prePublishRepository;
 
     @Inject
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     @Inject
     private UtcClock clock;
@@ -62,7 +62,7 @@ public class EventPrePublisher {
                     eventNumber,
                     previousEventNumber);
 
-            publishedEventJdbcRepository.insertPublishedEvent(publishedEvent, connection);
+            publishedEventInserter.insertPublishedEvent(publishedEvent, connection);
             prePublishRepository.addToPublishQueueTable(eventId, clock.now(), connection);
 
         } catch (final SQLException e) {

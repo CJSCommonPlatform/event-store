@@ -3,30 +3,31 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 @ApplicationScoped
 public class EventJdbcRepositoryFactory {
 
     @Inject
-    EventInsertionStrategy eventInsertionStrategy;
+    private EventInsertionStrategy eventInsertionStrategy;
 
     @Inject
-    JdbcRepositoryHelper jdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
     @Inject
-    JdbcDataSourceProvider jdbcDataSourceProvider;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
-    public EventJdbcRepository eventJdbcRepository(final String jndiDatasource) {
+    public EventJdbcRepository eventJdbcRepository(final DataSource dataSource) {
         return new EventJdbcRepository(
                 eventInsertionStrategy,
-                jdbcRepositoryHelper,
-                jdbcDataSourceProvider,
-                jndiDatasource,
+                jdbcResultSetStreamer,
+                preparedStatementWrapperFactory,
+                dataSource,
                 getLogger(EventJdbcRepository.class));
     }
 }

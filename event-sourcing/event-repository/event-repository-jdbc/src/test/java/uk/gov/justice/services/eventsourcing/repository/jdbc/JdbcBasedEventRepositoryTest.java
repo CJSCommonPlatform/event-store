@@ -37,8 +37,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import javax.sql.DataSource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -414,14 +412,11 @@ public class JdbcBasedEventRepositoryTest {
     public void shouldUseThePublishedEventFinderToFindEventsToCatchup() throws Exception {
 
         final long eventNumber = 23L;
-
         final Stream<PublishedEvent> publishedEventStream = of(mock(PublishedEvent.class));
-        final DataSource dataSource = mock(DataSource.class);
 
-        when(eventStreamJdbcRepository.getDataSource()).thenReturn(dataSource);
-        when(publishedEventFinder.findEventsSince(eventNumber, dataSource)).thenReturn(publishedEventStream);
+        when(publishedEventFinder.findEventsSince(eventNumber)).thenReturn(publishedEventStream);
 
-        assertThat(publishedEventFinder.findEventsSince(eventNumber, dataSource), is(publishedEventStream));
+        assertThat(publishedEventFinder.findEventsSince(eventNumber), is(publishedEventStream));
     }
 
     private EventStream buildEventStreamFor(final UUID streamId, final Long sequence) {
@@ -436,11 +431,9 @@ public class JdbcBasedEventRepositoryTest {
     public void shouldFindEventsSince() throws Exception {
 
         final Long eventNumber = 348374L;
-        final DataSource dataSource = mock(DataSource.class);
         final Stream<PublishedEvent> publishedEventStream = of(mock(PublishedEvent.class));
 
-        when(eventStreamJdbcRepository.getDataSource()).thenReturn(dataSource);
-        when(publishedEventFinder.findEventsSince(eventNumber, dataSource)).thenReturn(publishedEventStream);
+        when(publishedEventFinder.findEventsSince(eventNumber)).thenReturn(publishedEventStream);
 
         assertThat(jdbcBasedEventRepository.findEventsSince(eventNumber), is(publishedEventStream));
     }

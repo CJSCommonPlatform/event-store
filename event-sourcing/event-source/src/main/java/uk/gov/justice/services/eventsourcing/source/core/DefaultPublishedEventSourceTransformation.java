@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsProcessor;
+import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsRepublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventsProcessor;
 import uk.gov.justice.services.eventsourcing.source.core.exception.PublishedEventException;
 
@@ -12,19 +12,18 @@ import javax.inject.Inject;
 public class DefaultPublishedEventSourceTransformation implements PublishedEventSourceTransformation {
 
     @Inject
-    private ActiveStreamsProcessor activeStreamsProcessor;
+    private ActiveStreamsRepublisher activeStreamsRepublisher;
 
     @Inject
     private PublishedEventsProcessor publishedEventsProcessor;
 
-
     @Override
-    public void truncate() throws PublishedEventException {
+    public void deleteAllPublishedEvents() throws PublishedEventException {
         publishedEventsProcessor.truncatePublishedEvents();
     }
 
     @Override
-    public void populate() throws PublishedEventException {
-        activeStreamsProcessor.populatePublishedEvents();
+    public void populatePublishedEvents() throws PublishedEventException {
+        activeStreamsRepublisher.populatePublishedEvents();
     }
 }

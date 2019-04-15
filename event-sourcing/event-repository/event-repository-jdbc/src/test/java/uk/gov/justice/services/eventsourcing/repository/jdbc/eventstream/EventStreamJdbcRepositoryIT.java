@@ -8,12 +8,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
 
@@ -27,7 +26,6 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 
 public class EventStreamJdbcRepositoryIT {
 
@@ -38,16 +36,14 @@ public class EventStreamJdbcRepositoryIT {
 
     @Before
     public void initialize() throws Exception {
-        jdbcRepository = new EventStreamJdbcRepository(
-                new JdbcRepositoryHelper(),
-                null,
-                new UtcClock(),
-                "tests",
-                mock(Logger.class));
-
         dataSource = new TestEventStoreDataSourceFactory()
                 .createDataSource("frameworkeventstore");
-        ReflectionUtil.setField(jdbcRepository, "dataSource", dataSource);
+
+        jdbcRepository = new EventStreamJdbcRepository(
+                new JdbcResultSetStreamer(),
+                new PreparedStatementWrapperFactory(),
+                dataSource,
+                new UtcClock());
 
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }

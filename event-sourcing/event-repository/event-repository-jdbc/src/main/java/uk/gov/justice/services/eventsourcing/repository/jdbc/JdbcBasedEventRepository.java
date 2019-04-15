@@ -170,7 +170,7 @@ public class JdbcBasedEventRepository implements EventRepository {
 
     @Override
     public Stream<PublishedEvent> findEventsSince(final long eventNumber) {
-        return publishedEventFinder.findEventsSince(eventNumber, eventStreamJdbcRepository.getDataSource());
+        return publishedEventFinder.findEventsSince(eventNumber);
     }
 
     private Function<EventStream, EventStreamMetadata> toEventStreamMetadata() {

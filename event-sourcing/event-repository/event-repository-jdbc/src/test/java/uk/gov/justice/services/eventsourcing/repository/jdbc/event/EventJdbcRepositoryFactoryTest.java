@@ -3,11 +3,12 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import javax.sql.DataSource;
 
@@ -25,38 +26,27 @@ public class EventJdbcRepositoryFactoryTest {
     private EventInsertionStrategy eventInsertionStrategy;
 
     @Mock
-    private JdbcRepositoryHelper jdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
     @Mock
-    private JdbcDataSourceProvider jdbcDataSourceProvider;
-
-    @Mock
-    private DataSource datasource;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @InjectMocks
     private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
 
     @Test
     public void shouldProduceEventJdbcRepository() throws Exception {
-        final String jndiDatasource = "java:/app/example/DS.frameworkeventstore";
 
-        final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource);
+        final DataSource dataSource = mock(DataSource.class);
+
+        final EventJdbcRepository eventJdbcRepository = eventJdbcRepositoryFactory.eventJdbcRepository(dataSource);
 
         assertThat(eventJdbcRepository, is(notNullValue()));
 
-        final EventInsertionStrategy eventInsertionStrategyField = getValueOfField(eventJdbcRepository, "eventInsertionStrategy", EventInsertionStrategy.class);
-        assertThat(eventInsertionStrategyField, is(eventInsertionStrategy));
-
-        final JdbcRepositoryHelper jdbcRepositoryHelperField = getValueOfField(eventJdbcRepository, "jdbcRepositoryHelper", JdbcRepositoryHelper.class);
-        assertThat(jdbcRepositoryHelperField, is(jdbcRepositoryHelper));
-
-        final JdbcDataSourceProvider jdbcDataSourceProviderField = getValueOfField(eventJdbcRepository, "jdbcDataSourceProvider", JdbcDataSourceProvider.class);
-        assertThat(jdbcDataSourceProviderField, is(jdbcDataSourceProvider));
-
-        final String jndiDatasourceField = getValueOfField(eventJdbcRepository, "jndiDatasource", String.class);
-        assertThat(jndiDatasourceField, is(jndiDatasource));
-
-        final Logger loggerField = getValueOfField(eventJdbcRepository, "logger", Logger.class);
-        assertThat(loggerField, is(notNullValue()));
+        assertThat(getValueOfField(eventJdbcRepository, "eventInsertionStrategy", EventInsertionStrategy.class), is(eventInsertionStrategy));
+        assertThat(getValueOfField(eventJdbcRepository, "jdbcResultSetStreamer", JdbcResultSetStreamer.class), is(jdbcResultSetStreamer));
+        assertThat(getValueOfField(eventJdbcRepository, "preparedStatementWrapperFactory", PreparedStatementWrapperFactory.class), is(preparedStatementWrapperFactory));
+        assertThat(getValueOfField(eventJdbcRepository, "dataSource", DataSource.class), is(dataSource));
+        assertThat(getValueOfField(eventJdbcRepository, "logger", Logger.class), is(notNullValue()));
     }
 }

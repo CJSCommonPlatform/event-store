@@ -46,6 +46,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFact
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.EventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
@@ -60,21 +61,20 @@ import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotStrategy;
-import uk.gov.justice.services.jdbc.persistence.DefaultJdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
+import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
-import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
-import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
 import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
@@ -90,13 +90,10 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.jms.Destination;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit.ApplicationComposer;
@@ -128,8 +125,8 @@ public class SnapshotAwareAggregateServiceIT {
     private static final long SNAPSHOT_THRESHOLD = 25L;
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
 
-    @Resource(name = "openejb/Resource/frameworkeventstore")
-    private DataSource dataSource;
+    @Inject
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     @Inject
     private SnapshotRepository snapshotRepository;
@@ -149,23 +146,20 @@ public class SnapshotAwareAggregateServiceIT {
     @Inject
     private DefaultSnapshotService snapshotService;
 
-    @Inject
-    private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
-
     @Module
     @org.apache.openejb.testing.Classes(cdi = true, value = {
             ObjectInputStreamStrategy.class,
             CustomClassLoaderObjectInputStreamStrategy.class,
             DefaultObjectInputStreamStrategy.class,
             SnapshotJdbcRepository.class,
-            JdbcDataSourceProvider.class,
-            DefaultJdbcDataSourceProvider.class,
+            OpenEjbEventStoreDataSourceProvider.class,
 
             EventStreamJdbcRepositoryFactory.class,
             EventRepositoryFactory.class,
             TestEventInsertionStrategyProducer.class,
             EventJdbcRepositoryFactory.class,
-            JdbcRepositoryHelper.class,
+            JdbcResultSetStreamer.class,
+            PreparedStatementWrapperFactory.class,
             LoggerProducer.class,
 
             EventConverter.class,
@@ -209,6 +203,7 @@ public class SnapshotAwareAggregateServiceIT {
             DefaultEventSourceDefinitionFactory.class,
 
             SubscriptionHelper.class,
+            PublishedEventFinderFactory.class,
             PublishedEventFinder.class
     })
 
@@ -230,10 +225,6 @@ public class SnapshotAwareAggregateServiceIT {
     @Before
     public void init() throws Exception {
 
-        final EventSourceDefinition defaultEventSourceDefinition = eventSourceDefinitionRegistry.getDefaultEventSourceDefinition();
-        final String jndiName = defaultEventSourceDefinition.getLocation().getDataSource().get();
-        final InitialContext initialContext = new InitialContext();
-        initialContext.bind(jndiName, dataSource);
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
         defaultAggregateService.register(new EventFoundEvent(EventA.class, "context.eventA"));
     }
@@ -494,7 +485,7 @@ public class SnapshotAwareAggregateServiceIT {
 
     private int rowCount(final String sql, final Object arg) {
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = jdbcDataSourceProvider.getDataSource("don't care").getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, arg);
 

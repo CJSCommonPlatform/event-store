@@ -2,15 +2,15 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 
 import static java.lang.String.format;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,23 +61,21 @@ public class EventJdbcRepository {
 
     private static final long NO_EXISTING_VERSION = 0L;
 
-    private final String jndiDatasource;
-    private final Logger logger;
     private final EventInsertionStrategy eventInsertionStrategy;
-    private final JdbcRepositoryHelper jdbcRepositoryHelper;
-    private final JdbcDataSourceProvider jdbcDataSourceProvider;
-
-    private DataSource dataSource;
+    private final JdbcResultSetStreamer jdbcResultSetStreamer;
+    private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
+    private final DataSource dataSource;
+    private final Logger logger;
 
     public EventJdbcRepository(final EventInsertionStrategy eventInsertionStrategy,
-                               final JdbcRepositoryHelper jdbcRepositoryHelper,
-                               final JdbcDataSourceProvider jdbcDataSourceProvider,
-                               final String jndiDatasource,
+                               final JdbcResultSetStreamer jdbcResultSetStreamer,
+                               final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
+                               final DataSource dataSource,
                                final Logger logger) {
         this.eventInsertionStrategy = eventInsertionStrategy;
-        this.jdbcRepositoryHelper = jdbcRepositoryHelper;
-        this.jdbcDataSourceProvider = jdbcDataSourceProvider;
-        this.jndiDatasource = jndiDatasource;
+        this.jdbcResultSetStreamer = jdbcResultSetStreamer;
+        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
+        this.dataSource = dataSource;
         this.logger = logger;
     }
 
@@ -88,7 +86,7 @@ public class EventJdbcRepository {
      * @throws InvalidPositionException if the version already exists or is null.
      */
     public void insert(final Event event) throws InvalidPositionException {
-        try (final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), eventInsertionStrategy.insertStatement())) {
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, eventInsertionStrategy.insertStatement())) {
             eventInsertionStrategy.insert(preparedStatementWrapper, event);
         } catch (final SQLException e) {
             logger.error("Error persisting event to the database", e);
@@ -105,10 +103,10 @@ public class EventJdbcRepository {
      */
     public Stream<Event> findByStreamIdOrderByPositionAsc(final UUID streamId) {
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_BY_STREAM_ID);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID);
             preparedStatementWrapper.setObject(1, streamId);
 
-            return jdbcRepositoryHelper.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
@@ -126,11 +124,11 @@ public class EventJdbcRepository {
     public Stream<Event> findByStreamIdFromPositionOrderByPositionAsc(final UUID streamId,
                                                                       final Long position) {
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_BY_STREAM_ID_AND_POSITION);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION);
             preparedStatementWrapper.setObject(1, streamId);
             preparedStatementWrapper.setLong(2, position);
 
-            return jdbcRepositoryHelper.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
@@ -141,12 +139,12 @@ public class EventJdbcRepository {
                                                                       final Long versionFrom,
                                                                       final Integer pageSize) {
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE);
             preparedStatementWrapper.setObject(1, streamId);
             preparedStatementWrapper.setLong(2, versionFrom);
             preparedStatementWrapper.setInt(3, pageSize);
 
-            return jdbcRepositoryHelper.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
@@ -160,9 +158,9 @@ public class EventJdbcRepository {
      */
     public Stream<Event> findAll() {
         try {
-            return jdbcRepositoryHelper
-                    .streamOf(jdbcRepositoryHelper
-                            .preparedStatementWrapperOf(getDataSource(), SQL_FIND_ALL), entityFromFunction());
+            return jdbcResultSetStreamer
+                    .streamOf(preparedStatementWrapperFactory
+                            .preparedStatementWrapperOf(dataSource, SQL_FIND_ALL), entityFromFunction());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_ALL_EXCEPTION, e);
         }
@@ -175,7 +173,7 @@ public class EventJdbcRepository {
      * @return current position streamId for the stream.  Returns 0 if stream doesn't exist.
      */
     public long getStreamSize(final UUID streamId) {
-        try (final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_LATEST_POSITION)) {
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_LATEST_POSITION)) {
             preparedStatementWrapper.setObject(1, streamId);
 
             final ResultSet resultSet = preparedStatementWrapper.executeQuery();
@@ -200,7 +198,7 @@ public class EventJdbcRepository {
      */
     public Stream<UUID> getStreamIds() {
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_DISTINCT_STREAM_ID);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_DISTINCT_STREAM_ID);
             return streamFrom(preparedStatementWrapper);
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_ALL_EXCEPTION, e);
@@ -208,20 +206,13 @@ public class EventJdbcRepository {
 
     }
 
-    private DataSource getDataSource() {
-        if (null == dataSource) {
-            dataSource = jdbcDataSourceProvider.getDataSource(jndiDatasource);
-        }
-
-        return dataSource;
-    }
-
     private Stream<UUID> streamFrom(final PreparedStatementWrapper preparedStatementWrapper) throws SQLException {
-        return jdbcRepositoryHelper.streamOf(preparedStatementWrapper, e -> {
+        return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, resultSet -> {
             try {
-                return (UUID) e.getObject(COL_STREAM_ID);
-            } catch (final SQLException e1) {
-                throw jdbcRepositoryHelper.handled(e1, preparedStatementWrapper);
+                return (UUID) resultSet.getObject(COL_STREAM_ID);
+            } catch (final SQLException e) {
+                preparedStatementWrapper.close();
+                throw new JdbcRepositoryException(e);
             }
         });
     }
@@ -236,7 +227,7 @@ public class EventJdbcRepository {
                         resultSet.getString(COL_METADATA),
                         resultSet.getString(COL_PAYLOAD),
                         fromSqlTimestamp(resultSet.getTimestamp(COL_TIMESTAMP)),
-                        ofNullable(resultSet.getLong(COL_EVENT_NUMBER))
+                        of(resultSet.getLong(COL_EVENT_NUMBER))
                 );
             } catch (final SQLException e) {
                 throw new JdbcRepositoryException(e);
@@ -247,7 +238,7 @@ public class EventJdbcRepository {
     public void clear(final UUID streamId) {
         final long eventCount = getStreamSize(streamId);
 
-        try (final PreparedStatementWrapper preparedStatementWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_DELETE_STREAM)) {
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_DELETE_STREAM)) {
             preparedStatementWrapper.setObject(1, streamId);
 
             final int deletedRows = preparedStatementWrapper.executeUpdate();

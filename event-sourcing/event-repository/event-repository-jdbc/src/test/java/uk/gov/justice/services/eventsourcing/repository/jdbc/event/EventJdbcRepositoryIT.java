@@ -13,8 +13,8 @@ import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventB
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
 
@@ -42,16 +42,14 @@ public class EventJdbcRepositoryIT {
 
     @Before
     public void initialize() throws Exception {
+
+        dataSource = new TestEventStoreDataSourceFactory().createDataSource("frameworkeventstore");
         jdbcRepository = new EventJdbcRepository(
                 new AnsiSQLEventLogInsertionStrategy(),
-                new JdbcRepositoryHelper(),
-                null,
-                "tests",
+                new JdbcResultSetStreamer(),
+                new PreparedStatementWrapperFactory(),
+                dataSource,
                 mock(Logger.class));
-
-        dataSource = new TestEventStoreDataSourceFactory()
-                .createDataSource("frameworkeventstore");
-        ReflectionUtil.setField(jdbcRepository, "dataSource", dataSource);
 
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }

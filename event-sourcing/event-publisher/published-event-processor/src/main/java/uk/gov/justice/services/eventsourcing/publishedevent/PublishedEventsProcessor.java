@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
@@ -21,7 +21,7 @@ public class PublishedEventsProcessor {
     private PublishedEventProcessor publishedEventProcessor;
 
     @Inject
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
 
     public void populatePublishedEvents(final UUID streamId, final EventJdbcRepository eventJdbcRepository) {
@@ -34,7 +34,7 @@ public class PublishedEventsProcessor {
 
     public void truncatePublishedEvents() throws PublishedEventSQLException {
         try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
-            publishedEventJdbcRepository.truncate(connection);
+            publishedEventInserter.truncate(connection);
         } catch (final SQLException e) {
             throw new PublishedEventSQLException("Failed to truncate Linked Events table", e);
         }

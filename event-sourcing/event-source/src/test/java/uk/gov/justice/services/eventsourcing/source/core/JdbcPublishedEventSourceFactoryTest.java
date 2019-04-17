@@ -12,8 +12,12 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverte
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
+import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+
+import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +41,10 @@ public class JdbcPublishedEventSourceFactoryTest {
     private EventConverter eventConverter;
 
     @Mock
-    private PublishedEventFinder linkedEventFinder;
+    private PublishedEventFinderFactory publishedEventFinderFactory;
+
+    @Mock
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     @InjectMocks
     private JdbcPublishedEventSourceFactory jdbcPublishedEventSourceFactory;
@@ -50,14 +57,18 @@ public class JdbcPublishedEventSourceFactoryTest {
         final EventJdbcRepository eventJdbcRepository = mock(EventJdbcRepository.class);
         final EventStreamJdbcRepository eventStreamJdbcRepository = mock(EventStreamJdbcRepository.class);
         final EventRepository eventRepository = mock(EventRepository.class);
+        final DataSource dataSource = mock(DataSource.class);
+        final PublishedEventFinder publishedEventFinder = mock(PublishedEventFinder.class);
 
-        when(eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource)).thenReturn(eventJdbcRepository);
-        when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource)).thenReturn(eventStreamJdbcRepository);
+        when(jdbcDataSourceProvider.getDataSource(jndiDatasource)).thenReturn(dataSource);
+        when(eventJdbcRepositoryFactory.eventJdbcRepository(dataSource)).thenReturn(eventJdbcRepository);
+        when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(dataSource)).thenReturn(eventStreamJdbcRepository);
+        when(publishedEventFinderFactory.create(dataSource)).thenReturn(publishedEventFinder);
 
         when(eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
-                linkedEventFinder)).thenReturn(eventRepository);
+                publishedEventFinder)).thenReturn(eventRepository);
 
         final JdbcBasedPublishedEventSource jdbcBasedPublishedEventSource = jdbcPublishedEventSourceFactory.create(jndiDatasource);
 

@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
@@ -16,6 +17,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverte
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -35,17 +37,44 @@ public class SnapshotAwareEventSourceTest {
     @Mock
     private JdbcBasedEventRepository eventRepository;
 
-    @Mock
-    private EventConverter eventConverter;
-
     @InjectMocks
     private SnapshotAwareEventSource snapshotAwareEventSource;
 
     @Test
-    public void shouldReturnEventStream() {
-        EnvelopeEventStream eventStream = (EnvelopeEventStream) snapshotAwareEventSource.getStreamById(STREAM_ID);
+    public void shouldGetEventStreamById() {
+        final EnvelopeEventStream eventStream = (EnvelopeEventStream) snapshotAwareEventSource.getStreamById(STREAM_ID);
 
         assertThat(eventStream.getId(), equalTo(STREAM_ID));
+    }
+
+    @Test
+    public void shouldGetAStreamOfEventStreams() throws Exception {
+
+        final UUID streamId_1 = randomUUID();
+        final UUID streamId_2 = randomUUID();
+
+        final long position_1 = 23;
+        final long position_2 = 24;
+
+        final EventStreamMetadata eventStreamMetadata_1 = mock(EventStreamMetadata.class);
+        final EventStreamMetadata eventStreamMetadata_2 = mock(EventStreamMetadata.class);
+
+        when(eventStreamMetadata_1.getStreamId()).thenReturn(streamId_1);
+        when(eventStreamMetadata_1.getPosition()).thenReturn(position_1);
+        when(eventStreamMetadata_2.getStreamId()).thenReturn(streamId_2);
+        when(eventStreamMetadata_2.getPosition()).thenReturn(position_2);
+
+        when(eventRepository.getStreams()).thenReturn(Stream.of(eventStreamMetadata_1, eventStreamMetadata_2));
+
+        final List<EventStream> eventStreams = snapshotAwareEventSource.getStreams().collect(toList());
+
+        assertThat(eventStreams.size(), is(2));
+
+        assertThat(eventStreams.get(0).getId(), is(streamId_1));
+        assertThat(eventStreams.get(0).getPosition(), is(position_1));
+
+        assertThat(eventStreams.get(1).getId(), is(streamId_2));
+        assertThat(eventStreams.get(1).getPosition(), is(position_2));
     }
 
     @Test

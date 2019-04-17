@@ -60,7 +60,8 @@ import uk.gov.justice.services.core.mapping.SchemaIdMappingObserver;
 import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.source.subscriptions.interceptors.SubscriptionEventInterceptor;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -172,7 +173,8 @@ public class SubscriptionEventInterceptorIT {
             FileBasedJsonSchemaValidator.class,
             JsonSchemaLoader.class,
             DefaultTraceLogger.class,
-            JdbcRepositoryHelper.class,
+            JdbcResultSetStreamer.class,
+            PreparedStatementWrapperFactory.class,
             ViewStoreJdbcDataSourceProvider.class,
 
             SchemaCatalogAwareJsonSchemaValidator.class,

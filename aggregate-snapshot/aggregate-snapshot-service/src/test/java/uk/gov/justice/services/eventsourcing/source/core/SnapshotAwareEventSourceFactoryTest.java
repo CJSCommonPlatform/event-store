@@ -9,13 +9,16 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
+import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+
+import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class SnapshotAwareEventSourceFactoryTest {
-    private static final String EVENT_SOURCE_NAME = "eventSourceName";
 
     @Mock
     private EventStreamManagerFactory eventStreamManagerFactory;
@@ -44,10 +45,10 @@ public class SnapshotAwareEventSourceFactoryTest {
     private SnapshotService snapshotService;
 
     @Mock
-    private EventConverter eventConverter;
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     @Mock
-    private PublishedEventFinder publishedEventFinder;
+    private PublishedEventFinderFactory publishedEventFinderFactory;
 
     @InjectMocks
     private SnapshotAwareEventSourceFactory snapshotAwareEventSourceFactory;
@@ -62,26 +63,28 @@ public class SnapshotAwareEventSourceFactoryTest {
         final EventStreamJdbcRepository eventStreamJdbcRepository = mock(EventStreamJdbcRepository.class);
         final EventRepository eventRepository = mock(EventRepository.class);
         final EventStreamManager eventStreamManager = mock(EventStreamManager.class);
+        final DataSource dataSource = mock(DataSource.class);
+        final PublishedEventFinder publishedEventFinder = mock(PublishedEventFinder.class);
 
-        when(eventJdbcRepositoryFactory.eventJdbcRepository(jndiDatasource)).thenReturn(eventJdbcRepository);
-        when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(jndiDatasource)).thenReturn(eventStreamJdbcRepository);
+        when(jdbcDataSourceProvider.getDataSource(jndiDatasource)).thenReturn(dataSource);
+        when(eventJdbcRepositoryFactory.eventJdbcRepository(dataSource)).thenReturn(eventJdbcRepository);
+        when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(dataSource)).thenReturn(eventStreamJdbcRepository);
+        when(publishedEventFinderFactory.create(dataSource)).thenReturn(publishedEventFinder);
 
         when(eventRepositoryFactory.eventRepository(
                 eventJdbcRepository,
                 eventStreamJdbcRepository,
                 publishedEventFinder)).thenReturn(eventRepository);
 
-        when(eventStreamManagerFactory.eventStreamManager(eventRepository, EVENT_SOURCE_NAME)).thenReturn(eventStreamManager);
+        when(eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName)).thenReturn(eventStreamManager);
 
-        final EventSource eventSource = snapshotAwareEventSourceFactory.create(jndiDatasource, eventSourceName);
+        final EventSource eventSource = snapshotAwareEventSourceFactory.create(dataSource, eventSourceName);
 
         assertThat(eventSource, is(instanceOf(SnapshotAwareEventSource.class)));
-
 
         assertThat(getValueOfField(eventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
         assertThat(getValueOfField(eventSource, "eventRepository", EventRepository.class), is(eventRepository));
         assertThat(getValueOfField(eventSource, "snapshotService", SnapshotService.class), is(snapshotService));
-        assertThat(getValueOfField(eventSource, "eventConverter", EventConverter.class), is(eventConverter));
-        assertThat(getValueOfField(eventSource, "name", String.class), is(eventSourceName));
+        assertThat(getValueOfField(eventSource, "eventSourceName", String.class), is(eventSourceName));
     }
 }

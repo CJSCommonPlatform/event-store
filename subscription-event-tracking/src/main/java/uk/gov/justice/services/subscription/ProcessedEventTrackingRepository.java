@@ -3,8 +3,9 @@ package uk.gov.justice.services.subscription;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.sql.Connection;
@@ -35,10 +36,13 @@ public class ProcessedEventTrackingRepository {
                     "ORDER BY event_number ASC";
 
     @Inject
-    JdbcRepositoryHelper jdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
     @Inject
-    ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
+
+    @Inject
+    private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
 
     public void save(final ProcessedEventTrackItem processedEventTrackItem) {
 
@@ -60,12 +64,12 @@ public class ProcessedEventTrackingRepository {
     public Stream<ProcessedEventTrackItem> getAllProcessedEvents(final String source) {
 
         try {
-            final PreparedStatementWrapper preparedStatement = jdbcRepositoryHelper.preparedStatementWrapperOf(
+            final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
                     viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_SQL);
 
             preparedStatement.setString(1, source);
 
-            return jdbcRepositoryHelper.streamOf(preparedStatement, resultSet -> {
+            return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
 
                 try {
                     final long eventNumber = resultSet.getLong("event_number");

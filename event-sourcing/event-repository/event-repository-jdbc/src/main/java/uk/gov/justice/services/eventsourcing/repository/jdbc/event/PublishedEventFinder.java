@@ -4,8 +4,9 @@ import static java.lang.String.format;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +14,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 public class PublishedEventFinder {
@@ -30,18 +30,28 @@ public class PublishedEventFinder {
     private static final String EVENT_NUMBER = "event_number";
     private static final String PREVIOUS_EVENT_NUMBER = "previous_event_number";
 
-    @Inject
-    private JdbcRepositoryHelper jdbcRepositoryHelper;
 
+    private final JdbcResultSetStreamer jdbcResultSetStreamer;
+    private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
+    private final DataSource dataSource;
 
-    public Stream<PublishedEvent> findEventsSince(final long eventNumber, final DataSource dataSource) {
+    public PublishedEventFinder(
+            final JdbcResultSetStreamer jdbcResultSetStreamer,
+            final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
+            final DataSource dataSource) {
+        this.jdbcResultSetStreamer = jdbcResultSetStreamer;
+        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
+        this.dataSource = dataSource;
+    }
+
+    public Stream<PublishedEvent> findEventsSince(final long eventNumber) {
 
         try {
-            final PreparedStatementWrapper psWrapper = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL_SINCE);
+            final PreparedStatementWrapper psWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL_SINCE);
 
             psWrapper.setLong(1, eventNumber);
 
-            return jdbcRepositoryHelper.streamOf(psWrapper, asPublishedEvent());
+            return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find events since event_number %d", eventNumber), e);
         }

@@ -7,10 +7,10 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimes
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidStreamIdException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.OptimisticLockingRetryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,8 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
-
-import org.slf4j.Logger;
 
 public class EventStreamJdbcRepository {
 
@@ -41,24 +39,19 @@ public class EventStreamJdbcRepository {
     private static final String COL_DATE_CREATED = "date_created";
     private static final String EVENT_STREAM_EXCEPTION_MESSAGE = "Exception while deleting stream %s";
 
-    private final Logger logger;
-    private final JdbcRepositoryHelper eventStreamJdbcRepositoryHelper;
-    private final JdbcDataSourceProvider jdbcDataSourceProvider;
+    private final JdbcResultSetStreamer jdbcResultSetStreamer;
     private final UtcClock clock;
-    private final String jndiDatasource;
+    private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
+    private final DataSource dataSource;
 
-    private DataSource dataSource;
+    public EventStreamJdbcRepository(final JdbcResultSetStreamer jdbcResultSetStreamer,
+                                     final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
+                                     final DataSource dataSource,
+                                     final UtcClock clock) {
 
-    public EventStreamJdbcRepository(final JdbcRepositoryHelper eventStreamJdbcRepositoryHelper,
-                                     final JdbcDataSourceProvider jdbcDataSourceProvider,
-                                     final UtcClock clock,
-                                     final String jndiDatasource,
-                                     final Logger logger) {
-
-        this.eventStreamJdbcRepositoryHelper = eventStreamJdbcRepositoryHelper;
-        this.jdbcDataSourceProvider = jdbcDataSourceProvider;
-        this.jndiDatasource = jndiDatasource;
-        this.logger = logger;
+        this.jdbcResultSetStreamer = jdbcResultSetStreamer;
+        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
+        this.dataSource = dataSource;
         this.clock = clock;
     }
 
@@ -68,7 +61,7 @@ public class EventStreamJdbcRepository {
 
     public void insert(final UUID streamId, final boolean active) {
         if (!isExistingStream(streamId)) {
-            try (final PreparedStatementWrapper ps = eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_INSERT_EVENT_STREAM)) {
+            try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_INSERT_EVENT_STREAM)) {
                 ps.setObject(1, streamId);
                 ps.setTimestamp(2, toSqlTimestamp(clock.now()));
                 ps.setBoolean(3, active);
@@ -84,7 +77,7 @@ public class EventStreamJdbcRepository {
     }
 
     public void markActive(final UUID streamId, final boolean active) {
-        try (final PreparedStatementWrapper ps = eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_UPDATE_EVENT_STREAM_ACTIVE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_UPDATE_EVENT_STREAM_ACTIVE)) {
             ps.setBoolean(1, active);
             ps.setObject(2, streamId);
 
@@ -95,7 +88,7 @@ public class EventStreamJdbcRepository {
     }
 
     public void delete(final UUID streamId) {
-        try (final PreparedStatementWrapper ps = eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_DELETE_EVENT_STREAM)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_DELETE_EVENT_STREAM)) {
             ps.setObject(1, streamId);
 
             ps.executeUpdate();
@@ -106,7 +99,7 @@ public class EventStreamJdbcRepository {
 
     public Stream<EventStream> findAll() {
         try {
-            return eventStreamJdbcRepositoryHelper.streamOf(eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_ALL),
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL),
                     entityFromFunction());
         } catch (SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_EXCEPTION, e);
@@ -116,7 +109,7 @@ public class EventStreamJdbcRepository {
 
     public Stream<EventStream> findActive() {
         try {
-            return eventStreamJdbcRepositoryHelper.streamOf(eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_ALL_ACTIVE),
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL_ACTIVE),
                     entityFromFunction());
         } catch (SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_EXCEPTION, e);
@@ -125,25 +118,17 @@ public class EventStreamJdbcRepository {
 
     public Stream<EventStream> findEventStreamWithPositionFrom(final long position) {
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = eventStreamJdbcRepositoryHelper
-                    .preparedStatementWrapperOf(getDataSource(), SQL_FIND_BY_POSITION);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory
+                    .preparedStatementWrapperOf(dataSource, SQL_FIND_BY_POSITION);
             preparedStatementWrapper.setLong(1, position);
-            return eventStreamJdbcRepositoryHelper.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
         } catch (SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_EXCEPTION, e);
         }
     }
 
-    public DataSource getDataSource() {
-        if (null == dataSource) {
-            dataSource = jdbcDataSourceProvider.getDataSource(jndiDatasource);
-        }
-
-        return dataSource;
-    }
-
     private boolean isExistingStream(final UUID streamId) {
-        try (final PreparedStatementWrapper psquery = eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_EVENT_STREAM)) {
+        try (final PreparedStatementWrapper psquery = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM)) {
             psquery.setObject(1, streamId);
             return psquery.executeQuery().next();
         } catch (final SQLException e) {
@@ -152,7 +137,7 @@ public class EventStreamJdbcRepository {
     }
 
     public long getPosition(final UUID streamId) {
-        try (final PreparedStatementWrapper psquery = eventStreamJdbcRepositoryHelper.preparedStatementWrapperOf(getDataSource(), SQL_FIND_POSITION_BY_STREAM)) {
+        try (final PreparedStatementWrapper psquery = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_POSITION_BY_STREAM)) {
             psquery.setObject(1, streamId);
             ResultSet resultSet = psquery.executeQuery();
             if (resultSet.next()) {

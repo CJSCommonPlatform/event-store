@@ -30,7 +30,7 @@ import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -46,7 +46,7 @@ import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
-import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
+import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
@@ -63,7 +63,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
@@ -81,11 +80,8 @@ import org.slf4j.Logger;
 @RunWith(ApplicationComposer.class)
 public class EventPublishIT {
 
-    @Resource(name = "openejb/Resource/frameworkeventstore")
-    private DataSource dataSource;
-
     @Inject
-    private TestJdbcDataSourceProvider testJdbcDataSourceProvider;
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     @Inject
     private DummyEventPublisher dummyEventPublisher;
@@ -99,9 +95,8 @@ public class EventPublishIT {
 
     @Before
     public void initializeDatabase() throws Exception {
-
+        final DataSource dataSource = jdbcDataSourceProvider.getDataSource("don't care");
         eventStoreInitializer.initializeEventStore(dataSource);
-        testJdbcDataSourceProvider.setDataSource(dataSource);
     }
 
     @Module
@@ -117,7 +112,7 @@ public class EventPublishIT {
             EventDestinationResolver.class,
             StringToJsonObjectConverter.class,
             JdbcDataSourceProvider.class,
-            TestJdbcDataSourceProvider.class,
+            OpenEjbEventStoreDataSourceProvider.class,
             EventSourceDefinitionRegistry.class,
             EventDestinationResolver.class,
             DefaultEventDestinationResolver.class,
@@ -154,7 +149,7 @@ public class EventPublishIT {
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
             SubscriptionHelper.class,
-            PublishedEventJdbcRepository.class,
+            PublishedEventInserter.class,
             ShutteringFlagProducerBean.class
 
     })

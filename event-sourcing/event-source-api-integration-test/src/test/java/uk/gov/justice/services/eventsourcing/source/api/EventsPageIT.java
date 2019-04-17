@@ -42,7 +42,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.eventsourcing.source.api.resource.EventPageResource;
@@ -64,9 +64,9 @@ import uk.gov.justice.services.eventsourcing.source.core.JdbcBasedEventSource;
 import uk.gov.justice.services.eventsourcing.source.core.JdbcEventSourceFactory;
 import uk.gov.justice.services.eventsourcing.source.core.PublishingEventAppenderFactory;
 import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
-import uk.gov.justice.services.jdbc.persistence.DefaultJdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -76,6 +76,7 @@ import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
+import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
@@ -88,11 +89,9 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import com.jayway.jsonpath.JsonPath;
@@ -131,8 +130,8 @@ public class EventsPageIT {
 
     private CloseableHttpClient httpClient;
 
-    @Resource(name = "openejb/Resource/frameworkeventstore")
-    private DataSource dataSource;
+    @Inject
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     @Inject
     private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
@@ -147,10 +146,9 @@ public class EventsPageIT {
     @Before
     public void setup() throws Exception {
         httpClient = HttpClients.createDefault();
-        InitialContext initialContext = new InitialContext();
-        initialContext.bind("java:/app/EventsPageIT/DS.frameworkeventstore", dataSource);
         initEventDatabase();
-        eventsRepository = eventJdbcRepositoryFactory.eventJdbcRepository("java:/app/EventsPageIT/DS.frameworkeventstore");
+        final DataSource dataSource = jdbcDataSourceProvider.getDataSource("don't care");
+        eventsRepository = eventJdbcRepositoryFactory.eventJdbcRepository(dataSource);
     }
 
     @Configuration
@@ -188,10 +186,9 @@ public class EventsPageIT {
             UrlLinkFactory.class,
             PositionValueFactory.class,
             BadRequestExceptionMapper.class,
-            JdbcRepositoryHelper.class,
+            JdbcResultSetStreamer.class,
+            PreparedStatementWrapperFactory.class,
             UtcClock.class,
-            JdbcDataSourceProvider.class,
-            DefaultJdbcDataSourceProvider.class,
             DefaultJsonValidationLoggerHelper.class,
             EventSource.class,
             JdbcBasedEventSource.class,
@@ -233,7 +230,8 @@ public class EventsPageIT {
 
             DefaultEventSourceDefinitionFactory.class,
             SubscriptionHelper.class,
-            PublishedEventFinder.class
+            PublishedEventFinderFactory.class,
+            OpenEjbEventStoreDataSourceProvider.class
     })
     public WebApp war() {
         return new WebApp()
@@ -612,7 +610,7 @@ public class EventsPageIT {
     private void initEventDatabase() throws Exception {
 
         Liquibase eventStoreLiquibase = new Liquibase(LIQUIBASE_EVENT_STORE_CHANGELOG_XML,
-                new ClassLoaderResourceAccessor(), new JdbcConnection(dataSource.getConnection()));
+                new ClassLoaderResourceAccessor(), new JdbcConnection(jdbcDataSourceProvider.getDataSource("don't care").getConnection()));
         eventStoreLiquibase.dropAll();
         eventStoreLiquibase.update("");
     }
@@ -643,6 +641,4 @@ public class EventsPageIT {
         final String firstUrl = JsonPath.read(value, "$.pagingLinks.first");
         assertThat(firstUrl, containsString(EVENT_STREAM_URL_PATH_PREFIX + "/1/FORWARD/" + PAGE_SIZE));
     }
-
-
 }

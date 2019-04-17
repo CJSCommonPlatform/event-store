@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsProcessor;
+import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsRepublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventsProcessor;
 
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class DefaultPublishedEventSourceTransformationTest {
 
     @Mock
-    private ActiveStreamsProcessor activeStreamsProcessor;
+    private ActiveStreamsRepublisher activeStreamsRepublisher;
 
     @Mock
     private PublishedEventsProcessor publishedEventsProcessor;
@@ -26,7 +26,7 @@ public class DefaultPublishedEventSourceTransformationTest {
     @Test
     public void shouldTruncatePublishedEvents() throws Exception {
         
-        defaultPublishedEventSourceTransformation.truncate();
+        defaultPublishedEventSourceTransformation.deleteAllPublishedEvents();
         
         verify(publishedEventsProcessor).truncatePublishedEvents();
     }
@@ -34,8 +34,8 @@ public class DefaultPublishedEventSourceTransformationTest {
     @Test
     public void shouldPopulatePublishedEvents() throws Exception {
 
-        defaultPublishedEventSourceTransformation.populate();
+        defaultPublishedEventSourceTransformation.populatePublishedEvents();
 
-        verify(activeStreamsProcessor).populatePublishedEvents();
+        verify(activeStreamsRepublisher).populatePublishedEvents();
     }
 }

@@ -3,8 +3,9 @@ package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.sql.ResultSet;
@@ -31,7 +32,10 @@ public class EventBufferJdbcRepository {
     private static final String SOURCE = "source";
 
     @Inject
-    private JdbcRepositoryHelper jdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
+
+    @Inject
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Inject
     private ViewStoreJdbcDataSourceProvider dataSourceProvider;
@@ -40,9 +44,12 @@ public class EventBufferJdbcRepository {
 
     public EventBufferJdbcRepository() {}
 
-    public EventBufferJdbcRepository(final DataSource dataSource, final JdbcRepositoryHelper jdbcRepositoryHelper) {
+    public EventBufferJdbcRepository(final JdbcResultSetStreamer jdbcResultSetStreamer,
+                                     final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
+                                     final DataSource dataSource) {
+        this.jdbcResultSetStreamer = jdbcResultSetStreamer;
         this.dataSource = dataSource;
-        this.jdbcRepositoryHelper = jdbcRepositoryHelper;
+        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
     }
 
 
@@ -53,7 +60,7 @@ public class EventBufferJdbcRepository {
 
 
     public void insert(final EventBufferEvent bufferedEvent) {
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, INSERT)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT)) {
             ps.setObject(1, bufferedEvent.getStreamId());
             ps.setLong(2, bufferedEvent.getPosition());
             ps.setString(3, bufferedEvent.getEvent());
@@ -66,11 +73,11 @@ public class EventBufferJdbcRepository {
 
     public Stream<EventBufferEvent> findStreamByIdAndSource(final UUID id, final String source) {
         try {
-            final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE);
+            final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE);
             ps.setObject(1, id);
             ps.setString(2, source);
 
-            return jdbcRepositoryHelper.streamOf(ps, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(ps, entityFromFunction());
 
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while returning buffered events, streamId: %s", id), e);
@@ -79,7 +86,7 @@ public class EventBufferJdbcRepository {
 
     public void remove(final EventBufferEvent eventBufferEvent) {
 
-        try (final PreparedStatementWrapper ps = jdbcRepositoryHelper.preparedStatementWrapperOf(dataSource, DELETE_BY_STREAM_ID_POSITION)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, DELETE_BY_STREAM_ID_POSITION)) {
             ps.setObject(1, eventBufferEvent.getStreamId());
             ps.setLong(2, eventBufferEvent.getPosition());
             ps.setString(3, eventBufferEvent.getSource());

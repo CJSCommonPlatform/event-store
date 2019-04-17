@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName;
+import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.domain.eventsource.Location;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
@@ -24,14 +25,16 @@ import javax.inject.Inject;
 public class SnapshotAwareEventSourceProducer {
 
     @Inject
-    QualifierAnnotationExtractor qualifierAnnotationExtractor;
+    private QualifierAnnotationExtractor qualifierAnnotationExtractor;
 
     @Inject
-    EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
+    private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
     @Inject
-    SnapshotAwareEventSourceFactory snapshotAwareEventSourceFactory;
+    private SnapshotAwareEventSourceFactory snapshotAwareEventSourceFactory;
 
+    @Inject
+    private JdbcDataSourceProvider jdbcDataSourceProvider;
 
     /**
      *
@@ -70,7 +73,9 @@ public class SnapshotAwareEventSourceProducer {
         final Optional<String> dataSourceOptional = location.getDataSource();
 
         return dataSourceOptional
-                .map(dataSource -> snapshotAwareEventSourceFactory.create(dataSource, eventSourceDefinition.getName()))
+                .map(dataSource -> snapshotAwareEventSourceFactory.create(
+                        jdbcDataSourceProvider.getDataSource(dataSource),
+                        eventSourceDefinition.getName()))
                 .orElseThrow(() -> new CreationException(
                         format("No DataSource specified for EventSource '%s' specified in event-sources.yaml", eventSourceDefinition.getName())
                 ));

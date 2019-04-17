@@ -14,20 +14,20 @@ public class JdbcBasedEventSource implements EventSource {
 
     private final EventStreamManager eventStreamManager;
     private final EventRepository eventRepository;
-    private final String name;
+    private final String eventSourceName;
 
     public JdbcBasedEventSource(
             final EventStreamManager eventStreamManager,
             final EventRepository eventRepository,
-            final String name) {
+            final String eventSourceName) {
         this.eventStreamManager = eventStreamManager;
         this.eventRepository = eventRepository;
-        this.name = name;
+        this.eventSourceName = eventSourceName;
     }
 
     @Override
     public EventStream getStreamById(final UUID streamId) {
-        return new EnvelopeEventStream(streamId, name, eventStreamManager);
+        return new EnvelopeEventStream(streamId, eventSourceName, eventStreamManager);
     }
 
     @Override

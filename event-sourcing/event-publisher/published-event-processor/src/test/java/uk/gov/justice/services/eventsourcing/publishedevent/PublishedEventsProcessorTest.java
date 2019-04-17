@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
@@ -37,7 +37,7 @@ public class PublishedEventsProcessorTest {
     private PublishedEventProcessor publishedEventProcessor;
 
     @Mock
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     @InjectMocks
     private PublishedEventsProcessor publishedEventsProcessor;
@@ -72,7 +72,7 @@ public class PublishedEventsProcessorTest {
 
         publishedEventsProcessor.truncatePublishedEvents();
 
-        verify(publishedEventJdbcRepository).truncate(connection);
+        verify(publishedEventInserter).truncate(connection);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PublishedEventsProcessorTest {
         final Connection connection = mock(Connection.class);
 
         when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
-        when(publishedEventJdbcRepository.truncate(connection)).thenThrow(sqlException);
+        when(publishedEventInserter.truncate(connection)).thenThrow(sqlException);
 
         try {
             publishedEventsProcessor.truncatePublishedEvents();

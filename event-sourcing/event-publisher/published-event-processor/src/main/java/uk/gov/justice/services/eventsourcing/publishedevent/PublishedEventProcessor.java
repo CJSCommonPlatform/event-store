@@ -8,7 +8,7 @@ import uk.gov.justice.services.eventsourcing.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -35,7 +35,7 @@ public class PublishedEventProcessor {
     private PublishedEventFactory publishedEventFactory;
 
     @Inject
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     public void createPublishedEvent(final Event event) throws PublishedEventSQLException {
 
@@ -56,7 +56,7 @@ public class PublishedEventProcessor {
 
         final PublishedEvent publishedEvent = publishedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber);
         try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
-            publishedEventJdbcRepository.insertPublishedEvent(publishedEvent, connection);
+            publishedEventInserter.insertPublishedEvent(publishedEvent, connection);
 
         } catch (final SQLException e) {
             throw new PublishedEventSQLException(format("Unable to insert PublishedEvent with id '%s'", event.getId()), e);

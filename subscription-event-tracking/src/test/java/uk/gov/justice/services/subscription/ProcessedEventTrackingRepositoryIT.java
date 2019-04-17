@@ -6,7 +6,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
@@ -36,7 +37,11 @@ public class ProcessedEventTrackingRepositoryIT {
 
     @SuppressWarnings("unused")
     @Spy
-    private JdbcRepositoryHelper jdbcRepositoryHelper = new JdbcRepositoryHelper();
+    private JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
 
     @InjectMocks
     private ProcessedEventTrackingRepository processedEventTrackingRepository;

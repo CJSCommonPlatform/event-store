@@ -19,9 +19,10 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
@@ -57,43 +58,6 @@ public class PublishedEventProcessorIT {
         setUpPublishedEventProcessor();
      }
 
-    private URL getFromClasspath(final String name) throws MalformedURLException {
-        return get(getClass().getClassLoader().getResource(name).getPath()).toUri().toURL();
-    }
-
-    private SubscriptionDataSourceProvider setUpSubscriptionDataSourceProvider() throws MalformedURLException {
-        final SubscriptionDataSourceProvider subscriptionDataSourceProvider = new SubscriptionDataSourceProvider();
-        final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
-        testJdbcDataSourceProvider.setDataSource(eventStoreDataSource);
-        setField(subscriptionDataSourceProvider, "jdbcDataSourceProvider", testJdbcDataSourceProvider);
-        final EventSourceDefinitionRegistry eventSourceDefinitionRegistry = new EventSourceDefinitionRegistry();
-        final URL url = getFromClasspath("yaml/event-sources.yaml");
-        final Location location = new Location(null, null, of(url.toString()));
-        eventSourceDefinitionRegistry.register(new EventSourceDefinition("", true, location));
-        setField(subscriptionDataSourceProvider, "eventSourceDefinitionRegistry", eventSourceDefinitionRegistry);
-
-        setField(eventJdbcRepositoryFactory, "eventInsertionStrategy", new AnsiSQLEventLogInsertionStrategy());
-        setField(eventJdbcRepositoryFactory, "jdbcRepositoryHelper", new JdbcRepositoryHelper());
-        setField(eventJdbcRepositoryFactory, "jdbcDataSourceProvider", testJdbcDataSourceProvider);
-
-        setField(eventStreamJdbcRepositoryFactory, "eventStreamJdbcRepositoryHelper", new JdbcRepositoryHelper());
-        setField(eventStreamJdbcRepositoryFactory, "jdbcDataSourceProvider", testJdbcDataSourceProvider);
-
-
-        return subscriptionDataSourceProvider;
-    }
-
-    private void setUpPublishedEventProcessor() throws MalformedURLException {
-        setField(publishedEventProcessor, "metadataEventNumberUpdater", new MetadataEventNumberUpdater());
-        setField(publishedEventProcessor, "eventConverter", eventConverter);
-        setField(publishedEventProcessor, "prePublishRepository", new PrePublishRepository());
-        setField(publishedEventProcessor, "publishedEventFactory", new PublishedEventFactory());
-        setField(publishedEventProcessor, "publishedEventJdbcRepository", new PublishedEventJdbcRepository());
-        setField(publishedEventProcessor, "subscriptionDataSourceProvider", setUpSubscriptionDataSourceProvider());
-
-        setField(eventConverter, "stringToJsonObjectConverter", new StringToJsonObjectConverter());
-    }
-
     @Test
     public void shouldFetchAnEventById() throws Exception {
 
@@ -119,5 +83,38 @@ public class PublishedEventProcessorIT {
                 fail();
             }
         }
+    }
+
+    private URL getFromClasspath(final String name) throws MalformedURLException {
+        return get(getClass().getClassLoader().getResource(name).getPath()).toUri().toURL();
+    }
+
+    private SubscriptionDataSourceProvider setUpSubscriptionDataSourceProvider() throws MalformedURLException {
+        final SubscriptionDataSourceProvider subscriptionDataSourceProvider = new SubscriptionDataSourceProvider();
+        final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
+        testJdbcDataSourceProvider.setDataSource(eventStoreDataSource);
+        setField(subscriptionDataSourceProvider, "jdbcDataSourceProvider", testJdbcDataSourceProvider);
+        final EventSourceDefinitionRegistry eventSourceDefinitionRegistry = new EventSourceDefinitionRegistry();
+        final URL url = getFromClasspath("yaml/event-sources.yaml");
+        final Location location = new Location(null, null, of(url.toString()));
+        eventSourceDefinitionRegistry.register(new EventSourceDefinition("", true, location));
+        setField(subscriptionDataSourceProvider, "eventSourceDefinitionRegistry", eventSourceDefinitionRegistry);
+
+        setField(eventJdbcRepositoryFactory, "eventInsertionStrategy", new AnsiSQLEventLogInsertionStrategy());
+        setField(eventJdbcRepositoryFactory, "jdbcResultSetStreamer", new JdbcResultSetStreamer());
+        setField(eventJdbcRepositoryFactory, "preparedStatementWrapperFactory", new PreparedStatementWrapperFactory());
+
+        return subscriptionDataSourceProvider;
+    }
+
+    private void setUpPublishedEventProcessor() throws MalformedURLException {
+        setField(publishedEventProcessor, "metadataEventNumberUpdater", new MetadataEventNumberUpdater());
+        setField(publishedEventProcessor, "eventConverter", eventConverter);
+        setField(publishedEventProcessor, "prePublishRepository", new PrePublishRepository());
+        setField(publishedEventProcessor, "publishedEventFactory", new PublishedEventFactory());
+        setField(publishedEventProcessor, "publishedEventInserter", new PublishedEventInserter());
+        setField(publishedEventProcessor, "subscriptionDataSourceProvider", setUpSubscriptionDataSourceProvider());
+
+        setField(eventConverter, "stringToJsonObjectConverter", new StringToJsonObjectConverter());
     }
 }

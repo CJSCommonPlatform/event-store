@@ -1,32 +1,31 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryHelper;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 @ApplicationScoped
 public class EventStreamJdbcRepositoryFactory {
 
     @Inject
-    JdbcRepositoryHelper eventStreamJdbcRepositoryHelper;
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
     @Inject
-    JdbcDataSourceProvider jdbcDataSourceProvider;
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Inject
-    UtcClock clock;
+    private UtcClock clock;
 
-    public EventStreamJdbcRepository eventStreamJdbcRepository(final String jndiDatasource) {
+    public EventStreamJdbcRepository eventStreamJdbcRepository(final DataSource dataSource) {
+
         return new EventStreamJdbcRepository(
-                eventStreamJdbcRepositoryHelper,
-                jdbcDataSourceProvider,
-                clock,
-                jndiDatasource,
-                getLogger(EventStreamJdbcRepository.class));
+                jdbcResultSetStreamer,
+                preparedStatementWrapperFactory,
+                dataSource,
+                clock);
     }
 }

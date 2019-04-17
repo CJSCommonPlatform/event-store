@@ -24,12 +24,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishedEventJdbcRepositoryTest {
+public class PublishedEventInserterTest {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
 
     @InjectMocks
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     @Before
     public void initDatabase() throws Exception {
@@ -52,7 +52,7 @@ public class PublishedEventJdbcRepositoryTest {
         );
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            publishedEventJdbcRepository.insertPublishedEvent(publishedEvent, connection);
+            publishedEventInserter.insertPublishedEvent(publishedEvent, connection);
         }
 
         try (final Connection connection = eventStoreDataSource.getConnection();
@@ -92,10 +92,10 @@ public class PublishedEventJdbcRepositoryTest {
         );
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            publishedEventJdbcRepository.insertPublishedEvent(publishedEvent, connection);
+            publishedEventInserter.insertPublishedEvent(publishedEvent, connection);
         }
         try (final Connection connection = eventStoreDataSource.getConnection()) {
-            publishedEventJdbcRepository.truncate(connection);
+            publishedEventInserter.truncate(connection);
         }
 
         try (final Connection connection = eventStoreDataSource.getConnection();

@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
@@ -28,9 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class JdbcBasedEventSourceTest {
 
     private static final UUID STREAM_ID = randomUUID();
-
-    @Mock
-    private EventStreamManager eventStreamManager;
 
     @Mock
     private EventRepository eventRepository;
@@ -97,7 +95,7 @@ public class JdbcBasedEventSourceTest {
     @Test
     public void shouldReturnEventStreamName() throws Exception {
         final String eventSourceName = "eventSourceName";
-        ReflectionUtil.setField(jdbcBasedEventSource, "name", eventSourceName);
+        setField(jdbcBasedEventSource, "eventSourceName", eventSourceName);
 
         final EnvelopeEventStream eventStream = (EnvelopeEventStream) jdbcBasedEventSource.getStreamById(STREAM_ID);
 

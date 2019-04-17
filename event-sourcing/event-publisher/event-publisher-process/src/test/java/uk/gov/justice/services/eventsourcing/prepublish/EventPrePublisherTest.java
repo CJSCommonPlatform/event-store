@@ -15,7 +15,7 @@ import uk.gov.justice.services.eventsourcing.PublishQueueException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
@@ -46,7 +46,7 @@ public class EventPrePublisherTest {
     private PrePublishRepository prePublishRepository;
 
     @Mock
-    private PublishedEventJdbcRepository publishedEventJdbcRepository;
+    private PublishedEventInserter publishedEventInserter;
 
     @Mock
     private UtcClock clock;
@@ -96,8 +96,8 @@ public class EventPrePublisherTest {
 
         eventPrePublisher.prePublish(event);
 
-        final InOrder inOrder = inOrder(publishedEventJdbcRepository, prePublishRepository);
-        inOrder.verify(publishedEventJdbcRepository).insertPublishedEvent(publishedEvent, connection);
+        final InOrder inOrder = inOrder(publishedEventInserter, prePublishRepository);
+        inOrder.verify(publishedEventInserter).insertPublishedEvent(publishedEvent, connection);
         inOrder.verify(prePublishRepository).addToPublishQueueTable(eventId, now, connection);
     }
 

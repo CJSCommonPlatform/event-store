@@ -5,6 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M15] - 2019-04-17
+### Changed
+- Update utilities to 1.17.0-M2
+- Update test-utils to 1.22.0-M1
+- Update framework to 6.0.0-M15
+- Update framework-api to 4.0.0-M9
+
 ## [2.0.0-M14] - 2019-04-15
 ### Changed
 - Simplify datasource usage and setup

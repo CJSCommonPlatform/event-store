@@ -4,12 +4,11 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +16,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class SnapshotRepositoryJdbcIT {
@@ -33,23 +32,21 @@ public class SnapshotRepositoryJdbcIT {
     private static final Class<DifferentAggregate> OTHER_TYPE = DifferentAggregate.class;
     private static final byte[] AGGREGATE = "Any String you want".getBytes();
 
-    private final SnapshotJdbcRepository snapshotJdbcRepository = new SnapshotJdbcRepository();
+    @SuppressWarnings("unused")
+    @Spy
+    private SettableEventStoreDataSourceProvider eventStoreDataSourceProvider = new SettableEventStoreDataSourceProvider();
+
+    @SuppressWarnings("unused")
+    @Mock
+    private Logger logger;
+
+    @InjectMocks
+    private SnapshotJdbcRepository snapshotJdbcRepository;
 
     @Before
-    public void initialize() {
-        try {
-            snapshotJdbcRepository.dataSource = new TestEventStoreDataSourceFactory()
-                    .createDataSource("frameworkeventstore");
-
-            snapshotJdbcRepository.logger = mock(Logger.class);
-        } catch (final Exception e) {
-            e.printStackTrace();
-            fail("SnapshotJdbcRepository construction failed");
-        }
+    public void setupDatabaseConnection() throws Exception {
+        eventStoreDataSourceProvider.setDataSource(new FrameworkTestDataSourceFactory().createEventStoreDataSource());
     }
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void shouldStoreAndRetrieveSnapshot() {

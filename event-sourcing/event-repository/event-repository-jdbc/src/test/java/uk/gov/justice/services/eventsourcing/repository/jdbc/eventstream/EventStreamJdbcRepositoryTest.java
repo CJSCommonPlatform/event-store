@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.OptimisticLockingRetryException;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
@@ -39,18 +41,21 @@ public class EventStreamJdbcRepositoryTest {
     @Mock
     private UtcClock clock;
 
-    @Mock
-    private DataSource dataSource;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PreparedStatementWrapper queryPreparedStatementWrapper, insertPreparedStatementWrapper;
 
+    @Mock
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
+
     @InjectMocks
-    private EventStreamJdbcRepository repository;
+    private EventStreamJdbcRepository eventStreamJdbcRepository;
 
     @Test
     public void insertActiveStreamSuccessfully() throws SQLException {
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM)).thenReturn(queryPreparedStatementWrapper);
         when(queryPreparedStatementWrapper.executeQuery().next()).thenReturn(false);
 
@@ -60,7 +65,7 @@ public class EventStreamJdbcRepositoryTest {
         when(insertPreparedStatementWrapper.executeUpdate()).thenReturn(1);
 
         final UUID streamId = randomUUID();
-        repository.insert(streamId);
+        eventStreamJdbcRepository.insert(streamId);
 
         verify(preparedStatementWrapperFactory).preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM);
         verify(queryPreparedStatementWrapper).setObject(1, streamId);
@@ -74,6 +79,9 @@ public class EventStreamJdbcRepositoryTest {
     @Test
     public void insertExistingStreamAndRecordOptimisticLockingException() throws SQLException {
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM)).thenReturn(queryPreparedStatementWrapper);
         // indicates stream doesn't exist
         when(queryPreparedStatementWrapper.executeQuery().next()).thenReturn(false);
@@ -86,7 +94,7 @@ public class EventStreamJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         try {
-            repository.insert(streamId);
+            eventStreamJdbcRepository.insert(streamId);
             fail("Exception should be thrown when 0 records are updated");
         } catch (OptimisticLockingRetryException e) {
             verify(preparedStatementWrapperFactory).preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM);
@@ -102,12 +110,15 @@ public class EventStreamJdbcRepositoryTest {
     @Test
     public void insertExistingStreamAndReturnWithoutException() throws SQLException {
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM)).thenReturn(queryPreparedStatementWrapper);
         // indicates stream already exists
         when(queryPreparedStatementWrapper.executeQuery().next()).thenReturn(true);
 
         final UUID streamId = randomUUID();
-        repository.insert(streamId);
+        eventStreamJdbcRepository.insert(streamId);
         verify(preparedStatementWrapperFactory).preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM);
         verify(queryPreparedStatementWrapper).setObject(1, streamId);
         verify(preparedStatementWrapperFactory, never()).preparedStatementWrapperOf(dataSource, SQL_INSERT_EVENT_STREAM);

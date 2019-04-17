@@ -6,7 +6,7 @@ import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +30,7 @@ public class EventDeQueuer {
     private static final String DELETE_FROM_PUBLISH_TABLE_QUERY_PATTERN = "DELETE FROM %s where id = ?";
 
     @Inject
-    SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
 
     /**
@@ -45,7 +45,7 @@ public class EventDeQueuer {
     public Optional<UUID> popNextEventId(final String tableName) {
 
         final String sql = format(SELECT_FROM_PUBLISH_TABLE_QUERY_PATTERN, tableName);
-        try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(sql);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
 

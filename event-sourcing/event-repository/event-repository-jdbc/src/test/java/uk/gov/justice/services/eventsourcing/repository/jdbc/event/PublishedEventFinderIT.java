@@ -8,7 +8,7 @@ import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.Publis
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class PublishedEventFinderIT {
 
     @Before
     public void initialize() throws Exception {
-        dataSource = new TestEventStoreDataSourceFactory().createDataSource("frameworkeventstore");
+        dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
         new DatabaseCleaner().cleanEventStoreTables("framework");
 
         final JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();

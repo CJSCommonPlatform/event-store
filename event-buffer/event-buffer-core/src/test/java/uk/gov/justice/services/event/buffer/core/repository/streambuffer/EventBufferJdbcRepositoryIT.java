@@ -11,7 +11,7 @@ import static org.junit.Assert.assertThat;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,8 +27,7 @@ public class EventBufferJdbcRepositoryIT {
 
     @Before
     public void initDatabase() throws Exception {
-        final DataSource dataSource = new TestEventStoreDataSourceFactory()
-                .createDataSource("frameworkviewstore");
+        final DataSource dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
         eventBufferJdbcRepository = new EventBufferJdbcRepository(
                 new JdbcResultSetStreamer(),
                 new PreparedStatementWrapperFactory(),

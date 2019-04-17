@@ -2,21 +2,9 @@ package uk.gov.justice.services.eventsourcing.source.core;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-
-import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,22 +16,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class JdbcEventSourceFactoryTest {
 
     @Mock
-    private EventStreamManagerFactory eventStreamManagerFactory;
+    private EventStreamManager eventStreamManager;
 
     @Mock
-    private EventRepositoryFactory eventRepositoryFactory;
-
-    @Mock
-    private EventJdbcRepositoryFactory eventJdbcRepositoryFactory;
-
-    @Mock
-    private EventStreamJdbcRepositoryFactory eventStreamJdbcRepositoryFactory;
-
-    @Mock
-    private PublishedEventFinderFactory publishedEventFinderFactory;
-
-    @Mock
-    private JdbcDataSourceProvider jdbcDataSourceProvider;
+    private EventRepository eventRepository;
 
     @InjectMocks
     private JdbcEventSourceFactory jdbcEventSourceFactory;
@@ -51,29 +27,9 @@ public class JdbcEventSourceFactoryTest {
     @Test
     public void shouldCreateJdbcBasedEventSource() throws Exception {
 
-        final String jndiDataSourceName = "jndiDatasource";
         final String eventSourceName = "eventSourceName";
 
-        final EventJdbcRepository eventJdbcRepository = mock(EventJdbcRepository.class);
-        final EventStreamJdbcRepository eventStreamJdbcRepository = mock(EventStreamJdbcRepository.class);
-        final EventRepository eventRepository = mock(EventRepository.class);
-        final EventStreamManager eventStreamManager = mock(EventStreamManager.class);
-        final DataSource dataSource = mock(DataSource.class);
-        final PublishedEventFinder publishedEventFinder = mock(PublishedEventFinder.class);
-
-        when(eventJdbcRepositoryFactory.eventJdbcRepository(dataSource)).thenReturn(eventJdbcRepository);
-        when(eventStreamJdbcRepositoryFactory.eventStreamJdbcRepository(dataSource)).thenReturn(eventStreamJdbcRepository);
-        when(publishedEventFinderFactory.create(dataSource)).thenReturn(publishedEventFinder);
-
-        when(eventRepositoryFactory.eventRepository(
-                eventJdbcRepository,
-                eventStreamJdbcRepository,
-                publishedEventFinder)).thenReturn(eventRepository);
-
-        when(eventStreamManagerFactory.eventStreamManager(eventRepository, eventSourceName)).thenReturn(eventStreamManager);
-        when(jdbcDataSourceProvider.getDataSource(jndiDataSourceName)).thenReturn(dataSource);
-
-        final JdbcBasedEventSource jdbcBasedEventSource = jdbcEventSourceFactory.create(dataSource, eventSourceName);
+        final JdbcBasedEventSource jdbcBasedEventSource = jdbcEventSourceFactory.create(eventSourceName);
 
         assertThat(getValueOfField(jdbcBasedEventSource, "eventStreamManager", EventStreamManager.class), is(eventStreamManager));
         assertThat(getValueOfField(jdbcBasedEventSource, "eventRepository", EventRepository.class), is(eventRepository));

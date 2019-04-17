@@ -7,16 +7,17 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -28,8 +29,14 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
+@RunWith(MockitoJUnitRunner.class)
 public class EventJdbcRepositoryIT {
 
     private static final UUID STREAM_ID = randomUUID();
@@ -37,19 +44,36 @@ public class EventJdbcRepositoryIT {
 
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
 
+    @SuppressWarnings("unused")
+    @Spy
+    private EventInsertionStrategy eventInsertionStrategy = new AnsiSQLEventLogInsertionStrategy();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
+
+    @Spy
+    private SettableEventStoreDataSourceProvider eventStoreDDataSourceProvider = new SettableEventStoreDataSourceProvider();
+
+    @SuppressWarnings("unused")
+    @Mock
+    private Logger logger;
+
+    @InjectMocks
     private EventJdbcRepository jdbcRepository;
+
     private DataSource dataSource;
 
     @Before
     public void initialize() throws Exception {
 
-        dataSource = new TestEventStoreDataSourceFactory().createDataSource("frameworkeventstore");
-        jdbcRepository = new EventJdbcRepository(
-                new AnsiSQLEventLogInsertionStrategy(),
-                new JdbcResultSetStreamer(),
-                new PreparedStatementWrapperFactory(),
-                dataSource,
-                mock(Logger.class));
+        dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
+
+        eventStoreDDataSourceProvider.setDataSource(dataSource);
 
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }

@@ -42,17 +42,18 @@ import uk.gov.justice.services.eventsourcing.jdbc.snapshot.SnapshotRepository;
 import uk.gov.justice.services.eventsourcing.publisher.jms.JmsEventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.EventRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepositoryFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepositoryFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
+import uk.gov.justice.services.eventsourcing.source.core.EventSourceNameProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
-import uk.gov.justice.services.eventsourcing.source.core.EventStreamManagerFactory;
-import uk.gov.justice.services.eventsourcing.source.core.PublishingEventAppenderFactory;
+import uk.gov.justice.services.eventsourcing.source.core.EventStreamManager;
+import uk.gov.justice.services.eventsourcing.source.core.MaxRetryProvider;
+import uk.gov.justice.services.eventsourcing.source.core.PublishingEventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEnvelopeEventStream;
 import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEventSource;
 import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEventSourceFactory;
@@ -61,7 +62,6 @@ import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotStrategy;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
@@ -126,9 +126,6 @@ public class SnapshotAwareAggregateServiceIT {
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
 
     @Inject
-    private JdbcDataSourceProvider jdbcDataSourceProvider;
-
-    @Inject
     private SnapshotRepository snapshotRepository;
 
     @Inject
@@ -146,18 +143,18 @@ public class SnapshotAwareAggregateServiceIT {
     @Inject
     private DefaultSnapshotService snapshotService;
 
+    @Inject
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
+
+
     @Module
     @org.apache.openejb.testing.Classes(cdi = true, value = {
             ObjectInputStreamStrategy.class,
             CustomClassLoaderObjectInputStreamStrategy.class,
             DefaultObjectInputStreamStrategy.class,
             SnapshotJdbcRepository.class,
-            OpenEjbEventStoreDataSourceProvider.class,
 
-            EventStreamJdbcRepositoryFactory.class,
-            EventRepositoryFactory.class,
             TestEventInsertionStrategyProducer.class,
-            EventJdbcRepositoryFactory.class,
             JdbcResultSetStreamer.class,
             PreparedStatementWrapperFactory.class,
             LoggerProducer.class,
@@ -176,12 +173,11 @@ public class SnapshotAwareAggregateServiceIT {
             SnapshotAwareAggregateService.class,
             SnapshotAwareEventSource.class,
             SnapshotAwareEnvelopeEventStream.class,
-            EventStreamManagerFactory.class,
             DefaultEnveloper.class,
             ObjectToJsonValueConverter.class,
             SystemEventService.class,
             EventAppender.class,
-            PublishingEventAppenderFactory.class,
+            PublishingEventAppender.class,
             DefaultSnapshotStrategy.class,
             ValueProducer.class,
             DefaultSnapshotService.class,
@@ -203,8 +199,13 @@ public class SnapshotAwareAggregateServiceIT {
             DefaultEventSourceDefinitionFactory.class,
 
             SubscriptionHelper.class,
-            PublishedEventFinderFactory.class,
-            PublishedEventFinder.class
+            JdbcBasedEventRepository.class,
+            EventJdbcRepository.class,
+            OpenEjbEventStoreDataSourceProvider.class,
+            EventStreamJdbcRepository.class,
+            MaxRetryProvider.class,
+            EventSourceNameProvider.class,
+            EventStreamManager.class
     })
 
     public WebApp war() {
@@ -221,10 +222,8 @@ public class SnapshotAwareAggregateServiceIT {
                 .build();
     }
 
-
     @Before
     public void init() throws Exception {
-
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
         defaultAggregateService.register(new EventFoundEvent(EventA.class, "context.eventA"));
     }
@@ -240,7 +239,6 @@ public class SnapshotAwareAggregateServiceIT {
         final TestAggregate aggregateFromSnapshot = snapshot.get().getAggregate(new DefaultObjectInputStreamStrategy());
 
         assertThat(snapshot, not(nullValue()));
-        assertThat(snapshot.isPresent(), equalTo(true));
         assertThat(snapshot.get().getType(), equalTo(TYPE));
         assertThat(snapshot.get().getStreamId(), equalTo(streamId));
         assertThat(snapshot.get().getVersionId(), equalTo(25L));
@@ -485,7 +483,7 @@ public class SnapshotAwareAggregateServiceIT {
 
     private int rowCount(final String sql, final Object arg) {
 
-        try (final Connection connection = jdbcDataSourceProvider.getDataSource("don't care").getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, arg);
 

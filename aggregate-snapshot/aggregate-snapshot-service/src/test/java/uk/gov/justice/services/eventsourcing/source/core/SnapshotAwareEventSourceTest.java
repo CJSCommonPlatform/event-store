@@ -13,11 +13,9 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.DefaultEventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventStreamMetadata;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;

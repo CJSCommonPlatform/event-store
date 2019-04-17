@@ -1,22 +1,22 @@
 package uk.gov.justice.services.test.utils.persistence;
 
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.sql.DataSource;
 
-/**
- * Implementation of JdbcDataSourceProvider that allows the DataSource to be set, rather
- * than needing to get the DataSource using JNDI.
- *
- * For use in integration tests
- */
 @ApplicationScoped
-public class TestJdbcDataSourceProvider implements JdbcDataSourceProvider {
+public class SettableEventStoreDataSourceProvider implements EventStoreDataSourceProvider {
 
     private DataSource dataSource;
 
+    @Override
+    public DataSource getDefaultDataSource() {
+        return dataSource;
+    }
+
     public void setDataSource(final DataSource dataSource) {
+
         this.dataSource = dataSource;
     }
 

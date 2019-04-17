@@ -9,8 +9,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.messaging.Metadata;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ import javax.transaction.Transactional;
 public class EventPrePublisher {
 
     @Inject
-    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Inject
     private MetadataEventNumberUpdater metadataEventNumberUpdater;
@@ -47,7 +47,7 @@ public class EventPrePublisher {
 
         final UUID eventId = event.getId();
 
-        try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection()) {
             final long eventNumber = prePublishRepository.getEventNumber(eventId, connection);
             final long previousEventNumber = prePublishRepository.getPreviousEventNumber(eventNumber, connection);
 

@@ -16,8 +16,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.messaging.Metadata;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,7 +37,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventPrePublisherTest {
 
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Mock
     private MetadataEventNumberUpdater metadataEventNumberUpdater;
@@ -79,7 +79,7 @@ public class EventPrePublisherTest {
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
         when(event.getId()).thenReturn(eventId);
-        when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
+        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
         when(prePublishRepository.getEventNumber(eventId, connection)).thenReturn(eventNumber);
         when(prePublishRepository.getPreviousEventNumber(eventNumber, connection)).thenReturn(previousEventNumber);
         when(clock.now()).thenReturn(now);
@@ -112,7 +112,7 @@ public class EventPrePublisherTest {
         final Event event = mock(Event.class);
 
         when(event.getId()).thenReturn(eventId);
-        when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
+        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
         when(prePublishRepository.getEventNumber(eventId, connection)).thenThrow(sqlException);
 
         try {

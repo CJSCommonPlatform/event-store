@@ -10,13 +10,12 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 public class PublishingEventAppender implements EventAppender {
 
-    private final EventRepository eventRepository;
-
-    public PublishingEventAppender(final EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
-    }
+    @Inject
+    private EventRepository eventRepository;
 
     /**
      * Stores the event in the event store.

@@ -28,7 +28,11 @@ public class SnapshotAwareEventSource implements EventSource {
 
     @Override
     public EventStream getStreamById(final UUID streamId) {
-        return new SnapshotAwareEnvelopeEventStream(streamId, eventStreamManager, snapshotService, eventSourceName);
+        return new SnapshotAwareEnvelopeEventStream(
+                streamId,
+                eventStreamManager,
+                snapshotService,
+                eventSourceName);
     }
 
     @Override

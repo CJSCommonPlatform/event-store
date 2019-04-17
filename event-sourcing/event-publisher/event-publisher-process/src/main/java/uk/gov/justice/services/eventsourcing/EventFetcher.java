@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 public class EventFetcher {
 
     @Inject
-    SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Inject
     EventFetcherRepository eventFetcherRepository;
@@ -29,7 +29,7 @@ public class EventFetcher {
      */
     public Optional<Event> getEvent(final UUID id) {
 
-        final DataSource eventStoreDataSource = subscriptionDataSourceProvider.getEventStoreDataSource();
+        final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         try (final Connection connection = eventStoreDataSource.getConnection()) {
             return eventFetcherRepository.getEvent(id, connection);
         } catch (final SQLException e) {
@@ -44,7 +44,7 @@ public class EventFetcher {
      */
     public Optional<PublishedEvent> getPublishedEvent(final UUID id) {
 
-        final DataSource eventStoreDataSource = subscriptionDataSourceProvider.getEventStoreDataSource();
+        final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         try (final Connection connection = eventStoreDataSource.getConnection()) {
             return eventFetcherRepository.getPublishedEvent(id, connection);
         } catch (final SQLException e) {

@@ -10,9 +10,9 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.publishing.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +36,7 @@ public class EventDeQueuerIT {
     private final Clock clock = new UtcClock();
 
     @Mock
-    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @InjectMocks
     private EventDeQueuer eventDeQueuer;
@@ -51,7 +51,7 @@ public class EventDeQueuerIT {
 
         final String tableName = "pre_publish_queue";
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(dataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
@@ -75,7 +75,7 @@ public class EventDeQueuerIT {
 
         final String tableName = "publish_queue";
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(dataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 

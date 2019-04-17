@@ -5,6 +5,7 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMatcher.jsonEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.metadata;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopePayloadMatcher.payloadIsJson;
@@ -13,30 +14,33 @@ import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SystemEventServiceTest {
 
-    private Clock clock = new UtcClock();
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private SystemEventService systemEventService;
 
-    @Before
-    public void setup() {
-        systemEventService.clock = clock;
-    }
 
     @Test
     public void shouldCreateClonedEvent() {
+
         final UUID streamId = randomUUID();
+        final ZonedDateTime now = new UtcClock().now();
+
+        when(clock.now()).thenReturn(now);
+
         final JsonEnvelope event = systemEventService.clonedEventFor(streamId);
 
         assertThat(event, jsonEnvelope(

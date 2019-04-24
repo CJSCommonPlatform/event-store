@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M16] - 2019-04-24
+### Changed
+- No longer passing around event store data source JNDI name. Using default name instead
+- Removed now unnecessary factory classes
+
 ## [2.0.0-M15] - 2019-04-17
 ### Changed
 - Update utilities to 1.17.0-M2

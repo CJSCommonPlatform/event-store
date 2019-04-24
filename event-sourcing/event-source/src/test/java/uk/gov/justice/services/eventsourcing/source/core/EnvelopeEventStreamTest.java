@@ -1,8 +1,6 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static javax.json.Json.createObjectBuilder;
@@ -15,7 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -218,26 +215,6 @@ public class EnvelopeEventStreamTest {
         when(eventStreamManager.getSize(STREAM_ID)).thenReturn(CURRENT_POSITION);
         assertThat(envelopeEventStream.size(), is(CURRENT_POSITION));
         verify(eventStreamManager).getSize(STREAM_ID);
-    }
-
-    @Test
-    public void shouldGetCurrentVersionIfPresent() throws Exception {
-
-        final long lastReadPosition = 23L;
-        setField(envelopeEventStream, "lastReadPosition", of(lastReadPosition));
-
-        assertThat(envelopeEventStream.getCurrentVersion(), is(lastReadPosition));
-    }
-
-    @Test
-    public void shouldGetCurrentVersionFromEventStreamManagerIfNoReadPositionPresent() throws Exception {
-
-        final long lastReadPosition = 23L;
-        setField(envelopeEventStream, "lastReadPosition", empty());
-
-        when(eventStreamManager.getSize(STREAM_ID)).thenReturn(lastReadPosition);
-
-        assertThat(envelopeEventStream.getCurrentVersion(), is(lastReadPosition));
     }
 
     private JsonEnvelope jsonEnvelopeWithDefaults() {

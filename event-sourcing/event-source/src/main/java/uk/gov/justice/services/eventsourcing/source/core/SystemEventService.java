@@ -26,7 +26,7 @@ public class SystemEventService {
     private static final String SYSTEM_USER = "system";
 
     @Inject
-    Clock clock;
+    private Clock clock;
 
     public JsonEnvelope clonedEventFor(final UUID streamId) {
         final Metadata metadata = provider()

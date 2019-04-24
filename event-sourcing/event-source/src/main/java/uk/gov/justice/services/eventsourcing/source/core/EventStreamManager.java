@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -28,31 +29,26 @@ import org.slf4j.Logger;
  */
 public class EventStreamManager {
 
-    private final EventAppender eventAppender;
-    private final long maxRetry;
-    private final Logger logger;
-    private final SystemEventService systemEventService;
-    private final Enveloper enveloper;
-    private final EventRepository eventRepository;
-    private final String eventSourceName;
+    @Inject
+    private PublishingEventAppender publishingEventAppender;
 
-    public EventStreamManager(
-            final EventAppender eventAppender,
-            final long maxRetry,
-            final SystemEventService systemEventService,
-            final Enveloper enveloper,
-            final EventRepository eventRepository,
-            final String eventSourceName,
-            final Logger logger) {
+    @Inject
+    private MaxRetryProvider maxRetryProvider;
 
-        this.eventAppender = eventAppender;
-        this.maxRetry = maxRetry;
-        this.logger = logger;
-        this.systemEventService = systemEventService;
-        this.enveloper = enveloper;
-        this.eventRepository = eventRepository;
-        this.eventSourceName = eventSourceName;
-    }
+    @Inject
+    private Logger logger;
+
+    @Inject
+    private SystemEventService systemEventService;
+
+    @Inject
+    private Enveloper enveloper;
+
+    @Inject
+    private EventRepository eventRepository;
+
+    @Inject
+    private EventSourceNameProvider eventSourceNameProvider;
 
     /**
      * Get the stream of events.
@@ -123,11 +119,15 @@ public class EventStreamManager {
             long retryCount = 0L;
             while (!appendedSuccessfully) {
                 try {
-                    eventAppender.append(event, streamId, ++currentVersion, eventSourceName);
+                    publishingEventAppender.append(
+                            event,
+                            streamId,
+                            ++currentVersion,
+                            eventSourceNameProvider.getDefaultEventSourceName());
                     appendedSuccessfully = true;
                 } catch (final OptimisticLockingRetryException e) {
                     retryCount++;
-                    if (retryCount > maxRetry) {
+                    if (retryCount > maxRetryProvider.getMaxRetry()) {
                         logger.warn("Failed to append to stream {} due to concurrency issues, returning to handler.", streamId);
                         throw e;
                     }
@@ -219,7 +219,7 @@ public class EventStreamManager {
         validateEvents(id, envelopeList);
 
         for (final JsonEnvelope event : envelopeList) {
-            eventAppender.append(event, id, ++currentPosition, eventSourceName);
+            publishingEventAppender.append(event, id, ++currentPosition, eventSourceNameProvider.getDefaultEventSourceName());
         }
         return currentPosition;
     }

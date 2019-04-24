@@ -12,6 +12,7 @@ import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJ
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
@@ -27,8 +28,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
+
+// Nb: This is just testing the throwing of exceptions to keep coverage happy. The
+// main meat of the class is tested as an integration test: EventJdbcRepositoryIT
 @RunWith(MockitoJUnitRunner.class)
-public class EventJdbcRepositoryTest {
+public class EventJdbcRepositoryExceptionsTest {
 
     @Mock
     private EventInsertionStrategy eventInsertionStrategy;
@@ -37,7 +41,7 @@ public class EventJdbcRepositoryTest {
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Mock
-    private DataSource dataSource;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Mock
     private Logger logger;
@@ -45,15 +49,16 @@ public class EventJdbcRepositoryTest {
     @InjectMocks
     private EventJdbcRepository eventJdbcRepository;
 
-
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInInsert() throws Exception {
         final UUID streamId = randomUUID();
         final SQLException sqlException = new SQLException();
         final String statement = "STATEMENT";
         final Event event = mock(Event.class);
+        final DataSource dataSource = mock(DataSource.class);
 
         when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, statement)).thenThrow(sqlException);
         when(event.getSequenceId()).thenReturn(5L);
         when(event.getStreamId()).thenReturn(streamId);
@@ -72,6 +77,9 @@ public class EventJdbcRepositoryTest {
         final UUID streamId = randomUUID();
         final SQLException sqlException = new SQLException();
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID)).thenThrow(sqlException);
 
         try {
@@ -89,6 +97,9 @@ public class EventJdbcRepositoryTest {
         final long position = 2L;
         final SQLException sqlException = new SQLException();
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION)).thenThrow(sqlException);
 
         try {
@@ -107,6 +118,9 @@ public class EventJdbcRepositoryTest {
         final int pageSize = 10;
         final SQLException sqlException = new SQLException();
 
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE)).thenThrow(sqlException);
 
         try {

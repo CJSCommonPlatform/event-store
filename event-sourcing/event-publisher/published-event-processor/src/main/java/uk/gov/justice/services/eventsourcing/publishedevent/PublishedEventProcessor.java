@@ -3,24 +3,18 @@ package uk.gov.justice.services.eventsourcing.publishedevent;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.prepublish.MetadataEventNumberUpdater;
-import uk.gov.justice.services.eventsourcing.prepublish.PrePublishRepository;
 import uk.gov.justice.services.eventsourcing.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.messaging.Metadata;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
 public class PublishedEventProcessor {
-
-    @Inject
-    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
 
     @Inject
     private MetadataEventNumberUpdater metadataEventNumberUpdater;
@@ -29,24 +23,21 @@ public class PublishedEventProcessor {
     private EventConverter eventConverter;
 
     @Inject
-    private PrePublishRepository prePublishRepository;
-
-    @Inject
     private PublishedEventFactory publishedEventFactory;
 
     @Inject
-    private PublishedEventInserter publishedEventInserter;
+    private PublishedEventRepository publishedEventRepository;
 
-    public void createPublishedEvent(final Event event) throws PublishedEventSQLException {
+    public void createPublishedEvent(final Event event) {
 
-        final long eventNumber = event.getEventNumber().get();
+        final UUID eventId = event.getId();
+        final long eventNumber = event
+                .getEventNumber()
+                .orElseThrow(() -> new MissingEventNumberException(format("Event with id '%s' has no event number", eventId)));
 
-        final long previousEventNumber;
-        try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
-            previousEventNumber = prePublishRepository.getPreviousEventNumber(eventNumber, connection);
-        } catch (final SQLException e) {
-            throw new PublishedEventSQLException(format("Unable to get previous event number for event with id '%s'", event.getId()), e);
-        }
+        final long previousEventNumber = publishedEventRepository.getPreviousEventNumber(
+                eventId,
+                eventNumber);
 
         final Metadata metadata = eventConverter.metadataOf(event);
         final Metadata updatedMetadata = metadataEventNumberUpdater.updateMetadataJson(
@@ -54,13 +45,12 @@ public class PublishedEventProcessor {
                 previousEventNumber,
                 eventNumber);
 
-        final PublishedEvent publishedEvent = publishedEventFactory.create(event, updatedMetadata, eventNumber, previousEventNumber);
-        try (final Connection connection = subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()) {
-            publishedEventInserter.insertPublishedEvent(publishedEvent, connection);
+        final PublishedEvent publishedEvent = publishedEventFactory.create(
+                event,
+                updatedMetadata,
+                eventNumber,
+                previousEventNumber);
 
-        } catch (final SQLException e) {
-            throw new PublishedEventSQLException(format("Unable to insert PublishedEvent with id '%s'", event.getId()), e);
-        }
+        publishedEventRepository.save(publishedEvent);
     }
-
 }

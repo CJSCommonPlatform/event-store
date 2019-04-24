@@ -2,7 +2,6 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream;
 
 
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -14,7 +13,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPo
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -26,24 +26,43 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class EventStreamJdbcRepositoryIT {
 
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
 
-    private EventStreamJdbcRepository jdbcRepository;
     private DataSource dataSource;
+
+    @SuppressWarnings("unused")
+    @Spy
+    private JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private SettableEventStoreDataSourceProvider eventStoreDefaultDataSourceProvider = new SettableEventStoreDataSourceProvider();
+
+    @SuppressWarnings("unused")
+    @Spy
+    private UtcClock clock = new UtcClock();
+
+    @InjectMocks
+    private EventStreamJdbcRepository jdbcRepository;
 
     @Before
     public void initialize() throws Exception {
-        dataSource = new TestEventStoreDataSourceFactory()
-                .createDataSource("frameworkeventstore");
 
-        jdbcRepository = new EventStreamJdbcRepository(
-                new JdbcResultSetStreamer(),
-                new PreparedStatementWrapperFactory(),
-                dataSource,
-                new UtcClock());
+        dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
+
+        eventStoreDefaultDataSourceProvider.setDataSource(dataSource);
 
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }
@@ -90,11 +109,11 @@ public class EventStreamJdbcRepositoryIT {
         final UUID streamId = randomUUID();
         jdbcRepository.insert(streamId, false);
 
-        assertThat(jdbcRepository.findAll().collect(toList()).size(), is(1));
-        assertThat(jdbcRepository.findActive().collect(toList()).size(), is(0));
+        assertThat((int) jdbcRepository.findAll().count(), is(1));
+        assertThat((int) jdbcRepository.findActive().count(), is(0));
 
         jdbcRepository.markActive(streamId, true);
-        assertThat(jdbcRepository.findActive().collect(toList()).size(), is(1));
+        assertThat((int) jdbcRepository.findActive().count(), is(1));
     }
 
     @Test

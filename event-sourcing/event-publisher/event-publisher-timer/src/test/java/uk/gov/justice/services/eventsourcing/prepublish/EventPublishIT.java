@@ -31,6 +31,7 @@ import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -54,7 +55,6 @@ import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
 import uk.gov.justice.subscription.yaml.parser.YamlParser;
 import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
 
@@ -64,7 +64,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit.ApplicationComposer;
@@ -81,10 +80,10 @@ import org.slf4j.Logger;
 public class EventPublishIT {
 
     @Inject
-    private JdbcDataSourceProvider jdbcDataSourceProvider;
+    private DummyEventPublisher dummyEventPublisher;
 
     @Inject
-    private DummyEventPublisher dummyEventPublisher;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     private final EventFactory eventFactory = new EventFactory();
     private final TestEventInserter testEventInserter = new TestEventInserter();
@@ -95,8 +94,7 @@ public class EventPublishIT {
 
     @Before
     public void initializeDatabase() throws Exception {
-        final DataSource dataSource = jdbcDataSourceProvider.getDataSource("don't care");
-        eventStoreInitializer.initializeEventStore(dataSource);
+        eventStoreInitializer.initializeEventStore(eventStoreDataSourceProvider.getDefaultDataSource());
     }
 
     @Module
@@ -130,7 +128,6 @@ public class EventPublishIT {
             YamlFileFinder.class,
             YamlSchemaLoader.class,
             YamlParser.class,
-            SubscriptionDataSourceProvider.class,
             TimerConfigFactory.class,
             TestGlobalValueProducer.class,
             DefaultEventSourceDefinitionFactory.class,

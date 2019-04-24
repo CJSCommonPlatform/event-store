@@ -19,8 +19,6 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStream;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -73,9 +71,6 @@ public class JdbcBasedEventRepositoryTest {
 
     @Mock
     private EventStream eventStream;
-
-    @Mock
-    private PublishedEventFinder publishedEventFinder;
 
     @InjectMocks
     private JdbcBasedEventRepository jdbcBasedEventRepository;
@@ -408,33 +403,11 @@ public class JdbcBasedEventRepositoryTest {
         verify(eventStreamJdbcRepository).insert(STREAM_ID);
     }
 
-    @Test
-    public void shouldUseThePublishedEventFinderToFindEventsToCatchup() throws Exception {
-
-        final long eventNumber = 23L;
-        final Stream<PublishedEvent> publishedEventStream = of(mock(PublishedEvent.class));
-
-        when(publishedEventFinder.findEventsSince(eventNumber)).thenReturn(publishedEventStream);
-
-        assertThat(publishedEventFinder.findEventsSince(eventNumber), is(publishedEventStream));
-    }
-
     private EventStream buildEventStreamFor(final UUID streamId, final Long sequence) {
         return new EventStream(streamId, sequence, true, TIMESTAMP);
     }
 
     private Event eventOf(final UUID streamId) {
         return new Event(null, streamId, null, null, null, null, null);
-    }
-
-    @Test
-    public void shouldFindEventsSince() throws Exception {
-
-        final Long eventNumber = 348374L;
-        final Stream<PublishedEvent> publishedEventStream = of(mock(PublishedEvent.class));
-
-        when(publishedEventFinder.findEventsSince(eventNumber)).thenReturn(publishedEventStream);
-
-        assertThat(jdbcBasedEventRepository.findEventsSince(eventNumber), is(publishedEventStream));
     }
 }

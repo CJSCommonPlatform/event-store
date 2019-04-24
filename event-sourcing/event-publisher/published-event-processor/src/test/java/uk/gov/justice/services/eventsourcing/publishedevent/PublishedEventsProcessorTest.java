@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,7 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PublishedEventsProcessorTest {
     @Mock(answer = RETURNS_DEEP_STUBS)
-    private SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Mock
     private EventJdbcRepository eventJdbcRepository;
@@ -45,7 +45,7 @@ public class PublishedEventsProcessorTest {
     @Test
     public void shouldCreatePublishedEvents() throws SQLException {
         final Connection connection = mock(Connection.class);
-        when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
+        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
 
         final Event event1 = mock(Event.class);
         final Event event2 = mock(Event.class);
@@ -68,7 +68,7 @@ public class PublishedEventsProcessorTest {
 
         final Connection connection = mock(Connection.class);
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
+        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
 
         publishedEventsProcessor.truncatePublishedEvents();
 
@@ -82,7 +82,7 @@ public class PublishedEventsProcessorTest {
 
         final Connection connection = mock(Connection.class);
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource().getConnection()).thenReturn(connection);
+        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
         when(publishedEventInserter.truncate(connection)).thenThrow(sqlException);
 
         try {

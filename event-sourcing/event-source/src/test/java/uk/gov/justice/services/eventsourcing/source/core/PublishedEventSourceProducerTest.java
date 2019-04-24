@@ -30,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PublishedEventSourceProducerTest {
 
+    private static final String EMPTY_STRING = "";
     @Mock
     private EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
 
@@ -44,6 +45,7 @@ public class PublishedEventSourceProducerTest {
 
     @Test
     public void shouldCreateDefaultEventSourceDefinitionWhenEventSourceNameIsEmpty() throws Exception {
+
         final EventSourceDefinition eventSourceDefinition = eventSourceDefinition()
                 .withName("defaultEventSource")
                 .withDefault(true)
@@ -51,14 +53,15 @@ public class PublishedEventSourceProducerTest {
                 .build();
         final InjectionPoint injectionPoint = mock(InjectionPoint.class);
         final EventSourceName eventSourceNameAnnotation = mock(EventSourceName.class);
-        final JdbcBasedPublishedEventSource jdbcBasedPublishedEventSource = mock(JdbcBasedPublishedEventSource.class);
+        final DefaultPublishedEventSource defaultPublishedEventSource = mock(DefaultPublishedEventSource.class);
 
         when(qualifierAnnotationExtractor.getFrom(injectionPoint, EventSourceName.class)).thenReturn(eventSourceNameAnnotation);
-        when(eventSourceNameAnnotation.value()).thenReturn("");
-        when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
-        when(jdbcPublishedEventSourceFactory.create(eventSourceDefinition.getLocation().getDataSource().get())).thenReturn(jdbcBasedPublishedEventSource);
 
-        assertThat(publishedEventSourceProducer.publishedEventSource(), is(jdbcBasedPublishedEventSource));
+        when(eventSourceNameAnnotation.value()).thenReturn(EMPTY_STRING);
+        when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
+        when(jdbcPublishedEventSourceFactory.create(eventSourceDefinition.getLocation().getDataSource().get())).thenReturn(defaultPublishedEventSource);
+
+        assertThat(publishedEventSourceProducer.publishedEventSource(), is(defaultPublishedEventSource));
     }
 
     @Test
@@ -70,12 +73,12 @@ public class PublishedEventSourceProducerTest {
                 .withLocation(new Location("", "", Optional.of("dataSource")))
                 .build();
 
-        final JdbcBasedPublishedEventSource jdbcBasedPublishedEventSource = mock(JdbcBasedPublishedEventSource.class);
+        final DefaultPublishedEventSource defaultPublishedEventSource = mock(DefaultPublishedEventSource.class);
 
         when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
-        when(jdbcPublishedEventSourceFactory.create(eventSourceDefinition.getLocation().getDataSource().get())).thenReturn(jdbcBasedPublishedEventSource);
+        when(jdbcPublishedEventSourceFactory.create(eventSourceDefinition.getLocation().getDataSource().get())).thenReturn(defaultPublishedEventSource);
 
-        assertThat(publishedEventSourceProducer.publishedEventSource(), is(jdbcBasedPublishedEventSource));
+        assertThat(publishedEventSourceProducer.publishedEventSource(), is(defaultPublishedEventSource));
     }
 
     @Test
@@ -88,16 +91,16 @@ public class PublishedEventSourceProducerTest {
         final EventSourceName eventSourceNameAnnotation = mock(EventSourceName.class);
         final EventSourceDefinition eventSourceDefinition = mock(EventSourceDefinition.class);
         final Location location = mock(Location.class);
-        final JdbcBasedPublishedEventSource jdbcBasedPublishedEventSource = mock(JdbcBasedPublishedEventSource.class);
+        final DefaultPublishedEventSource defaultPublishedEventSource = mock(DefaultPublishedEventSource.class);
 
         when(qualifierAnnotationExtractor.getFrom(injectionPoint, EventSourceName.class)).thenReturn(eventSourceNameAnnotation);
         when(eventSourceNameAnnotation.value()).thenReturn(eventSourceName);
         when(eventSourceDefinitionRegistry.getEventSourceDefinitionFor(eventSourceName)).thenReturn(Optional.of(eventSourceDefinition));
         when(eventSourceDefinition.getLocation()).thenReturn(location);
         when(location.getDataSource()).thenReturn(of(dataSource));
-        when(jdbcPublishedEventSourceFactory.create(dataSource)).thenReturn(jdbcBasedPublishedEventSource);
+        when(jdbcPublishedEventSourceFactory.create(dataSource)).thenReturn(defaultPublishedEventSource);
 
-        assertThat(publishedEventSourceProducer.publishedEventSource(injectionPoint), is(jdbcBasedPublishedEventSource));
+        assertThat(publishedEventSourceProducer.publishedEventSource(injectionPoint), is(defaultPublishedEventSource));
     }
 
     @Test

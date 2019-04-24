@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Direction.BACKWARD;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Direction.FORWARD;
@@ -11,10 +12,8 @@ import static uk.gov.justice.services.eventsourcing.source.api.service.core.Posi
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.head;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.position;
 
-import uk.gov.justice.services.eventsourcing.source.core.EnvelopeEventStream;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
-import uk.gov.justice.services.eventsourcing.source.core.EventStreamManager;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,9 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventStreamServiceTest {
 
     @Mock
-    private EventStreamManager eventStreamManager;
-
-    @Mock
     private EventSource eventSource;
 
     @InjectMocks
@@ -43,40 +39,48 @@ public class EventStreamServiceTest {
 
         final long pageSize = 2L;
 
-        final UUID streamId1 = randomUUID();
-        final UUID streamId2 = randomUUID();
-        final UUID streamId3 = randomUUID();
-        final UUID streamId4 = randomUUID();
+        final UUID streamId_1 = randomUUID();
+        final UUID streamId_2 = randomUUID();
+        final UUID streamId_3 = randomUUID();
+        final UUID streamId_4 = randomUUID();
 
-        final EventStream eventStream1 = buildEventStreamOf(streamId1, 1L);
-        final EventStream eventStream2 = buildEventStreamOf(streamId2, 2L);
-        final EventStream eventStream3 = buildEventStreamOf(streamId3, 3L);
-        final EventStream eventStream4 = buildEventStreamOf(streamId4, 4L);
+        final EventStream eventStream_1 = mock(EventStream.class);
+        final EventStream eventStream_2 = mock(EventStream.class);
+        final EventStream eventStream_3 = mock(EventStream.class);
+        final EventStream eventStream_4 = mock(EventStream.class);
+
+        when(eventStream_1.getId()).thenReturn(streamId_1);
+        when(eventStream_2.getId()).thenReturn(streamId_2);
+        when(eventStream_3.getId()).thenReturn(streamId_3);
+        when(eventStream_4.getId()).thenReturn(streamId_4);
+
+        when(eventStream_1.getPosition()).thenReturn(1L);
+        when(eventStream_2.getPosition()).thenReturn(2L);
+        when(eventStream_3.getPosition()).thenReturn(3L);
+        when(eventStream_4.getPosition()).thenReturn(4L);
 
         final Stream.Builder<EventStream> eventStreamBuilder = Stream.builder();
 
-        eventStreamBuilder.add(eventStream1);
-        eventStreamBuilder.add(eventStream2);
-        eventStreamBuilder.add(eventStream3);
-        eventStreamBuilder.add(eventStream4);
+        eventStreamBuilder.add(eventStream_1);
+        eventStreamBuilder.add(eventStream_2);
+        eventStreamBuilder.add(eventStream_3);
+        eventStreamBuilder.add(eventStream_4);
 
         final Stream.Builder<EventStream> eventStreamBuilderFrom3 = Stream.builder();
-        eventStreamBuilderFrom3.add(eventStream3);
-        eventStreamBuilderFrom3.add(eventStream4);
+        eventStreamBuilderFrom3.add(eventStream_3);
+        eventStreamBuilderFrom3.add(eventStream_4);
 
         when(eventSource.getStreamsFrom(1)).thenReturn(eventStreamBuilder.build());
         when(eventSource.getStreamsFrom(3)).thenReturn(eventStreamBuilderFrom3.build());
-        when(eventStreamManager.getStreamPosition(streamId3)).thenReturn(3L);
-        when(eventStreamManager.getStreamPosition(streamId4)).thenReturn(4L);
 
         final List<EventStreamEntry> entries = service.eventStreams(head(), BACKWARD, pageSize);
 
         assertThat(entries, hasSize(2));
 
-        assertThat(entries.get(0).getStreamId(), is(streamId3.toString()));
+        assertThat(entries.get(0).getStreamId(), is(streamId_3.toString()));
         assertThat(entries.get(0).getSequenceNumber(), is(3L));
 
-        assertThat(entries.get(1).getStreamId(), is(streamId4.toString()));
+        assertThat(entries.get(1).getStreamId(), is(streamId_4.toString()));
         assertThat(entries.get(1).getSequenceNumber(), is(4L));
     }
 
@@ -86,31 +90,35 @@ public class EventStreamServiceTest {
 
         final Stream.Builder<EventStream> eventStreamBuilder = Stream.builder();
 
-        final UUID streamId1 = randomUUID();
-        final UUID streamId2 = randomUUID();
+        final UUID streamId_1 = randomUUID();
+        final UUID streamId_2 = randomUUID();
 
-        final EventStream eventStream1 = buildEventStreamOf(streamId1, 1L);
-        final EventStream eventStream2 = buildEventStreamOf(streamId2, 2L);
+        final EventStream eventStream_1 = mock(EventStream.class);
+        final EventStream eventStream_2 = mock(EventStream.class);
 
-        eventStreamBuilder.add(eventStream1);
-        eventStreamBuilder.add(eventStream2);
+        when(eventStream_1.getId()).thenReturn(streamId_1);
+        when(eventStream_2.getId()).thenReturn(streamId_2);
+
+        when(eventStream_1.getPosition()).thenReturn(1L);
+        when(eventStream_2.getPosition()).thenReturn(2L);
+
+        eventStreamBuilder.add(eventStream_1);
+        eventStreamBuilder.add(eventStream_2);
 
         final Stream.Builder<EventStream> eventStreamBuilderFrom1 = Stream.builder();
-        eventStreamBuilderFrom1.add(eventStream1);
-        eventStreamBuilderFrom1.add(eventStream2);
+        eventStreamBuilderFrom1.add(eventStream_1);
+        eventStreamBuilderFrom1.add(eventStream_2);
 
         when(eventSource.getStreamsFrom(1)).thenReturn(eventStreamBuilder.build());
-        when(eventStreamManager.getStreamPosition(streamId1)).thenReturn(1L);
-        when(eventStreamManager.getStreamPosition(streamId2)).thenReturn(2L);
 
         final List<EventStreamEntry> eventStreamEntries = service.eventStreams(first(), FORWARD, pageSize);
 
         assertThat(eventStreamEntries, hasSize(2));
 
-        assertThat(eventStreamEntries.get(0).getStreamId(), is(streamId1.toString()));
+        assertThat(eventStreamEntries.get(0).getStreamId(), is(streamId_1.toString()));
         assertThat(eventStreamEntries.get(0).getSequenceNumber(), is(1L));
 
-        assertThat(eventStreamEntries.get(1).getStreamId(), is(streamId2.toString()));
+        assertThat(eventStreamEntries.get(1).getStreamId(), is(streamId_2.toString()));
         assertThat(eventStreamEntries.get(1).getSequenceNumber(), is(2L));
     }
 
@@ -119,96 +127,72 @@ public class EventStreamServiceTest {
 
         final long pageSize = 2L;
 
-        final UUID streamId2 = randomUUID();
-        final UUID streamId3 = randomUUID();
+        final UUID streamId_2 = randomUUID();
+        final UUID streamId_3 = randomUUID();
 
         final Stream.Builder<EventStream> eventStreamBuilder = Stream.builder();
 
-        final EventStream eventStream2 = buildEventStreamOf(streamId2, 2L);
-        final EventStream eventStream3 = buildEventStreamOf(streamId3, 3L);
+        final EventStream eventStream_2 = mock(EventStream.class);
+        final EventStream eventStream_3 = mock(EventStream.class);
 
-        eventStreamBuilder.add(eventStream2);
-        eventStreamBuilder.add(eventStream3);
+        when(eventStream_2.getId()).thenReturn(streamId_2);
+        when(eventStream_3.getId()).thenReturn(streamId_3);
+
+        when(eventStream_2.getPosition()).thenReturn(2L);
+        when(eventStream_3.getPosition()).thenReturn(3L);
+
+        eventStreamBuilder.add(eventStream_2);
+        eventStreamBuilder.add(eventStream_3);
 
         final long position = 3L;
 
         when(eventSource.getStreamsFrom(2L)).thenReturn(eventStreamBuilder.build());
-        when(eventStreamManager.getStreamPosition(streamId3)).thenReturn(3L);
-        when(eventStreamManager.getStreamPosition(streamId2)).thenReturn(2L);
 
         final List<EventStreamEntry> eventEntries = service.eventStreams(position(position), BACKWARD, pageSize);
 
         assertThat(eventEntries, hasSize(2));
 
-        assertThat(eventEntries.get(0).getStreamId(), is(streamId2.toString()));
+        assertThat(eventEntries.get(0).getStreamId(), is(streamId_2.toString()));
         assertThat(eventEntries.get(0).getSequenceNumber(), is(2L));
 
-        assertThat(eventEntries.get(1).getStreamId(), is(streamId3.toString()));
+        assertThat(eventEntries.get(1).getStreamId(), is(streamId_3.toString()));
         assertThat(eventEntries.get(1).getSequenceNumber(), is(3L));
     }
 
     @Test
     public void shouldReturnNextEvents() throws Exception {
 
-
         final long pageSize = 2L;
 
-        final UUID streamId5 = randomUUID();
-        final UUID streamId4 = randomUUID();
+        final UUID streamId_5 = randomUUID();
+        final UUID streamId_4 = randomUUID();
 
         final Stream.Builder<EventStream> eventStreamBuilder = Stream.builder();
 
-        final EventStream eventStream5 = buildEventStreamOf(streamId5, 5L);
-        final EventStream eventStream4 = buildEventStreamOf(streamId4, 4L);
+        final EventStream eventStream_4 = mock(EventStream.class);
+        final EventStream eventStream_5 = mock(EventStream.class);
 
-        eventStreamBuilder.add(eventStream4);
-        eventStreamBuilder.add(eventStream5);
+        when(eventStream_4.getId()).thenReturn(streamId_4);
+        when(eventStream_5.getId()).thenReturn(streamId_5);
+
+        when(eventStream_4.getPosition()).thenReturn(4L);
+        when(eventStream_5.getPosition()).thenReturn(5L);
+
+        eventStreamBuilder.add(eventStream_4);
+        eventStreamBuilder.add(eventStream_5);
 
         final long position = 3L;
 
         when(eventSource.getStreamsFrom(position)).thenReturn(eventStreamBuilder.build());
-        when(eventStreamManager.getStreamPosition(streamId5)).thenReturn(5L);
-        when(eventStreamManager.getStreamPosition(streamId4)).thenReturn(4L);
 
         final List<EventStreamEntry> eventEntries = service.eventStreams(position(position), FORWARD, pageSize);
 
         assertThat(eventEntries, hasSize(2));
 
-        assertThat(eventEntries.get(0).getStreamId(), is(streamId4.toString()));
+        assertThat(eventEntries.get(0).getStreamId(), is(streamId_4.toString()));
         assertThat(eventEntries.get(0).getSequenceNumber(), is(4L));
 
-        assertThat(eventEntries.get(1).getStreamId(), is(streamId5.toString()));
+        assertThat(eventEntries.get(1).getStreamId(), is(streamId_5.toString()));
         assertThat(eventEntries.get(1).getSequenceNumber(), is(5L));
     }
-
-    @Test
-    public void shouldReturnRecordExists() throws Exception {
-        final UUID streamId1 = randomUUID();
-        final UUID streamId2 = randomUUID();
-        final UUID streamId3 = randomUUID();
-        final UUID streamId4 = randomUUID();
-
-        final Stream.Builder<EventStream> eventStreamBuilder = Stream.builder();
-
-        final EventStream eventStream1 = buildEventStreamOf(streamId1, 1L);
-        final EventStream eventStream2 = buildEventStreamOf(streamId2, 2L);
-        final EventStream eventStream3 = buildEventStreamOf(streamId3, 3L);
-        final EventStream eventStream4 = buildEventStreamOf(streamId4, 4L);
-
-
-        eventStreamBuilder.add(eventStream1);
-        eventStreamBuilder.add(eventStream2);
-        eventStreamBuilder.add(eventStream3);
-        eventStreamBuilder.add(eventStream4);
-
-
-        when(eventSource.getStreamsFrom(1)).thenReturn(eventStreamBuilder.build());
-
-      //  assertThat(service.eventStreamExists(1), is(true));
-    }
-
-    private EnvelopeEventStream buildEventStreamOf(final UUID streamId, final long sequenceNumber) {
-        return new EnvelopeEventStream(streamId, sequenceNumber, eventStreamManager);
-    }
-
 }

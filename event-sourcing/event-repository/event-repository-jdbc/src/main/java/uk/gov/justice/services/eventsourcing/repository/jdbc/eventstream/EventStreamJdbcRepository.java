@@ -7,6 +7,7 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimes
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidStreamIdException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.OptimisticLockingRetryException;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 public class EventStreamJdbcRepository {
@@ -39,27 +41,26 @@ public class EventStreamJdbcRepository {
     private static final String COL_DATE_CREATED = "date_created";
     private static final String EVENT_STREAM_EXCEPTION_MESSAGE = "Exception while deleting stream %s";
 
-    private final JdbcResultSetStreamer jdbcResultSetStreamer;
-    private final UtcClock clock;
-    private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
-    private final DataSource dataSource;
+    @Inject
+    private JdbcResultSetStreamer jdbcResultSetStreamer;
 
-    public EventStreamJdbcRepository(final JdbcResultSetStreamer jdbcResultSetStreamer,
-                                     final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
-                                     final DataSource dataSource,
-                                     final UtcClock clock) {
+    @Inject
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
-        this.jdbcResultSetStreamer = jdbcResultSetStreamer;
-        this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
-        this.dataSource = dataSource;
-        this.clock = clock;
-    }
+    @Inject
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
+
+    @Inject
+    private UtcClock clock;
 
     public void insert(final UUID streamId) {
         insert(streamId, true);
     }
 
     public void insert(final UUID streamId, final boolean active) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         if (!isExistingStream(streamId)) {
             try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_INSERT_EVENT_STREAM)) {
                 ps.setObject(1, streamId);
@@ -77,6 +78,9 @@ public class EventStreamJdbcRepository {
     }
 
     public void markActive(final UUID streamId, final boolean active) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_UPDATE_EVENT_STREAM_ACTIVE)) {
             ps.setBoolean(1, active);
             ps.setObject(2, streamId);
@@ -88,6 +92,9 @@ public class EventStreamJdbcRepository {
     }
 
     public void delete(final UUID streamId) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_DELETE_EVENT_STREAM)) {
             ps.setObject(1, streamId);
 
@@ -98,6 +105,9 @@ public class EventStreamJdbcRepository {
     }
 
     public Stream<EventStream> findAll() {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try {
             return jdbcResultSetStreamer.streamOf(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL),
                     entityFromFunction());
@@ -108,6 +118,9 @@ public class EventStreamJdbcRepository {
 
 
     public Stream<EventStream> findActive() {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try {
             return jdbcResultSetStreamer.streamOf(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL_ACTIVE),
                     entityFromFunction());
@@ -117,6 +130,9 @@ public class EventStreamJdbcRepository {
     }
 
     public Stream<EventStream> findEventStreamWithPositionFrom(final long position) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try {
             final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory
                     .preparedStatementWrapperOf(dataSource, SQL_FIND_BY_POSITION);
@@ -128,6 +144,9 @@ public class EventStreamJdbcRepository {
     }
 
     private boolean isExistingStream(final UUID streamId) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try (final PreparedStatementWrapper psquery = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_EVENT_STREAM)) {
             psquery.setObject(1, streamId);
             return psquery.executeQuery().next();
@@ -137,6 +156,9 @@ public class EventStreamJdbcRepository {
     }
 
     public long getPosition(final UUID streamId) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
         try (final PreparedStatementWrapper psquery = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_POSITION_BY_STREAM)) {
             psquery.setObject(1, streamId);
             ResultSet resultSet = psquery.executeQuery();

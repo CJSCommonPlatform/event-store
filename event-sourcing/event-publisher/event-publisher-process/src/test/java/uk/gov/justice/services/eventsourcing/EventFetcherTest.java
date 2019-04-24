@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.subscription.registry.SubscriptionDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -29,10 +29,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventFetcherTest {
 
     @Mock
-    SubscriptionDataSourceProvider subscriptionDataSourceProvider;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Mock
-    EventFetcherRepository eventFetcherRepository;
+    private EventFetcherRepository eventFetcherRepository;
 
     @InjectMocks
     private EventFetcher eventFetcher;
@@ -46,7 +46,7 @@ public class EventFetcherTest {
         final Connection connection = mock(Connection.class);
         final Optional<Event> event = of(mock(Event.class));
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
         when(eventFetcherRepository.getEvent(id, connection)).thenReturn(event);
@@ -64,7 +64,7 @@ public class EventFetcherTest {
         final DataSource eventStoreDataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
         when(eventFetcherRepository.getEvent(id, connection)).thenThrow(sqlException);
@@ -87,7 +87,7 @@ public class EventFetcherTest {
         final Connection connection = mock(Connection.class);
         final Optional<PublishedEvent> publishedEvent = of(mock(PublishedEvent.class));
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
         when(eventFetcherRepository.getPublishedEvent(id, connection)).thenReturn(publishedEvent);
@@ -105,7 +105,7 @@ public class EventFetcherTest {
         final DataSource eventStoreDataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
 
-        when(subscriptionDataSourceProvider.getEventStoreDataSource()).thenReturn(eventStoreDataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
         when(eventStoreDataSource.getConnection()).thenReturn(connection);
 
         when(eventFetcherRepository.getPublishedEvent(id, connection)).thenThrow(sqlException);

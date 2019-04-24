@@ -11,7 +11,7 @@ import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.TestEventStoreDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,8 +37,7 @@ public class StreamStatusJdbcRepositoryIT {
 
     @Before
     public void initDatabase() throws Exception {
-        dataSource = new TestEventStoreDataSourceFactory()
-                .createDataSource("frameworkviewstore");
+        dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
 
         streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory);
 

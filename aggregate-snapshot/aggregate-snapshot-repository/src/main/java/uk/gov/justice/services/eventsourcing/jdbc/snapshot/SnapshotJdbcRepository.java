@@ -4,9 +4,8 @@ import static java.lang.String.format;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
-import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
-import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,10 +14,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 
@@ -40,20 +37,15 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     private static final String SQL_CURRENT_SNAPSHOT_VERSION_ID = "SELECT version_id FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
 
     @Inject
-    Logger logger;
+    private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
     @Inject
-    JdbcDataSourceProvider jdbcDataSourceProvider;
-
-    @Inject
-    EventSourceDefinitionRegistry eventSourceDefinitionRegistry;
-
-    DataSource dataSource;
+    private Logger logger;
 
     @Override
     public void storeSnapshot(final AggregateSnapshot aggregateSnapshot) {
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement ps = connection.prepareStatement(SQL_INSERT_EVENT_LOG)) {
             ps.setObject(1, aggregateSnapshot.getStreamId());
             ps.setLong(2, aggregateSnapshot.getVersionId());
@@ -68,7 +60,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     @Override
     public <T extends Aggregate> Optional<AggregateSnapshot<T>> getLatestSnapshot(final UUID streamId, final Class<T> clazz) {
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_LATEST_BY_STREAM_ID)) {
 
             preparedStatement.setObject(1, streamId);
@@ -84,7 +76,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
 
     @Override
     public <T extends Aggregate> void removeAllSnapshots(final UUID streamId, final Class<T> clazz) {
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement ps = connection.prepareStatement(DELETE_ALL_SNAPSHOTS_FOR_STREAM_ID_AND_CLASS)) {
             ps.setObject(1, streamId);
             ps.setString(2, clazz.getName());
@@ -97,7 +89,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     @Override
     public <T extends Aggregate> long getLatestSnapshotVersion(final UUID streamId, final Class<T> clazz) {
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SQL_CURRENT_SNAPSHOT_VERSION_ID)) {
             preparedStatement.setObject(1, streamId);
             preparedStatement.setObject(2, clazz.getName());
@@ -119,12 +111,6 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
                 resultSet.getLong(COL_VERSION_ID),
                 resultSet.getString(COL_TYPE),
                 resultSet.getBytes(COL_AGGREGATE));
-    }
-
-    @PostConstruct
-    private void initialiseDataSource() {
-        final String jndiName = eventSourceDefinitionRegistry.getDefaultEventSourceDefinition().getLocation().getDataSource().get();
-        dataSource = jdbcDataSourceProvider.getDataSource(jndiName);
     }
 
     @SuppressWarnings("unchecked")

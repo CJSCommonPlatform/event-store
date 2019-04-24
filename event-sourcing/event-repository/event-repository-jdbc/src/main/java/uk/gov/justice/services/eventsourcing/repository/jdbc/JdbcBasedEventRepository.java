@@ -3,8 +3,6 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStream;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -18,6 +16,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -25,28 +25,20 @@ import org.slf4j.Logger;
 /**
  * Implementation of {@link EventRepository}
  */
+@ApplicationScoped
 public class JdbcBasedEventRepository implements EventRepository {
 
+    @Inject
+    private EventConverter eventConverter;
 
-    private final Logger logger;
-    private final EventConverter eventConverter;
-    private final EventJdbcRepository eventJdbcRepository;
-    private final EventStreamJdbcRepository eventStreamJdbcRepository;
-    private final PublishedEventFinder publishedEventFinder;
+    @Inject
+    private EventJdbcRepository eventJdbcRepository;
 
-    public JdbcBasedEventRepository(
-            final EventConverter eventConverter,
-            final EventJdbcRepository eventJdbcRepository,
-            final EventStreamJdbcRepository eventStreamJdbcRepository,
-            final PublishedEventFinder publishedEventFinder,
-            final Logger logger) {
-        this.publishedEventFinder = publishedEventFinder;
+    @Inject
+    private EventStreamJdbcRepository eventStreamJdbcRepository;
 
-        this.logger = logger;
-        this.eventConverter = eventConverter;
-        this.eventJdbcRepository = eventJdbcRepository;
-        this.eventStreamJdbcRepository = eventStreamJdbcRepository;
-    }
+    @Inject
+    private Logger logger;
 
     @Override
     public Stream<JsonEnvelope> getEvents() {
@@ -166,11 +158,6 @@ public class JdbcBasedEventRepository implements EventRepository {
     @Override
     public long getStreamPosition(final UUID streamId) {
         return eventStreamJdbcRepository.getPosition(streamId);
-    }
-
-    @Override
-    public Stream<PublishedEvent> findEventsSince(final long eventNumber) {
-        return publishedEventFinder.findEventsSince(eventNumber);
     }
 
     private Function<EventStream, EventStreamMetadata> toEventStreamMetadata() {

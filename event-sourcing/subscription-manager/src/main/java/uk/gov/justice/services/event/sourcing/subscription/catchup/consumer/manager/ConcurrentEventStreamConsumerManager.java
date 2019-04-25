@@ -1,12 +1,10 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.manager;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import static java.lang.String.format;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
-import uk.gov.justice.services.event.sourcing.subscription.startup.listener.EventStreamConsumptionResolver;
-import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.EventQueueConsumer;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;

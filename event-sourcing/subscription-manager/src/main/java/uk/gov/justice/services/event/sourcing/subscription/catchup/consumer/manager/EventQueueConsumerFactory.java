@@ -1,10 +1,9 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.manager;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
-import uk.gov.justice.services.event.sourcing.subscription.startup.listener.EventStreamConsumptionResolver;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.EventQueueConsumer;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 
 import javax.inject.Inject;
 

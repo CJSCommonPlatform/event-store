@@ -6,11 +6,11 @@ import static org.junit.Assert.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventQueueConsumerFactory;
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
-import uk.gov.justice.services.event.sourcing.subscription.startup.util.DummyTransactionalEventProcessor;
-import uk.gov.justice.services.event.sourcing.subscription.startup.util.TestCatchupBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventQueueConsumerFactory;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 

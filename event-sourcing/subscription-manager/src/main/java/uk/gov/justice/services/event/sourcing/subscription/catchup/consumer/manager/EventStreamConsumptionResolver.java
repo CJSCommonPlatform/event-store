@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.listener;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 /**
  * Interface for listening to Event Stream Consumers.

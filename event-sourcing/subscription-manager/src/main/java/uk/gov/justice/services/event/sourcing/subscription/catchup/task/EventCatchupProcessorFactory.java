@@ -4,7 +4,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.core.lifecycle.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 
 import javax.enterprise.event.Event;

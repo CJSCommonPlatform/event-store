@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.task;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
 import static java.util.UUID.fromString;
 import static javax.json.Json.createObjectBuilder;
@@ -11,8 +11,8 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
-import uk.gov.justice.services.event.sourcing.subscription.startup.listener.EventStreamConsumptionResolver;
-import uk.gov.justice.services.event.sourcing.subscription.startup.listener.FinishedProcessingMessage;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.FinishedProcessingMessage;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;

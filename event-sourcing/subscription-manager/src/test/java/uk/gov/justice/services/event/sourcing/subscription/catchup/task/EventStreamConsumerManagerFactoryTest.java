@@ -4,10 +4,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventQueueConsumerFactory;
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamConsumerManager;
-import uk.gov.justice.services.event.sourcing.subscription.startup.manager.EventStreamsInProgressList;
-import uk.gov.justice.services.event.sourcing.subscription.startup.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventQueueConsumerFactory;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

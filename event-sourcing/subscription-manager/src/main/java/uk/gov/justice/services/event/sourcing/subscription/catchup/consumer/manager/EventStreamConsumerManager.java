@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.manager;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import uk.gov.justice.services.messaging.JsonEnvelope;
 

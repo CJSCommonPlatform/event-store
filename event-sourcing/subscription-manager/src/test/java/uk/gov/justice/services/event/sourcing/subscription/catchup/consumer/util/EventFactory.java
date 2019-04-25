@@ -1,4 +1,4 @@
-package uk.gov.justice.services.event.sourcing.subscription.startup.util;
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util;
 
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;

@@ -57,7 +57,7 @@ public class EventBufferProcessorTest {
 
         assertThat(streamWasClosedIndicator.streamWasClosed(), is(false));
 
-        when(eventBufferService.currentOrderedEventsWith(incomingJsonEnvelope)).thenReturn(envelopeStream);
+        when(eventBufferService.currentOrderedEventsWith(incomingJsonEnvelope, interceptorContext_1.getComponentName())).thenReturn(envelopeStream);
         when(interceptorContextProvider.getInterceptorContext(incomingJsonEnvelope)).thenReturn(interceptorContext_1);
         when(interceptorContextProvider.getInterceptorContext(otherEvent_1)).thenReturn(interceptorContext_2);
         when(interceptorContextProvider.getInterceptorContext(otherEvent_2)).thenReturn(interceptorContext_3);

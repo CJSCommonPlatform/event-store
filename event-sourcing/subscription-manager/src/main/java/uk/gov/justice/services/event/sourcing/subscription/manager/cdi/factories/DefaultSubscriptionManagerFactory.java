@@ -29,7 +29,8 @@ public class DefaultSubscriptionManagerFactory {
         final EventBufferProcessor eventBufferProcessor = new EventBufferProcessor(
                 interceptorChainProcessor,
                 eventBufferService,
-                interceptorContextProvider);
+                interceptorContextProvider,
+                componentName);
 
         return new DefaultSubscriptionManager(eventBufferProcessor);
     }

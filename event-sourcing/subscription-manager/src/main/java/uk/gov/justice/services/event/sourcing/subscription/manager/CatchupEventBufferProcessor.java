@@ -27,12 +27,12 @@ public class CatchupEventBufferProcessor {
     private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
 
     public void processWithEventBuffer(final JsonEnvelope incomingJsonEnvelope, final String subscriptionName) {
-        try (final Stream<JsonEnvelope> jsonEnvelopeStream = eventBufferService.currentOrderedEventsWith(incomingJsonEnvelope)) {
+        final String componentName = subscriptionsDescriptorsRegistry.findComponentNameBy(subscriptionName);
+
+        final InterceptorChainProcessor interceptorChainProcessor = interceptorChainProcessorProducer.produceLocalProcessor(componentName);
+
+        try (final Stream<JsonEnvelope> jsonEnvelopeStream = eventBufferService.currentOrderedEventsWith(incomingJsonEnvelope, componentName)) {
             jsonEnvelopeStream.forEach(incomingJsonEnvelope1 -> {
-
-                final String componentName = subscriptionsDescriptorsRegistry.findComponentNameBy(subscriptionName);
-
-                final InterceptorChainProcessor interceptorChainProcessor = interceptorChainProcessorProducer.produceLocalProcessor(componentName);
 
                 final InterceptorContext interceptorContext = interceptorContextProvider.getInterceptorContext(incomingJsonEnvelope1);
                 interceptorChainProcessor.process(interceptorContext);

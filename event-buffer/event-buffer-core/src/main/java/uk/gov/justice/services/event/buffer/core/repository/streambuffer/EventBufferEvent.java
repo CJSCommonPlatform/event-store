@@ -2,10 +2,8 @@ package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 
 import static java.lang.Math.toIntExact;
 
+import java.util.Objects;
 import java.util.UUID;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 
 public class EventBufferEvent implements Comparable<EventBufferEvent> {
@@ -13,14 +11,17 @@ public class EventBufferEvent implements Comparable<EventBufferEvent> {
     private final long position;
     private final String event;
     private final String source;
+    private final String component;
 
     public EventBufferEvent(final UUID streamId, final long position, final String event,
-                            final String source) {
+                            final String source, final String component) {
         this.streamId = streamId;
         this.position = position;
         this.event = event;
         this.source = source;
+        this.component = component;
     }
+
 
     public UUID getStreamId() {
         return streamId;
@@ -38,6 +39,28 @@ public class EventBufferEvent implements Comparable<EventBufferEvent> {
         return source;
     }
 
+
+    public String getComponent() {
+        return component;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final EventBufferEvent that = (EventBufferEvent) o;
+        return position == that.position &&
+                Objects.equals(streamId, that.streamId) &&
+                Objects.equals(event, that.event) &&
+                Objects.equals(source, that.source) &&
+                Objects.equals(component, that.component);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(streamId, position, event, source, component);
+    }
+
     @Override
     public String toString() {
         return "EventBufferEvent{" +
@@ -45,37 +68,8 @@ public class EventBufferEvent implements Comparable<EventBufferEvent> {
                 ", position=" + position +
                 ", event='" + event + '\'' +
                 ", source='" + source + '\'' +
+                ", component='" + component + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final EventBufferEvent that = (EventBufferEvent) o;
-
-        return new EqualsBuilder()
-                .append(getPosition(), that.getPosition())
-                .append(getStreamId(), that.getStreamId())
-                .append(getEvent(), that.getEvent())
-                .append(getSource(), that.getSource())
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getStreamId())
-                .append(getPosition())
-                .append(getEvent())
-                .append(getSource())
-                .toHashCode();
     }
 
     @Override

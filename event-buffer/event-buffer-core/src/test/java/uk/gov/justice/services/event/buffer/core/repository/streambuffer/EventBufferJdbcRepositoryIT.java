@@ -23,6 +23,7 @@ import org.junit.Test;
 
 public class EventBufferJdbcRepositoryIT {
 
+    public static final String EVENT_LISTENER = "event_listener";
     private EventBufferJdbcRepository eventBufferJdbcRepository;
 
     @Before
@@ -42,10 +43,10 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id2 = randomUUID();
         final String source = "source";
 
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, EVENT_LISTENER));
 
         final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
                 .collect(toList());
@@ -74,10 +75,10 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id2 = randomUUID();
         final String source = "source";
 
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source"));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source", EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, EVENT_LISTENER));
 
         final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
                 .collect(toList());
@@ -99,7 +100,7 @@ public class EventBufferJdbcRepositoryIT {
     public void shouldRemoveFromBuffer() {
         final UUID id1 = randomUUID();
         final String source = "someOtherSource";
-        final EventBufferEvent eventBufferEvent = new EventBufferEvent(id1, 2L, "someOtherEvent", source);
+        final EventBufferEvent eventBufferEvent = new EventBufferEvent(id1, 2L, "someOtherEvent", source, EVENT_LISTENER);
 
         eventBufferJdbcRepository.insert(eventBufferEvent);
 

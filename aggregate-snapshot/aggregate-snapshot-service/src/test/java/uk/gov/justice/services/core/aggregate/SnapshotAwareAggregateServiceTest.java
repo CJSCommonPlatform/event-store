@@ -182,8 +182,8 @@ public class SnapshotAwareAggregateServiceTest {
         assertThat(aggregate.recordedEvents(), hasSize(2));
         assertThat(aggregate.recordedEvents().get(0), equalTo(eventA));
         assertThat(aggregate.recordedEvents().get(1), equalTo(eventB));
-        verify(logger).info("Registering event {}, {} with DefaultAggregateService", "eventA" , EventA.class);
-        verify(logger).info("Registering event {}, {} with DefaultAggregateService", "eventB" , EventB.class);
+        verify(logger).info("Registering event {}, {} with DefaultAggregateService", "eventA", EventA.class);
+        verify(logger).info("Registering event {}, {} with DefaultAggregateService", "eventB", EventB.class);
         verify(logger).trace("Recreating aggregate for instance {} of aggregate type {}", STREAM_ID, TestAggregate.class);
     }
 
@@ -224,7 +224,6 @@ public class SnapshotAwareAggregateServiceTest {
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
 
         final UUID streamId = UUID.randomUUID();
-        final long currentStreamVersion = 5L;
         final TestAggregate aggregate = new TestAggregate();
         final long snapshotVersion = 2L;
 
@@ -241,7 +240,6 @@ public class SnapshotAwareAggregateServiceTest {
         final EventC eventC = new EventC("C1");
 
         when(eventStream.getId()).thenReturn(streamId);
-        when(eventStream.getCurrentVersion()).thenReturn(currentStreamVersion);
         when(snapshotService.getLatestVersionedAggregate(streamId, TestAggregate.class)).thenReturn(
                 Optional.of(new VersionedAggregate<>(snapshotVersion, aggregate)));
         when(eventStream.readFrom(snapshotVersion + 1)).thenReturn(of(jsonEventA, jsonEventB, jsonEventC));
@@ -262,7 +260,6 @@ public class SnapshotAwareAggregateServiceTest {
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
 
         final UUID streamId = UUID.randomUUID();
-        final long currentStreamVersion = 3L;
 
         final JsonEnvelope jsonEventA = envelope().with(metadataWithRandomUUID("eventA")).withPayloadOf("value1", "name1").build();
         final JsonEnvelope jsonEventB = envelope().with(metadataWithRandomUUID("eventB")).withPayloadOf("value2", "name1").build();
@@ -277,7 +274,6 @@ public class SnapshotAwareAggregateServiceTest {
         final EventC eventC = new EventC("C1");
 
         when(eventStream.getId()).thenReturn(streamId);
-        when(eventStream.getCurrentVersion()).thenReturn(currentStreamVersion);
 
         doThrow(new AggregateChangeDetectedException("Aggregate Change Detected")).when(snapshotService).getLatestVersionedAggregate(streamId, TestAggregate.class);
 

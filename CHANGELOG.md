@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M17] - 2019-04-25
+### Changed
+- Removed deprecated code
 
 ## [2.0.0-M16] - 2019-04-24
 ### Changed

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="event-store-20" author="TechPod"
+               logicalFilePath="020-add-indexes-to-publish-queue-tables.xml">
+
+
+        <createIndex indexName="idx_pre_publish_queue_event_log_id"
+                     tableName="pre_publish_queue"
+                     unique="true">
+            <column name="event_log_id" type="uuid"/>
+        </createIndex>
+        <createIndex indexName="idx_publish_queue_event_log_id"
+                     tableName="publish_queue"
+                     unique="true">
+            <column name="event_log_id" type="uuid"/>
+        </createIndex>
+        <createIndex indexName="idx_published_event_event_number"
+                     tableName="published_event"
+                     unique="true">
+            <column name="event_number" type="BIGINT"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="idx_pre_publish_queue_event_log_id"
+                       tableName="pre_publish_queue"/>
+            <dropIndex indexName="idx_publish_queue_event_log_id"
+                       tableName="publish_queue"/>
+            <dropIndex indexName="idx_published_event_event_number"
+                       tableName="published_event"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

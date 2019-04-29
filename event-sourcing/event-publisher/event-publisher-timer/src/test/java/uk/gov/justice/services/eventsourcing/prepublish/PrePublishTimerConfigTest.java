@@ -2,6 +2,9 @@ package uk.gov.justice.services.eventsourcing.prepublish;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
+
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +22,7 @@ public class PrePublishTimerConfigTest {
 
         final long milliseconds = 982374L;
 
-        prePublishTimerConfig.timerStartWaitMilliseconds = "" + milliseconds;
+        setField(prePublishTimerConfig, "timerStartWaitMilliseconds", "" + milliseconds);
 
         assertThat(prePublishTimerConfig.getTimerStartWaitMilliseconds(), is(milliseconds));
     }
@@ -29,8 +32,18 @@ public class PrePublishTimerConfigTest {
 
         final long milliseconds = 2998734L;
 
-        prePublishTimerConfig.timerIntervalMilliseconds = "" + milliseconds;
+        setField(prePublishTimerConfig, "timerIntervalMilliseconds", "" + milliseconds);
 
         assertThat(prePublishTimerConfig.getTimerIntervalMilliseconds(), is(milliseconds));
+    }
+
+    @Test
+    public void shouldGetTheMaxNumberOfEventsPublishedPerIteration() throws Exception {
+
+        final int maxEventsPublishedPerIteration = 23;
+
+        setField(prePublishTimerConfig, "maxEventsPublishedPerIteration", "" + maxEventsPublishedPerIteration);
+
+        assertThat(prePublishTimerConfig.getMaxEventsPublishedPerIteration(), is(maxEventsPublishedPerIteration));
     }
 }

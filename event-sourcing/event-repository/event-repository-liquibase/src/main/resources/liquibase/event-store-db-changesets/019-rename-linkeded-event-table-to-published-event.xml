@@ -5,7 +5,7 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
 
     <changeSet id="event-store-019" author="TechPod"
-               logicalFilePath="019-rename-linkeded-event-table-to-published-event">
+               logicalFilePath="019-rename-linkeded-event-table-to-published-event.xml">
 
         <renameTable newTableName="published_event"
                      oldTableName="linked_event"/>

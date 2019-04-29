@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Removed the join to stream_status when inserting an event to event_log
+- PrePublishBean now limits the maximum number of events published per run of the timer bean.
+
+
 ## [2.0.0-M17] - 2019-04-25
 ### Changed
 - Removed deprecated code

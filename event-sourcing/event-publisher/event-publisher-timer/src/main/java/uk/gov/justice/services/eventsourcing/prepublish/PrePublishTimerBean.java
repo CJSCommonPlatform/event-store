@@ -45,8 +45,18 @@ public class PrePublishTimerBean {
 
     @Timeout
     public void performPrePublish() {
+
+        final int maxEventsPublishedPerIteration = prePublishTimerConfig.getMaxEventsPublishedPerIteration();
+
+        int numberOfEventsPublished = 1;
         while (prePublishProcessor.prePublishNextEvent()) {
+
             timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
+            numberOfEventsPublished++;
+
+            if (numberOfEventsPublished > maxEventsPublishedPerIteration) {
+                break;
+            }
         }
     }
 }

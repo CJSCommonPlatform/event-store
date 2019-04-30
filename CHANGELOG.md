@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M19] - 2019-04-30
+### Fixed
+- Fixed liquibase scripts that fail if the table linked_event already exists 
+
 ## [2.0.0-M18] - 2019-04-29
 ### Changed
 - Removed the join to stream_status when inserting an event to event_log

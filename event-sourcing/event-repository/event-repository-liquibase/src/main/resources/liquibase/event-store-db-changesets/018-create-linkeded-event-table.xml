@@ -7,6 +7,12 @@
     <changeSet id="event-store-018" author="TechPod"
                logicalFilePath="018-create-linkeded-event-table.xml">
 
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="linked_event" schemaName="public"/>
+            </not>
+        </preConditions>
+
         <createTable tableName="linked_event">
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>

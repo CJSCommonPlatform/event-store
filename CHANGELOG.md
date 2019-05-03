@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added event-publisher-timer to event-store-bom dependency management
 
 ## [2.0.0-M19] - 2019-04-30
 ### Fixed

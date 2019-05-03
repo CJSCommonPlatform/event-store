@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet
+            id="event-buffer-005"
+            author="TechPod"
+            logicalFilePath="005-rename-version-to-position-in-stream-status.changelog.xml">
+
+        <renameColumn
+                oldColumnName="version"
+                newColumnName="position"
+                tableName="stream_status"
+        />
+
+        <rollback>
+            <renameColumn
+                    oldColumnName="position"
+                    newColumnName="version"
+                    tableName="stream_status"
+            />
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

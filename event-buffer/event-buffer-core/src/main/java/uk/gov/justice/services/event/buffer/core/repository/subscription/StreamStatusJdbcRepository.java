@@ -24,16 +24,16 @@ public class StreamStatusJdbcRepository {
      * Column Names
      */
     private static final String PRIMARY_KEY_ID = "stream_id";
-    private static final String LATEST_POSITION_COLUMN = "version";
+    private static final String LATEST_POSITION_COLUMN = "position";
     private static final String SOURCE = "source";
 
     /**
      * Statements
      */
-    private static final String SELECT_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, version, source FROM stream_status WHERE stream_id=? AND source in (?,'unknown') FOR UPDATE";
-    private static final String INSERT = "INSERT INTO stream_status (version, stream_id, source) VALUES (?, ?, ?)";
+    private static final String SELECT_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, position, source FROM stream_status WHERE stream_id=? AND source in (?,'unknown') FOR UPDATE";
+    private static final String INSERT = "INSERT INTO stream_status (position, stream_id, source) VALUES (?, ?, ?)";
     private static final String INSERT_ON_CONFLICT_DO_NOTHING = INSERT + " ON CONFLICT DO NOTHING";
-    private static final String UPDATE = "UPDATE stream_status SET version=?,source=? WHERE stream_id=? and source in (?,'unknown')";
+    private static final String UPDATE = "UPDATE stream_status SET position=?,source=? WHERE stream_id=? and source in (?,'unknown')";
     private static final String UPDATE_UNKNOWN_SOURCE = "UPDATE stream_status SET source=? WHERE stream_id=? and source = 'unknown'";
 
     @Inject

@@ -53,5 +53,6 @@ public class DefaultSubscriptionManagerFactoryTest {
         assertThat(getValueOfField(eventBufferProcessor, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
         assertThat(getValueOfField(eventBufferProcessor, "eventBufferService", EventBufferService.class), is(eventBufferService));
         assertThat(getValueOfField(eventBufferProcessor, "interceptorContextProvider", InterceptorContextProvider.class), is(interceptorContextProvider));
+        assertThat(getValueOfField(eventBufferProcessor, "component", String.class), is(componentName));
     }
 }

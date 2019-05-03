@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet
+            id="event-buffer-004"
+            author="TechPod"
+            logicalFilePath="004-add-component-to-stream-buffer.changelog.xml">
+
+        <dropPrimaryKey
+                constraintName="stream_buffer_pkey"
+                tableName="stream_buffer"
+        />
+        <renameColumn
+                oldColumnName="version"
+                newColumnName="position"
+                tableName="stream_buffer"
+        />
+
+        <addColumn
+                tableName="stream_buffer">
+            <column
+                    name="component"
+                    type="varchar(100)"
+                    defaultValue="EVENT_LISTENER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addPrimaryKey
+                tableName="stream_buffer"
+                constraintName="stream_buffer_pkey"
+                columnNames="stream_id,source,position,component"/>
+
+        <rollback>
+            <dropPrimaryKey
+                    constraintName="stream_buffer_pkey"
+                    tableName="stream_buffer"
+            />
+
+            <renameColumn
+                    oldColumnName="position"
+                    newColumnName="version"
+                    tableName="stream_buffer"
+            />
+
+            <dropColumn tableName="stream_buffer">
+                <column
+                        name="component"
+                        type="varchar(100)"/>
+            </dropColumn>
+            <addPrimaryKey
+                    tableName="stream_buffer"
+                    constraintName="stream_buffer_pkey"
+                    columnNames="stream_id,source,version"/>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

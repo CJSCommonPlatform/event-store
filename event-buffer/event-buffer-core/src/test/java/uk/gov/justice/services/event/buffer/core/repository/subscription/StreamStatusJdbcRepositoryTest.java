@@ -55,14 +55,14 @@ public class StreamStatusJdbcRepositoryTest {
 
         final String source = "a source";
 
-        when(connection.prepareStatement("INSERT INTO stream_status (version, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
+        when(connection.prepareStatement("INSERT INTO stream_status (position, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
                 .thenReturn(preparedStatement);
 
         final UUID streamId = randomUUID();
-        final long version = 1l;
-        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, version, source));
+        final long position = 1l;
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, position, source));
 
-        verify(preparedStatement).setLong(1, version);
+        verify(preparedStatement).setLong(1, position);
         verify(preparedStatement).setObject(2, streamId);
         verify(preparedStatement).executeUpdate();
     }

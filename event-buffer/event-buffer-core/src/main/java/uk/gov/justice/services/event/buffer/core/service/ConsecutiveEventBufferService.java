@@ -53,7 +53,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
      * @return stream of consecutive events
      */
     @Override
-    public Stream<JsonEnvelope> currentOrderedEventsWith(final JsonEnvelope incomingEvent) {
+    public Stream<JsonEnvelope> currentOrderedEventsWith(final JsonEnvelope incomingEvent, final String component) {
 
         logger.trace("Message buffering for message: {}", incomingEvent);
 
@@ -73,7 +73,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
         } else if (incomingEventNotInOrder(incomingEventVersion, currentVersion)) {
             logger.trace("Message : {} is not consecutive, adding to buffer", incomingEvent);
-            addToBuffer(incomingEvent, streamId, incomingEventVersion);
+            addToBuffer(incomingEvent, streamId, incomingEventVersion, component);
             return Stream.empty();
 
         } else {
@@ -104,12 +104,13 @@ public class ConsecutiveEventBufferService implements EventBufferService {
                 .map(streamBufferEvent -> jsonObjectEnvelopeConverter.asEnvelope(streamBufferEvent.getEvent())));
     }
 
-    private void addToBuffer(final JsonEnvelope incomingEvent, final UUID streamId, final Long incomingEventVersion) {
+    private void addToBuffer(final JsonEnvelope incomingEvent, final UUID streamId, final Long incomingEventVersion, final String component) {
         streamBufferRepository.insert(
                 new EventBufferEvent(streamId,
                         incomingEventVersion,
                         jsonObjectEnvelopeConverter.asJsonString(incomingEvent),
-                        getSource(incomingEvent)));
+                        getSource(incomingEvent),
+                        component));
 
     }
 

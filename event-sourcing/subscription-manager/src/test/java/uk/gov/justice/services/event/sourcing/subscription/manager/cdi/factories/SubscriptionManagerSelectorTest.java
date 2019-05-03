@@ -54,6 +54,25 @@ public class SubscriptionManagerSelectorTest {
     }
 
     @Test
+    public void shouldCreateDefaultSubscriptionManagerIfTheComponentIsAnEventIndexer() throws Exception {
+
+        final String subscriptionName = "subscriptionName";
+        final String componentName = "MY_EVENT_INDEXER";
+
+        final Subscription subscription = mock(Subscription.class);
+
+        final DefaultSubscriptionManager defaultSubscriptionManager = mock(DefaultSubscriptionManager.class);
+
+        when(subscription.getName()).thenReturn(subscriptionName);
+        when(subscriptionDescriptorRegistry.findComponentNameBy(subscriptionName)).thenReturn(componentName);
+        when(defaultSubscriptionManagerFactory.create(componentName)).thenReturn(defaultSubscriptionManager);
+
+        assertThat(subscriptionManagerSelector.selectFor(subscription), is(defaultSubscriptionManager));
+
+        verifyZeroInteractions(backwardsCompatibleSubscriptionManagerFactory);
+    }
+
+    @Test
     public void shouldCreateBackwardsCompatibleSubscriptionManagerIfTheComponentIsNotAnEventListener() throws Exception {
 
         final String subscriptionName = "subscriptionName";

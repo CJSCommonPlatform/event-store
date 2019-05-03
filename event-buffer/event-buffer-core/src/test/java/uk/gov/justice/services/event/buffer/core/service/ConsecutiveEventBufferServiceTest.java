@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 @RunWith(MockitoJUnitRunner.class)
 public class ConsecutiveEventBufferServiceTest {
 
+    public static final String EVENT_LISTENER = "event_listener";
     @Mock
     @SuppressWarnings("unused")
     private Logger logger;
@@ -57,12 +58,13 @@ public class ConsecutiveEventBufferServiceTest {
     @Test(expected = IllegalStateException.class)
     public void shouldThrowExceptionIfNoStreamId() {
 
+
         final JsonEnvelope event = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName("my-event").withPosition(1L),
                 createObjectBuilder()
         );
 
-        bufferService.currentOrderedEventsWith(event);
+        bufferService.currentOrderedEventsWith(event, EVENT_LISTENER);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -73,7 +75,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        bufferService.currentOrderedEventsWith(event);
+        bufferService.currentOrderedEventsWith(event, EVENT_LISTENER);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -83,7 +85,7 @@ public class ConsecutiveEventBufferServiceTest {
                 metadataBuilder().withId(randomUUID()).withName("my-event"),
                 createObjectBuilder()
         );
-        bufferService.currentOrderedEventsWith(event);
+        bufferService.currentOrderedEventsWith(event, EVENT_LISTENER);
     }
 
     @Test
@@ -103,14 +105,14 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        assertThat(bufferService.currentOrderedEventsWith(event_3), is(empty()));
+        assertThat(bufferService.currentOrderedEventsWith(event_3, EVENT_LISTENER), is(empty()));
 
         final JsonEnvelope event_4 = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(4L),
                 createObjectBuilder()
         );
 
-        assertThat(bufferService.currentOrderedEventsWith(event_4), is(empty()));
+        assertThat(bufferService.currentOrderedEventsWith(event_4, EVENT_LISTENER), is(empty()));
 
         verifyZeroInteractions(streamBufferRepository);
 
@@ -140,7 +142,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
+        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
         assertThat(returnedEvents, contains(incomingEvent));
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository);
@@ -167,7 +169,7 @@ public class ConsecutiveEventBufferServiceTest {
         when(subscription.getPosition()).thenReturn(4L);
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(Stream.empty());
 
-        bufferService.currentOrderedEventsWith(incomingEvent);
+        bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository);
 
@@ -197,14 +199,14 @@ public class ConsecutiveEventBufferServiceTest {
 
         when(jsonObjectEnvelopeConverter.asJsonString(incomingEvent)).thenReturn("someStringRepresentation");
 
-        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
+        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository, streamBufferRepository);
 
         inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source);
         inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, 0L, source));
         inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source);
-        inOrder.verify(streamBufferRepository).insert(new EventBufferEvent(streamId, 6L, "someStringRepresentation", source));
+        inOrder.verify(streamBufferRepository).insert(new EventBufferEvent(streamId, 6L, "someStringRepresentation", source, EVENT_LISTENER));
 
         assertThat(returnedEvents, empty());
     }
@@ -222,13 +224,13 @@ public class ConsecutiveEventBufferServiceTest {
         when(subscription.getPosition()).thenReturn(2L);
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(
-                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", "source_4"),
-                        new EventBufferEvent(streamId, 5L, "someEventContent5", "source_5"),
-                        new EventBufferEvent(streamId, 6L, "someEventContent6", "source_6"),
-                        new EventBufferEvent(streamId, 8L, "someEventContent8", "source_8"),
-                        new EventBufferEvent(streamId, 9L, "someEventContent9", "source_9"),
-                        new EventBufferEvent(streamId, 10L, "someEventContent10", "source_10"),
-                        new EventBufferEvent(streamId, 11L, "someEventContent11", "source_11")));
+                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", "source_4", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 5L, "someEventContent5", "source_5", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 6L, "someEventContent6", "source_6", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 8L, "someEventContent8", "source_8", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 9L, "someEventContent9", "source_9", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 10L, "someEventContent10", "source_10", EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 11L, "someEventContent11", "source_11", EVENT_LISTENER)));
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
         final JsonEnvelope bufferedEvent5 = mock(JsonEnvelope.class);
@@ -243,7 +245,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
+        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
         assertThat(returnedEvents, contains(incomingEvent, bufferedEvent4, bufferedEvent5, bufferedEvent6));
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository);
@@ -269,8 +271,8 @@ public class ConsecutiveEventBufferServiceTest {
         final StreamCloseSpy sourceStreamSpy = new StreamCloseSpy();
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(
-                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", source),
-                        new EventBufferEvent(streamId, 8L, "someEventContent8", source)).onClose(sourceStreamSpy)
+                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", source, EVENT_LISTENER),
+                        new EventBufferEvent(streamId, 8L, "someEventContent8", source, EVENT_LISTENER)).onClose(sourceStreamSpy)
         );
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
@@ -281,7 +283,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
+        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
         returnedEvents.close();
 
         assertThat(sourceStreamSpy.streamClosed(), is(true));
@@ -306,9 +308,9 @@ public class ConsecutiveEventBufferServiceTest {
         when(subscription.getPosition()).thenReturn(2L);
 
 
-        final EventBufferEvent event4 = new EventBufferEvent(streamId, 4L, "someEventContent4", "source_1");
-        final EventBufferEvent event5 = new EventBufferEvent(streamId, 5L, "someEventContent5", "source_2");
-        final EventBufferEvent event6 = new EventBufferEvent(streamId, 6L, "someEventContent6", "source_3");
+        final EventBufferEvent event4 = new EventBufferEvent(streamId, 4L, "someEventContent4", "source_1", EVENT_LISTENER);
+        final EventBufferEvent event5 = new EventBufferEvent(streamId, 5L, "someEventContent5", "source_2", EVENT_LISTENER);
+        final EventBufferEvent event6 = new EventBufferEvent(streamId, 6L, "someEventContent6", "source_3", EVENT_LISTENER);
 
         when(streamBufferRepository.findStreamByIdAndSource(streamId, source)).thenReturn(
                 Stream.of(event4, event5, event6));
@@ -326,7 +328,7 @@ public class ConsecutiveEventBufferServiceTest {
                 createObjectBuilder()
         );
 
-        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent);
+        final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, EVENT_LISTENER);
 
         assertThat(returnedEvents, contains(incomingEvent, bufferedEvent4, bufferedEvent5, bufferedEvent6));
 

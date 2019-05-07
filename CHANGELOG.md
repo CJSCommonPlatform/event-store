@@ -4,7 +4,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [2.0.0-M20] - 2019-05-07
+## [2.0.0-M21] - 2019-05-07
 ### Changed
 - Update utilities to 1.18.0
 - Update test-utils to 1.23.0

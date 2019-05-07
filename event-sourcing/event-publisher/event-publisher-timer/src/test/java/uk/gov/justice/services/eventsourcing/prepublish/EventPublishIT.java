@@ -48,6 +48,8 @@ import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
+import uk.gov.justice.services.yaml.YamlParser;
+import uk.gov.justice.services.yaml.YamlSchemaLoader;
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
@@ -55,8 +57,6 @@ import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
-import uk.gov.justice.subscription.yaml.parser.YamlParser;
-import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
 
 import java.util.List;
 import java.util.Optional;

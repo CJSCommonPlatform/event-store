@@ -4,6 +4,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M20] - 2019-05-07
+### Changed
+- Update utilities to 1.18.0
+- Update test-utils to 1.23.0
+- Update framework to 6.0.0-M22
+- Update common-bom to 2.0.2
+- Update framework-api to 4.0.0-M18
+- Event-Buffer functionality with changes to StreamBuffer & StreamStatus tables to support EventIndexer
+
 ### Added
 - Added event-publisher-timer to event-store-bom dependency management
 

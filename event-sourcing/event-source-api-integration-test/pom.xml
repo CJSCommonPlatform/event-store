@@ -12,6 +12,10 @@
     <artifactId>event-source-api-integration-test</artifactId>
     <dependencies>
         <dependency>
+            <groupId>uk.gov.justice.utils</groupId>
+            <artifactId>utilities-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-source-api</artifactId>
             <version>${project.version}</version>

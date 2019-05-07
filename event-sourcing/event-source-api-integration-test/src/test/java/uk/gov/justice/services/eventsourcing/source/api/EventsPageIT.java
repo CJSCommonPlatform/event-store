@@ -79,13 +79,14 @@ import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
+import uk.gov.justice.services.yaml.YamlParser;
+import uk.gov.justice.services.yaml.YamlSchemaLoader;
 import uk.gov.justice.subscription.ParserProducer;
 import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
-import uk.gov.justice.subscription.yaml.parser.YamlParser;
-import uk.gov.justice.subscription.yaml.parser.YamlSchemaLoader;
+
 
 import java.io.IOException;
 import java.util.Properties;

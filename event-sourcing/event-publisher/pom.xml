@@ -14,7 +14,6 @@
 
     <modules>
         <module>event-publisher-jms</module>
-        <module>event-publisher-process</module>
         <module>published-event-processor</module>
         <module>event-publisher-timer</module>
     </modules>

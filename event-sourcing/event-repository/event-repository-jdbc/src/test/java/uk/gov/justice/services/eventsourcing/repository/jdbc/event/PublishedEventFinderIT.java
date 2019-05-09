@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventBuilder.publishedEventBuilder;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
@@ -11,6 +12,7 @@ import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -22,7 +24,6 @@ import org.junit.Test;
 
 public class PublishedEventFinderIT {
 
-    private PublishedEventInserter publishedEventInserter = new PublishedEventInserter();
     private DataSource dataSource;
 
     private PublishedEventFinder publishedEventFinder;
@@ -56,11 +57,11 @@ public class PublishedEventFinderIT {
 
         final Connection connection = dataSource.getConnection();
 
-        publishedEventInserter.insertPublishedEvent(event_1, connection);
-        publishedEventInserter.insertPublishedEvent(event_2, connection);
-        publishedEventInserter.insertPublishedEvent(event_3, connection);
-        publishedEventInserter.insertPublishedEvent(event_4, connection);
-        publishedEventInserter.insertPublishedEvent(event_5, connection);
+        insertPublishedEvent(event_1, connection);
+        insertPublishedEvent(event_2, connection);
+        insertPublishedEvent(event_3, connection);
+        insertPublishedEvent(event_4, connection);
+        insertPublishedEvent(event_5, connection);
 
 
         final List<PublishedEvent> publishedEvents = publishedEventFinder.findEventsSince(3)
@@ -70,5 +71,26 @@ public class PublishedEventFinderIT {
 
         assertThat(publishedEvents.get(0).getId(), is(event_4.getId()));
         assertThat(publishedEvents.get(1).getId(), is(event_5.getId()));
+    }
+
+    public void insertPublishedEvent(final PublishedEvent publishedEvent, final Connection connection) throws SQLException {
+
+        final String sql = "INSERT into published_event (" +
+                "id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number) " +
+                "VALUES " +
+                "(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setObject(1, publishedEvent.getId());
+            preparedStatement.setObject(2, publishedEvent.getStreamId());
+            preparedStatement.setLong(3, publishedEvent.getSequenceId());
+            preparedStatement.setString(4, publishedEvent.getName());
+            preparedStatement.setString(5, publishedEvent.getPayload());
+            preparedStatement.setString(6, publishedEvent.getMetadata());
+            preparedStatement.setObject(7, toSqlTimestamp(publishedEvent.getCreatedAt()));
+            preparedStatement.setLong(8, publishedEvent.getEventNumber().orElseThrow(() -> new MissingEventNumberException("Event with id '%s' does not have an event number")));
+            preparedStatement.setLong(9, publishedEvent.getPreviousEventNumber());
+
+            preparedStatement.execute();
+        }
     }
 }

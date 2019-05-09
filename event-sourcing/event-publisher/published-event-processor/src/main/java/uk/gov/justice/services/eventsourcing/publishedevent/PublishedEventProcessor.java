@@ -2,8 +2,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent;
 
 import static java.lang.String.format;
 
-import uk.gov.justice.services.eventsourcing.prepublish.MetadataEventNumberUpdater;
-import uk.gov.justice.services.eventsourcing.prepublish.PublishedEventFactory;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;

@@ -2,9 +2,8 @@ package uk.gov.justice.services.eventsourcing.publishedevent;
 
 import static java.lang.String.format;
 
-import uk.gov.justice.services.eventsourcing.prepublish.PrePublishRepository;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PrePublishRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;

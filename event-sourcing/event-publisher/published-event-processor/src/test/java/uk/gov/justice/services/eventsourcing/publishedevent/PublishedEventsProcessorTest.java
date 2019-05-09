@@ -5,13 +5,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventInserter;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
@@ -83,7 +83,7 @@ public class PublishedEventsProcessorTest {
         final Connection connection = mock(Connection.class);
 
         when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
-        when(publishedEventInserter.truncate(connection)).thenThrow(sqlException);
+        doThrow(sqlException).when(publishedEventInserter).truncate(connection);
 
         try {
             publishedEventsProcessor.truncatePublishedEvents();

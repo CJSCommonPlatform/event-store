@@ -44,6 +44,7 @@ public class PrePublishTimerBeanTest {
 
         when(prePublishTimerConfig.getTimerStartWaitMilliseconds()).thenReturn(timerStartValue);
         when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
+        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(1000);
 
         prePublishTimerBean.startTimerService();
 
@@ -59,10 +60,24 @@ public class PrePublishTimerBeanTest {
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
         when(prePublishProcessor.prePublishNextEvent()).thenReturn(true, true, false);
+        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(1000);
 
         prePublishTimerBean.performPrePublish();
 
         verify(prePublishProcessor, times(3)).prePublishNextEvent();
         verify(timerServiceManager, times(2)).cancelOverlappingTimers("event-store.pre-publish-events.job", 10, timerService);
+    }
+
+
+    @Test
+    public void shouldRunPublishUntilMaxNumberOfEventsIsReached() throws Exception {
+
+        when(prePublishProcessor.prePublishNextEvent()).thenReturn(true);
+        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(3);
+
+        prePublishTimerBean.performPrePublish();
+
+        verify(prePublishProcessor, times(3)).prePublishNextEvent();
+        verify(timerServiceManager, times(3)).cancelOverlappingTimers("event-store.pre-publish-events.job", 10, timerService);
     }
 }

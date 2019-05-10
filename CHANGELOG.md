@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.9] 2019-05-10
+### Added
+- Retrofit the throttling of event publishing to framework 5
+
 ## [1.1.8] 2019-03-21
 ### Fixed
 - Use correct maven scope for test jars

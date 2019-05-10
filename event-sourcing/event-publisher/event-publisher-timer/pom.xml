@@ -9,7 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.gov.justice.event-store</groupId>
     <artifactId>event-publisher-timer</artifactId>
     <dependencies>
         <dependency>
@@ -23,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-publisher-process</artifactId>
+            <artifactId>published-event-processor</artifactId>
             <version>${project.version}</version>
         </dependency>
 

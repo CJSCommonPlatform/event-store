@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Merged event-publisher modules into one
+
+
 ## [2.0.0-M22] - 2019-05-07
 ### Changed
 - Update utilities to 1.18.0

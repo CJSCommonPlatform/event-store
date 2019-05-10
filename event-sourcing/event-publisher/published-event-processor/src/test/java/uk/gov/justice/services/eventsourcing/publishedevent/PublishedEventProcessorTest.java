@@ -11,8 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventsourcing.prepublish.MetadataEventNumberUpdater;
-import uk.gov.justice.services.eventsourcing.prepublish.PublishedEventFactory;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;

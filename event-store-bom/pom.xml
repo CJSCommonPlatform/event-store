@@ -26,11 +26,6 @@
             </dependency>
             <dependency>
                 <groupId>uk.gov.justice.event-store</groupId>
-                <artifactId>event-publisher-process</artifactId>
-                <version>${event-store.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.gov.justice.event-store</groupId>
                 <artifactId>event-source</artifactId>
                 <version>${event-store.version}</version>
             </dependency>

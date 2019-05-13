@@ -7,6 +7,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### Changed
 - Merged event-publisher modules into one
 
+## [2.0.0-M23] - 2019-05-07
+### Changed
+- framework -> 6.0.0-M23
+- framework-api -> 4.0.0-M19
+
 
 ## [2.0.0-M22] - 2019-05-07
 ### Changed

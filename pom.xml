@@ -41,9 +41,9 @@
 
         <utilities.version>1.18.0</utilities.version>
         <test-utils.version>1.23.0</test-utils.version>
-        <framework.version>6.0.0-M22</framework.version>
+        <framework.version>6.0.0-M23</framework.version>
         <common-bom.version>2.0.2</common-bom.version>
-        <framework-api.version>4.0.0-M18</framework-api.version>
+        <framework-api.version>4.0.0-M19</framework-api.version>
     </properties>
 
     <dependencyManagement>

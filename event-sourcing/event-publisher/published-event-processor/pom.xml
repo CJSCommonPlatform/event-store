@@ -29,12 +29,12 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-publisher-process</artifactId>
+            <artifactId>event-repository-liquibase</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-repository-liquibase</artifactId>
+            <artifactId>event-publisher-jms</artifactId>
             <version>${project.version}</version>
         </dependency>
 

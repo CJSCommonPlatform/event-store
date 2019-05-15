@@ -36,9 +36,6 @@ public class PublisherTimerBeanTest {
     @Mock
     private TimerCanceler timerCanceler;
 
-    @Mock
-    private ShutteringFlagProducerBean shutteringFlagProducerBean;
-
     @InjectMocks
     private PublisherTimerBean publisherTimerBean;
 
@@ -65,22 +62,10 @@ public class PublisherTimerBeanTest {
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
         when(publishedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true, false);
-        when(shutteringFlagProducerBean.isDoShuttering()).thenReturn(false);
 
         publisherTimerBean.doDeQueueAndPublish();
 
         verify(publishedEventDeQueuerAndPublisher, times(3)).deQueueAndPublish();
         verify(timerServiceManager, times(2)).cancelOverlappingTimers("event-store.de-queue-events-and-publish.job", 10, timerService);
-    }
-
-    @Test
-    public void shouldNotPublishIfShutteringIsOn() throws Exception {
-
-        when(shutteringFlagProducerBean.isDoShuttering()).thenReturn(true);
-
-        publisherTimerBean.doDeQueueAndPublish();
-
-        verify(timerServiceManager).cancelOverlappingTimers("event-store.de-queue-events-and-publish.job", 10, timerService);
-        verify(publishedEventDeQueuerAndPublisher, never()).deQueueAndPublish();
     }
 }

@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
-import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.FinishedProcessingMessage;
+import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;

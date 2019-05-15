@@ -68,7 +68,7 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
-import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
+import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
@@ -78,7 +78,6 @@ import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
-
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -94,7 +93,6 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.jms.Destination;
 
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit.ApplicationComposer;
@@ -498,20 +496,6 @@ public class SnapshotAwareAggregateServiceIT {
             throw new JdbcRepositoryException(format("Exception getting count of entries from [%s] for  [%s]", sql, arg), e);
         }
 
-    }
-
-    @ApplicationScoped
-    public static class DummyJmsEnvelopeSender implements JmsEnvelopeSender {
-
-        @Override
-        public void send(final JsonEnvelope envelope, final Destination destination) {
-
-        }
-
-        @Override
-        public void send(final JsonEnvelope envelope, final String destinationName) {
-
-        }
     }
 
     @ApplicationScoped

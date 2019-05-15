@@ -69,10 +69,10 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
-import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
+import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
 import uk.gov.justice.services.yaml.YamlSchemaLoader;
@@ -81,7 +81,6 @@ import uk.gov.justice.subscription.SubscriptionHelper;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
-
 
 import java.io.IOException;
 import java.util.Properties;
@@ -197,7 +196,7 @@ public class EventStreamPageIT {
             DefaultEventDestinationResolver.class,
             DefaultJsonObjectEnvelopeConverter.class,
             ObjectToJsonObjectConverter.class,
-            DefaultJmsEnvelopeSender.class,
+            DummyJmsEnvelopeSender.class,
             TraceLogger.class,
             DefaultTraceLogger.class,
             JsonObjectToObjectConverter.class,

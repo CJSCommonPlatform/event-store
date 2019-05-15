@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.0.0-M25] - 2019-05-15
 ### Changed
 - Merged event-publisher modules into one
 - Moved shuttering from the publishing timer bean into the command api in framework
@@ -13,7 +15,6 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### Changed
 - framework -> 6.0.0-M23
 - framework-api -> 4.0.0-M19
-
 
 ## [2.0.0-M22] - 2019-05-07
 ### Changed

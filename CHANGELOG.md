@@ -6,6 +6,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
 ### Changed
 - Merged event-publisher modules into one
+- Moved shuttering from the publishing timer bean into the command api in framework
+- framework -> 6.0.0-M24
 
 ## [2.0.0-M24] - 2019-05-07
 ### Changed

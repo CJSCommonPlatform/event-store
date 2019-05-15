@@ -27,10 +27,10 @@ import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.T
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
-import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
-import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
+import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
+import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
@@ -38,17 +38,16 @@ import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
-import uk.gov.justice.services.jmx.lifecycle.ShutteringFlagProducerBean;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
-import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
+import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
 import uk.gov.justice.services.yaml.YamlSchemaLoader;
@@ -107,7 +106,7 @@ public class EventPublishIT {
             DummyEventPublisher.class,
             EventConverter.class,
             JmsEnvelopeSender.class,
-            DefaultJmsEnvelopeSender.class,
+            DummyJmsEnvelopeSender.class,
             Logger.class,
             EventDestinationResolver.class,
             StringToJsonObjectConverter.class,
@@ -149,8 +148,6 @@ public class EventPublishIT {
             PrePublishTimerConfig.class,
             SubscriptionHelper.class,
             PublishedEventInserter.class,
-            ShutteringFlagProducerBean.class
-
     })
     public WebApp war() {
         return new WebApp()

@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,7 +7,6 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
-import uk.gov.justice.services.jmx.lifecycle.ShutteringFlagProducerBean;
 
 import javax.ejb.TimerService;
 

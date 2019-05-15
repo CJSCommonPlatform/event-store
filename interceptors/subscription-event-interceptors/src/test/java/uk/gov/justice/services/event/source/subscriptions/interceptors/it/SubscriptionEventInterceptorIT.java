@@ -66,12 +66,12 @@ import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
-import uk.gov.justice.services.messaging.jms.DefaultJmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingRepository;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.services.test.utils.common.envelope.TestEnvelopeRecorder;
 import uk.gov.justice.services.test.utils.common.validator.DummyJsonSchemaValidator;
+import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 
 import java.util.ArrayList;
@@ -144,7 +144,7 @@ public class SubscriptionEventInterceptorIT {
             SubscriptionEventInterceptor.class,
 
             SenderProducer.class,
-            DefaultJmsEnvelopeSender.class,
+            DummyJmsEnvelopeSender.class,
             DefaultEnvelopeConverter.class,
 
             StringToJsonObjectConverter.class,

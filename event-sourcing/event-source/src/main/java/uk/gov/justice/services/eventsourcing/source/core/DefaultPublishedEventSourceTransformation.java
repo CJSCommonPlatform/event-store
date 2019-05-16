@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsRepublisher;
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventsProcessor;
+import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventsProcessor;
 import uk.gov.justice.services.eventsourcing.source.core.exception.PublishedEventException;
 
 import javax.inject.Inject;

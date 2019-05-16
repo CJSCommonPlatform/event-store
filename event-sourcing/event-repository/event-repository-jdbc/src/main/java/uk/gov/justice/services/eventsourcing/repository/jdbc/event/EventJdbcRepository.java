@@ -2,7 +2,9 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.UUID.fromString;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
@@ -13,8 +15,12 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -45,6 +51,7 @@ public class EventJdbcRepository {
      * Statements
      */
     static final String SQL_FIND_ALL = "SELECT * FROM event_log ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_BY_ID = "SELECT stream_id, position_in_stream, name, payload, metadata, date_created FROM event_log WHERE id = ?";
     static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC LIMIT ?";
@@ -95,6 +102,45 @@ public class EventJdbcRepository {
             throw new JdbcRepositoryException(format("Exception while storing sequence %s of stream %s",
                     event.getSequenceId(), event.getStreamId()), e);
         }
+    }
+
+    public Optional<Event> findById(final UUID id) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
+
+            preparedStatement.setObject(1, id);
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    final UUID streamId = fromString(resultSet.getString("stream_id"));
+                    final Long positionInStream = resultSet.getLong("position_in_stream");
+                    final String name = resultSet.getString("name");
+                    final String metadata = resultSet.getString("metadata");
+                    final String payload = resultSet.getString("payload");
+                    final ZonedDateTime createdAt = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
+
+                    return of(new Event(
+                            id,
+                            streamId,
+                            positionInStream,
+                            name,
+                            metadata,
+                            payload,
+                            createdAt)
+                    );
+                }
+            }
+        } catch (final SQLException e) {
+            final String message = format("Failed to get event with id '%s'", id);
+            logger.error(message, e);
+            throw new JdbcRepositoryException(message, e);
+        }
+
+        return empty();
     }
 
     /**

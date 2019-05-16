@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing;
+package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -7,7 +7,6 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimes
 
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;

@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
 import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
 

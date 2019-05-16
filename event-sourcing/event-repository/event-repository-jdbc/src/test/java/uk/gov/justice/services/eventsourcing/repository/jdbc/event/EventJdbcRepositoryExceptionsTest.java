@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -7,6 +8,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE;
@@ -69,6 +71,29 @@ public class EventJdbcRepositoryExceptionsTest {
         } catch (final JdbcRepositoryException e) {
             assertThat(e.getMessage(), is("Exception while storing sequence 5 of stream " + streamId));
             verify(logger).error("Error persisting event to the database", sqlException);
+        }
+    }
+
+    @Test
+    public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInFindById() throws Exception {
+
+        final SQLException sqlException = new SQLException();
+
+        final UUID id = fromString("b0c2e210-97ee-4050-a5a1-05f0b77b5eae");
+        final String statement = "STATEMENT";
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(dataSource.getConnection()).thenThrow(sqlException);
+
+        try {
+            eventJdbcRepository.findById(id);
+            fail();
+        } catch (final JdbcRepositoryException expected) {
+            assertThat(expected.getMessage(), is("Failed to get event with id 'b0c2e210-97ee-4050-a5a1-05f0b77b5eae'"));
+            assertThat(expected.getCause(), is(sqlException));
+            verify(logger).error("Failed to get event with id 'b0c2e210-97ee-4050-a5a1-05f0b77b5eae'", sqlException);
         }
     }
 

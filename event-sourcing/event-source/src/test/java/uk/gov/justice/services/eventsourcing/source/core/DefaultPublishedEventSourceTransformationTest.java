@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventsourcing.source.core;
 import static org.mockito.Mockito.verify;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.ActiveStreamsRepublisher;
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventsProcessor;
+import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventsProcessor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

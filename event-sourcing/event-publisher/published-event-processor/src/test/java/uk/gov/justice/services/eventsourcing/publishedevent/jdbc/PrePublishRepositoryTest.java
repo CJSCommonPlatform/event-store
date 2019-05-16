@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
+package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 
 import static java.util.UUID.randomUUID;
@@ -60,12 +60,10 @@ public class PrePublishRepositoryTest {
         testEventInserter.insertIntoEventLog(event_3);
         testEventInserter.insertIntoEventLog(event_4);
 
-        try (final Connection connection = eventStoreDataSource.getConnection()) {
-            assertThat(prePublishRepository.getEventNumber(event_1.getId(), connection), is(1L));
-            assertThat(prePublishRepository.getEventNumber(event_2.getId(), connection), is(2L));
-            assertThat(prePublishRepository.getEventNumber(event_3.getId(), connection), is(3L));
-            assertThat(prePublishRepository.getEventNumber(event_4.getId(), connection), is(4L));
-        }
+        assertThat(prePublishRepository.getEventNumber(event_1.getId(), eventStoreDataSource), is(1L));
+        assertThat(prePublishRepository.getEventNumber(event_2.getId(), eventStoreDataSource), is(2L));
+        assertThat(prePublishRepository.getEventNumber(event_3.getId(), eventStoreDataSource), is(3L));
+        assertThat(prePublishRepository.getEventNumber(event_4.getId(), eventStoreDataSource), is(4L));
     }
 
     @Test
@@ -87,13 +85,10 @@ public class PrePublishRepositoryTest {
         testEventInserter.insertIntoEventLog(event_4);
 
 
-        try (final Connection connection = eventStoreDataSource.getConnection()) {
-
-            assertThat(prePublishRepository.getPreviousEventNumber(1, connection), is(0L));
-            assertThat(prePublishRepository.getPreviousEventNumber(2, connection), is(1L));
-            assertThat(prePublishRepository.getPreviousEventNumber(3, connection), is(2L));
-            assertThat(prePublishRepository.getPreviousEventNumber(4, connection), is(3L));
-        }
+        assertThat(prePublishRepository.getPreviousEventNumber(1, eventStoreDataSource), is(0L));
+        assertThat(prePublishRepository.getPreviousEventNumber(2, eventStoreDataSource), is(1L));
+        assertThat(prePublishRepository.getPreviousEventNumber(3, eventStoreDataSource), is(2L));
+        assertThat(prePublishRepository.getPreviousEventNumber(4, eventStoreDataSource), is(3L));
     }
 
     @Test
@@ -102,12 +97,11 @@ public class PrePublishRepositoryTest {
         final UUID eventId = randomUUID();
         final ZonedDateTime now = clock.now();
 
-        try (final Connection connection = eventStoreDataSource.getConnection()) {
-
-            prePublishRepository.addToPublishQueueTable(eventId, now, connection);
+            prePublishRepository.addToPublishQueueTable(eventId, now, eventStoreDataSource);
 
 
-            try (final PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, event_log_id, date_queued FROM publish_queue")) {
+            try (final Connection connection = eventStoreDataSource.getConnection();
+                 final PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, event_log_id, date_queued FROM publish_queue")) {
 
                 final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -122,7 +116,6 @@ public class PrePublishRepositoryTest {
 
                 assertThat(resultSet.next(), is(false));
             }
-        }
     }
 
 

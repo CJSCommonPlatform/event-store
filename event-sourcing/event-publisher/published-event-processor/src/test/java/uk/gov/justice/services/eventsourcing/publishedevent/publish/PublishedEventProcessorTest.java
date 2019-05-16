@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -11,6 +11,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PreviousEventNumberFinder;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.MetadataEventNumberUpdater;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -41,6 +44,9 @@ public class PublishedEventProcessorTest {
     @Mock
     private PublishedEventRepository publishedEventRepository;
 
+    @Mock
+    private PreviousEventNumberFinder previousEventNumberFinder;
+
     @InjectMocks
     private PublishedEventProcessor publishedEventProcessor;
 
@@ -58,7 +64,7 @@ public class PublishedEventProcessorTest {
 
         when(event.getId()).thenReturn(eventId);
         when(event.getEventNumber()).thenReturn(of(eventNumber));
-        when(publishedEventRepository.getPreviousEventNumber(eventId, eventNumber)).thenReturn(previousEventNumber);
+        when(previousEventNumberFinder.getPreviousEventNumber(eventId, eventNumber)).thenReturn(previousEventNumber);
 
         when(eventConverter.metadataOf(event)).thenReturn(metadata);
         when(metadataEventNumberUpdater.updateMetadataJson(metadata, previousEventNumber, eventNumber)).thenReturn(updatedMetadata);

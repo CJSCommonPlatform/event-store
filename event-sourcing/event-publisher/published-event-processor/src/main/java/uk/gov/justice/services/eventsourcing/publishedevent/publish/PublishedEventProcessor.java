@@ -1,7 +1,10 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 
 import static java.lang.String.format;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PreviousEventNumberFinder;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.MetadataEventNumberUpdater;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PublishedEventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -27,6 +30,9 @@ public class PublishedEventProcessor {
     @Inject
     private PublishedEventRepository publishedEventRepository;
 
+    @Inject
+    private PreviousEventNumberFinder previousEventNumberFinder;
+
     public void createPublishedEvent(final Event event) {
 
         final UUID eventId = event.getId();
@@ -34,7 +40,7 @@ public class PublishedEventProcessor {
                 .getEventNumber()
                 .orElseThrow(() -> new MissingEventNumberException(format("Event with id '%s' has no event number", eventId)));
 
-        final long previousEventNumber = publishedEventRepository.getPreviousEventNumber(
+        final long previousEventNumber = previousEventNumberFinder.getPreviousEventNumber(
                 eventId,
                 eventNumber);
 

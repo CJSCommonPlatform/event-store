@@ -15,12 +15,10 @@ import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsource.DefaultEventDestinationResolver;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetcher;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetcherRepository;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventPrePublisher;
-import uk.gov.justice.services.eventsourcing.publishedevent.MetadataEventNumberUpdater;
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventInserter;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PrePublishRepository;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventQueries;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummyEventPublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventInserter;
@@ -31,13 +29,19 @@ import uk.gov.justice.services.eventsourcing.publishedevent.publishing.Publisher
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategyProducer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PostgresSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
+import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
+import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -139,15 +143,22 @@ public class EventPublishIT {
             MetadataEventNumberUpdater.class,
             PrePublishRepository.class,
             UtcClock.class,
-            EventFetcher.class,
-            EventFetcherRepository.class,
             PublishedEventFactory.class,
             PublisherTimerBean.class,
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
             SubscriptionHelper.class,
-            PublishedEventInserter.class,
+            PublishedEventQueries.class,
+            EventJdbcRepository.class,
+            JdbcResultSetStreamer.class,
+            PreparedStatementWrapperFactory.class,
+            PreparedStatementWrapper.class,
+            PostgresSQLEventLogInsertionStrategy.class,
+            EventInsertionStrategyProducer.class,
+            PublishedEventRepository.class,
+            PrePublishRepository.class,
+            PublishedEventQueries.class
     })
     public WebApp war() {
         return new WebApp()

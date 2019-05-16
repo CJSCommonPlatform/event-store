@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
@@ -21,6 +22,7 @@ import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSour
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -97,6 +99,24 @@ public class EventJdbcRepositoryIT {
         assertThat(events.count(), equalTo(3L));
         assertThat(events2.count(), equalTo(2L));
         assertThat(latestSequenceId, equalTo(7L));
+    }
+
+    @Test
+    public void shouldFindById() throws Exception {
+
+        final UUID id = randomUUID();
+
+        final Event event = eventBuilder().withId(id).withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID).build();
+
+        jdbcRepository.insert(event);
+
+        final Optional<Event> foundEvent = jdbcRepository.findById(id);
+
+        if (foundEvent.isPresent()) {
+            assertThat(foundEvent.get(), is(event));
+        } else {
+            fail();
+        }
     }
 
     @Test

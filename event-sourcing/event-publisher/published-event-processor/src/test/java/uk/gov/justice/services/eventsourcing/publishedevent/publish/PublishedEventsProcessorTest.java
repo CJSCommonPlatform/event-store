@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
@@ -10,6 +10,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.DatabaseTableTruncator;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
@@ -18,6 +20,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.stream.Stream;
+
+import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +41,7 @@ public class PublishedEventsProcessorTest {
     private PublishedEventProcessor publishedEventProcessor;
 
     @Mock
-    private PublishedEventInserter publishedEventInserter;
+    private DatabaseTableTruncator databaseTableTruncator;
 
     @InjectMocks
     private PublishedEventsProcessor publishedEventsProcessor;
@@ -66,31 +70,48 @@ public class PublishedEventsProcessorTest {
     @Test
     public void shouldTruncateEvents() throws Exception {
 
-        final Connection connection = mock(Connection.class);
-
-        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
+        final DataSource dataSource = mock(DataSource.class);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
 
         publishedEventsProcessor.truncatePublishedEvents();
 
-        verify(publishedEventInserter).truncate(connection);
+        verify(databaseTableTruncator).truncate("published_event", dataSource);
+        verify(databaseTableTruncator).truncate("pre_publish_queue", dataSource);
     }
 
     @Test
-    public void shouldThrowPublishedEventSQLExceptionOnFailure() throws Exception {
+    public void shouldThrowPublishedEventSQLExceptionIfTruncatingPublishedEventFails() throws Exception {
 
         final SQLException sqlException = new SQLException("Ooops");
 
-        final Connection connection = mock(Connection.class);
-
-        when(eventStoreDataSourceProvider.getDefaultDataSource().getConnection()).thenReturn(connection);
-        doThrow(sqlException).when(publishedEventInserter).truncate(connection);
+        final DataSource dataSource = mock(DataSource.class);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        doThrow(sqlException).when(databaseTableTruncator).truncate("published_event", dataSource);
 
         try {
             publishedEventsProcessor.truncatePublishedEvents();
             fail();
-        } catch (final PublishedEventSQLException expected) {
+        } catch (final PublishedEventException expected) {
             assertThat(expected.getCause(), is(sqlException));
-            assertThat(expected.getMessage(), is("Failed to truncate Linked Events table"));
+            assertThat(expected.getMessage(), is("Failed to truncate published_event table"));
+        }
+    }
+
+    @Test
+    public void shouldThrowPublishedEventSQLExceptionIfTruncatingPrePublishQueueFails() throws Exception {
+
+        final SQLException sqlException = new SQLException("Ooops");
+
+        final DataSource dataSource = mock(DataSource.class);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        doThrow(sqlException).when(databaseTableTruncator).truncate("pre_publish_queue", dataSource);
+
+        try {
+            publishedEventsProcessor.truncatePublishedEvents();
+            fail();
+        } catch (final PublishedEventException expected) {
+            assertThat(expected.getCause(), is(sqlException));
+            assertThat(expected.getMessage(), is("Failed to truncate pre_publish_queue table"));
         }
     }
 }

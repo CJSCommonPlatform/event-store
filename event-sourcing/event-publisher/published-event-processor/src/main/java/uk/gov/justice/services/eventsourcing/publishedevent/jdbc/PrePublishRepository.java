@@ -1,8 +1,8 @@
-package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
+package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishQueueException;
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 public class PrePublishRepository {
 
     private static final int NO_PREVIOUS_EVENT_NUMBER = 0;
@@ -18,9 +20,10 @@ public class PrePublishRepository {
     private static final String SELECT_PREVIOUS_EVENT_NUMBER_SQL = "SELECT event_number FROM event_log WHERE event_number < ? ORDER BY event_number DESC LIMIT 1";
     private static final String INSERT_INTO_PUBLISH_QUEUE_SQL = "INSERT INTO publish_queue (event_log_id, date_queued) VALUES (?, ?)";
 
-    public long getEventNumber(final UUID eventId, final Connection connection) throws SQLException {
+    public long getEventNumber(final UUID eventId, final DataSource dataSource) throws SQLException {
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_EVENT_NUMBER_SQL)) {
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_EVENT_NUMBER_SQL)) {
             preparedStatement.setObject(1, eventId);
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -29,13 +32,14 @@ public class PrePublishRepository {
                     return resultSet.getLong("event_number");
                 }
 
-                throw new PublishQueueException("Failed to get event_number from event_log table");
+                throw new PublishedEventException("Failed to get event_number from event_log table");
             }
         }
     }
 
-    public long getPreviousEventNumber(final long sequenceId, final Connection connection) throws SQLException {
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PREVIOUS_EVENT_NUMBER_SQL)) {
+    public long getPreviousEventNumber(final long sequenceId, final DataSource dataSource) throws SQLException {
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PREVIOUS_EVENT_NUMBER_SQL)) {
             preparedStatement.setLong(1, sequenceId);
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -49,9 +53,10 @@ public class PrePublishRepository {
         }
     }
 
-    public void addToPublishQueueTable(final UUID eventId, final ZonedDateTime now, final Connection connection) throws SQLException {
+    public void addToPublishQueueTable(final UUID eventId, final ZonedDateTime now, final DataSource dataSource) throws SQLException {
 
-        try(final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_PUBLISH_QUEUE_SQL)) {
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_PUBLISH_QUEUE_SQL)) {
             preparedStatement.setObject(1, eventId);
             preparedStatement.setTimestamp(2, toSqlTimestamp(now));
 

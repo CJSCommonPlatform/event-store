@@ -8,13 +8,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer.PRE_PUBLISH_TABLE_NAME;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PRE_PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetcher;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetchingException;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventPrePublisher;
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 
 import java.util.UUID;
 
@@ -34,7 +33,7 @@ public class PrePublishProcessorTest {
     private EventPrePublisher eventPrePublisher;
 
     @Mock
-    private EventFetcher eventFetcher;
+    private EventJdbcRepository eventJdbcRepository;
 
     @InjectMocks
     private PrePublishProcessor prePublishProcessor;
@@ -46,7 +45,7 @@ public class PrePublishProcessorTest {
         final Event event = mock(Event.class);
 
         when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
-        when(eventFetcher.getEvent(eventId)).thenReturn(of(event));
+        when(eventJdbcRepository.findById(eventId)).thenReturn(of(event));
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(true));
 
@@ -69,11 +68,11 @@ public class PrePublishProcessorTest {
         final UUID eventId = UUID.randomUUID();
 
         when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
-        when(eventFetcher.getEvent(eventId)).thenReturn(empty());
+        when(eventJdbcRepository.findById(eventId)).thenReturn(empty());
 
         try {
             prePublishProcessor.prePublishNextEvent();
-        } catch (final EventFetchingException expected) {
+        } catch (final PublishedEventException expected) {
             assertThat(expected.getMessage(), is("Failed to find Event with id '" + eventId + "'"));
         }
 

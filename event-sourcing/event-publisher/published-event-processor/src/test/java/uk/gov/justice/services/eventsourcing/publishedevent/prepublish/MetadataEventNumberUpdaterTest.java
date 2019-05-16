@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
 import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;

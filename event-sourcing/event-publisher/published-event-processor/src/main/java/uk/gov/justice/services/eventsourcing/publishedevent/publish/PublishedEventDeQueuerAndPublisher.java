@@ -2,11 +2,11 @@ package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 
 import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
-import static uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer.PUBLISH_TABLE_NAME;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetcher;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetchingException;
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -34,7 +34,7 @@ public class PublishedEventDeQueuerAndPublisher {
     private EventConverter eventConverter;
 
     @Inject
-    private EventFetcher eventFetcher;
+    private PublishedEventRepository publishedEventRepository;
 
     /**
      * Method that gets the next event to process from the EventDeQueuer,
@@ -48,7 +48,7 @@ public class PublishedEventDeQueuerAndPublisher {
 
         final Optional<UUID> eventId = eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME);
         if (eventId.isPresent()) {
-            final Optional<PublishedEvent> publishedEvent = eventFetcher.getPublishedEvent(eventId.get());
+            final Optional<PublishedEvent> publishedEvent = publishedEventRepository.getPublishedEvent(eventId.get());
 
             if(publishedEvent.isPresent()) {
                 final JsonEnvelope jsonEnvelope = eventConverter.envelopeOf(publishedEvent.get());
@@ -56,10 +56,10 @@ public class PublishedEventDeQueuerAndPublisher {
 
                 return true;
             } else {
-                throw new EventFetchingException(format("Failed to find PublishedEvent with id '%s'", eventId.get()));
+                throw new PublishedEventException(format("Failed to find PublishedEvent with id '%s'", eventId.get()));
             }
-
         }
+
         return false;
     }
 }

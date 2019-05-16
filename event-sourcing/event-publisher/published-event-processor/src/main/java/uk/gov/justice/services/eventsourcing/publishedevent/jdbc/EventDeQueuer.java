@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static java.lang.String.format;
 import static java.util.Optional.empty;
@@ -6,6 +6,7 @@ import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class EventDeQueuer {
                 return of(eventLogId);
             }
         } catch (final SQLException e) {
-            throw new PublishQueueException(format("Failed to publish from %s table", tableName), e);
+            throw new PublishedEventException(format("Failed to publish from %s table", tableName), e);
         }
 
         return empty();

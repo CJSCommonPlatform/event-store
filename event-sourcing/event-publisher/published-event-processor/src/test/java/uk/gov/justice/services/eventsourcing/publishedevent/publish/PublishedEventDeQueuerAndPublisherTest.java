@@ -9,11 +9,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer.PUBLISH_TABLE_NAME;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.EventDeQueuer;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetcher;
-import uk.gov.justice.services.eventsourcing.publishedevent.EventFetchingException;
+import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -40,7 +40,7 @@ public class PublishedEventDeQueuerAndPublisherTest {
     private EventConverter eventConverter;
 
     @Mock
-    private EventFetcher eventFetcher;
+    private PublishedEventRepository publishedEventRepository;
 
     @InjectMocks
     private PublishedEventDeQueuerAndPublisher publishedEventDeQueuerAndPublisher;
@@ -56,7 +56,7 @@ public class PublishedEventDeQueuerAndPublisherTest {
 
         when(eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
 
-        when(eventFetcher.getPublishedEvent(eventId)).thenReturn(of(publishedEvent));
+        when(publishedEventRepository.getPublishedEvent(eventId)).thenReturn(of(publishedEvent));
         when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
         when(publishedEvent.getName()).thenReturn(eventName);
 
@@ -82,12 +82,12 @@ public class PublishedEventDeQueuerAndPublisherTest {
         final UUID eventId = UUID.randomUUID();
 
         when(eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
-        when(eventFetcher.getPublishedEvent(eventId)).thenReturn(empty());
+        when(publishedEventRepository.getPublishedEvent(eventId)).thenReturn(empty());
 
         try {
             publishedEventDeQueuerAndPublisher.deQueueAndPublish();
             fail();
-        } catch (final EventFetchingException expected) {
+        } catch (final PublishedEventException expected) {
             assertThat(expected.getMessage(), is("Failed to find PublishedEvent with id '" + eventId + "'"));
         }
 

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishedevent;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventsProcessor;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStream;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;

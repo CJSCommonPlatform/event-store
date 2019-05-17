@@ -42,7 +42,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.PostgresSQLEventLog
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
 import uk.gov.justice.services.eventsourcing.source.api.resource.EventPageResource;
@@ -224,7 +224,7 @@ public class EventsPageIT {
             DefaultEventSourceDefinitionFactory.class,
             SubscriptionHelper.class,
             OpenEjbEventStoreDataSourceProvider.class,
-            PublishedEventFinder.class,
+            MultipleDataSourcePublishedEventRepository.class,
             OpenEjbEventStoreDataSourceProvider.class,
             EventJdbcRepository.class,
             EventStreamJdbcRepository.class,

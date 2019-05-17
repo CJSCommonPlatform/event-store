@@ -22,11 +22,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PublishedEventFinderIT {
+public class MultipleDataSourcePublishedEventRepositoryIT {
 
     private DataSource dataSource;
 
-    private PublishedEventFinder publishedEventFinder;
+    private MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository;
 
     @Before
     public void initialize() throws Exception {
@@ -35,7 +35,7 @@ public class PublishedEventFinderIT {
 
         final JdbcResultSetStreamer jdbcResultSetStreamer = new JdbcResultSetStreamer();
         final PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
-        publishedEventFinder = new PublishedEventFinder(
+        multipleDataSourcePublishedEventRepository = new MultipleDataSourcePublishedEventRepository(
                 jdbcResultSetStreamer,
                 preparedStatementWrapperFactory,
                 dataSource);
@@ -64,7 +64,7 @@ public class PublishedEventFinderIT {
         insertPublishedEvent(event_5, connection);
 
 
-        final List<PublishedEvent> publishedEvents = publishedEventFinder.findEventsSince(3)
+        final List<PublishedEvent> publishedEvents = multipleDataSourcePublishedEventRepository.findEventsSince(3)
                 .collect(toList());
 
         assertThat(publishedEvents.size(), is(2));

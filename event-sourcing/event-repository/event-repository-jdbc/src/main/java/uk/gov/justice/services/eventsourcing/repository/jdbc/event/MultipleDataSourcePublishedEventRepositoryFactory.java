@@ -6,7 +6,7 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-public class PublishedEventFinderFactory {
+public class MultipleDataSourcePublishedEventRepositoryFactory {
 
     @Inject
     private JdbcResultSetStreamer jdbcResultSetStreamer;
@@ -14,8 +14,8 @@ public class PublishedEventFinderFactory {
     @Inject
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
-    public PublishedEventFinder create(final DataSource dataSource) {
-        return new PublishedEventFinder(
+    public MultipleDataSourcePublishedEventRepository create(final DataSource dataSource) {
+        return new MultipleDataSourcePublishedEventRepository(
                 jdbcResultSetStreamer,
                 preparedStatementWrapperFactory,
                 dataSource);

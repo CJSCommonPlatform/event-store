@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class DefaultPublishedEventSourceTest {
 
     @Mock
-    private PublishedEventFinder publishedEventFinder;
+    private MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository;
 
     @Mock
     private EventConverter eventConverter;
@@ -40,7 +40,7 @@ public class DefaultPublishedEventSourceTest {
         final PublishedEvent linkedEvent = mock(PublishedEvent.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(publishedEventFinder.findEventsSince(eventNumber)).thenReturn(Stream.of(linkedEvent));
+        when(multipleDataSourcePublishedEventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(linkedEvent));
         when(eventConverter.envelopeOf(linkedEvent)).thenReturn(jsonEnvelope);
 
         final List<JsonEnvelope> envelopes = defaultPublishedEventSource.findEventsSince(eventNumber).collect(toList());

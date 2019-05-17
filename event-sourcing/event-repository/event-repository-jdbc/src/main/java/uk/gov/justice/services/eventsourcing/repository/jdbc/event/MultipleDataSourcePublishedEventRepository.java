@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-public class PublishedEventFinder {
+public class MultipleDataSourcePublishedEventRepository {
 
     private static final String SQL_FIND_ALL_SINCE = "SELECT * FROM published_event WHERE event_number > ? ORDER BY event_number ASC";
 
@@ -35,7 +35,7 @@ public class PublishedEventFinder {
     private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
     private final DataSource dataSource;
 
-    public PublishedEventFinder(
+    public MultipleDataSourcePublishedEventRepository(
             final JdbcResultSetStreamer jdbcResultSetStreamer,
             final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
             final DataSource dataSource) {

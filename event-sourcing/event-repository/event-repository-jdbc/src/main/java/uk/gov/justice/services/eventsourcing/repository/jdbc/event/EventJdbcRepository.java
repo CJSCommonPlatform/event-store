@@ -54,6 +54,7 @@ public class EventJdbcRepository {
     static final String SQL_FIND_BY_ID = "SELECT stream_id, position_in_stream, name, payload, metadata, date_created FROM event_log WHERE id = ?";
     static final String SQL_FIND_BY_STREAM_ID = "SELECT * FROM event_log WHERE stream_id=? ORDER BY position_in_stream ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC";
+    static final String SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER = "SELECT * FROM event_log ORDER BY event_number ASC";
     static final String SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE = "SELECT * FROM event_log WHERE stream_id=? AND position_in_stream>=? ORDER BY position_in_stream ASC LIMIT ?";
     static final String SQL_FIND_LATEST_POSITION = "SELECT MAX(position_in_stream) FROM event_log WHERE stream_id=?";
     static final String SQL_DISTINCT_STREAM_ID = "SELECT DISTINCT stream_id FROM event_log";
@@ -157,7 +158,7 @@ public class EventJdbcRepository {
             final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID);
             preparedStatementWrapper.setObject(1, streamId);
 
-            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
@@ -182,10 +183,31 @@ public class EventJdbcRepository {
             preparedStatementWrapper.setObject(1, streamId);
             preparedStatementWrapper.setLong(2, position);
 
-            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
+        }
+    }
+
+    /**
+     * Returns a Stream of all events in the event_log table ordered by event_number.
+     *
+     * @return a Stream of all events ordered by event_number
+     */
+    public Stream<Event> findAllOrderedByEventNumber() {
+
+        final DataSource defaultDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+        try {
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(
+                    defaultDataSource,
+                    SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER);
+
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
+
+        } catch (final SQLException e) {
+            logger.error("Failed to get stream of events", e);
+            throw new JdbcRepositoryException("Failed to get stream of events", e);
         }
     }
 
@@ -201,7 +223,7 @@ public class EventJdbcRepository {
             preparedStatementWrapper.setLong(2, versionFrom);
             preparedStatementWrapper.setInt(3, pageSize);
 
-            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, entityFromFunction());
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
         } catch (final SQLException e) {
             logger.warn(FAILED_TO_READ_STREAM, streamId, e);
             throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
@@ -220,7 +242,7 @@ public class EventJdbcRepository {
         try {
             return jdbcResultSetStreamer
                     .streamOf(preparedStatementWrapperFactory
-                            .preparedStatementWrapperOf(dataSource, SQL_FIND_ALL), entityFromFunction());
+                            .preparedStatementWrapperOf(dataSource, SQL_FIND_ALL), asEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(READING_STREAM_ALL_EXCEPTION, e);
         }
@@ -283,7 +305,7 @@ public class EventJdbcRepository {
         });
     }
 
-    private Function<ResultSet, Event> entityFromFunction() {
+    private Function<ResultSet, Event> asEvent() {
         return resultSet -> {
             try {
                 return new Event((UUID) resultSet.getObject(PRIMARY_KEY_ID),

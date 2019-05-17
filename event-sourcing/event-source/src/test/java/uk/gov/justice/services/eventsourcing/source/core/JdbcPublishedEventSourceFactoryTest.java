@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepositoryFactory;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 
 import javax.sql.DataSource;
@@ -25,7 +25,7 @@ public class JdbcPublishedEventSourceFactoryTest {
     private EventConverter eventConverter;
 
     @Mock
-    private PublishedEventFinderFactory publishedEventFinderFactory;
+    private MultipleDataSourcePublishedEventRepositoryFactory multipleDataSourcePublishedEventRepositoryFactory;
 
     @Mock
     private JdbcDataSourceProvider jdbcDataSourceProvider;
@@ -39,15 +39,15 @@ public class JdbcPublishedEventSourceFactoryTest {
         final String jndiDatasource = "jndiDatasource";
 
         final DataSource dataSource = jdbcDataSourceProvider.getDataSource(jndiDatasource);
-        final PublishedEventFinder publishedEventFinder = publishedEventFinderFactory.create(dataSource);
+        final MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository = multipleDataSourcePublishedEventRepositoryFactory.create(dataSource);
 
         when(jdbcDataSourceProvider.getDataSource(jndiDatasource)).thenReturn(dataSource);
-        when(publishedEventFinderFactory.create(dataSource)).thenReturn(publishedEventFinder);
+        when(multipleDataSourcePublishedEventRepositoryFactory.create(dataSource)).thenReturn(multipleDataSourcePublishedEventRepository);
 
 
         final DefaultPublishedEventSource defaultPublishedEventSource = jdbcPublishedEventSourceFactory.create(jndiDatasource);
 
-        assertThat(getValueOfField(defaultPublishedEventSource, "publishedEventFinder", PublishedEventFinder.class), is(publishedEventFinder));
+        assertThat(getValueOfField(defaultPublishedEventSource, "multipleDataSourcePublishedEventRepository", MultipleDataSourcePublishedEventRepository.class), is(multipleDataSourcePublishedEventRepository));
         assertThat(getValueOfField(defaultPublishedEventSource, "eventConverter", EventConverter.class), is(eventConverter));
     }
 }

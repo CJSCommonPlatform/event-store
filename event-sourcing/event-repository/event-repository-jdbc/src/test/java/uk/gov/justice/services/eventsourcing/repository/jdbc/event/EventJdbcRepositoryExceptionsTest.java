@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_ID;
+import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE;
@@ -94,6 +94,31 @@ public class EventJdbcRepositoryExceptionsTest {
             assertThat(expected.getMessage(), is("Failed to get event with id 'b0c2e210-97ee-4050-a5a1-05f0b77b5eae'"));
             assertThat(expected.getCause(), is(sqlException));
             verify(logger).error("Failed to get event with id 'b0c2e210-97ee-4050-a5a1-05f0b77b5eae'", sqlException);
+        }
+    }
+
+    @Test
+    public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInGetOrderedStreamOfEvents() throws Exception {
+
+        final SQLException sqlException = new SQLException();
+
+        final String statement = "STATEMENT";
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(preparedStatementWrapperFactory.preparedStatementWrapperOf(
+                dataSource,
+                SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER))
+                .thenThrow(sqlException);
+
+        try {
+            eventJdbcRepository.findAllOrderedByEventNumber();
+            fail();
+        } catch (final JdbcRepositoryException expected) {
+            assertThat(expected.getMessage(), is("Failed to get stream of events"));
+            assertThat(expected.getCause(), is(sqlException));
+            verify(logger).error("Failed to get stream of events", sqlException);
         }
     }
 

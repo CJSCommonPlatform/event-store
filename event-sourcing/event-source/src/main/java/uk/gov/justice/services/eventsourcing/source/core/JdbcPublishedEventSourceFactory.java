@@ -1,8 +1,8 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinder;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventFinderFactory;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepositoryFactory;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +16,7 @@ public class JdbcPublishedEventSourceFactory {
     private EventConverter eventConverter;
 
     @Inject
-    private PublishedEventFinderFactory publishedEventFinderFactory;
+    private MultipleDataSourcePublishedEventRepositoryFactory multipleDataSourcePublishedEventRepositoryFactory;
 
     @Inject
     private JdbcDataSourceProvider jdbcDataSourceProvider;
@@ -24,8 +24,8 @@ public class JdbcPublishedEventSourceFactory {
     public DefaultPublishedEventSource create(final String jndiDatasource) {
 
         final DataSource dataSource = jdbcDataSourceProvider.getDataSource(jndiDatasource);
-        final PublishedEventFinder publishedEventFinder = publishedEventFinderFactory.create(dataSource);
+        final MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository = multipleDataSourcePublishedEventRepositoryFactory.create(dataSource);
 
-        return new DefaultPublishedEventSource(publishedEventFinder, eventConverter);
+        return new DefaultPublishedEventSource(multipleDataSourcePublishedEventRepository, eventConverter);
     }
 }

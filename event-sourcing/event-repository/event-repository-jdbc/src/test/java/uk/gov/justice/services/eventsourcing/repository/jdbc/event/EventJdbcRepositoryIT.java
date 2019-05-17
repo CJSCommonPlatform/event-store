@@ -20,6 +20,8 @@ import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -127,13 +129,45 @@ public class EventJdbcRepositoryIT {
         jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
         jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(2L).build());
 
-        final Stream<Event> events = jdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID);
+        try (final Stream<Event> events = jdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID)) {
+            final List<Event> eventList = events.collect(toList());
+            assertThat(eventList, hasSize(3));
+            assertThat(eventList.get(0).getSequenceId(), is(2L));
+            assertThat(eventList.get(1).getSequenceId(), is(4L));
+            assertThat(eventList.get(2).getSequenceId(), is(7L));
+        }
+    }
 
-        final List<Event> eventList = events.collect(toList());
-        assertThat(eventList, hasSize(3));
-        assertThat(eventList.get(0).getSequenceId(), is(2L));
-        assertThat(eventList.get(1).getSequenceId(), is(4L));
-        assertThat(eventList.get(2).getSequenceId(), is(7L));
+    @Test
+    public void shouldReturnEventsByStreamIdOrderedByEventId() throws Exception {
+
+        try (
+                final Connection connection = dataSource.getConnection();
+                final PreparedStatement preparedStatement = connection.prepareStatement(
+                        "ALTER SEQUENCE event_sequence_seq RESTART WITH 1")) {
+
+            preparedStatement.executeUpdate();
+        }
+
+        jdbcRepository.insert(eventBuilder().withName("event 1").build());
+        jdbcRepository.insert(eventBuilder().withName("event 2").build());
+        jdbcRepository.insert(eventBuilder().withName("event 3").build());
+        jdbcRepository.insert(eventBuilder().withName("event 4").build());
+
+        try (final Stream<Event> events = jdbcRepository.findAllOrderedByEventNumber()) {
+
+
+            final List<Event> eventList = events.collect(toList());
+            assertThat(eventList, hasSize(4));
+            assertThat(eventList.get(0).getName(), is("event 1"));
+            assertThat(eventList.get(0).getEventNumber().orElse(0L), is(1L));
+            assertThat(eventList.get(1).getName(), is("event 2"));
+            assertThat(eventList.get(1).getEventNumber().orElse(0L), is(2L));
+            assertThat(eventList.get(2).getName(), is("event 3"));
+            assertThat(eventList.get(2).getEventNumber().orElse(0L), is(3L));
+            assertThat(eventList.get(3).getName(), is("event 4"));
+            assertThat(eventList.get(3).getEventNumber().orElse(0L), is(4L));
+        }
     }
 
     @Test

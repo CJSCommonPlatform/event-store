@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishedEventFinderFactoryTest {
+public class MultipleDataSourcePublishedEventRepositoryFactoryTest {
 
     @Mock
     private JdbcResultSetStreamer jdbcResultSetStreamer;
@@ -26,17 +26,17 @@ public class PublishedEventFinderFactoryTest {
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @InjectMocks
-    private PublishedEventFinderFactory publishedEventFinderFactory;
+    private MultipleDataSourcePublishedEventRepositoryFactory multipleDataSourcePublishedEventRepositoryFactory;
 
     @Test
     public void shouldCreateAPublishedEventFinder() throws Exception {
 
         final DataSource dataSource = mock(DataSource.class);
 
-        final PublishedEventFinder publishedEventFinder = publishedEventFinderFactory.create(dataSource);
+        final MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository = multipleDataSourcePublishedEventRepositoryFactory.create(dataSource);
 
-        assertThat(getValueOfField(publishedEventFinder, "jdbcResultSetStreamer", JdbcResultSetStreamer.class), is(jdbcResultSetStreamer));
-        assertThat(getValueOfField(publishedEventFinder, "preparedStatementWrapperFactory", PreparedStatementWrapperFactory.class), is(preparedStatementWrapperFactory));
-        assertThat(getValueOfField(publishedEventFinder, "dataSource", DataSource.class), is(dataSource));
+        assertThat(getValueOfField(multipleDataSourcePublishedEventRepository, "jdbcResultSetStreamer", JdbcResultSetStreamer.class), is(jdbcResultSetStreamer));
+        assertThat(getValueOfField(multipleDataSourcePublishedEventRepository, "preparedStatementWrapperFactory", PreparedStatementWrapperFactory.class), is(preparedStatementWrapperFactory));
+        assertThat(getValueOfField(multipleDataSourcePublishedEventRepository, "dataSource", DataSource.class), is(dataSource));
     }
 }

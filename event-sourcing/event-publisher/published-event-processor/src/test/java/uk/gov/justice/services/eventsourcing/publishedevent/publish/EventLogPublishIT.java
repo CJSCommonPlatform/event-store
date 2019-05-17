@@ -10,11 +10,13 @@ import static org.junit.Assert.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
+import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventInserter;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.events.TestEventInserter;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -31,7 +33,7 @@ import org.junit.Test;
 public class EventLogPublishIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter();
+    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
 
     private final UtcClock utcClock = new UtcClock();
 
@@ -55,7 +57,16 @@ public class EventLogPublishIT {
                 createObjectBuilder().add("some-property-name", "the value")
         );
 
-        testEventInserter.insertIntoEventLog(eventLogId, streamId, sequenceId, now, eventName, jsonEnvelope);
+        final Event event = eventBuilder()
+                .withId(eventLogId)
+                .withName(eventName)
+                .withStreamId(streamId)
+                .withTimestamp(now)
+                .withMetadataJSON(jsonEnvelope.metadata().asJsonObject().toString())
+                .withPayloadJSON(jsonEnvelope.payloadAsJsonObject().toString())
+                .build();
+
+        testEventInserter.insertIntoEventLog(event);
 
         try (final Connection connection = eventStoreDataSource.getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM pre_publish_queue");

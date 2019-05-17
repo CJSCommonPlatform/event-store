@@ -77,6 +77,7 @@ public class DatabaseCleaner {
 
             cleanTable("event_log", connection);
             cleanTable("event_stream", connection);
+            cleanTable("publish_queue", connection);
             cleanTable("pre_publish_queue", connection);
             cleanTable("published_event", connection);
 

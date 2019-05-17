@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class DatabaseTableTruncatorTest {
+public class TableCleanerTest {
 
     @InjectMocks
     private DatabaseTableTruncator databaseTableTruncator;

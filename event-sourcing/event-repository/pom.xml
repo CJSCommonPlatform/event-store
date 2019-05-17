@@ -14,6 +14,7 @@
     <modules>
         <module>event-repository-liquibase</module>
         <module>event-repository-jdbc</module>
+        <module>event-domain</module>
     </modules>
 
 </project>

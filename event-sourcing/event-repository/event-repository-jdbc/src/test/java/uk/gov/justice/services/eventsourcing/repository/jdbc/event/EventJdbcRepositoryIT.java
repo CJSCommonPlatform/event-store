@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventBuilder.eventBuilder;
+import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
@@ -18,10 +18,9 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.SequenceSetter;
 import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -141,13 +140,7 @@ public class EventJdbcRepositoryIT {
     @Test
     public void shouldReturnEventsByStreamIdOrderedByEventId() throws Exception {
 
-        try (
-                final Connection connection = dataSource.getConnection();
-                final PreparedStatement preparedStatement = connection.prepareStatement(
-                        "ALTER SEQUENCE event_sequence_seq RESTART WITH 1")) {
-
-            preparedStatement.executeUpdate();
-        }
+        new SequenceSetter().setSequenceTo(1, "event_sequence_seq", dataSource);
 
         jdbcRepository.insert(eventBuilder().withName("event 1").build());
         jdbcRepository.insert(eventBuilder().withName("event 2").build());
@@ -155,7 +148,6 @@ public class EventJdbcRepositoryIT {
         jdbcRepository.insert(eventBuilder().withName("event 4").build());
 
         try (final Stream<Event> events = jdbcRepository.findAllOrderedByEventNumber()) {
-
 
             final List<Event> eventList = events.collect(toList());
             assertThat(eventList, hasSize(4));

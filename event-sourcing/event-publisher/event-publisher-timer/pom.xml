@@ -90,6 +90,11 @@
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>jmx</artifactId>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>test-utils-event</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 

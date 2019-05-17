@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
+import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
@@ -20,8 +21,6 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PrePublishRepos
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventQueries;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummyEventPublisher;
-import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
@@ -51,6 +50,7 @@ import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
+import uk.gov.justice.services.test.utils.events.TestEventInserter;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
@@ -69,6 +69,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit.ApplicationComposer;
@@ -90,16 +91,18 @@ public class EventPublishIT {
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
-    private final EventFactory eventFactory = new EventFactory();
-    private final TestEventInserter testEventInserter = new TestEventInserter();
     private final TestEventStreamInserter testEventStreamInserter = new TestEventStreamInserter();
     private final Poller poller = new Poller(10, 3_000L);
     private final EventStoreInitializer eventStoreInitializer = new EventStoreInitializer();
     private final Clock clock = new UtcClock();
 
+    private TestEventInserter testEventInserter;
+
     @Before
     public void initializeDatabase() throws Exception {
-        eventStoreInitializer.initializeEventStore(eventStoreDataSourceProvider.getDefaultDataSource());
+        final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+        eventStoreInitializer.initializeEventStore(eventStoreDataSource);
+        testEventInserter = new TestEventInserter(eventStoreDataSource);
     }
 
     @Module
@@ -178,9 +181,9 @@ public class EventPublishIT {
     @Test
     public void shouldPublishEventsInTheEventLogTable() throws Exception {
         final UUID streamId = randomUUID();
-        final Event event_1 = eventFactory.createEvent(streamId, randomUUID(), "event_1", 1l, 1l);
-        final Event event_2 = eventFactory.createEvent(streamId, randomUUID(), "event_2", 2l, 1l);
-        final Event event_3 = eventFactory.createEvent(streamId, randomUUID(), "event_3", 3l, 1l);
+        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event_1").withEventNumber(1L).withSequenceId(1L).build();
+        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event_2").withEventNumber(2L).withSequenceId(2L).build();
+        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event_3").withEventNumber(3L).withSequenceId(3L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);

@@ -36,10 +36,4 @@ public class TimerServiceManager {
 
         timerService.createSingleActionTimer(duration, timerConfig);
     }
-
-    public void cancelOverlappingTimers(final String timerJobName, final int threshold, final TimerService timerService){
-        if(timerService.getAllTimers().size() > threshold){
-            timerCanceler.cancelTimer(timerJobName, timerService);
-        }
-    }
 }

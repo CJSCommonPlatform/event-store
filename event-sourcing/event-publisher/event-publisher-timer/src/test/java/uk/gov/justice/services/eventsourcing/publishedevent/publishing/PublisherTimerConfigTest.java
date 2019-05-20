@@ -11,7 +11,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PublisherTimerConfigTest {
 
-
     @InjectMocks
     private PublisherTimerConfig publisherTimerConfig;
 
@@ -33,5 +32,15 @@ public class PublisherTimerConfigTest {
         publisherTimerConfig.timerIntervalMilliseconds = "" + milliseconds;
 
         assertThat(publisherTimerConfig.getTimerIntervalMilliseconds(), is(milliseconds));
+    }
+
+    @Test
+    public void shouldGetTheTimerMaxRuntime() throws Exception {
+
+        final long milliseconds = 600L;
+
+        publisherTimerConfig.timerMaxRuntimeMilliseconds = "" + milliseconds;
+
+        assertThat(publisherTimerConfig.getTimerMaxRuntimeMilliseconds(), is(milliseconds));
     }
 }

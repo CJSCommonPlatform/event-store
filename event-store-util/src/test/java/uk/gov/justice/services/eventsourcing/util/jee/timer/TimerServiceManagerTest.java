@@ -68,42 +68,4 @@ public class TimerServiceManagerTest {
         inOrder.verify(timerConfig).setInfo(timerJobName);
         inOrder.verify(timerService).createSingleActionTimer(duration, timerConfig);
     }
-
-    @Test
-    public void shouldCancelOverlappingTimersIfOverTheThreshold() throws Exception {
-
-        final TimerService timerService = mock(TimerService.class);
-
-        final String timerJobName = "timerJobName";
-        final int threshold = 2;
-
-        final Timer timer_1 = mock(Timer.class);
-        final Timer timer_2 = mock(Timer.class);
-        final Timer timer_3 = mock(Timer.class);
-
-        when(timerService.getAllTimers()).thenReturn(asList(timer_1, timer_2, timer_3));
-
-        timerServiceManager.cancelOverlappingTimers(timerJobName, threshold, timerService);
-        
-        verify(timerCanceler).cancelTimer(timerJobName, timerService);
-    }
-
-    @Test
-    public void shouldNotCancelTimersIfNumberOfTimersNotOverTheThreshold() throws Exception {
-
-        final TimerService timerService = mock(TimerService.class);
-
-        final String timerJobName = "timerJobName";
-        final int threshold = 3;
-
-        final Timer timer_1 = mock(Timer.class);
-        final Timer timer_2 = mock(Timer.class);
-        final Timer timer_3 = mock(Timer.class);
-
-        when(timerService.getAllTimers()).thenReturn(asList(timer_1, timer_2, timer_3));
-
-        timerServiceManager.cancelOverlappingTimers(timerJobName, threshold, timerService);
-
-        verifyZeroInteractions(timerCanceler);
-    }
 }

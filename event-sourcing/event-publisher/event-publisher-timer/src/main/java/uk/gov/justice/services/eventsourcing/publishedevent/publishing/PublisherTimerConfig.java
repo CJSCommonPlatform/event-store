@@ -16,11 +16,19 @@ public class PublisherTimerConfig {
     @GlobalValue(key = "event.dequer.timer.interval.milliseconds", defaultValue = "500")
     String timerIntervalMilliseconds;
 
+    @Inject
+    @GlobalValue(key = "event.dequer.timer.max.runtime.milliseconds", defaultValue = "495")
+    String timerMaxRuntimeMilliseconds;
+
     public long getTimerStartWaitMilliseconds() {
         return parseLong(timerStartWaitMilliseconds);
     }
 
     public long getTimerIntervalMilliseconds() {
         return parseLong(timerIntervalMilliseconds);
+    }
+
+    public long getTimerMaxRuntimeMilliseconds() {
+        return parseLong(timerMaxRuntimeMilliseconds);
     }
 }

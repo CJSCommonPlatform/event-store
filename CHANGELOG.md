@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Pre-publish and publish timer beans run for a given time slot and will stop before the next timer starts
+
 ## [2.0.0-M25] - 2019-05-15
 ### Changed
 - Merged event-publisher modules into one

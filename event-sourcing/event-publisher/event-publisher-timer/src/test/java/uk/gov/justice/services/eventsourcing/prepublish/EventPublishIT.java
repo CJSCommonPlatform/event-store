@@ -31,6 +31,7 @@ import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -150,7 +151,7 @@ public class EventPublishIT {
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
-
+            StopWatchFactory.class,
     })
     public WebApp war() {
         return new WebApp()

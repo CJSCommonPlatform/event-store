@@ -5,7 +5,7 @@
     <parent>
         <artifactId>event-store</artifactId>
         <groupId>uk.gov.justice.event-store</groupId>
-        <version>1.1.20-SNAPSHOT</version>
+        <version>1.1.10-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +16,10 @@
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!--Test dependencies-->

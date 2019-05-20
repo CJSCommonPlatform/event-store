@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishing;
 
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
@@ -11,31 +11,32 @@ import javax.ejb.Timeout;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 @Singleton
 @Startup
 public class PublisherTimerBean {
 
-    private static final int THRESHOLD = 10;
     private static final String TIMER_JOB_NAME = "event-store.de-queue-events-and-publish.job";
 
     @Resource
-    TimerService timerService;
+    private TimerService timerService;
 
     @Inject
-    PublisherTimerConfig publisherTimerConfig;
+    private PublisherTimerConfig publisherTimerConfig;
 
     @Inject
-    TimerServiceManager timerServiceManager;
+    private TimerServiceManager timerServiceManager;
 
     @Inject
-    TimerCanceler timerCanceler;
+    private LinkedEventDeQueuerAndPublisher linkedEventDeQueuerAndPublisher;
 
     @Inject
-    LinkedEventDeQueuerAndPublisher linkedEventDeQueuerAndPublisher;
+    private StopWatchFactory stopWatchFactory;
 
     @PostConstruct
     public void startTimerService() {
-        timerCanceler.cancelTimer(TIMER_JOB_NAME, timerService);
+
         timerServiceManager.createIntervalTimer(
                 TIMER_JOB_NAME,
                 publisherTimerConfig.getTimerStartWaitMilliseconds(),
@@ -46,8 +47,16 @@ public class PublisherTimerBean {
     @Timeout
     public void doDeQueueAndPublish() {
 
+        final long maxRuntimeMilliseconds = publisherTimerConfig.getTimerMaxRuntimeMilliseconds();
+        final StopWatch stopWatch = stopWatchFactory.createStopWatch();
+
+        stopWatch.start();
+
         while (linkedEventDeQueuerAndPublisher.deQueueAndPublish()) {
-            timerServiceManager.cancelOverlappingTimers(TIMER_JOB_NAME, THRESHOLD, timerService);
+
+            if (stopWatch.getTime() > maxRuntimeMilliseconds) {
+                break;
+            }
         }
     }
 }

@@ -36,12 +36,12 @@ public class PrePublishTimerConfigTest {
     }
 
     @Test
-    public void shouldGetTheMaxNumberOfEventsPublishedPerIteration() throws Exception {
+    public void shouldGetTimerMaxRuntime() {
 
-        final int maxEventsPublishedPerIteration = 23;
+        final long milliseconds = 600L;
 
-        setField(prePublishTimerConfig, "maxEventsPublishedPerIteration", "" + maxEventsPublishedPerIteration);
+        setField(prePublishTimerConfig, "timerMaxRuntimeMilliseconds", "" + milliseconds);
 
-        assertThat(prePublishTimerConfig.getMaxEventsPublishedPerIteration(), is(maxEventsPublishedPerIteration));
+        assertThat(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds(), is(milliseconds));
     }
 }

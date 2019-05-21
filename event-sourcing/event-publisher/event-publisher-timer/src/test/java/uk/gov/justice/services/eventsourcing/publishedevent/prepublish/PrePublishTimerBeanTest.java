@@ -1,14 +1,16 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.ejb.TimerService;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -28,10 +30,10 @@ public class PrePublishTimerBeanTest {
     private TimerServiceManager timerServiceManager;
 
     @Mock
-    private TimerCanceler timerCanceler;
+    private PrePublishProcessor prePublishProcessor;
 
     @Mock
-    private PrePublishProcessor prePublishProcessor;
+    private StopWatchFactory stopWatchFactory;
 
     @InjectMocks
     private PrePublishTimerBean prePublishTimerBean;
@@ -39,16 +41,14 @@ public class PrePublishTimerBeanTest {
     @Test
     public void shouldSetUpTheTimerServiceOnPostConstruct() throws Exception {
 
-        final long timerStartValue = 7250;
-        final long timerIntervalValue = 2000;
+        final long timerStartValue = 7250L;
+        final long timerIntervalValue = 2000L;
 
         when(prePublishTimerConfig.getTimerStartWaitMilliseconds()).thenReturn(timerStartValue);
         when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
-        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(1000);
 
         prePublishTimerBean.startTimerService();
 
-        verify(timerCanceler).cancelTimer("event-store.pre-publish-events.job", timerService);
         verify(timerServiceManager).createIntervalTimer(
                 "event-store.pre-publish-events.job",
                 timerStartValue,
@@ -59,25 +59,36 @@ public class PrePublishTimerBeanTest {
     @Test
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
+        final long timerIntervalValue = 2000L;
+        final long timerMaxRuntimeValue = 495L;
+
+
+        when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
+        when(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
+        when(stopWatchFactory.createStopWatch()).thenReturn(mock(StopWatch.class));
         when(prePublishProcessor.prePublishNextEvent()).thenReturn(true, true, false);
-        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(1000);
 
         prePublishTimerBean.performPrePublish();
 
         verify(prePublishProcessor, times(3)).prePublishNextEvent();
-        verify(timerServiceManager, times(2)).cancelOverlappingTimers("event-store.pre-publish-events.job", 10, timerService);
     }
-
 
     @Test
-    public void shouldRunPublishUntilMaxNumberOfEventsIsReached() throws Exception {
+    public void shouldRunPublishUntilTimeRunsOut() throws Exception {
 
-        when(prePublishProcessor.prePublishNextEvent()).thenReturn(true);
-        when(prePublishTimerConfig.getMaxEventsPublishedPerIteration()).thenReturn(3);
+        final long timerIntervalValue = 2000L;
+        final long timerMaxRuntimeValue = 495L;
+        final StopWatch stopWatch = mock(StopWatch.class);
+
+        when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
+        when(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
+        when(stopWatchFactory.createStopWatch()).thenReturn(stopWatch);
+        when(prePublishProcessor.prePublishNextEvent()).thenReturn(true, true, true);
+        when(stopWatch.getTime()).thenReturn(timerIntervalValue);
 
         prePublishTimerBean.performPrePublish();
 
-        verify(prePublishProcessor, times(3)).prePublishNextEvent();
-        verify(timerServiceManager, times(3)).cancelOverlappingTimers("event-store.pre-publish-events.job", 10, timerService);
+        verify(prePublishProcessor, times(1)).prePublishNextEvent();
     }
+
 }

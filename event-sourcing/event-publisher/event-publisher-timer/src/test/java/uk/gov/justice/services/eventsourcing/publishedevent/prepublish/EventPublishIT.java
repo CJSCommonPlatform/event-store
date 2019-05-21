@@ -35,6 +35,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
@@ -158,7 +159,8 @@ public class EventPublishIT {
             EventInsertionStrategyProducer.class,
             PublishedEventRepository.class,
             PrePublishRepository.class,
-            PublishedEventQueries.class
+            PublishedEventQueries.class,
+            StopWatchFactory.class
     })
     public WebApp war() {
         return new WebApp()

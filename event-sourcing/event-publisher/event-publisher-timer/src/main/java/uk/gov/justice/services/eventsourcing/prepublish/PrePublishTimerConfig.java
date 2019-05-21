@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventsourcing.prepublish;
 
-import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 import uk.gov.justice.services.common.configuration.GlobalValue;
@@ -18,8 +17,8 @@ public class PrePublishTimerConfig {
     private String timerIntervalMilliseconds;
 
     @Inject
-    @GlobalValue(key = "pre.publish.max.events.published.per.iteration", defaultValue = "1000")
-    private String maxEventsPublishedPerIteration;
+    @GlobalValue(key = "pre.publish.timer.max.runtime.milliseconds", defaultValue = "495")
+    private String timerMaxRuntimeMilliseconds;
 
     public long getTimerStartWaitMilliseconds() {
         return parseLong(timerStartWaitMilliseconds);
@@ -29,8 +28,9 @@ public class PrePublishTimerConfig {
         return parseLong(timerIntervalMilliseconds);
     }
 
-    public int getMaxEventsPublishedPerIteration() {
-        return parseInt(maxEventsPublishedPerIteration);
+    public long getTimerMaxRuntimeMilliseconds() {
+        return parseLong(timerMaxRuntimeMilliseconds);
     }
+
 }
 

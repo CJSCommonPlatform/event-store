@@ -34,4 +34,14 @@ public class PublisherTimerConfigTest {
 
         assertThat(publisherTimerConfig.getTimerIntervalMilliseconds(), is(milliseconds));
     }
+
+    @Test
+    public void shouldGetTheTimerMaxRuntime() throws Exception {
+
+        final long milliseconds = 600L;
+
+        publisherTimerConfig.timerMaxRuntimeMilliseconds = "" + milliseconds;
+
+        assertThat(publisherTimerConfig.getTimerMaxRuntimeMilliseconds(), is(milliseconds));
+    }
 }

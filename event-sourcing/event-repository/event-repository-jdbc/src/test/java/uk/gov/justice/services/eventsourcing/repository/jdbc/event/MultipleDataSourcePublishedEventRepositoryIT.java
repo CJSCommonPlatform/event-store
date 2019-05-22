@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
-import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEventBuilder.publishedEventBuilder;
+import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;

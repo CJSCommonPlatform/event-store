@@ -5,9 +5,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.EventFactory;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
@@ -30,7 +30,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class PublishedEventQueriesTest {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final EventFactory eventFactory = new EventFactory();
 
     @InjectMocks
     private PublishedEventQueries publishedEventQueries;
@@ -81,7 +80,12 @@ public class PublishedEventQueriesTest {
     @Test
     public void shouldFetchPublishedEventById() throws Exception {
 
-        final PublishedEvent publishedEvent = eventFactory.createPublishedEvent(randomUUID(), "example.published-event", 1L, 1L, 0L);
+        final PublishedEvent publishedEvent = publishedEventBuilder()
+                .withName("example.published-event")
+                .withSequenceId(1L)
+                .withEventNumber(1L)
+                .withPreviousEventNumber(0L)
+                .build();
 
         publishedEventQueries.insertPublishedEvent(publishedEvent, eventStoreDataSource);
 

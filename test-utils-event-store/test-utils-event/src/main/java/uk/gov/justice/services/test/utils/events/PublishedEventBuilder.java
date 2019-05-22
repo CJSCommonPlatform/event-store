@@ -1,8 +1,13 @@
-package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
+package uk.gov.justice.services.test.utils.events;
 
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -12,9 +17,10 @@ public class PublishedEventBuilder {
     private UUID id = randomUUID();
     private UUID streamId = randomUUID();
     private Long sequenceId = 5L;
+    private String source = "EVENT_LISTENER";
     private String name = "Test Name";
-    private String metadataJSON = "{\"field\": \"Value\"}";
-    private String payloadJSON = "{\"field\": \"Value\"}";
+    private String metadataJSON;
+    private String payloadJSON;
     private ZonedDateTime timestamp = new UtcClock().now();
     private Long eventNumber = 23L;
     private Long previousEventNumber = 22L;
@@ -27,6 +33,11 @@ public class PublishedEventBuilder {
 
     public PublishedEventBuilder withId(final UUID id) {
         this.id = id;
+        return this;
+    }
+
+    public PublishedEventBuilder withSource(final String source) {
+        this.source = source;
         return this;
     }
 
@@ -71,6 +82,24 @@ public class PublishedEventBuilder {
     }
 
     public PublishedEvent build() {
+
+        final JsonEnvelope envelope = envelopeFrom(
+                metadataBuilder()
+                        .withId(id)
+                        .withName(name)
+                        .withStreamId(streamId)
+                        .withSource(source),
+                createObjectBuilder()
+                        .add("field_" + sequenceId, "value_" + sequenceId));
+
+        if (metadataJSON == null) {
+            metadataJSON = envelope.metadata().asJsonObject().toString();
+        }
+
+        if (payloadJSON == null) {
+            payloadJSON = envelope.payload().toString();
+        }
+
         return new PublishedEvent(id, streamId, sequenceId, name, metadataJSON, payloadJSON, timestamp, eventNumber, previousEventNumber);
     }
 }

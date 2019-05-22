@@ -4,14 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.events.TestEventInserter;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -31,8 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventDeQueuerIT {
 
     private final DataSource dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter();
-    private final EventFactory eventFactory = new EventFactory();
+    private final TestEventInserter testEventInserter = new TestEventInserter(dataSource);
     private final Clock clock = new UtcClock();
 
     @Mock
@@ -55,9 +54,9 @@ public class EventDeQueuerIT {
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
-        final Event event_1 = eventFactory.createEvent("example.first-event", 1L);
-        final Event event_2 = eventFactory.createEvent("example.second-event", 2L);
-        final Event event_3 = eventFactory.createEvent("example.third-event", 3L);
+        final Event event_1 = eventBuilder().withName("example.first-event").withSequenceId(1L).build();
+        final Event event_2 = eventBuilder().withName("example.second-event").withSequenceId(2L).build();
+        final Event event_3 = eventBuilder().withName("example.third-event").withSequenceId(3L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);
@@ -79,9 +78,9 @@ public class EventDeQueuerIT {
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
-        final Event event_1 = eventFactory.createEvent("example.first-event", 1L);
-        final Event event_2 = eventFactory.createEvent("example.second-event", 2L);
-        final Event event_3 = eventFactory.createEvent("example.third-event", 3L);
+        final Event event_1 = eventBuilder().withName("example.first-event").withSequenceId(1L).build();
+        final Event event_2 = eventBuilder().withName("example.second-event").withSequenceId(2L).build();
+        final Event event_3 = eventBuilder().withName("example.third-event").withSequenceId(3L).build();
 
         insertInPublishQueue(event_1,  event_2, event_3);
 

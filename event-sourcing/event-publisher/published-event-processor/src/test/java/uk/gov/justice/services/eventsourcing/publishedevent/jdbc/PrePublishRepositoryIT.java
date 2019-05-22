@@ -5,14 +5,14 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.EventFactory;
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.events.TestEventInserter;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -30,12 +30,11 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PrePublishRepositoryTest {
+public class PrePublishRepositoryIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter();
+    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
     private final TestEventStreamInserter testEventStreamInserter = new TestEventStreamInserter();
-    private final EventFactory eventFactory = new EventFactory();
     private final Clock clock = new UtcClock();
 
 
@@ -50,10 +49,10 @@ public class PrePublishRepositoryTest {
     @Test
     public void shouldGetTheSequenceNumberOfAnEvent() throws Exception {
 
-        final Event event_1 = eventFactory.createEvent("event-1", 101);
-        final Event event_2 = eventFactory.createEvent("event-2", 102);
-        final Event event_3 = eventFactory.createEvent("event-3", 103);
-        final Event event_4 = eventFactory.createEvent("event-4", 104);
+        final Event event_1 = eventBuilder().withName("event-1").withSequenceId(101L).build();
+        final Event event_2 = eventBuilder().withName("event-2").withSequenceId(102L).build();
+        final Event event_3 = eventBuilder().withName("event-3").withSequenceId(103L).build();
+        final Event event_4 = eventBuilder().withName("event-4").withSequenceId(104L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);
@@ -74,10 +73,10 @@ public class PrePublishRepositoryTest {
         final UUID streamId = randomUUID();
         testEventStreamInserter.insertIntoEventStream(streamId, 1l, true, clock.now());
 
-        final Event event_1 = eventFactory.createEvent(streamId, randomUUID(), "event-1", 1l, 101);
-        final Event event_2 = eventFactory.createEvent(streamId, randomUUID(), "event-2", 2l, 102);
-        final Event event_3 = eventFactory.createEvent(streamId, randomUUID(), "event-3", 3l, 103);
-        final Event event_4 = eventFactory.createEvent(streamId, randomUUID(), "event-4", 4l, 104);
+        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event-1").withEventNumber(1l).withSequenceId(101L).build();
+        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event-2").withEventNumber(2l).withSequenceId(102L).build();
+        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event-3").withEventNumber(3l).withSequenceId(103L).build();
+        final Event event_4 = eventBuilder().withStreamId(streamId).withName("event-4").withEventNumber(4l).withSequenceId(104L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);

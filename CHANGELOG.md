@@ -5,15 +5,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M26] - 2019-05-22
 ### Changed
 - Pre-publish and publish timer beans run for a given timer max runtime. The max time can be set with JNDI values "pre.publish.timer.max.runtime.milliseconds" and "event.dequer.timer.max.runtime.milliseconds".
+- framework -> 6.0.0-M26
+- framework-api -> 4.0.0-M21
 
 ## [2.0.0-M25] - 2019-05-15
 ### Changed
 - Merged event-publisher modules into one
 - Moved shuttering from the publishing timer bean into the command api in framework
-- framework -> 6.0.0-M26
-- framework-api -> 4.0.0-M21
 
 ## [2.0.0-M24] - 2019-05-07
 ### Changed

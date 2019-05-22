@@ -5,8 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [1.1.10] 2019-05-22
 ### Changed
-- Pre-publish and publish timer beans run for a given time slot and will stop before the next timer starts
+- Pre-publish and publish timer beans run for a given timer max runtime. The max time can be set with JNDI values "pre.publish.timer.max.runtime.milliseconds" and "event.dequer.timer.max.runtime.milliseconds".
 
 ## [1.1.9] 2019-05-10
 ### Added

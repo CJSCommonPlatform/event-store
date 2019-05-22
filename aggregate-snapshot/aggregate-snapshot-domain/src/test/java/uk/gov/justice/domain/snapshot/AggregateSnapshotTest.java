@@ -29,7 +29,7 @@ public class AggregateSnapshotTest {
         final AggregateSnapshot<TestAggregate> snapshot = new AggregateSnapshot<>(STREAM_ID, VERSION_ID, aggregate);
 
         assertThat(snapshot.getStreamId(), is(STREAM_ID));
-        assertThat(snapshot.getVersionId(), is(VERSION_ID));
+        assertThat(snapshot.getPositionInStream(), is(VERSION_ID));
         assertThat(snapshot.getType(), is(TYPE));
         assertThat(snapshot.getAggregateByteRepresentation(), is(SerializationUtils.serialize(aggregate)));
     }
@@ -41,7 +41,7 @@ public class AggregateSnapshotTest {
         final AggregateSnapshot<TestAggregate> snapshot = new AggregateSnapshot<>(STREAM_ID, VERSION_ID, aggregate);
 
         assertThat(snapshot.getStreamId(), is(STREAM_ID));
-        assertThat(snapshot.getVersionId(), is(VERSION_ID));
+        assertThat(snapshot.getPositionInStream(), is(VERSION_ID));
         assertThat(snapshot.getType(), is(TYPE));
         assertThat(snapshot.getAggregate(streamStrategy), is(aggregate));
     }

@@ -44,7 +44,7 @@ public class AnsiSQLEventInsertionStrategyTest {
 
         when(event.getId()).thenReturn(id);
         when(event.getStreamId()).thenReturn(streamId);
-        when(event.getSequenceId()).thenReturn(sequenceId);
+        when(event.getPositionInStream()).thenReturn(sequenceId);
         when(event.getName()).thenReturn(name);
         when(event.getMetadata()).thenReturn(metadata);
         when(event.getPayload()).thenReturn(payload);

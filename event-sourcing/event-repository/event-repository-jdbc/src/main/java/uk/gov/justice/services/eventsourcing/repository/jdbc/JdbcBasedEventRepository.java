@@ -89,7 +89,7 @@ public class JdbcBasedEventRepository implements EventRepository {
     public void storeEvent(final JsonEnvelope envelope) throws StoreEventRequestFailedException {
         try {
             final Event event = eventConverter.eventOf(envelope);
-            logger.trace("Storing event {} into stream {} at position {}", event.getName(), event.getStreamId(), event.getSequenceId());
+            logger.trace("Storing event {} into stream {} at position {}", event.getName(), event.getStreamId(), event.getPositionInStream());
             eventJdbcRepository.insert(event);
         } catch (InvalidPositionException ex) {
             throw new StoreEventRequestFailedException(String.format("Could not store event for position %d of stream %s",

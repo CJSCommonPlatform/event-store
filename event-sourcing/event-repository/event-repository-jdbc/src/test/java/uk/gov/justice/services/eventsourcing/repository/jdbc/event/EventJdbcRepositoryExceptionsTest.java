@@ -62,7 +62,7 @@ public class EventJdbcRepositoryExceptionsTest {
         when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, statement)).thenThrow(sqlException);
-        when(event.getSequenceId()).thenReturn(5L);
+        when(event.getPositionInStream()).thenReturn(5L);
         when(event.getStreamId()).thenReturn(streamId);
 
         try {

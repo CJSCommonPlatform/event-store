@@ -19,7 +19,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class AggregateSnapshot<T extends Aggregate> implements Serializable {
 
     private final UUID streamId;
-    private final Long versionId;
+    private final Long positionInStream;
     private final String type;
     private final byte[] aggregateByteRepresentation;
 
@@ -34,7 +34,7 @@ public class AggregateSnapshot<T extends Aggregate> implements Serializable {
 
     public AggregateSnapshot(final UUID streamId, final Long versionId, final String type, final byte[] aggregateByteRepresentation) {
         this.streamId = streamId;
-        this.versionId = versionId;
+        this.positionInStream = versionId;
         this.type = type;
         this.aggregateByteRepresentation = aggregateByteRepresentation;
     }
@@ -43,8 +43,8 @@ public class AggregateSnapshot<T extends Aggregate> implements Serializable {
         return streamId;
     }
 
-    public Long getVersionId() {
-        return versionId;
+    public Long getPositionInStream() {
+        return positionInStream;
     }
 
     public String getType() {
@@ -74,7 +74,7 @@ public class AggregateSnapshot<T extends Aggregate> implements Serializable {
 
         return new EqualsBuilder()
                 .append(streamId, that.streamId)
-                .append(versionId, that.versionId)
+                .append(positionInStream, that.positionInStream)
                 .append(type, that.type)
                 .append(aggregateByteRepresentation, that.aggregateByteRepresentation)
                 .isEquals();
@@ -84,7 +84,7 @@ public class AggregateSnapshot<T extends Aggregate> implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(streamId)
-                .append(versionId)
+                .append(positionInStream)
                 .append(type)
                 .append(aggregateByteRepresentation)
                 .toHashCode();

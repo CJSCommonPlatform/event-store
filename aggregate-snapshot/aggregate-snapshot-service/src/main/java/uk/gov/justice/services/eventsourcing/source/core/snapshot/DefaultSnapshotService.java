@@ -60,7 +60,7 @@ public class DefaultSnapshotService implements SnapshotService {
 
         if (aggregateSnapshot.isPresent()) {
             final AggregateSnapshot<T> snapshotValue = aggregateSnapshot.get();
-            final VersionedAggregate<T> versionedAggregate = new VersionedAggregate<T>(snapshotValue.getVersionId(), snapshotValue.getAggregate(streamStrategy));
+            final VersionedAggregate<T> versionedAggregate = new VersionedAggregate<T>(snapshotValue.getPositionInStream(), snapshotValue.getAggregate(streamStrategy));
             return Optional.of(versionedAggregate);
         }
 

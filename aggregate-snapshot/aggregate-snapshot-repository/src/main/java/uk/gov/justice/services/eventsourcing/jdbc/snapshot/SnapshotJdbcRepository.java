@@ -48,12 +48,12 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement ps = connection.prepareStatement(SQL_INSERT_EVENT_LOG)) {
             ps.setObject(1, aggregateSnapshot.getStreamId());
-            ps.setLong(2, aggregateSnapshot.getVersionId());
+            ps.setLong(2, aggregateSnapshot.getPositionInStream());
             ps.setString(3, aggregateSnapshot.getType());
             ps.setBytes(4, aggregateSnapshot.getAggregateByteRepresentation());
             ps.executeUpdate();
         } catch (final SQLException e) {
-            logger.error("Error while storing a snapshot for {} at version {}", aggregateSnapshot.getStreamId(), aggregateSnapshot.getVersionId(), e);
+            logger.error("Error while storing a snapshot for {} at version {}", aggregateSnapshot.getStreamId(), aggregateSnapshot.getPositionInStream(), e);
         }
     }
 

@@ -14,7 +14,7 @@ public class Event {
 
     private final UUID id;
     private final UUID streamId;
-    private final Long sequenceId;
+    private final Long positionInStream;
     private final String name;
     private final String payload;
     private final String metadata;
@@ -28,7 +28,7 @@ public class Event {
 
     public Event(final UUID id,
                  final UUID streamId,
-                 final Long sequenceId,
+                 final Long positionInStream,
                  final String name,
                  final String metadata,
                  final String payload,
@@ -36,7 +36,7 @@ public class Event {
         this(
                 id,
                 streamId,
-                sequenceId,
+                positionInStream,
                 name,
                 metadata,
                 payload,
@@ -47,7 +47,7 @@ public class Event {
 
     public Event(final UUID id,
           final UUID streamId,
-          final Long sequenceId,
+          final Long positionInStream,
           final String name,
           final String metadata,
           final String payload,
@@ -55,7 +55,7 @@ public class Event {
           final Optional<Long> eventNumber) {
         this.id = id;
         this.streamId = streamId;
-        this.sequenceId = sequenceId;
+        this.positionInStream = positionInStream;
         this.name = name;
         this.metadata = metadata;
         this.payload = payload;
@@ -71,8 +71,8 @@ public class Event {
         return streamId;
     }
 
-    public Long getSequenceId() {
-        return sequenceId;
+    public Long getPositionInStream() {
+        return positionInStream;
     }
 
     public String getPayload() {
@@ -109,7 +109,7 @@ public class Event {
         final Event event = (Event) o;
         return Objects.equals(id, event.id) &&
                 Objects.equals(streamId, event.streamId) &&
-                Objects.equals(sequenceId, event.sequenceId) &&
+                Objects.equals(positionInStream, event.positionInStream) &&
                 Objects.equals(name, event.name) &&
                 Objects.equals(payload, event.payload) &&
                 Objects.equals(metadata, event.metadata) &&
@@ -118,7 +118,7 @@ public class Event {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, streamId, sequenceId, name, payload, metadata, createdAt, eventNumber);
+        return Objects.hash(id, streamId, positionInStream, name, payload, metadata, createdAt, eventNumber);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Event {
         return "Event{" +
                 "id=" + id +
                 ", streamId=" + streamId +
-                ", sequenceId=" + sequenceId +
+                ", positionInStream=" + positionInStream +
                 ", name='" + name + '\'' +
                 ", payload='" + payload + '\'' +
                 ", metadata='" + metadata + '\'' +

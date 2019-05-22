@@ -89,9 +89,9 @@ public class EventJdbcRepositoryIT {
     @Test
     public void shouldStoreEventsUsingInsert() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID + 1).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID + 2).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID + 1).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID + 2).build());
 
         final Stream<Event> events = jdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID);
         final Stream<Event> events2 = jdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, SEQUENCE_ID + 1);
@@ -107,7 +107,7 @@ public class EventJdbcRepositoryIT {
 
         final UUID id = randomUUID();
 
-        final Event event = eventBuilder().withId(id).withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID).build();
+        final Event event = eventBuilder().withId(id).withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build();
 
         jdbcRepository.insert(event);
 
@@ -123,17 +123,17 @@ public class EventJdbcRepositoryIT {
     @Test
     public void shouldReturnEventsByStreamIdOrderedBySequenceId() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(7L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(2L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(2L).build());
 
         try (final Stream<Event> events = jdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID)) {
             final List<Event> eventList = events.collect(toList());
             assertThat(eventList, hasSize(3));
-            assertThat(eventList.get(0).getSequenceId(), is(2L));
-            assertThat(eventList.get(1).getSequenceId(), is(4L));
-            assertThat(eventList.get(2).getSequenceId(), is(7L));
+            assertThat(eventList.get(0).getPositionInStream(), is(2L));
+            assertThat(eventList.get(1).getPositionInStream(), is(4L));
+            assertThat(eventList.get(2).getPositionInStream(), is(7L));
         }
     }
 
@@ -165,7 +165,7 @@ public class EventJdbcRepositoryIT {
     @Test
     public void shouldStoreAndReturnDateCreated() throws InvalidPositionException {
 
-        final Event event = eventBuilder().withSequenceId(1L).build();
+        final Event event = eventBuilder().withPositionInStream(1L).build();
         jdbcRepository.insert(event);
 
         Stream<Event> events = jdbcRepository.findByStreamIdOrderByPositionAsc(event.getStreamId());
@@ -178,16 +178,16 @@ public class EventJdbcRepositoryIT {
     @Test
     public void shouldReturnEventsByStreamIdFromSequenceIdOrderBySequenceId() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withSequenceId(5L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(7L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(3L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withPositionInStream(5L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
 
         final Stream<Event> events = jdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, 4L);
         final List<Event> eventList = events.collect(toList());
         assertThat(eventList, hasSize(2));
-        assertThat(eventList.get(0).getSequenceId(), is(4L));
-        assertThat(eventList.get(1).getSequenceId(), is(7L));
+        assertThat(eventList.get(0).getPositionInStream(), is(4L));
+        assertThat(eventList.get(1).getPositionInStream(), is(7L));
     }
 
     @Test
@@ -195,31 +195,31 @@ public class EventJdbcRepositoryIT {
 
         final int pageSize = 2;
 
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(7L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(3L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
 
         final Stream<Event> events = jdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, 3L, pageSize);
         final List<Event> eventList = events.collect(toList());
         assertThat(eventList, hasSize(2));
-        assertThat(eventList.get(0).getSequenceId(), is(3L));
-        assertThat(eventList.get(1).getSequenceId(), is(4L));
+        assertThat(eventList.get(0).getPositionInStream(), is(3L));
+        assertThat(eventList.get(1).getPositionInStream(), is(4L));
     }
 
     @Test
     public void shouldReturnAllEventsOrderedBySequenceId() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(2L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(randomUUID()).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(2L).build());
 
         final Stream<Event> events = jdbcRepository.findAll();
 
         final List<Event> eventList = events.collect(toList());
         assertThat(eventList, hasSize(3));
-        assertThat(eventList.get(0).getSequenceId(), is(1L));
-        assertThat(eventList.get(1).getSequenceId(), is(2L));
-        assertThat(eventList.get(2).getSequenceId(), is(4L));
+        assertThat(eventList.get(0).getPositionInStream(), is(1L));
+        assertThat(eventList.get(1).getPositionInStream(), is(2L));
+        assertThat(eventList.get(2).getPositionInStream(), is(4L));
     }
 
     @Test
@@ -229,10 +229,10 @@ public class EventJdbcRepositoryIT {
         final UUID streamId2 = randomUUID();
         final UUID streamId3 = randomUUID();
 
-        jdbcRepository.insert(eventBuilder().withStreamId(streamId1).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(streamId2).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(streamId3).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(streamId1).withSequenceId(2L)
+        jdbcRepository.insert(eventBuilder().withStreamId(streamId1).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(streamId2).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(streamId3).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(streamId1).withPositionInStream(2L)
                 .build());
 
         final Stream<UUID> streamIds = jdbcRepository.getStreamIds();
@@ -249,29 +249,29 @@ public class EventJdbcRepositoryIT {
     public void shouldThrowExceptionOnDuplicateId() throws InvalidPositionException {
         final UUID id = randomUUID();
 
-        jdbcRepository.insert(eventBuilder().withId(id).withSequenceId(SEQUENCE_ID).build());
-        jdbcRepository.insert(eventBuilder().withId(id).withSequenceId(SEQUENCE_ID + 1).build());
+        jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID).build());
+        jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID + 1).build());
     }
 
     @Test(expected = JdbcRepositoryException.class)
     public void shouldThrowExceptionOnDuplicateSequenceId() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(SEQUENCE_ID).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
     }
 
     @Test
     public void shouldClearStream() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(1L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(2L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(3L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(4L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(5L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(6L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(7L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(8L).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withSequenceId(9L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(1L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(2L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(5L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(6L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(8L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(9L).build());
 
         final Long latestSequenceId = jdbcRepository.getStreamSize(STREAM_ID);
         assertThat(latestSequenceId, equalTo(9L));

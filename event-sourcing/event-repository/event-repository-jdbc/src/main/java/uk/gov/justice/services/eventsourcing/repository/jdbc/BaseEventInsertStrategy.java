@@ -24,13 +24,13 @@ public abstract class BaseEventInsertStrategy implements EventInsertionStrategy 
      * @throws InvalidPositionException if an event already exists at the specified position.
      */
     protected int executeStatement(final PreparedStatementWrapper preparedStatement, final Event event) throws SQLException, InvalidPositionException {
-        if (event.getSequenceId() == null) {
+        if (event.getPositionInStream() == null) {
             throw new InvalidPositionException(format("Version is null for stream %s", event.getStreamId()));
         }
 
         preparedStatement.setObject(1, event.getId());
         preparedStatement.setObject(2, event.getStreamId());
-        preparedStatement.setLong(3, event.getSequenceId());
+        preparedStatement.setLong(3, event.getPositionInStream());
         preparedStatement.setString(4, event.getName());
         preparedStatement.setString(5, event.getMetadata());
         preparedStatement.setString(6, event.getPayload());

@@ -33,7 +33,7 @@ public class PostgresSQLEventLogInsertionStrategy extends BaseEventInsertStrateg
 
         if (updatedRows == 0) {
             throw new OptimisticLockingRetryException(format("Locking Exception while storing sequence %s of stream %s",
-                    event.getSequenceId(), event.getStreamId()));
+                    event.getPositionInStream(), event.getStreamId()));
         }
     }
 }

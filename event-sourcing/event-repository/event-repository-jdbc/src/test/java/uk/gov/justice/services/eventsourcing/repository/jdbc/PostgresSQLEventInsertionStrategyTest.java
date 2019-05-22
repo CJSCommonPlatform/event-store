@@ -53,7 +53,7 @@ public class PostgresSQLEventInsertionStrategyTest {
     public void shouldExecutePreparedStatementAndCompleteIfRowIsInserted() throws Exception {
         when(event.getId()).thenReturn(ID);
         when(event.getStreamId()).thenReturn(STREAM_ID);
-        when(event.getSequenceId()).thenReturn(SEQUENCE_ID);
+        when(event.getPositionInStream()).thenReturn(SEQUENCE_ID);
         when(event.getName()).thenReturn(NAME);
         when(event.getMetadata()).thenReturn(METADATA);
         when(event.getPayload()).thenReturn(PAYLOAD);
@@ -76,7 +76,7 @@ public class PostgresSQLEventInsertionStrategyTest {
     public void shouldExecutePreparedStatementAndThrowExceptionIfRowWasNotInsertedDueToConflict() throws Exception {
         when(event.getId()).thenReturn(ID);
         when(event.getStreamId()).thenReturn(STREAM_ID);
-        when(event.getSequenceId()).thenReturn(SEQUENCE_ID);
+        when(event.getPositionInStream()).thenReturn(SEQUENCE_ID);
         when(event.getName()).thenReturn(NAME);
         when(event.getMetadata()).thenReturn(METADATA);
         when(event.getPayload()).thenReturn(PAYLOAD);

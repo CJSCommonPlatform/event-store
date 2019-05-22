@@ -159,7 +159,7 @@ public class RebuildPublishedEventIT {
             assertThat(publishedEvents.get(i).getPayload(), is(events.get(i).getPayload()));
             assertThat(publishedEvents.get(i).getMetadata(), is(events.get(i).getMetadata()));
             assertThat(publishedEvents.get(i).getCreatedAt(), is(events.get(i).getCreatedAt()));
-            assertThat(publishedEvents.get(i).getSequenceId(), is(events.get(i).getSequenceId()));
+            assertThat(publishedEvents.get(i).getPositionInStream(), is(events.get(i).getPositionInStream()));
         }
 
         assertThat(sequenceSetter.getCurrentSequenceValue("event_sequence_seq", eventStoreDataSource), is((long) numberOfEvents));

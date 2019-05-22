@@ -47,7 +47,6 @@ public class EventLogPublishIT {
 
         final UUID eventLogId = randomUUID();
         final UUID streamId = randomUUID();
-        final int sequenceId = 98123674;
 
         final ZonedDateTime now = utcClock.now();
 

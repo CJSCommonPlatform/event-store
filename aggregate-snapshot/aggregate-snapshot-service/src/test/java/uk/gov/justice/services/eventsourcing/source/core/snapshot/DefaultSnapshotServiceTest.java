@@ -83,7 +83,7 @@ public class DefaultSnapshotServiceTest {
         verify(snapshotRepository, times(1)).storeSnapshot(snapshotArgumentCaptor.capture());
 
         assertThat(snapshotArgumentCaptor.getValue(), notNullValue());
-        assertThat(snapshotArgumentCaptor.getValue().getVersionId(), is(currentAggregateVersionId));
+        assertThat(snapshotArgumentCaptor.getValue().getPositionInStream(), is(currentAggregateVersionId));
 
     }
 

@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M27] - 2019-05-22
+### Fixed
+- Removed rogue test library from production scope in maven 
+
 ## [2.0.0-M26] - 2019-05-22
 ### Changed
 - Pre-publish and publish timer beans run for a given timer max runtime. The max time can be set with JNDI values "pre.publish.timer.max.runtime.milliseconds" and "event.dequer.timer.max.runtime.milliseconds".

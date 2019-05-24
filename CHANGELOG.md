@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [2.0.0-M27] - 2019-05-24
+## [2.0.0-M28] - 2019-05-24
 ### Added
 - Added an Observer for PublishedEvent Rebuild
 

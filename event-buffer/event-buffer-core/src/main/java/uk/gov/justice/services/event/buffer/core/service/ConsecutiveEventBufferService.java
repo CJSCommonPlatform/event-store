@@ -61,9 +61,9 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final long incomingEventVersion = versionOf(incomingEvent);
         final String source = getSource(incomingEvent);
 
-        streamStatusJdbcRepository.updateSource(streamId, source);
-        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, 0L, source));
-        final long currentVersion = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source)
+        streamStatusJdbcRepository.updateSource(streamId, source, component);
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, 0L, source, component));
+        final long currentVersion = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)
                 .orElseThrow(() -> new IllegalStateException("stream status cannot be empty"))
                 .getPosition();
 
@@ -78,8 +78,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
         } else {
             logger.trace("Message : {} version is valid sending stream to dispatcher", incomingEvent);
-            streamStatusJdbcRepository.update(new Subscription(streamId, incomingEventVersion, source));
-            return bufferedEvents(streamId, incomingEvent, incomingEventVersion);
+            streamStatusJdbcRepository.update(new Subscription(streamId, incomingEventVersion, source, component));
+            return bufferedEvents(streamId, incomingEvent, incomingEventVersion, component);
         }
     }
 
@@ -93,14 +93,15 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         return incomingEventVersion;
     }
 
-    private Stream<JsonEnvelope> bufferedEvents(final UUID streamId, final JsonEnvelope incomingEvent, final long incomingEventVersion) {
+    private Stream<JsonEnvelope> bufferedEvents(final UUID streamId, final JsonEnvelope incomingEvent, final long incomingEventVersion, final String component) {
         final String source = getSource(incomingEvent);
         return concat(Stream.of(incomingEvent), consecutiveEventStreamFromBuffer(streamBufferRepository.findStreamByIdAndSource(streamId, source), incomingEventVersion)
                 .peek(streamBufferEvent -> streamBufferRepository.remove(streamBufferEvent))
                 .peek(streamBufferEvent -> streamStatusJdbcRepository.update(new Subscription(
                         streamBufferEvent.getStreamId(),
                         streamBufferEvent.getPosition(),
-                        source)))
+                        source,
+                        component)))
                 .map(streamBufferEvent -> jsonObjectEnvelopeConverter.asEnvelope(streamBufferEvent.getEvent())));
     }
 

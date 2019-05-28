@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M29] - 2019-05-28
+### Fixed
+- Re-release of 2.0.0-M28 as deployment to Bintray.com failed due to network issues
 
 ## [2.0.0-M28] - 2019-05-24
 ### Added

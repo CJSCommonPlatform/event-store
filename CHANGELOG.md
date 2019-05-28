@@ -4,6 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M30] - 2019-05-28
+### Fixed
+- Re-release of 2.0.0-M28 as deployment to Bintray.com failed due to network issues
+- Removed old dependency event-listener-interceptors from event-store-bom
+
+
 ## [2.0.0-M29] - 2019-05-28
 ### Fixed
 - Re-release of 2.0.0-M28 as deployment to Bintray.com failed due to network issues

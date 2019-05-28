@@ -46,11 +46,6 @@
             </dependency>
             <dependency>
                 <groupId>uk.gov.justice.event-store</groupId>
-                <artifactId>event-listener-interceptors</artifactId>
-                <version>${event-store.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>uk.gov.justice.event-store</groupId>
                 <artifactId>command-handler-interceptors</artifactId>
                 <version>${event-store.version}</version>
             </dependency>

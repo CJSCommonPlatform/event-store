@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet
+            id="event-buffer-006"
+            author="TechPod"
+            logicalFilePath="006-add-component-to-stream-status.changelog.xml">
+
+        <dropPrimaryKey
+                constraintName="stream_status_pkey"
+                tableName="stream_status"
+        />
+
+        <addColumn
+                tableName="stream_status">
+            <column
+                    name="component"
+                    type="varchar(100)"
+                    defaultValue="EVENT_LISTENER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <addPrimaryKey
+                tableName="stream_status"
+                constraintName="stream_status_pkey"
+                columnNames="stream_id,source,component"
+        />
+
+        <rollback>
+            <dropPrimaryKey
+                    constraintName="stream_status_pkey"
+                    tableName="stream_status"
+            />
+            <dropColumn tableName="stream_buffer">
+                <column
+                        name="component"
+                        type="varchar(100)"/>
+            </dropColumn>
+            <addPrimaryKey
+                    tableName="pk_stream_status"
+                    constraintName="stream_status_pkey"
+                    columnNames="stream_id,source"
+            />
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

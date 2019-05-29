@@ -25,6 +25,8 @@ import org.junit.Test;
 
 public class StreamStatusJdbcRepositoryIT {
 
+    public static final String EVENT_LISTENER = "EVENT_LISTENER";
+
     private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM stream_status WHERE stream_id=?";
 
     private static final long INITIAL_POSITION = 0L;
@@ -50,7 +52,7 @@ public class StreamStatusJdbcRepositoryIT {
         final UUID streamId = randomUUID();
 
         initialiseBuffer(streamId, source);
-        final Subscription subscription = new Subscription(streamId, 2L, source);
+        final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
 
@@ -58,7 +60,7 @@ public class StreamStatusJdbcRepositoryIT {
         final int count = countByStreamId(streamId);
         assertThat(count, is(1));
 
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, "sjp");
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, "sjp", EVENT_LISTENER);
 
         assertThat(result.get().getSource(), is("sjp"));
         assertThat(result.get().getPosition(), is(2L));
@@ -73,7 +75,7 @@ public class StreamStatusJdbcRepositoryIT {
         final int count = countByStreamId(streamId);
         assertThat(count, is(1));
 
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
 
         assertThat(result.get().getSource(), is(source));
         assertThat(result.get().getPosition(), is(0L));
@@ -85,7 +87,7 @@ public class StreamStatusJdbcRepositoryIT {
         final UUID streamId = randomUUID();
 
         initialiseBuffer(streamId, source);
-        final Subscription subscription = new Subscription(streamId, 2L, source);
+        final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
 
@@ -93,7 +95,7 @@ public class StreamStatusJdbcRepositoryIT {
         final int count = countByStreamId(streamId);
         assertThat(count, is(1));
 
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
 
         assertThat(result.get().getSource(), is("sjp"));
         assertThat(result.get().getPosition(), is(2L));
@@ -105,12 +107,12 @@ public class StreamStatusJdbcRepositoryIT {
         final String source = "unknown";
         final UUID streamId = randomUUID();
 
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, source));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, source, EVENT_LISTENER));
 
-        final Subscription subscription = new Subscription(streamId, 2L, source);
+        final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
         assertThat(result.get().getSource(), is(source));
         assertThat(result.get().getPosition(), is(2L));
     }
@@ -119,13 +121,13 @@ public class StreamStatusJdbcRepositoryIT {
     public void shouldUpdateSourceWhenNotUnknown() throws Exception {
         final UUID streamId = randomUUID();
 
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "unknown"));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "unknown", EVENT_LISTENER));
 
         final String source = "sjp";
-        final Subscription subscription = new Subscription(streamId, 2L, source);
+        final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
         assertThat(result.get().getSource(), is(source));
         assertThat(result.get().getPosition(), is(2L));
     }
@@ -136,9 +138,9 @@ public class StreamStatusJdbcRepositoryIT {
         final long version = 4L;
         final String source = "source";
 
-        streamStatusJdbcRepository.insert(subscriptionOf(id, version, source));
+        streamStatusJdbcRepository.insert(subscriptionOf(id, version, source, EVENT_LISTENER));
 
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, source);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, source, EVENT_LISTENER);
         assertTrue(result.isPresent());
         assertThat(result.get().getPosition(), is(version));
         assertThat(result.get().getSource(), is(source));
@@ -147,19 +149,19 @@ public class StreamStatusJdbcRepositoryIT {
 
     @Test
     public void shouldReturnOptionalNotPresentIfStatusNotFound() throws Exception {
-        Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(randomUUID(), "source");
+        Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(randomUUID(), "source", EVENT_LISTENER);
         assertFalse(result.isPresent());
     }
 
     @Test
     public void shouldUpdateVersionForSameStreamIdWithMultipleSources() throws Exception {
         final UUID id = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 4"));
-        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 4"));
-        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 5"));
-        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 5"));
+        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 4", EVENT_LISTENER));
+        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 4", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 5", EVENT_LISTENER));
+        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 5", EVENT_LISTENER));
 
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, "source 5");
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, "source 5", EVENT_LISTENER);
         assertTrue(result.isPresent());
         assertThat(result.get().getPosition(), is(5L));
         assertThat(result.get().getSource(), is("source 5"));
@@ -169,13 +171,13 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldNotUpdateVersionForANewSourceField() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2"));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
 
         final String source3 = "source3";
-        final Subscription subscription = new Subscription(streamId, 1L, source3);
+        final Subscription subscription = new Subscription(streamId, 1L, source3, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source3);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source3, EVENT_LISTENER);
         assertThat(result, is(Optional.empty()));
     }
 
@@ -183,13 +185,13 @@ public class StreamStatusJdbcRepositoryIT {
     public void shouldUpdateVersionForAnExistingSourceField() throws Exception {
         final UUID streamId = randomUUID();
         final String source3 = "source3";
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 4L, source3));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source4"));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 4L, source3, EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source4", EVENT_LISTENER));
 
-        final Subscription subscription = new Subscription(streamId, 5L, source3);
+        final Subscription subscription = new Subscription(streamId, 5L, source3, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source3);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source3, EVENT_LISTENER);
         assertTrue(result.isPresent());
         assertThat(result.get().getPosition(), is(5L));
         assertThat(result.get().getSource(), is(source3));
@@ -199,15 +201,15 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldUpdateNewVersionNumberForExistingSourceWhenMultipleSourceEventsExist() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1"));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2"));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3"));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3", EVENT_LISTENER));
 
         final String existingSource = "source2";
-        final Subscription subscription = new Subscription(streamId, 2L, existingSource);
+        final Subscription subscription = new Subscription(streamId, 2L, existingSource, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, existingSource);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, existingSource, EVENT_LISTENER);
         assertTrue(result.isPresent());
         assertThat(result.get().getPosition(), is(2L));
         assertThat(result.get().getSource(), is(existingSource));
@@ -216,31 +218,31 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldNotUpdateNewVersionNumberForNewSourceWhenMultipleSourceEventsExist() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1"));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2"));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3"));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3", EVENT_LISTENER));
 
         final String newSource = "source4";
-        final Subscription subscription = new Subscription(streamId, 1L, newSource);
+        final Subscription subscription = new Subscription(streamId, 1L, newSource, EVENT_LISTENER);
 
         streamStatusJdbcRepository.update(subscription);
-        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, newSource);
+        final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, newSource, EVENT_LISTENER);
         assertThat(result, is(Optional.empty()));
     }
 
-    private Subscription subscriptionOf(final UUID id, final Long version, final String source) {
-        return new Subscription(id, version, source);
+    private Subscription subscriptionOf(final UUID id, final Long version, final String source, final String component) {
+        return new Subscription(id, version, source, component);
     }
 
     private long initialiseBuffer(final UUID streamId, final String source) {
-        streamStatusJdbcRepository.updateSource(streamId, source);
-        final Optional<Subscription> currentStatus = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source);
+        streamStatusJdbcRepository.updateSource(streamId, source, EVENT_LISTENER);
+        final Optional<Subscription> currentStatus = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
 
         if (!currentStatus.isPresent()) {
             //this is to address race condition
             //in case of primary key violation the exception gets thrown, event goes back into topic and the transaction gets retried
             streamStatusJdbcRepository
-                    .insert(new Subscription(streamId, INITIAL_POSITION, source));
+                    .insert(new Subscription(streamId, INITIAL_POSITION, source, EVENT_LISTENER));
             return INITIAL_POSITION;
 
         } else {

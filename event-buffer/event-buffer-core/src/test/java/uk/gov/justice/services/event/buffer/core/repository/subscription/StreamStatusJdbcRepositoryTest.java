@@ -24,6 +24,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class StreamStatusJdbcRepositoryTest {
 
+    public static final String EVENT_LISTENER = "EVENT_LISTENER";
+
     @SuppressWarnings("unused")
     @Spy
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
@@ -55,12 +57,12 @@ public class StreamStatusJdbcRepositoryTest {
 
         final String source = "a source";
 
-        when(connection.prepareStatement("INSERT INTO stream_status (position, stream_id, source) VALUES (?, ?, ?) ON CONFLICT DO NOTHING"))
+        when(connection.prepareStatement("INSERT INTO stream_status (position, stream_id, source, component) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING"))
                 .thenReturn(preparedStatement);
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, position, source));
+        streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, position, source, EVENT_LISTENER));
 
         verify(preparedStatement).setLong(1, position);
         verify(preparedStatement).setObject(2, streamId);

@@ -24,7 +24,7 @@ import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.D
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
-import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerBean;
+import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherBean;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
@@ -148,7 +148,7 @@ public class EventPublishIT {
             PrePublishRepository.class,
             UtcClock.class,
             PublishedEventFactory.class,
-            PublisherTimerBean.class,
+            PublisherBean.class,
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,

@@ -1,10 +1,12 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherBean;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timeout;
@@ -34,6 +36,9 @@ public class PrePublishTimerBean {
     @Inject
     private StopWatchFactory stopWatchFactory;
 
+    @EJB
+    private PublisherBean publisherBean;
+
     @PostConstruct
     public void startTimerService() {
 
@@ -58,5 +63,7 @@ public class PrePublishTimerBean {
                 break;
             }
         }
+
+        publisherBean.publishAsynchronously();
     }
 }

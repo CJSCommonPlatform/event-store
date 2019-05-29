@@ -7,9 +7,6 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
-
-import javax.ejb.TimerService;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
@@ -19,10 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublisherTimerBeanTest {
-
-    @Mock
-    private TimerService timerService;
+public class PublisherBeanTest {
 
     @Mock
     private PublisherTimerConfig publisherTimerConfig;
@@ -31,44 +25,21 @@ public class PublisherTimerBeanTest {
     private PublishedEventDeQueuerAndPublisher publishedEventDeQueuerAndPublisher;
 
     @Mock
-    private TimerServiceManager timerServiceManager;
-
-    @Mock
     private StopWatchFactory stopWatchFactory;
 
     @InjectMocks
-    private PublisherTimerBean publisherTimerBean;
-
-    @Test
-    public void shouldSetUpTheTimerServiceOnPostConstruct() throws Exception {
-
-        final long timerStartValue = 7000L;
-        final long timerIntervalValue = 2000L;
-
-        when(publisherTimerConfig.getTimerStartWaitMilliseconds()).thenReturn(timerStartValue);
-        when(publisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
-
-        publisherTimerBean.startTimerService();
-
-        verify(timerServiceManager).createIntervalTimer(
-                "event-store.de-queue-events-and-publish.job",
-                timerStartValue,
-                timerIntervalValue,
-                timerService);
-    }
+    private PublisherBean publisherBean;
 
     @Test
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
-        final long timerIntervalValue = 2000L;
         final long timerMaxRuntimeValue = 495L;
 
-        when(publisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
         when(publisherTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(mock(StopWatch.class));
         when(publishedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true, false);
 
-        publisherTimerBean.doDeQueueAndPublish();
+        publisherBean.publishAsynchronously();
 
         verify(publishedEventDeQueuerAndPublisher, times(3)).deQueueAndPublish();
     }
@@ -86,7 +57,7 @@ public class PublisherTimerBeanTest {
         when(publishedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true);
         when(stopWatch.getTime()).thenReturn(timerIntervalValue);
 
-        publisherTimerBean.doDeQueueAndPublish();
+        publisherBean.publishAsynchronously();
 
         verify(publishedEventDeQueuerAndPublisher, times(1)).deQueueAndPublish();
     }

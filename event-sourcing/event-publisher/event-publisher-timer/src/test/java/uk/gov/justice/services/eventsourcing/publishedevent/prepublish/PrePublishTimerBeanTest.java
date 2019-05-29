@@ -1,10 +1,12 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherBean;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
@@ -13,6 +15,7 @@ import javax.ejb.TimerService;
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,6 +37,9 @@ public class PrePublishTimerBeanTest {
 
     @Mock
     private StopWatchFactory stopWatchFactory;
+
+    @Mock
+    private PublisherBean publisherBean;
 
     @InjectMocks
     private PrePublishTimerBean prePublishTimerBean;
@@ -62,7 +68,6 @@ public class PrePublishTimerBeanTest {
         final long timerIntervalValue = 2000L;
         final long timerMaxRuntimeValue = 495L;
 
-
         when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
         when(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(mock(StopWatch.class));
@@ -70,7 +75,10 @@ public class PrePublishTimerBeanTest {
 
         prePublishTimerBean.performPrePublish();
 
-        verify(prePublishProcessor, times(3)).prePublishNextEvent();
+        final InOrder inOrder = inOrder(prePublishProcessor, publisherBean);
+
+        inOrder.verify(prePublishProcessor, times(3)).prePublishNextEvent();
+        inOrder.verify(publisherBean).publishAsynchronously();
     }
 
     @Test
@@ -88,7 +96,9 @@ public class PrePublishTimerBeanTest {
 
         prePublishTimerBean.performPrePublish();
 
-        verify(prePublishProcessor, times(1)).prePublishNextEvent();
-    }
+        final InOrder inOrder = inOrder(prePublishProcessor, publisherBean);
 
+        inOrder.verify(prePublishProcessor, times(1)).prePublishNextEvent();
+        inOrder.verify(publisherBean).publishAsynchronously();
+    }
 }

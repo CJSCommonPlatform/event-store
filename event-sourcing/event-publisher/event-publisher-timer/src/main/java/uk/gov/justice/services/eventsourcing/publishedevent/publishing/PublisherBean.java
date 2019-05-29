@@ -1,33 +1,29 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.Asynchronous;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.time.StopWatch;
 
-@Singleton
-@Startup
-public class PublisherTimerBean {
-
-    private static final String TIMER_JOB_NAME = "event-store.de-queue-events-and-publish.job";
-
-    @Resource
-    private TimerService timerService;
+@Stateless
+public class PublisherBean {
 
     @Inject
     private PublisherTimerConfig publisherTimerConfig;
-
-    @Inject
-    private TimerServiceManager timerServiceManager;
 
     @Inject
     private StopWatchFactory stopWatchFactory;
@@ -35,18 +31,10 @@ public class PublisherTimerBean {
     @Inject
     private PublishedEventDeQueuerAndPublisher publishedEventDeQueuerAndPublisher;
 
-    @PostConstruct
-    public void startTimerService() {
 
-        timerServiceManager.createIntervalTimer(
-                TIMER_JOB_NAME,
-                publisherTimerConfig.getTimerStartWaitMilliseconds(),
-                publisherTimerConfig.getTimerIntervalMilliseconds(),
-                timerService);
-    }
-
-    @Timeout
-    public void doDeQueueAndPublish() {
+    @Asynchronous
+    @Transactional(REQUIRES_NEW)
+    public void publishAsynchronously() {
 
         final long maxRuntimeMilliseconds = publisherTimerConfig.getTimerMaxRuntimeMilliseconds();
         final StopWatch stopWatch = stopWatchFactory.createStopWatch();

@@ -39,7 +39,7 @@ public class PublishedEventBuilderTest {
                 .withId(eventId)
                 .withName(eventName)
                 .withStreamId(streamId)
-                .withSequenceId(positionInStream)
+                .withPositionInStream(positionInStream)
                 .withSource(source)
                 .withTimestamp(timestamp)
                 .withEventNumber(eventNumber)
@@ -49,7 +49,7 @@ public class PublishedEventBuilderTest {
         assertThat(publishedEvent.getId(), is(eventId));
         assertThat(publishedEvent.getStreamId(), is(streamId));
         assertThat(publishedEvent.getName(), is(eventName));
-        assertThat(publishedEvent.getSequenceId(), is(positionInStream));
+        assertThat(publishedEvent.getPositionInStream(), is(positionInStream));
         assertThat(publishedEvent.getCreatedAt(), is(timestamp));
         assertThat(publishedEvent.getEventNumber().orElse(-1L), is(eventNumber));
         assertThat(publishedEvent.getPreviousEventNumber(), is(previousEventNumber));
@@ -77,7 +77,7 @@ public class PublishedEventBuilderTest {
                 .withId(eventId)
                 .withName(eventName)
                 .withStreamId(streamId)
-                .withSequenceId(positionInStream)
+                .withPositionInStream(positionInStream)
                 .withSource(source)
                 .withTimestamp(timestamp)
                 .withPreviousEventNumber(previousEventNumber)
@@ -89,7 +89,7 @@ public class PublishedEventBuilderTest {
         assertThat(publishedEvent.getId(), is(eventId));
         assertThat(publishedEvent.getStreamId(), is(streamId));
         assertThat(publishedEvent.getName(), is(eventName));
-        assertThat(publishedEvent.getSequenceId(), is(positionInStream));
+        assertThat(publishedEvent.getPositionInStream(), is(positionInStream));
         assertThat(publishedEvent.getCreatedAt(), is(timestamp));
         assertThat(publishedEvent.getEventNumber().orElse(-1L), is(eventNumber));
         assertThat(publishedEvent.getPreviousEventNumber(), is(previousEventNumber));

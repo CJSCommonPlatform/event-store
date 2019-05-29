@@ -82,7 +82,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, publishedEvent.getId());
             preparedStatement.setObject(2, publishedEvent.getStreamId());
-            preparedStatement.setLong(3, publishedEvent.getSequenceId());
+            preparedStatement.setLong(3, publishedEvent.getPositionInStream());
             preparedStatement.setString(4, publishedEvent.getName());
             preparedStatement.setString(5, publishedEvent.getPayload());
             preparedStatement.setString(6, publishedEvent.getMetadata());

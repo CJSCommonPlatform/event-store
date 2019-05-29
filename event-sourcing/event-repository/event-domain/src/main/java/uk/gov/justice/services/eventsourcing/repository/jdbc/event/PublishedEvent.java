@@ -13,14 +13,14 @@ public class PublishedEvent extends Event {
     public PublishedEvent(
             final UUID id,
             final UUID streamId,
-            final Long sequenceId,
+            final Long positionInStream,
             final String name,
             final String metadata,
             final String payload,
             final ZonedDateTime createdAt,
             final Long eventNumber,
             final Long previousEventNumber) {
-        super(id, streamId, sequenceId, name, metadata, payload, createdAt, of(eventNumber));
+        super(id, streamId, positionInStream, name, metadata, payload, createdAt, of(eventNumber));
         this.previousEventNumber = previousEventNumber;
     }
 
@@ -36,7 +36,7 @@ public class PublishedEvent extends Event {
         final PublishedEvent publishedEvent = (PublishedEvent) o;
         return Objects.equals(getId(), publishedEvent.getId()) &&
                 Objects.equals(getStreamId(), publishedEvent.getStreamId()) &&
-                Objects.equals(getSequenceId(), publishedEvent.getSequenceId()) &&
+                Objects.equals(getPositionInStream(), publishedEvent.getPositionInStream()) &&
                 Objects.equals(getName(), publishedEvent.getName()) &&
                 Objects.equals(getPayload(), publishedEvent.getPayload()) &&
                 Objects.equals(getMetadata(), publishedEvent.getMetadata()) &&
@@ -47,7 +47,7 @@ public class PublishedEvent extends Event {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getStreamId(), getSequenceId(), getName(), getPayload(), getMetadata(), getCreatedAt(), getEventNumber(), previousEventNumber);
+        return Objects.hash(getId(), getStreamId(), getPositionInStream(), getName(), getPayload(), getMetadata(), getCreatedAt(), getEventNumber(), previousEventNumber);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PublishedEvent extends Event {
         return "PublishedEvent{" +
                 "id=" + getId() +
                 ", streamId=" + getStreamId() +
-                ", sequenceId=" + getSequenceId() +
+                ", positionInStream=" + getPositionInStream() +
                 ", name='" + getName() + '\'' +
                 ", payload='" + getPayload() + '\'' +
                 ", metadata='" + getMetadata() + '\'' +

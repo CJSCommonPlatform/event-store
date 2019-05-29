@@ -37,10 +37,10 @@ public class PrePublishRepository {
         }
     }
 
-    public long getPreviousEventNumber(final long sequenceId, final DataSource dataSource) throws SQLException {
+    public long getPreviousEventNumber(final long eventNumber, final DataSource dataSource) throws SQLException {
         try (final Connection connection = dataSource.getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PREVIOUS_EVENT_NUMBER_SQL)) {
-            preparedStatement.setLong(1, sequenceId);
+            preparedStatement.setLong(1, eventNumber);
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
 

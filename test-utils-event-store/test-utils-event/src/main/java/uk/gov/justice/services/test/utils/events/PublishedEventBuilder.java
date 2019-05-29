@@ -16,7 +16,7 @@ public class PublishedEventBuilder {
 
     private UUID id = randomUUID();
     private UUID streamId = randomUUID();
-    private Long sequenceId = 5L;
+    private Long positionInStream = 5L;
     private String source = "EVENT_LISTENER";
     private String name = "Test Name";
     private String metadataJSON;
@@ -46,8 +46,8 @@ public class PublishedEventBuilder {
         return this;
     }
 
-    public PublishedEventBuilder withSequenceId(final Long sequenceId) {
-        this.sequenceId = sequenceId;
+    public PublishedEventBuilder withPositionInStream(final Long positionInStream) {
+        this.positionInStream = positionInStream;
         return this;
     }
 
@@ -90,7 +90,7 @@ public class PublishedEventBuilder {
                         .withStreamId(streamId)
                         .withSource(source),
                 createObjectBuilder()
-                        .add("field_" + sequenceId, "value_" + sequenceId));
+                        .add("field_" + positionInStream, "value_" + positionInStream));
 
         if (metadataJSON == null) {
             metadataJSON = envelope.metadata().asJsonObject().toString();
@@ -100,6 +100,6 @@ public class PublishedEventBuilder {
             payloadJSON = envelope.payload().toString();
         }
 
-        return new PublishedEvent(id, streamId, sequenceId, name, metadataJSON, payloadJSON, timestamp, eventNumber, previousEventNumber);
+        return new PublishedEvent(id, streamId, positionInStream, name, metadataJSON, payloadJSON, timestamp, eventNumber, previousEventNumber);
     }
 }

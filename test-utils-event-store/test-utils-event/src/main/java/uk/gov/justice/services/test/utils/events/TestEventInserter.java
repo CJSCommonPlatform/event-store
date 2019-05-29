@@ -44,7 +44,7 @@ public class TestEventInserter {
         insertIntoEventLog(
                 event.getId(),
                 event.getStreamId(),
-                event.getSequenceId(),
+                event.getPositionInStream(),
                 event.getCreatedAt(),
                 event.getName(),
                 event.getPayload(),
@@ -55,7 +55,7 @@ public class TestEventInserter {
     public void insertIntoEventLog(
             final UUID eventLogId,
             final UUID streamId,
-            final long sequenceId,
+            final long positionInStream,
             final ZonedDateTime now,
             final String eventName,
             final String payload,
@@ -66,7 +66,7 @@ public class TestEventInserter {
             try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_EVENT_LOG_QUERY)) {
                 preparedStatement.setObject(1, eventLogId);
                 preparedStatement.setObject(2, streamId);
-                preparedStatement.setLong(3, sequenceId);
+                preparedStatement.setLong(3, positionInStream);
                 preparedStatement.setString(4, eventName);
                 preparedStatement.setString(5, payload);
                 preparedStatement.setString(6, metadata);
@@ -84,7 +84,7 @@ public class TestEventInserter {
             try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_PUBLISHED_EVENT_QUERY)) {
                 preparedStatement.setObject(1, publishedEvent.getId());
                 preparedStatement.setObject(2, publishedEvent.getStreamId());
-                preparedStatement.setLong(3, publishedEvent.getSequenceId());
+                preparedStatement.setLong(3, publishedEvent.getPositionInStream());
                 preparedStatement.setString(4, publishedEvent.getName());
                 preparedStatement.setString(5, publishedEvent.getPayload());
                 preparedStatement.setString(6, publishedEvent.getMetadata());

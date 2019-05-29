@@ -35,7 +35,7 @@ public class PublishedEventFactoryTest {
 
         final UUID eventId = randomUUID();
         final UUID streamId = randomUUID();
-        final long sequenceId = 23487L;
+        final long positionInStream = 23487L;
         final String name = "event-name";
         final String payload = "payload";
         final ZonedDateTime createdAt = new UtcClock().now();
@@ -51,7 +51,7 @@ public class PublishedEventFactoryTest {
         final Event event = new Event(
                 eventId,
                 streamId,
-                sequenceId,
+                positionInStream,
                 name,
                 "some metadata",
                 payload,
@@ -67,7 +67,7 @@ public class PublishedEventFactoryTest {
 
         assertThat(publishedEvent.getId(), is(eventId));
         assertThat(publishedEvent.getStreamId(), is(streamId));
-        assertThat(publishedEvent.getSequenceId(), is(sequenceId));
+        assertThat(publishedEvent.getPositionInStream(), is(positionInStream));
         assertThat(publishedEvent.getName(), is(name));
         assertThat(publishedEvent.getPayload(), is(payload));
         assertThat(publishedEvent.getMetadata(), is(updatedMetadata.asJsonObject().toString()));

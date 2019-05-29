@@ -65,7 +65,7 @@ public class EventConverterTest {
         assertThat(event.getId(), equalTo(ID));
         assertThat(event.getName(), equalTo(NAME));
         assertThat(event.getStreamId(), equalTo(STREAM_ID));
-        assertThat(event.getSequenceId(), equalTo(SEQUENCE_ID));
+        assertThat(event.getPositionInStream(), equalTo(SEQUENCE_ID));
         assertThat(event.getCreatedAt(), is(clock.now()));
         assertEquals(METADATA_JSON, event.getMetadata(), false);
         assertEquals(envelope.payloadAsJsonObject().toString(), event.getPayload(), false);

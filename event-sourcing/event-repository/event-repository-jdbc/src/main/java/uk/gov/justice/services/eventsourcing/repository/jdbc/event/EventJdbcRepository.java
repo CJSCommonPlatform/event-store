@@ -101,7 +101,7 @@ public class EventJdbcRepository {
         } catch (final SQLException e) {
             logger.error("Error persisting event to the database", e);
             throw new JdbcRepositoryException(format("Exception while storing sequence %s of stream %s",
-                    event.getSequenceId(), event.getStreamId()), e);
+                    event.getPositionInStream(), event.getStreamId()), e);
         }
     }
 

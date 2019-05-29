@@ -64,7 +64,7 @@ public class PublishedEventQueriesTest {
             if (resultSet.next()) {
                 assertThat(resultSet.getObject(1), is(publishedEvent.getId()));
                 assertThat(resultSet.getObject(2), is(publishedEvent.getStreamId()));
-                assertThat(resultSet.getObject(3), is(publishedEvent.getSequenceId()));
+                assertThat(resultSet.getObject(3), is(publishedEvent.getPositionInStream()));
                 assertThat(resultSet.getString(4), is(publishedEvent.getName()));
                 assertThat(resultSet.getString(5), is(publishedEvent.getPayload()));
                 assertThat(resultSet.getString(6), is(publishedEvent.getMetadata()));
@@ -82,7 +82,7 @@ public class PublishedEventQueriesTest {
 
         final PublishedEvent publishedEvent = publishedEventBuilder()
                 .withName("example.published-event")
-                .withSequenceId(1L)
+                .withPositionInStream(1L)
                 .withEventNumber(1L)
                 .withPreviousEventNumber(0L)
                 .build();

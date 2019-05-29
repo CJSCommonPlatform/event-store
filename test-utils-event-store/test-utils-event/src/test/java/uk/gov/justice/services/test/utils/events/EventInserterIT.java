@@ -68,7 +68,7 @@ public class EventInserterIT {
         testEventInserter.insertIntoEventLog(
                 event_1.getId(),
                 event_1.getStreamId(),
-                event_1.getSequenceId(),
+                event_1.getPositionInStream(),
                 event_1.getCreatedAt(),
                 event_1.getName(),
                 event_1.getPayload(),
@@ -77,7 +77,7 @@ public class EventInserterIT {
         testEventInserter.insertIntoEventLog(
                 event_2.getId(),
                 event_2.getStreamId(),
-                event_2.getSequenceId(),
+                event_2.getPositionInStream(),
                 event_2.getCreatedAt(),
                 event_2.getName(),
                 event_2.getPayload(),
@@ -86,7 +86,7 @@ public class EventInserterIT {
         testEventInserter.insertIntoEventLog(
                 event_3.getId(),
                 event_3.getStreamId(),
-                event_3.getSequenceId(),
+                event_3.getPositionInStream(),
                 event_3.getCreatedAt(),
                 event_3.getName(),
                 event_3.getPayload(),

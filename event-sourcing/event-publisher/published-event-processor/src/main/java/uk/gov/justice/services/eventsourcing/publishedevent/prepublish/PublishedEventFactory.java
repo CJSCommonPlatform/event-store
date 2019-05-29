@@ -15,7 +15,7 @@ public class PublishedEventFactory {
         return new PublishedEvent(
                 event.getId(),
                 event.getStreamId(),
-                event.getSequenceId(),
+                event.getPositionInStream(),
                 event.getName(),
                 updatedMetadata.asJsonObject().toString(),
                 event.getPayload(),

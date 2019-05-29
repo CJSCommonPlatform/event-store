@@ -12,7 +12,7 @@ public class EventTest {
 
     private final static UUID ID = UUID.randomUUID();
     private final static UUID STREAM_ID = UUID.randomUUID();
-    private final static Long SEQUENCE_ID = 1L;
+    private final static Long POSITION_IN_STREAM = 1L;
     private final static String NAME = "Test Name";
     private final static String PAYLOAD_JSON = "{\"field\": \"Value\"}";
     private final static String METADATA_JSON = "{\"field\": \"Value\"}";
@@ -23,15 +23,15 @@ public class EventTest {
     @SuppressWarnings({"squid:MethodCyclomaticComplexity", "squid:S1067", "squid:S00122"})
     @Test
     public void equalsAndHashCode() {
-        Event item1 = createEvent(ID, NAME, STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
-        Event item2 = createEvent(ID, NAME, STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
-        Event item3 = createEvent(UUID.randomUUID(), NAME, STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
-        Event item4 = createEvent(ID, "Different", STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
-        Event item5 = createEvent(ID, NAME, UUID.randomUUID(), SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
+        Event item1 = createEvent(ID, NAME, STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
+        Event item2 = createEvent(ID, NAME, STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
+        Event item3 = createEvent(UUID.randomUUID(), NAME, STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
+        Event item4 = createEvent(ID, "Different", STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
+        Event item5 = createEvent(ID, NAME, UUID.randomUUID(), POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
         Event item6 = createEvent(ID, NAME, STREAM_ID, 5L, PAYLOAD_JSON, METADATA_JSON, TIMESTAMP);
-        Event item7 = createEvent(ID, NAME, STREAM_ID, SEQUENCE_ID, "", METADATA_JSON, TIMESTAMP);
-        Event item8 = createEvent(ID, NAME, STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, "", TIMESTAMP);
-        Event item9 = createEvent(ID, NAME, STREAM_ID, SEQUENCE_ID, PAYLOAD_JSON, METADATA_JSON, now().minusDays(1));
+        Event item7 = createEvent(ID, NAME, STREAM_ID, POSITION_IN_STREAM, "", METADATA_JSON, TIMESTAMP);
+        Event item8 = createEvent(ID, NAME, STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, "", TIMESTAMP);
+        Event item9 = createEvent(ID, NAME, STREAM_ID, POSITION_IN_STREAM, PAYLOAD_JSON, METADATA_JSON, now().minusDays(1));
 
         new EqualsTester()
                 .addEqualityGroup(item1, item2)
@@ -45,9 +45,9 @@ public class EventTest {
                 .testEquals();
     }
 
-    private Event createEvent(final UUID id, final String name, final UUID streamId, final long sequenceId,
+    private Event createEvent(final UUID id, final String name, final UUID positionInStream, final long sequenceId,
                               final String payloadJSON, final String metadataJSON, final ZonedDateTime timestamp) {
-        return new Event(id, streamId, sequenceId, name, metadataJSON, payloadJSON, timestamp);
+        return new Event(id, positionInStream, sequenceId, name, metadataJSON, payloadJSON, timestamp);
     }
 
 }

@@ -54,9 +54,9 @@ public class EventDeQueuerIT {
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
-        final Event event_1 = eventBuilder().withName("example.first-event").withSequenceId(1L).build();
-        final Event event_2 = eventBuilder().withName("example.second-event").withSequenceId(2L).build();
-        final Event event_3 = eventBuilder().withName("example.third-event").withSequenceId(3L).build();
+        final Event event_1 = eventBuilder().withName("example.first-event").withPositionInStream(1L).build();
+        final Event event_2 = eventBuilder().withName("example.second-event").withPositionInStream(2L).build();
+        final Event event_3 = eventBuilder().withName("example.third-event").withPositionInStream(3L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);
@@ -78,9 +78,9 @@ public class EventDeQueuerIT {
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
-        final Event event_1 = eventBuilder().withName("example.first-event").withSequenceId(1L).build();
-        final Event event_2 = eventBuilder().withName("example.second-event").withSequenceId(2L).build();
-        final Event event_3 = eventBuilder().withName("example.third-event").withSequenceId(3L).build();
+        final Event event_1 = eventBuilder().withName("example.first-event").withPositionInStream(1L).build();
+        final Event event_2 = eventBuilder().withName("example.second-event").withPositionInStream(2L).build();
+        final Event event_3 = eventBuilder().withName("example.third-event").withPositionInStream(3L).build();
 
         insertInPublishQueue(event_1,  event_2, event_3);
 

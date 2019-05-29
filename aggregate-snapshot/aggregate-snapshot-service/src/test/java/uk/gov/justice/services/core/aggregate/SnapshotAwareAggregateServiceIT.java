@@ -240,7 +240,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(snapshot, not(nullValue()));
         assertThat(snapshot.get().getType(), equalTo(TYPE));
         assertThat(snapshot.get().getStreamId(), equalTo(streamId));
-        assertThat(snapshot.get().getVersionId(), equalTo(25L));
+        assertThat(snapshot.get().getPositionInStream(), equalTo(25L));
 
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(25));
         assertThat(aggregateFromSnapshot.numberOfAppliedEvents(), is(25));
@@ -284,7 +284,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(snapshotChanged.isPresent(), equalTo(true));
         assertThat(snapshotChanged.get().getType(), equalTo(aggregateClass.getName()));
         assertThat(snapshotChanged.get().getStreamId(), equalTo(streamId));
-        assertThat(snapshotChanged.get().getVersionId(), equalTo(25L));
+        assertThat(snapshotChanged.get().getPositionInStream(), equalTo(25L));
 
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(48));
         final TestAggregate aggregateFromSnapshot = snapshotChanged.get().getAggregate(new DefaultObjectInputStreamStrategy());
@@ -318,7 +318,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(newSnapshot.isPresent(), equalTo(true));
         assertThat(newSnapshot.get().getType(), equalTo(aggregateClass.getName()));
         assertThat(newSnapshot.get().getStreamId(), equalTo(streamId));
-        assertThat(newSnapshot.get().getVersionId(), equalTo(initialNumberOfSnapshots * SNAPSHOT_THRESHOLD));
+        assertThat(newSnapshot.get().getPositionInStream(), equalTo(initialNumberOfSnapshots * SNAPSHOT_THRESHOLD));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(123));
         TestAggregate aggregateFromSnapshot2 = (TestAggregate) newSnapshot.get().getAggregate(new DefaultObjectInputStreamStrategy());
         assertThat(aggregateFromSnapshot2.numberOfAppliedEvents(), is(100));
@@ -358,7 +358,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(snapshot.isPresent(), equalTo(true));
         assertThat(snapshot.get().getType(), equalTo(TYPE));
         assertThat(snapshot.get().getStreamId(), equalTo(streamId));
-        assertThat(snapshot.get().getVersionId(), equalTo(25L));
+        assertThat(snapshot.get().getPositionInStream(), equalTo(25L));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(48));
 
         TestAggregate aggregateFromSnapshot = snapshot.get().getAggregate(new DefaultObjectInputStreamStrategy());
@@ -379,7 +379,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(snapshot.isPresent(), equalTo(true));
         assertThat(snapshot.get().getType(), equalTo(TYPE));
         assertThat(snapshot.get().getStreamId(), equalTo(streamId));
-        assertThat(snapshot.get().getVersionId(), equalTo(50L));
+        assertThat(snapshot.get().getPositionInStream(), equalTo(50L));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(50));
 
         TestAggregate aggregateFromSnapshot = snapshot.get().getAggregate(new DefaultObjectInputStreamStrategy());
@@ -421,7 +421,7 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(newSnapshot.isPresent(), equalTo(true));
         assertThat(newSnapshot.get().getType(), equalTo(newAggregateClass.getName()));
         assertThat(newSnapshot.get().getStreamId(), equalTo(streamId));
-        assertThat(newSnapshot.get().getVersionId(), equalTo(123L));
+        assertThat(newSnapshot.get().getPositionInStream(), equalTo(123L));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(123));
         assertThat(rowCount(SQL_EVENT_STREAM_COUNT_BY_STREAM_ID, streamId), is(1));
     }

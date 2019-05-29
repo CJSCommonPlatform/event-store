@@ -183,9 +183,9 @@ public class EventPublishIT {
     @Test
     public void shouldPublishEventsInTheEventLogTable() throws Exception {
         final UUID streamId = randomUUID();
-        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event_1").withEventNumber(1L).withSequenceId(1L).build();
-        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event_2").withEventNumber(2L).withSequenceId(2L).build();
-        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event_3").withEventNumber(3L).withSequenceId(3L).build();
+        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event_1").withEventNumber(1L).withPositionInStream(1L).build();
+        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event_2").withEventNumber(2L).withPositionInStream(2L).build();
+        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event_3").withEventNumber(3L).withPositionInStream(3L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);

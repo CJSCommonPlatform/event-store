@@ -49,10 +49,10 @@ public class PrePublishRepositoryIT {
     @Test
     public void shouldGetTheSequenceNumberOfAnEvent() throws Exception {
 
-        final Event event_1 = eventBuilder().withName("event-1").withSequenceId(101L).build();
-        final Event event_2 = eventBuilder().withName("event-2").withSequenceId(102L).build();
-        final Event event_3 = eventBuilder().withName("event-3").withSequenceId(103L).build();
-        final Event event_4 = eventBuilder().withName("event-4").withSequenceId(104L).build();
+        final Event event_1 = eventBuilder().withName("event-1").withPositionInStream(101L).build();
+        final Event event_2 = eventBuilder().withName("event-2").withPositionInStream(102L).build();
+        final Event event_3 = eventBuilder().withName("event-3").withPositionInStream(103L).build();
+        final Event event_4 = eventBuilder().withName("event-4").withPositionInStream(104L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);
@@ -73,10 +73,10 @@ public class PrePublishRepositoryIT {
         final UUID streamId = randomUUID();
         testEventStreamInserter.insertIntoEventStream(streamId, 1l, true, clock.now());
 
-        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event-1").withEventNumber(1l).withSequenceId(101L).build();
-        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event-2").withEventNumber(2l).withSequenceId(102L).build();
-        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event-3").withEventNumber(3l).withSequenceId(103L).build();
-        final Event event_4 = eventBuilder().withStreamId(streamId).withName("event-4").withEventNumber(4l).withSequenceId(104L).build();
+        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event-1").withEventNumber(1l).withPositionInStream(101L).build();
+        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event-2").withEventNumber(2l).withPositionInStream(102L).build();
+        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event-3").withEventNumber(3l).withPositionInStream(103L).build();
+        final Event event_4 = eventBuilder().withStreamId(streamId).withName("event-4").withEventNumber(4l).withPositionInStream(104L).build();
 
         testEventInserter.insertIntoEventLog(event_1);
         testEventInserter.insertIntoEventLog(event_2);

@@ -18,7 +18,7 @@ public class PublishedEventConverter {
         return new PublishedEvent(
                 eventId,
                 event.getStreamId(),
-                event.getSequenceId(),
+                event.getPositionInStream(),
                 event.getName(),
                 event.getMetadata(),
                 event.getPayload(),

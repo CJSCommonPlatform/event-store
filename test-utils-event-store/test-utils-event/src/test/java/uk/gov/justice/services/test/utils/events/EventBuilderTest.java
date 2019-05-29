@@ -38,7 +38,7 @@ public class EventBuilderTest {
                 .withId(eventId)
                 .withName(eventName)
                 .withStreamId(streamId)
-                .withSequenceId(positionInStream)
+                .withPositionInStream(positionInStream)
                 .withSource(source)
                 .withTimestamp(timestamp)
                 .withEventNumber(eventNumber)
@@ -47,7 +47,7 @@ public class EventBuilderTest {
         assertThat(event.getId(), is(eventId));
         assertThat(event.getStreamId(), is(streamId));
         assertThat(event.getName(), is(eventName));
-        assertThat(event.getSequenceId(), is(positionInStream));
+        assertThat(event.getPositionInStream(), is(positionInStream));
         assertThat(event.getCreatedAt(), is(timestamp));
 
         
@@ -74,7 +74,7 @@ public class EventBuilderTest {
                 .withId(eventId)
                 .withName(eventName)
                 .withStreamId(streamId)
-                .withSequenceId(positionInStream)
+                .withPositionInStream(positionInStream)
                 .withSource(source)
                 .withTimestamp(timestamp)
                 .withEventNumber(eventNumber)
@@ -85,7 +85,7 @@ public class EventBuilderTest {
         assertThat(event.getId(), is(eventId));
         assertThat(event.getStreamId(), is(streamId));
         assertThat(event.getName(), is(eventName));
-        assertThat(event.getSequenceId(), is(positionInStream));
+        assertThat(event.getPositionInStream(), is(positionInStream));
         assertThat(event.getCreatedAt(), is(timestamp));
         assertThat(event.getEventNumber().orElse(-1L), is(eventNumber));
 

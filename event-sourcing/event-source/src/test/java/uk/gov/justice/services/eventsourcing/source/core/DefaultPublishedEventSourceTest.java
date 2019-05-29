@@ -37,11 +37,11 @@ public class DefaultPublishedEventSourceTest {
 
         final long eventNumber = 972834L;
 
-        final PublishedEvent linkedEvent = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(multipleDataSourcePublishedEventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(linkedEvent));
-        when(eventConverter.envelopeOf(linkedEvent)).thenReturn(jsonEnvelope);
+        when(multipleDataSourcePublishedEventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(publishedEvent));
+        when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
 
         final List<JsonEnvelope> envelopes = defaultPublishedEventSource.findEventsSince(eventNumber).collect(toList());
 

@@ -36,7 +36,7 @@ public class EventInserter {
                         .withId(randomUUID())
                         .withStreamId(streamId)
                         .withName("event " + (count + 1))
-                        .withSequenceId(positionInStreamCounter.getNextPosition(streamId))
+                        .withPositionInStream(positionInStreamCounter.getNextPosition(streamId))
                         .build();
 
                 testEventInserter.insertIntoEventLog(event);

@@ -30,13 +30,15 @@ public class EventCatchupBySubscriptionRunnerTest {
     @Test
     public void shouldCreateEventCatchupTaskForASubscriptionAndRunInASeparateProcess() throws Exception {
 
+        final String componentName = "EVENT_LISTENER";
+
         final Subscription subscription = mock(Subscription.class);
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
                 subscription,
-                eventCatchupProcessorBean);
+                eventCatchupProcessorBean, componentName);
 
-        eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(subscription);
+        eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(subscription, componentName);
 
         verify(managedExecutorService).submit(eventCatchupTask);
     }

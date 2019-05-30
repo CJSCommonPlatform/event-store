@@ -100,6 +100,7 @@ import org.junit.runner.RunWith;
 public class SubscriptionEventInterceptorIT {
 
     private static final String SOURCE = "my-context";
+    private static final String COMPONENT_NAME = "EVENT_LISTENER";
     private static final String EVENT_ABC = SOURCE + ".event-abc";
     private static final String CONTEXT_ROOT = "core-test";
 
@@ -226,11 +227,11 @@ public class SubscriptionEventInterceptorIT {
                         .withPreviousEventNumber(0L),
                 createObjectBuilder().build());
 
-        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE), is(0L));
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE, COMPONENT_NAME), is(0L));
 
         interceptorChainProcessor.process(interceptorContextWithInput(envelope));
 
-        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE), is(1L));
+        assertThat(processedEventTrackingService.getLatestProcessedEventNumber(SOURCE, COMPONENT_NAME), is(1L));
     }
 
     @ServiceComponent(EVENT_LISTENER)

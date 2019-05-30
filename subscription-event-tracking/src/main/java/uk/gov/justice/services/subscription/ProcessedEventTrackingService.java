@@ -18,7 +18,7 @@ public class ProcessedEventTrackingService {
     @Inject
     ProcessedEventTrackingRepository processedEventTrackingRepository;
 
-    public void trackProcessedEvent(final JsonEnvelope event) {
+    public void trackProcessedEvent(final JsonEnvelope event, final String componentName) {
 
         final Metadata metadata = event.metadata();
         final UUID id = metadata.id();
@@ -35,17 +35,18 @@ public class ProcessedEventTrackingService {
         final ProcessedEventTrackItem processedEventTrackItem = new ProcessedEventTrackItem(
                 previousEventNumber,
                 eventNumber,
-                source
+                source,
+                componentName
         );
 
         processedEventTrackingRepository.save(processedEventTrackItem);
     }
 
-    public List<MissingEventRange> getAllMissingEvents(final String source) {
+    public List<MissingEventRange> getAllMissingEvents(final String source, final String componentName) {
 
         final EventNumberAccumulator eventNumberAccumulator = new EventNumberAccumulator();
 
-        try(final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source)) {
+        try(final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source, componentName)) {
             allProcessedEvents
                     .forEach(processedEventTrackItem -> findMissingRange(processedEventTrackItem, eventNumberAccumulator));
         }
@@ -57,9 +58,9 @@ public class ProcessedEventTrackingService {
         return eventNumberAccumulator.getMissingEventRanges();
     }
 
-    public Long getLatestProcessedEventNumber(final String source) {
+    public Long getLatestProcessedEventNumber(final String source, final String componentName) {
 
-        return processedEventTrackingRepository.getLatestProcessedEvent(source)
+        return processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)
                 .map(ProcessedEventTrackItem::getEventNumber)
                 .orElse(FIRST_POSSIBLE_EVENT_NUMBER);
     }

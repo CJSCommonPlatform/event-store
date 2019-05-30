@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M32] - 2019-05-30
+### Fixed
+- Added component column to processed_event table to allow Event Listener and Indexer to create 
+unique primary keys   
+
 ## [2.0.0-M31] - 2019-05-29
 ### Added
 - Added implementation for updating StreamStatus table with component column

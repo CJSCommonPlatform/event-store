@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="subscription-repository-004" author="TechPod"
+               logicalFilePath="004-add-component_name-to-processed_event-table.changelog.xml">
+
+        <addColumn tableName="processed_event">
+            <column name="component" type="varchar(100)" defaultValue="EVENT_LISTENER">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <dropPrimaryKey constraintName="processed_event_pkey"
+                        tableName="processed_event"/>
+        <addPrimaryKey
+                tableName="processed_event"
+                constraintName="processed_event_pkey"
+                columnNames="event_number,source,component"/>
+
+        <rollback>
+            <dropColumn columnName="component" tableName="processed_event"/>
+            <dropPrimaryKey constraintName="processed_event_pkey"
+                            tableName="processed_event"/>
+            <addPrimaryKey
+                    tableName="processed_event"
+                    constraintName="processed_event_pkey"
+                    columnNames="event_number,source"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

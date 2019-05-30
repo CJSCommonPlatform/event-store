@@ -42,12 +42,12 @@ public class EventCatchupProcessor {
     }
 
     @Transactional(NOT_SUPPORTED)
-    public void performEventCatchup(final Subscription subscription) {
+    public void performEventCatchup(final Subscription subscription, final String componentName) {
 
         final String subscriptionName = subscription.getName();
         final String eventSourceName = subscription.getEventSourceName();
         final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
-        final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName);
+        final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
 
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
                 eventSourceName,

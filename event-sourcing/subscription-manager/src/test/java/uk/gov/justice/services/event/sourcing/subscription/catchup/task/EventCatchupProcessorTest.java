@@ -67,6 +67,7 @@ public class EventCatchupProcessorTest {
 
         final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
+        final String componentName = "EVENT_LISTENER";
         final long eventNumber = 983745987L;
 
         final ZonedDateTime catchupStartedAt = new UtcClock().now();
@@ -85,13 +86,13 @@ public class EventCatchupProcessorTest {
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
         when(clock.now()).thenReturn(catchupStartedAt, catchupCompetedAt);
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
-        when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName)).thenReturn(eventNumber);
+        when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumber);
         when(publishedEventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
         when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);
 
-        eventCatchupProcessor.performEventCatchup(subscription);
+        eventCatchupProcessor.performEventCatchup(subscription, componentName);
 
         final InOrder inOrder = inOrder(
                 catchupStartedForSubscriptionEventFirer,

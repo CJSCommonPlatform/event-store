@@ -16,11 +16,12 @@ public class EventCatchupBySubscriptionRunner {
     @Resource
     ManagedExecutorService managedExecutorService;
 
-    public void runEventCatchupForSubscription(final Subscription subscription) {
+    public void runEventCatchupForSubscription(final Subscription subscription, final String componentName) {
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
                 subscription,
-                eventCatchupProcessorBean);
+                eventCatchupProcessorBean,
+                componentName);
 
         managedExecutorService.submit(eventCatchupTask);
     }

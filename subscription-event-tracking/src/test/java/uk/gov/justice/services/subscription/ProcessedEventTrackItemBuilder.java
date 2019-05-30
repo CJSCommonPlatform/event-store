@@ -5,6 +5,7 @@ public class ProcessedEventTrackItemBuilder {
     private long previousEventNumber;
     private long eventNumber;
     private String source;
+    private String componentName;
 
     private ProcessedEventTrackItemBuilder() {}
 
@@ -27,7 +28,12 @@ public class ProcessedEventTrackItemBuilder {
         return this;
     }
 
+    public ProcessedEventTrackItemBuilder withComponentName(final String componentName) {
+        this.componentName = componentName;
+        return this;
+    }
+
     public ProcessedEventTrackItem build() {
-        return new ProcessedEventTrackItem(previousEventNumber, eventNumber, source);
+        return new ProcessedEventTrackItem(previousEventNumber, eventNumber, source, componentName);
     }
 }

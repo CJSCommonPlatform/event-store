@@ -33,17 +33,20 @@ public class SubscriptionEventInterceptorTest {
     @Test
     public void shouldUpdateCurrentEventNumberIfNewEventNumberGreaterThanCurrentEventNumber() {
 
+        final String componentName = "EVENT_LISTENER";
+
         final InterceptorContext interceptorContext = mock(InterceptorContext.class);
         final InterceptorChain interceptorChain = mock(InterceptorChain.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
         when(interceptorChain.processNext(interceptorContext)).thenReturn(interceptorContext);
         when(interceptorContext.inputEnvelope()).thenReturn(jsonEnvelope);
+        when(interceptorContext.getComponentName()).thenReturn(componentName);
 
         final InterceptorContext resultInterceptorContext = subscriptionEventInterceptor.process(interceptorContext, interceptorChain);
 
         assertThat(resultInterceptorContext, is(interceptorContext));
 
-        verify(processedEventTrackingService).trackProcessedEvent(jsonEnvelope);
+        verify(processedEventTrackingService).trackProcessedEvent(jsonEnvelope, componentName);
     }
 }

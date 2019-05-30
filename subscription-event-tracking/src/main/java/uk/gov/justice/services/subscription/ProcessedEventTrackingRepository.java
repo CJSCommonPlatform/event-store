@@ -20,19 +20,21 @@ import javax.inject.Inject;
 public class ProcessedEventTrackingRepository {
 
     private static final String INSERT_SQL =
-            "INSERT INTO processed_event (event_number, previous_event_number, source) " +
-                    "VALUES (?, ?, ?)";
+            "INSERT INTO processed_event (event_number, previous_event_number, source, component) " +
+                    "VALUES (?, ?, ?, ?)";
 
     private static final String SELECT_MAX_SQL =
-            "SELECT event_number, previous_event_number, source " +
+            "SELECT event_number, previous_event_number, source, component " +
                     "FROM processed_event " +
                     "WHERE source = ? " +
+                    "AND component = ? " +
                     "ORDER BY event_number DESC LIMIT 1";
 
     private static final String SELECT_SQL =
             "SELECT event_number, previous_event_number " +
                     "FROM processed_event " +
                     "WHERE source = ? " +
+                    "AND component = ? " +
                     "ORDER BY event_number ASC";
 
     @Inject
@@ -53,6 +55,7 @@ public class ProcessedEventTrackingRepository {
             preparedStatement.setLong(1, processedEventTrackItem.getEventNumber());
             preparedStatement.setLong(2, processedEventTrackItem.getPreviousEventNumber());
             preparedStatement.setString(3, processedEventTrackItem.getSource());
+            preparedStatement.setString(4, processedEventTrackItem.getComponentName());
 
             preparedStatement.executeUpdate();
 
@@ -61,20 +64,21 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
-    public Stream<ProcessedEventTrackItem> getAllProcessedEvents(final String source) {
+    public Stream<ProcessedEventTrackItem> getAllProcessedEvents(final String source, final String componentName) {
 
         try {
             final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
                     viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_SQL);
 
             preparedStatement.setString(1, source);
+            preparedStatement.setString(2, componentName);
 
             return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
 
                 try {
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
-                    return new ProcessedEventTrackItem(previousEventNumber, eventNumber, source);
+                    return new ProcessedEventTrackItem(previousEventNumber, eventNumber, source, componentName);
                 } catch (final SQLException e) {
                     throw new ProcessedEventTrackingException("Failed to get row from processed_event table", e);
                 }
@@ -85,20 +89,21 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
-    public Optional<ProcessedEventTrackItem> getLatestProcessedEvent(final String source) {
+    public Optional<ProcessedEventTrackItem> getLatestProcessedEvent(final String source, final String componentName) {
 
         try (
                 final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
                 final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_MAX_SQL)) {
 
             preparedStatement.setString(1, source);
+            preparedStatement.setString(2, componentName);
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
 
-                    return of(new ProcessedEventTrackItem(previousEventNumber, eventNumber, source));
+                    return of(new ProcessedEventTrackItem(previousEventNumber, eventNumber, source, componentName));
                 }
 
                 return empty();

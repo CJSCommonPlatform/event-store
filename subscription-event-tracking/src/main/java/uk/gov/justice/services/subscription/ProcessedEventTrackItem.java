@@ -7,11 +7,17 @@ public class ProcessedEventTrackItem {
     private final long previousEventNumber;
     private final long eventNumber;
     private final String source;
+    private final String componentName;
 
-    public ProcessedEventTrackItem(final long previousEventNumber, final long eventNumber, final String source) {
+    public ProcessedEventTrackItem(
+            final long previousEventNumber,
+            final long eventNumber,
+            final String source,
+            final String componentName) {
         this.previousEventNumber = previousEventNumber;
         this.eventNumber = eventNumber;
         this.source = source;
+        this.componentName = componentName;
     }
 
     public long getPreviousEventNumber() {
@@ -26,6 +32,10 @@ public class ProcessedEventTrackItem {
         return source;
     }
 
+    public String getComponentName() {
+        return componentName;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -33,12 +43,13 @@ public class ProcessedEventTrackItem {
         final ProcessedEventTrackItem that = (ProcessedEventTrackItem) o;
         return previousEventNumber == that.previousEventNumber &&
                 eventNumber == that.eventNumber &&
-                Objects.equals(source, that.source);
+                Objects.equals(source, that.source) &&
+                Objects.equals(componentName, that.componentName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(previousEventNumber, eventNumber, source);
+        return Objects.hash(previousEventNumber, eventNumber, source, componentName);
     }
 
     @Override
@@ -47,6 +58,7 @@ public class ProcessedEventTrackItem {
                 "previousEventNumber=" + previousEventNumber +
                 ", eventNumber=" + eventNumber +
                 ", source='" + source + '\'' +
+                ", componentName='" + componentName + '\'' +
                 '}';
     }
 }

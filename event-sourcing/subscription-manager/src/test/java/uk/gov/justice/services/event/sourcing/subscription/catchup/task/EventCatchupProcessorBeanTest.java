@@ -24,13 +24,15 @@ public class EventCatchupProcessorBeanTest {
     @Test
     public void shouldPerformEventCatchup() throws Exception {
 
+        final String componentName = "EVENT_LISTENER";
+
         final Subscription subscription = mock(Subscription.class);
         final EventCatchupProcessor eventCatchupProcessor = mock(EventCatchupProcessor.class);
 
         when(eventCatchupProcessorFactory.create()).thenReturn(eventCatchupProcessor);
 
-        eventCatchupProcessorBean.performEventCatchup(subscription);
+        eventCatchupProcessorBean.performEventCatchup(subscription, componentName);
 
-        verify(eventCatchupProcessor).performEventCatchup(subscription);
+        verify(eventCatchupProcessor).performEventCatchup(subscription, componentName);
     }
 }

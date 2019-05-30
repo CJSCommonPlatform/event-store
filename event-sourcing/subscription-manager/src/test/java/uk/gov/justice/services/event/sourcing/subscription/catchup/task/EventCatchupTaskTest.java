@@ -14,13 +14,15 @@ public class EventCatchupTaskTest {
     @Test
     public void shouldStartSubscription() throws Exception {
 
+        final String componentName = "EVENT_LISTENER";
+        
         final Subscription subscription = mock(Subscription.class);
         final EventCatchupProcessorBean eventCatchupProcessorBean = mock(EventCatchupProcessorBean.class);
 
-        final EventCatchupTask eventCatchupTask = new EventCatchupTask(subscription, eventCatchupProcessorBean);
+        final EventCatchupTask eventCatchupTask = new EventCatchupTask(subscription, eventCatchupProcessorBean, componentName);
 
         assertThat(eventCatchupTask.call(), is(true));
 
-        verify(eventCatchupProcessorBean).performEventCatchup(subscription);
+        verify(eventCatchupProcessorBean).performEventCatchup(subscription, componentName);
     }
 }

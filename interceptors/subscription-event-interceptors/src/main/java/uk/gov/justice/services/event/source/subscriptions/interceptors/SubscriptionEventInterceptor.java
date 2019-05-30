@@ -17,7 +17,9 @@ public class SubscriptionEventInterceptor implements Interceptor {
 
         final InterceptorContext resultInterceptorContext = interceptorChain.processNext(interceptorContext);
 
-        processedEventTrackingService.trackProcessedEvent(resultInterceptorContext.inputEnvelope());
+        processedEventTrackingService.trackProcessedEvent(
+                resultInterceptorContext.inputEnvelope(),
+                resultInterceptorContext.getComponentName());
 
         return resultInterceptorContext;
     }

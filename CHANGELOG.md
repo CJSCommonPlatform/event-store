@@ -4,6 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M33] - 2019-06-05
+### Changed
+- Catchup and rebuild now use the new System Command jmx architecture
+- Events for catchup and rebuild moved in from framework-api
+- Catchup and rebuild moved to a new 'event-store-management' module  
+
 ## [2.0.0-M32] - 2019-05-30
 ### Fixed
 - Added component column to processed_event table to allow Event Listener and Indexer to create 

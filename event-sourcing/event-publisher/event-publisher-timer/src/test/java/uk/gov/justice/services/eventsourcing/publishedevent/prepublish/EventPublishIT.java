@@ -42,6 +42,7 @@ import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.jmx.command.SystemCommandStore;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -163,7 +164,8 @@ public class EventPublishIT {
             PublishedEventRepository.class,
             PrePublishRepository.class,
             PublishedEventQueries.class,
-            StopWatchFactory.class
+            StopWatchFactory.class,
+            SystemCommandStore.class
     })
     public WebApp war() {
         return new WebApp()

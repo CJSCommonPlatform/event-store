@@ -11,6 +11,7 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
+import uk.gov.justice.services.jmx.command.SystemCommandStore;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 
@@ -48,7 +49,8 @@ public class EventStreamCatchupIT {
             EventStreamsInProgressList.class,
             ConsumeEventQueueBean.class,
             EventQueueConsumerFactory.class,
-            LoggerProducer.class
+            LoggerProducer.class,
+            SystemCommandStore.class
     })
     public WebApp war() {
         return new WebApp()

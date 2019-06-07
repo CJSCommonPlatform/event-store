@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M34] - 2019-07-05
+### Fixed
+- Added component to the event buffer to allow it to handle both the 
+event listener and indexer
+
 ## [2.0.0-M33] - 2019-06-05
 ### Changed
 - Catchup and rebuild now use the new System Command jmx architecture

@@ -10,7 +10,7 @@ import javax.inject.Inject;
 public class SubscriptionEventInterceptor implements Interceptor {
 
     @Inject
-    ProcessedEventTrackingService processedEventTrackingService;
+    private ProcessedEventTrackingService processedEventTrackingService;
 
     @Override
     public InterceptorContext process(final InterceptorContext interceptorContext, final InterceptorChain interceptorChain) {

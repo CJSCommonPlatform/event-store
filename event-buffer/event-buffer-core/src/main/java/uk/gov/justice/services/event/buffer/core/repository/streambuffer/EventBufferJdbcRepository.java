@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 public class EventBufferJdbcRepository {
 
     private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?)";
-    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? ORDER BY position";
+    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
     private static final String STREAM_ID = "stream_id";
@@ -73,11 +73,12 @@ public class EventBufferJdbcRepository {
         }
     }
 
-    public Stream<EventBufferEvent> findStreamByIdAndSource(final UUID id, final String source) {
+    public Stream<EventBufferEvent> findStreamByIdSourceAndComponent(final UUID id, final String source, final String component) {
         try {
-            final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE);
+            final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT);
             ps.setObject(1, id);
             ps.setString(2, source);
+            ps.setString(3, component);
 
             return jdbcResultSetStreamer.streamOf(ps, entityFromFunction());
 

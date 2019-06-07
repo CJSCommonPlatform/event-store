@@ -16,7 +16,7 @@ public class ProcessedEventTrackingService {
     private static final long FIRST_POSSIBLE_EVENT_NUMBER = 0L;
 
     @Inject
-    ProcessedEventTrackingRepository processedEventTrackingRepository;
+    private ProcessedEventTrackingRepository processedEventTrackingRepository;
 
     public void trackProcessedEvent(final JsonEnvelope event, final String componentName) {
 

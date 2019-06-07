@@ -43,12 +43,13 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id2 = randomUUID();
         final String source = "source";
 
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, EVENT_LISTENER));
+        final String component = EVENT_LISTENER;
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, component));
 
-        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
+        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdSourceAndComponent(id1, source, component)
                 .collect(toList());
 
         assertThat(events, hasSize(3));
@@ -74,13 +75,14 @@ public class EventBufferJdbcRepositoryIT {
         final UUID id1 = randomUUID();
         final UUID id2 = randomUUID();
         final String source = "source";
+        final String component = EVENT_LISTENER;
 
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source", EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 2L, "eventVersion_2", "a-different-source", component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 1L, "eventVersion_1", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id1, 3L, "eventVersion_3", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(id2, 1L, "eventVersion_1", source, component));
 
-        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdAndSource(id1, source)
+        final List<EventBufferEvent> events = eventBufferJdbcRepository.findStreamByIdSourceAndComponent(id1, source, component)
                 .collect(toList());
 
         assertThat(events, hasSize(2));
@@ -100,14 +102,15 @@ public class EventBufferJdbcRepositoryIT {
     public void shouldRemoveFromBuffer() {
         final UUID id1 = randomUUID();
         final String source = "someOtherSource";
-        final EventBufferEvent eventBufferEvent = new EventBufferEvent(id1, 2L, "someOtherEvent", source, EVENT_LISTENER);
+        final String component = EVENT_LISTENER;
+        final EventBufferEvent eventBufferEvent = new EventBufferEvent(id1, 2L, "someOtherEvent", source, component);
 
         eventBufferJdbcRepository.insert(eventBufferEvent);
 
-        assertThat(eventBufferJdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), hasItem(eventBufferEvent));
+        assertThat(eventBufferJdbcRepository.findStreamByIdSourceAndComponent(id1, source, component).collect(toList()), hasItem(eventBufferEvent));
 
         eventBufferJdbcRepository.remove(eventBufferEvent);
 
-        assertThat(eventBufferJdbcRepository.findStreamByIdAndSource(id1, source).collect(toList()), empty());
+        assertThat(eventBufferJdbcRepository.findStreamByIdSourceAndComponent(id1, source, component).collect(toList()), empty());
     }
 }

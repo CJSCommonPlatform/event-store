@@ -9,10 +9,10 @@ import javax.inject.Inject;
 public class EventCatchupBySubscriptionRunner {
 
     @Inject
-    EventCatchupProcessorBean eventCatchupProcessorBean;
+    private EventCatchupProcessorBean eventCatchupProcessorBean;
 
     @Resource
-    ManagedExecutorService managedExecutorService;
+    private ManagedExecutorService managedExecutorService;
 
     public void runEventCatchupForSubscription(final Subscription subscription, final String componentName) {
 

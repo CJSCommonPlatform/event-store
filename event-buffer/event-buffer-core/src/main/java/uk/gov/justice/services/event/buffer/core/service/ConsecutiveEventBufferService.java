@@ -95,7 +95,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
     private Stream<JsonEnvelope> bufferedEvents(final UUID streamId, final JsonEnvelope incomingEvent, final long incomingEventVersion, final String component) {
         final String source = getSource(incomingEvent);
-        return concat(Stream.of(incomingEvent), consecutiveEventStreamFromBuffer(streamBufferRepository.findStreamByIdAndSource(streamId, source), incomingEventVersion)
+        final Stream<EventBufferEvent> stream = streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component);
+        return concat(Stream.of(incomingEvent), consecutiveEventStreamFromBuffer(stream, incomingEventVersion)
                 .peek(streamBufferEvent -> streamBufferRepository.remove(streamBufferEvent))
                 .peek(streamBufferEvent -> streamStatusJdbcRepository.update(new Subscription(
                         streamBufferEvent.getStreamId(),

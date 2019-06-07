@@ -32,7 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventBufferJdbcRepositoryTest {
-    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? ORDER BY position";
+    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
     private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?)";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
@@ -101,16 +101,17 @@ public class EventBufferJdbcRepositoryTest {
 
     @Test
     public void shouldReturnBufferedEvent() throws SQLException {
-        Function<ResultSet, EventBufferEvent> function = mock(Function.class);
-
-        Stream<EventBufferEvent> stream = mock(Stream.class);
 
         final String source = "source";
+        final String component = EVENT_LISTENER;
+
+        final Function<ResultSet, EventBufferEvent> function = mock(Function.class);
+        final Stream<EventBufferEvent> stream = mock(Stream.class);
 
         when(connection.prepareStatement(INSERT))
                 .thenReturn(preparedStatement);
 
-        when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE))
+        when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT))
                 .thenReturn(preparedStatement);
 
         when(jdbcResultSetStreamer.streamOf(preparedStatementWrapper, function))
@@ -118,15 +119,15 @@ public class EventBufferJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
 
-        eventBufferJdbcRepository.findStreamByIdAndSource(streamId, source);
+        eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component);
 
         verify(preparedStatement, times(2)).setObject(1, streamId);
         verify(preparedStatement).setLong(2, position);
         verify(preparedStatement).setString(3, "eventVersion_2");
         verify(preparedStatement).setString(4, source);
-        verify(preparedStatement).setString(5, EVENT_LISTENER);
+        verify(preparedStatement).setString(5, component);
         verify(preparedStatement).setString(2, source);
         verify(preparedStatement).executeUpdate();
     }
@@ -134,18 +135,19 @@ public class EventBufferJdbcRepositoryTest {
     @Test(expected = JdbcRepositoryException.class)
     public void shouldThrowExceptionWhileReturningBufferedEvent() throws SQLException {
 
+        final UUID streamId = randomUUID();
+        final long position = 1l;
         final String source = "source";
+        final String component = EVENT_LISTENER;
 
         when(connection.prepareStatement(INSERT))
                 .thenReturn(preparedStatement);
 
-        when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_AND_SOURCE))
+        when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT))
                 .thenThrow(new SQLException());
 
-        final UUID streamId = randomUUID();
-        final long position = 1l;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
-        eventBufferJdbcRepository.findStreamByIdAndSource(streamId, source);
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
+        eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component);
    }
 
     @Test

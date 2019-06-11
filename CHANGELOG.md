@@ -4,7 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [2.0.0-M34] - 2019-07-05
+## [2.0.0-M35] - 2019-06-11
+### Fixed
+- Updated to framework 6.0.0-M30
+
+
+## [2.0.0-M34] - 2019-06-07
 ### Fixed
 - Added component to the event buffer to allow it to handle both the 
 event listener and indexer

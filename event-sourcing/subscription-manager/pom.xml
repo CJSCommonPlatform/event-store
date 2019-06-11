@@ -60,7 +60,8 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
-            <artifactId>jmx</artifactId>
+            <artifactId>jmx-command-handling</artifactId>
+            <version>${framework.version}</version>
         </dependency>
 
         <!--Test Dependencies-->

@@ -40,6 +40,7 @@ import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jmx.command.SystemCommandStore;
@@ -165,7 +166,9 @@ public class EventPublishIT {
             PrePublishRepository.class,
             PublishedEventQueries.class,
             StopWatchFactory.class,
-            SystemCommandStore.class
+            SystemCommandStore.class,
+
+            JndiAppNameProvider.class
     })
     public WebApp war() {
         return new WebApp()

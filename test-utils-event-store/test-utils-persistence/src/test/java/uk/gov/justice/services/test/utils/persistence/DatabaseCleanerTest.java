@@ -50,7 +50,7 @@ public class DatabaseCleanerTest {
     }
 
     @Test
-    public void shouldCleanTheEventTable() throws Exception {
+    public void shouldCleanTheEventStoreTables() throws Exception {
 
         final String contextName = "my-context";
 
@@ -69,6 +69,24 @@ public class DatabaseCleanerTest {
         verify(preparedStatement, times(5)).executeUpdate();
         verify(connection).close();
         verify(preparedStatement, times(5)).close();
+    }
+
+    @Test
+    public void shouldCleanTheSystemTables() throws Exception {
+
+        final String contextName = "my-context";
+
+        final Connection connection = mock(Connection.class);
+        final PreparedStatement preparedStatement = mock(PreparedStatement.class);
+
+        when(testJdbcConnectionProvider.getSystemConnection(contextName)).thenReturn(connection);
+        when(connection.prepareStatement("DELETE FROM " + "shuttered_command_store")).thenReturn(preparedStatement);
+
+        databaseCleaner.cleanSystemTables(contextName);
+
+        verify(preparedStatement, times(1)).executeUpdate();
+        verify(connection).close();
+        verify(preparedStatement, times(1)).close();
     }
 
     @Test
@@ -91,7 +109,7 @@ public class DatabaseCleanerTest {
     }
 
     @Test
-    public void shouldCleanTheSubscriptionTable() throws Exception {
+    public void shouldCleanTheStreamStatusTable() throws Exception {
 
         final String tableName = "stream_status";
         final String contextName = "my-context";
@@ -134,7 +152,7 @@ public class DatabaseCleanerTest {
     }
 
     @Test
-    public void shouldThrowADataAccessExceptionIfCleaningTheEventStoreTableFails() throws Exception {
+    public void shouldThrowADataAccessExceptionIfCleaningTheEventStoreTablesFails() throws Exception {
 
         final String tableName = "event_log";
         final String contextName = "my-context";
@@ -174,6 +192,31 @@ public class DatabaseCleanerTest {
 
         try {
             databaseCleaner.cleanStreamBufferTable(contextName);
+            fail();
+        } catch (Exception expected) {
+            assertThat(expected.getCause(), is(sqlException));
+        }
+
+        verify(connection).close();
+    }
+
+    @Test
+    public void shouldThrowADatAccessExceptionIfClosingTheSystemConnectionFails() throws Exception {
+
+        final String tableName = "shuttered_command_store";
+        final String contextName = "my-context";
+
+        final SQLException sqlException = new SQLException("Oops");
+
+        final Connection connection = mock(Connection.class);
+        final PreparedStatement preparedStatement = mock(PreparedStatement.class);
+
+        when(testJdbcConnectionProvider.getSystemConnection(contextName)).thenReturn(connection);
+        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        doThrow(sqlException).when(preparedStatement).close();
+
+        try {
+            databaseCleaner.cleanSystemTables(contextName);
             fail();
         } catch (Exception expected) {
             assertThat(expected.getCause(), is(sqlException));

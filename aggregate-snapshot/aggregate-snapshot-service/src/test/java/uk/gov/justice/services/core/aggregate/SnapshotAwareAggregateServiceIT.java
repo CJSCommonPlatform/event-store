@@ -64,6 +64,7 @@ import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapsho
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotStrategy;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -204,7 +205,9 @@ public class SnapshotAwareAggregateServiceIT {
             EventStreamJdbcRepository.class,
             MaxRetryProvider.class,
             EventSourceNameProvider.class,
-            EventStreamManager.class
+            EventStreamManager.class,
+
+            JndiAppNameProvider.class
     })
 
     public WebApp war() {

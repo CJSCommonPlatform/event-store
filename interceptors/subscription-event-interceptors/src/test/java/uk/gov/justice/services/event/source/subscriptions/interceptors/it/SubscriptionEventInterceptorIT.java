@@ -13,6 +13,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import uk.gov.justice.schema.service.CatalogProducer;
 import uk.gov.justice.schema.service.SchemaCatalogResolverProducer;
 import uk.gov.justice.schema.service.SchemaCatalogService;
+import uk.gov.justice.services.cdi.InitialContextProducer;
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.common.annotation.ComponentNameExtractor;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
@@ -62,7 +63,9 @@ import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.source.subscriptions.interceptors.SubscriptionEventInterceptor;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.jdbc.persistence.ViewStoreDataSourceNameProvider;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -178,6 +181,7 @@ public class SubscriptionEventInterceptorIT {
             JdbcResultSetStreamer.class,
             PreparedStatementWrapperFactory.class,
             ViewStoreJdbcDataSourceProvider.class,
+            ViewStoreDataSourceNameProvider.class,
 
             SchemaCatalogAwareJsonSchemaValidator.class,
             PayloadExtractor.class,
@@ -204,7 +208,10 @@ public class SubscriptionEventInterceptorIT {
 
             ProcessedEventTrackingService.class,
             ProcessedEventTrackingRepository.class,
-            ComponentNameExtractor.class
+            ComponentNameExtractor.class,
+
+            JndiAppNameProvider.class,
+            InitialContextProducer.class
     })
 
     public WebApp war() {

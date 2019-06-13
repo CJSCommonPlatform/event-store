@@ -68,6 +68,7 @@ import uk.gov.justice.services.eventsourcing.source.core.MaxRetryProvider;
 import uk.gov.justice.services.eventsourcing.source.core.PublishingEventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
+import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -230,7 +231,9 @@ public class EventsPageIT {
             EventStreamJdbcRepository.class,
             MaxRetryProvider.class,
             EventSourceNameProvider.class,
-            EventStreamManager.class
+            EventStreamManager.class,
+
+            JndiAppNameProvider.class
     })
     public WebApp war() {
         return new WebApp()

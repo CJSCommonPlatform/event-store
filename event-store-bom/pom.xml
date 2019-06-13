@@ -74,6 +74,16 @@
                 <artifactId>event-publisher-timer</artifactId>
                 <version>${event-store.version}</version>
             </dependency>
+            <dependency>
+                <groupId>uk.gov.justice.event-store</groupId>
+                <artifactId>event-subscription-registry</artifactId>
+                <version>${event-store.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>uk.gov.justice.event-store</groupId>
+                <artifactId>event-buffer-core</artifactId>
+                <version>${event-store.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

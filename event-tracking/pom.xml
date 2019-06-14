@@ -3,15 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>subscription-repository</artifactId>
+        <artifactId>event-store</artifactId>
         <groupId>uk.gov.justice.event-store</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>subscription-repository-liquibase</artifactId>
+    <artifactId>event-tracking</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>event-tracking-service</module>
+        <module>event-tracking-liquibase</module>
+    </modules>
 
-    <properties>
-        <sonar.skip>true</sonar.skip>
-    </properties>
 </project>

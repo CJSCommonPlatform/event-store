@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## Changed
+- Renamed subscription-repository to event-tracking
+
 ## [2.0.0-M37] - 2019-06-14
 ## Changed
 - Implement usage of new system database

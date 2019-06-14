@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>subscription-event-tracking</artifactId>
+            <artifactId>event-tracking-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

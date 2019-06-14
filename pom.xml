@@ -26,8 +26,7 @@
         <module>interceptors</module>
         <module>event-store-bom</module>
         <module>test-utils-event-store</module>
-        <module>event-source-subscriptions</module>
-        <module>subscription-event-tracking</module>
+        <module>event-tracking</module>
         <module>event-store-management</module>
     </modules>
 

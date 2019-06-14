@@ -51,4 +51,24 @@ public class TestJdbcConnectionProvider {
             throw new DataAccessException(message, e);
         }
     }
+
+    public Connection getSystemConnection(final String contextName) {
+
+        final String host = getHost();
+        final String url = format("jdbc:postgresql://" + host + "/%ssystem", contextName);
+        final String username = contextName;
+        final String password = contextName;
+
+        try {
+            return DriverManager.getConnection(url, username, password);
+        } catch (SQLException e) {
+            final String message = format("Failed to get JDBC connection to %s System databas. url: '%s', username '%s', password '%s'",
+                    contextName,
+                    url,
+                    username,
+                    password);
+
+            throw new DataAccessException(message, e);
+        }
+    }
 }

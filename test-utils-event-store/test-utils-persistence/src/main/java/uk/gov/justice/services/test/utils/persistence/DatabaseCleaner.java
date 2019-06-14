@@ -118,6 +118,15 @@ public class DatabaseCleaner {
         cleanViewStoreTables(contextName, names);
     }
 
+    public void cleanSystemTables(final String contextName) {
+
+        try (final Connection connection = testJdbcConnectionProvider.getSystemConnection(contextName)) {
+            cleanTable("shuttered_command_store", connection);
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to commit or close database connection", e);
+        }
+    }
+
     /**
      * Cleans all the tables in the specified list
      *

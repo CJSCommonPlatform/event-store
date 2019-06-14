@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-M36] - 2019-06-14
+## Changed
+- Implement usage of new system database
+- Add event-buffer-core and event-subscription-registry pom entries
 
 ## [2.0.0-M36] - 2019-06-12
 ## Changed

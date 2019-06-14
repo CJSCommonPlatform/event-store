@@ -12,7 +12,6 @@ import uk.gov.justice.services.jdbc.persistence.DataAccessException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,17 +25,29 @@ public class TestJdbcConnectionProviderTest {
     private TestJdbcConnectionProvider testJdbcConnectionProvider;
 
     @Test
-    @Ignore("This can't work without a usergroups eventstore running on postgresql")
     public void shouldGetConnectionToEventStore() throws Exception {
+        try(final Connection connection = testJdbcConnectionProvider.getEventStoreConnection("framework")) {
+            assertThat(connection, is(notNullValue()));
+        }
+    }
 
-        try(final Connection connection = testJdbcConnectionProvider.getEventStoreConnection("usersgroups")) {
+    @Test
+    public void shouldGetConnectionToViewStore() throws Exception {
+        try(final Connection connection = testJdbcConnectionProvider.getViewStoreConnection("framework")) {
+            assertThat(connection, is(notNullValue()));
+        }
+    }
+
+    @Test
+    public void shouldGetConnectionToSystem() throws Exception {
+        try(final Connection connection = testJdbcConnectionProvider.getSystemConnection("framework")) {
             assertThat(connection, is(notNullValue()));
         }
     }
 
     @SuppressWarnings("Duplicates")
     @Test
-    public void shouldThrowADataAccessExceptionIfTheConnectionToTheEventFails() throws Exception {
+    public void shouldThrowADataAccessExceptionIfTheConnectionToTheEventStoreFails() throws Exception {
 
         final String expectedErrorMessage =
                 "Failed to get JDBC connection " +

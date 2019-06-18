@@ -18,6 +18,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>uk.gov.justice.framework-api</groupId>
+            <artifactId>framework-api-messaging-jms</artifactId>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.justice.utils</groupId>
             <artifactId>utilities-core</artifactId>
         </dependency>

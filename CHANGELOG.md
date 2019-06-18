@@ -5,16 +5,19 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## Changed
+### Added
+- CommandHandlerQueueChecker to check the command handler queue is empty when shuttering
+
+### Changed
 - Renamed subscription-repository to event-tracking
 
 ## [2.0.0-M37] - 2019-06-14
-## Changed
+### Changed
 - Implement usage of new system database
 - Add event-buffer-core and event-subscription-registry pom entries
 
 ## [2.0.0-M36] - 2019-06-12
-## Changed
+### Changed
 - Update framework to 6.0.0-M31
 
 ## [2.0.0-M35] - 2019-06-11

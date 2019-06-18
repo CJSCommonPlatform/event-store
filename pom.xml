@@ -39,11 +39,11 @@
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
 
-        <utilities.version>1.18.0</utilities.version>
+        <utilities.version>1.19.0</utilities.version>
         <test-utils.version>1.23.0</test-utils.version>
-        <framework.version>6.0.0-M32</framework.version>
+        <framework.version>6.0.0-M33</framework.version>
         <common-bom.version>2.2.0</common-bom.version>
-        <framework-api.version>4.0.0-M24</framework-api.version>
+        <framework-api.version>4.0.0-M25</framework-api.version>
     </properties>
 
     <dependencyManagement>

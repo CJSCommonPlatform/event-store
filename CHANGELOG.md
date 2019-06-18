@@ -5,11 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M38] - 2019-06-18
 ### Added
 - CommandHandlerQueueChecker to check the command handler queue is empty when shuttering
-
 ### Changed
 - Renamed subscription-repository to event-tracking
+- Feed SystemCommand through from JMX bean to the handlers
 
 ## [2.0.0-M37] - 2019-06-14
 ### Changed

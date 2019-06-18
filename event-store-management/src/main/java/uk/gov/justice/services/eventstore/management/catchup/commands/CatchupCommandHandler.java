@@ -18,7 +18,7 @@ public class CatchupCommandHandler {
     private Event<CatchupRequestedEvent> catchupRequestedEventFirer;
 
     @HandlesSystemCommand(CATCHUP)
-    public void doCatchup() {
-        catchupRequestedEventFirer.fire(new CatchupRequestedEvent(new CatchupCommand(), utcClock.now()));
+    public void doCatchup(final CatchupCommand catchupCommand) {
+        catchupRequestedEventFirer.fire(new CatchupRequestedEvent(catchupCommand, utcClock.now()));
     }
 }

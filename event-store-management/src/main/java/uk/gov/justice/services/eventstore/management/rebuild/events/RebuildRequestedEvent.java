@@ -7,16 +7,16 @@ import java.util.Objects;
 
 public class RebuildRequestedEvent {
 
-    private final SystemCommand cause;
+    private final SystemCommand target;
     private final ZonedDateTime rebuildRequestedAt;
 
-    public RebuildRequestedEvent(final ZonedDateTime rebuildRequestedAt, final SystemCommand cause) {
-        this.cause = cause;
+    public RebuildRequestedEvent(final ZonedDateTime rebuildRequestedAt, final SystemCommand target) {
+        this.target = target;
         this.rebuildRequestedAt = rebuildRequestedAt;
     }
 
-    public SystemCommand getCause() {
-        return cause;
+    public SystemCommand getTarget() {
+        return target;
     }
 
     public ZonedDateTime getRebuildRequestedAt() {
@@ -28,19 +28,19 @@ public class RebuildRequestedEvent {
         if (this == o) return true;
         if (!(o instanceof RebuildRequestedEvent)) return false;
         final RebuildRequestedEvent that = (RebuildRequestedEvent) o;
-        return Objects.equals(cause, that.cause) &&
+        return Objects.equals(target, that.target) &&
                 Objects.equals(rebuildRequestedAt, that.rebuildRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(cause, rebuildRequestedAt);
+        return Objects.hash(target, rebuildRequestedAt);
     }
 
     @Override
     public String toString() {
         return "RebuildRequestedEvent{" +
-                "cause=" + cause +
+                "target=" + target +
                 ", rebuildRequestedAt=" + rebuildRequestedAt +
                 '}';
     }

@@ -32,11 +32,12 @@ public class CatchupCommandHandlerTest {
     public void shouldFireCatchupEvent() {
 
         final ZonedDateTime requestedAt = new UtcClock().now();
+        final CatchupCommand catchupCommand = new CatchupCommand();
 
         when(clock.now()).thenReturn(requestedAt);
 
-        catchup.doCatchup();
+        catchup.doCatchup(catchupCommand);
 
-        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(new CatchupCommand(), requestedAt));
+        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(catchupCommand, requestedAt));
     }
 }

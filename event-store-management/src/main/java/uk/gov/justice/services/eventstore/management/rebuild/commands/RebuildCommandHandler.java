@@ -18,7 +18,7 @@ public class RebuildCommandHandler {
     private Event<RebuildRequestedEvent> rebuildRequestedEventEventFirer;
 
     @HandlesSystemCommand(REBUILD)
-    public void doRebuild() {
-        rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(clock.now(), new RebuildCommand()));
+    public void doRebuild(final RebuildCommand rebuildCommand) {
+        rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(clock.now(), rebuildCommand));
     }
 }

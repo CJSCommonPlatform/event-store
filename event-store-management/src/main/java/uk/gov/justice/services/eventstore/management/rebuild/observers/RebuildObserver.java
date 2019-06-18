@@ -33,7 +33,7 @@ public class RebuildObserver {
 
     public void onRebuildRequested(@Observes final RebuildRequestedEvent rebuildRequestedEvent) {
 
-        final SystemCommand cause = rebuildRequestedEvent.getCause();
+        final SystemCommand cause = rebuildRequestedEvent.getTarget();
 
         final String causeCommandName = cause.getName();
         logger.info(format("Rebuild requested by '%s' at %tc", causeCommandName, rebuildRequestedEvent.getRebuildRequestedAt()));

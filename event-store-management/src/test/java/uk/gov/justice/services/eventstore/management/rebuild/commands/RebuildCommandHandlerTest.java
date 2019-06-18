@@ -32,11 +32,12 @@ public class RebuildCommandHandlerTest {
     public void shouldFireRebuildEvent() throws Exception {
 
         final ZonedDateTime now = new UtcClock().now();
+        final RebuildCommand rebuildCommand = new RebuildCommand();
 
         when(clock.now()).thenReturn(now);
 
-        rebuildCommandHandler.doRebuild();
+        rebuildCommandHandler.doRebuild(rebuildCommand);
 
-        verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(now, new RebuildCommand()));
+        verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(now, rebuildCommand));
     }
 }

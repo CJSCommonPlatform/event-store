@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc;
 import static java.time.ZonedDateTime.now;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.of;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -81,7 +82,7 @@ public class JdbcBasedEventRepositoryTest {
 
     @Test
     public void shouldGetAllEvents() throws Exception {
-        when(eventJdbcRepository.findAll()).thenReturn(Stream.of(event));
+        when(eventJdbcRepository.findAll()).thenReturn(of(event));
         when(eventConverter.envelopeOf(event)).thenReturn(envelope);
 
         Stream<JsonEnvelope> streamOfEnvelopes = jdbcBasedEventRepository.getEvents();
@@ -93,7 +94,7 @@ public class JdbcBasedEventRepositoryTest {
 
     @Test
     public void shouldGetByStreamId() throws Exception {
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID)).thenReturn(Stream.of(event));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(STREAM_ID)).thenReturn(of(event));
         when(eventConverter.envelopeOf(event)).thenReturn(envelope);
 
         Stream<JsonEnvelope> streamOfEnvelopes = jdbcBasedEventRepository.getEventsByStreamId(STREAM_ID);
@@ -110,7 +111,7 @@ public class JdbcBasedEventRepositoryTest {
 
     @Test
     public void shouldGetByStreamIdAndSequenceId() throws Exception {
-        when(eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, POSITION)).thenReturn(Stream.of(event));
+        when(eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, POSITION)).thenReturn(of(event));
         when(eventConverter.envelopeOf(event)).thenReturn(envelope);
 
         Stream<JsonEnvelope> streamOfEnvelopes = jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, POSITION);
@@ -125,7 +126,7 @@ public class JdbcBasedEventRepositoryTest {
 
         final Integer pageSize = 1000;
 
-        when(eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, POSITION, pageSize)).thenReturn(Stream.of(event));
+        when(eventJdbcRepository.findByStreamIdFromPositionOrderByPositionAsc(STREAM_ID, POSITION, pageSize)).thenReturn(of(event));
         when(eventConverter.envelopeOf(event)).thenReturn(envelope);
 
         final Stream<JsonEnvelope> streamOfEnvelopes = jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, POSITION, pageSize);
@@ -169,10 +170,10 @@ public class JdbcBasedEventRepositoryTest {
         final JsonEnvelope envelope3 = mock(JsonEnvelope.class);
 
 
-        when(eventJdbcRepository.getStreamIds()).thenReturn(Stream.of(streamId1, streamId2, streamId3));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(Stream.of(event1));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(Stream.of(event2));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(Stream.of(event3));
+        when(eventJdbcRepository.getStreamIds()).thenReturn(of(streamId1, streamId2, streamId3));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(of(event1));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(of(event2));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(of(event3));
 
         when(eventConverter.envelopeOf(event1)).thenReturn(envelope1);
         when(eventConverter.envelopeOf(event2)).thenReturn(envelope2);
@@ -201,10 +202,10 @@ public class JdbcBasedEventRepositoryTest {
         final JsonEnvelope envelope2 = mock(JsonEnvelope.class);
         final JsonEnvelope envelope3 = mock(JsonEnvelope.class);
 
-        when(eventStreamJdbcRepository.findActive()).thenReturn(Stream.of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(Stream.of(event1));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(Stream.of(event2));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(Stream.of(event3));
+        when(eventStreamJdbcRepository.findActive()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(of(event1));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(of(event2));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(of(event3));
 
         when(eventConverter.envelopeOf(event1)).thenReturn(envelope1);
         when(eventConverter.envelopeOf(event2)).thenReturn(envelope2);
@@ -227,11 +228,29 @@ public class JdbcBasedEventRepositoryTest {
         final UUID streamId2 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb252e");
         final UUID streamId3 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb253e");
 
-        when(eventStreamJdbcRepository.findActive()).thenReturn(Stream.of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
+        when(eventStreamJdbcRepository.findActive()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
 
         final Stream<UUID> allActiveStreamIds = jdbcBasedEventRepository.getAllActiveStreamIds();
 
         final List<UUID> streamIds = allActiveStreamIds.collect(toList());
+        assertThat(streamIds, hasSize(3));
+
+        assertThat(streamIds.get(0), is(streamId1));
+        assertThat(streamIds.get(1), is(streamId2));
+        assertThat(streamIds.get(2), is(streamId3));
+    }
+
+    @Test
+    public void shouldGetAllStreamOfStreamIds() throws Exception {
+        final UUID streamId1 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb251e");
+        final UUID streamId2 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb252e");
+        final UUID streamId3 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb253e");
+
+        when(eventStreamJdbcRepository.findAll()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
+
+        final Stream<UUID> allStreamIds = jdbcBasedEventRepository.getAllStreamIds();
+
+        final List<UUID> streamIds = allStreamIds.collect(toList());
         assertThat(streamIds, hasSize(3));
 
         assertThat(streamIds.get(0), is(streamId1));
@@ -257,10 +276,10 @@ public class JdbcBasedEventRepositoryTest {
         StreamCloseSpy streamCloseSpy3 = new StreamCloseSpy();
         StreamCloseSpy streamCloseSpy4 = new StreamCloseSpy();
 
-        when(eventJdbcRepository.getStreamIds()).thenReturn(Stream.of(streamId1, streamId2, streamId3).onClose(streamCloseSpy1));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(Stream.of(event1).onClose(streamCloseSpy2));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(Stream.of(event2).onClose(streamCloseSpy3));
-        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(Stream.of(event3).onClose(streamCloseSpy4));
+        when(eventJdbcRepository.getStreamIds()).thenReturn(of(streamId1, streamId2, streamId3).onClose(streamCloseSpy1));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(of(event1).onClose(streamCloseSpy2));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(of(event2).onClose(streamCloseSpy3));
+        when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(of(event3).onClose(streamCloseSpy4));
 
         when(eventConverter.envelopeOf(event1)).thenReturn(envelope1);
         when(eventConverter.envelopeOf(event2)).thenReturn(envelope2);
@@ -319,7 +338,7 @@ public class JdbcBasedEventRepositoryTest {
     public void shouldGetEventStreamBySequenceId() {
         final long POSITION = 1L;
 
-        when(eventStreamJdbcRepository.findEventStreamWithPositionFrom(POSITION)).thenReturn(Stream.of(eventStream));
+        when(eventStreamJdbcRepository.findEventStreamWithPositionFrom(POSITION)).thenReturn(of(eventStream));
 
         final Stream<EventStream> streamOfEnvelopes = eventStreamJdbcRepository.findEventStreamWithPositionFrom(POSITION);
         final List<EventStream> eventStreamObjectList = streamOfEnvelopes.collect(toList());
@@ -344,7 +363,7 @@ public class JdbcBasedEventRepositoryTest {
         final boolean active = true;
         final ZonedDateTime createdAt = now();
         final EventStream eventStream1 = new EventStream(streamId, position, true, createdAt);
-        final Stream<EventStream> eventStreams = Stream.of(eventStream1);
+        final Stream<EventStream> eventStreams = of(eventStream1);
 
         when(eventStreamJdbcRepository.findEventStreamWithPositionFrom(position)).thenReturn(eventStreams);
 
@@ -369,7 +388,7 @@ public class JdbcBasedEventRepositoryTest {
         final boolean active = true;
         final ZonedDateTime createdAt = now();
         final EventStream eventStream1 = new EventStream(streamId, position, true, createdAt);
-        final Stream<EventStream> eventStreams = Stream.of(eventStream1);
+        final Stream<EventStream> eventStreams = of(eventStream1);
 
         when(eventStreamJdbcRepository.findAll()).thenReturn(eventStreams);
 
@@ -410,7 +429,7 @@ public class JdbcBasedEventRepositoryTest {
 
         final long eventNumber = 32498L;
 
-        final Stream<Event> streamOfEvents = Stream.of(mock(Event.class));
+        final Stream<Event> streamOfEvents = of(mock(Event.class));
 
         when(eventJdbcRepository.findEventsSince(eventNumber)).thenReturn(streamOfEvents);
 

@@ -225,6 +225,24 @@ public class JdbcBasedEventRepositoryTest {
         final UUID streamId2 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb252e");
         final UUID streamId3 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb253e");
 
+        when(eventStreamJdbcRepository.findActive()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
+
+        final Stream<UUID> allActiveStreamIds = jdbcBasedEventRepository.getAllActiveStreamIds();
+
+        final List<UUID> streamIds = allActiveStreamIds.collect(toList());
+        assertThat(streamIds, hasSize(3));
+
+        assertThat(streamIds.get(0), is(streamId1));
+        assertThat(streamIds.get(1), is(streamId2));
+        assertThat(streamIds.get(2), is(streamId3));
+    }
+
+    @Test
+    public void shouldGetAllStreamOfStreamIds() throws Exception {
+        final UUID streamId1 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb251e");
+        final UUID streamId2 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb252e");
+        final UUID streamId3 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb253e");
+
         when(eventStreamJdbcRepository.findAll()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
 
         final Stream<UUID> allStreamIds = jdbcBasedEventRepository.getAllStreamIds();

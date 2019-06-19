@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M39] - 2019-06-19
+### Changed
+- Update framework to 6.0.0-M35
+
 ## [2.0.0-M38] - 2019-06-18
 ### Added
 - CommandHandlerQueueChecker to check the command handler queue is empty when shuttering

@@ -119,6 +119,12 @@ public class JdbcBasedEventRepository implements EventRepository {
                 .map(EventStream::getStreamId);
     }
 
+    @Override
+    public Stream<UUID> getAllStreamIds() {
+        return eventStreamJdbcRepository.findAll()
+                .map(EventStream::getStreamId);
+    }
+
     private Stream<Stream<JsonEnvelope>> getStreams(final Stream<UUID> streamIds) {
         return streamIds
                 .map(id -> {

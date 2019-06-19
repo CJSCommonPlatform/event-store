@@ -225,11 +225,11 @@ public class JdbcBasedEventRepositoryTest {
         final UUID streamId2 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb252e");
         final UUID streamId3 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb253e");
 
-        when(eventStreamJdbcRepository.findActive()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
+        when(eventStreamJdbcRepository.findAll()).thenReturn(of(buildEventStreamFor(streamId1, 1L), buildEventStreamFor(streamId2, 2L), buildEventStreamFor(streamId3, 3L)));
 
-        final Stream<UUID> allActiveStreamIds = jdbcBasedEventRepository.getAllActiveStreamIds();
+        final Stream<UUID> allStreamIds = jdbcBasedEventRepository.getAllStreamIds();
 
-        final List<UUID> streamIds = allActiveStreamIds.collect(toList());
+        final List<UUID> streamIds = allStreamIds.collect(toList());
         assertThat(streamIds, hasSize(3));
 
         assertThat(streamIds.get(0), is(streamId1));

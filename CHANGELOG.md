@@ -4,8 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.0.0-M40] - 2019-06-21
 ### Added
 - Java API to retrieve all stream IDs (active and inactive ones)
+- Observers for the shutter then catchup process
 
 ## [2.0.0-M39] - 2019-06-19
 ### Changed

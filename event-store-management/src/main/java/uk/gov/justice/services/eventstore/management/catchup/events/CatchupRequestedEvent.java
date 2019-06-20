@@ -7,16 +7,16 @@ import java.util.Objects;
 
 public class CatchupRequestedEvent {
 
-    private final SystemCommand cause;
+    private final SystemCommand target;
     private final ZonedDateTime catchupRequestedAt;
 
-    public CatchupRequestedEvent(final SystemCommand cause, final ZonedDateTime catchupRequestedAt) {
-        this.cause = cause;
+    public CatchupRequestedEvent(final SystemCommand target, final ZonedDateTime catchupRequestedAt) {
+        this.target = target;
         this.catchupRequestedAt = catchupRequestedAt;
     }
 
-    public SystemCommand getCause() {
-        return cause;
+    public SystemCommand getTarget() {
+        return target;
     }
 
     public ZonedDateTime getCatchupRequestedAt() {
@@ -28,19 +28,19 @@ public class CatchupRequestedEvent {
         if (this == o) return true;
         if (!(o instanceof CatchupRequestedEvent)) return false;
         final CatchupRequestedEvent that = (CatchupRequestedEvent) o;
-        return Objects.equals(cause, that.cause) &&
+        return Objects.equals(target, that.target) &&
                 Objects.equals(catchupRequestedAt, that.catchupRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(cause, catchupRequestedAt);
+        return Objects.hash(target, catchupRequestedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupRequestedEvent{" +
-                "cause=" + cause +
+                "target=" + target +
                 ", catchupRequestedAt=" + catchupRequestedAt +
                 '}';
     }

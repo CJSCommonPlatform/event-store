@@ -2,9 +2,11 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -25,6 +27,7 @@ public class CatchupDurationCalculatorTest {
 
         final ZonedDateTime startedAt = new UtcClock().now();
         final ZonedDateTime completedAt = startedAt.plusSeconds(90);
+        final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final String subscriptionName = "subscription";
 
@@ -35,6 +38,7 @@ public class CatchupDurationCalculatorTest {
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,
                 23,
+                systemCommand,
                 completedAt);
 
         final Duration duration = catchupDurationCalculator.calculate(

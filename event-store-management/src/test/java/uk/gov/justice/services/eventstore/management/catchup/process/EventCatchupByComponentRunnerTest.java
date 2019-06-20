@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
@@ -32,14 +33,15 @@ public class EventCatchupByComponentRunnerTest {
         final SubscriptionsDescriptor subscriptionsDescriptor = mock(SubscriptionsDescriptor.class);
         final Subscription subscription_1 = mock(Subscription.class);
         final Subscription subscription_2 = mock(Subscription.class);
+        final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
 
         when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
         when(subscriptionsDescriptor.getSubscriptions()).thenReturn(asList(subscription_1, subscription_2));
 
-        eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor);
+        eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor, catchupRequestedEvent);
 
-        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_1, componentName);
-        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(subscription_2, componentName);
+        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(new CatchupContext(componentName, subscription_1, catchupRequestedEvent));
+        verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(new CatchupContext(componentName, subscription_2, catchupRequestedEvent));
     }
 
     @Test
@@ -47,10 +49,11 @@ public class EventCatchupByComponentRunnerTest {
 
         final String componentName = "AN_EVENT_PROCESSOR";
         final SubscriptionsDescriptor subscriptionsDescriptor = mock(SubscriptionsDescriptor.class);
+        final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
 
         when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
 
-        eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor);
+        eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor, catchupRequestedEvent);
 
         verifyZeroInteractions(eventCatchupBySubscriptionRunner);
     }

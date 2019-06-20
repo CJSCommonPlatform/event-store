@@ -2,8 +2,6 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -15,10 +13,10 @@ public class EventCatchupProcessorBean {
     EventCatchupProcessorFactory eventCatchupProcessorFactory;
 
     @Transactional(NOT_SUPPORTED)
-    public void performEventCatchup(final Subscription subscription, final String componentName) {
+    public void performEventCatchup(final CatchupContext catchupContext) {
 
         final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.create();
 
-        eventCatchupProcessor.performEventCatchup(subscription, componentName);
+        eventCatchupProcessor.performEventCatchup(catchupContext);
     }
 }

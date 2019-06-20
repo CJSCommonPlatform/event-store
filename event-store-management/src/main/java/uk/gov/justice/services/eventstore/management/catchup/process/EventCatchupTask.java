@@ -1,32 +1,24 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class EventCatchupTask implements Callable<Boolean> {
 
-    private final Subscription subscription;
+    private final CatchupContext catchupContext;
     private final EventCatchupProcessorBean eventCatchupProcessorBean;
-    private final String componentName;
 
     public EventCatchupTask(
-            final Subscription subscription,
-            final EventCatchupProcessorBean eventCatchupProcessorBean,
-            final String componentName) {
-        this.subscription = subscription;
+            final CatchupContext catchupContext,
+            final EventCatchupProcessorBean eventCatchupProcessorBean) {
+        this.catchupContext = catchupContext;
         this.eventCatchupProcessorBean = eventCatchupProcessorBean;
-        this.componentName = componentName;
     }
 
 
     @Override
     public Boolean call() {
-        eventCatchupProcessorBean.performEventCatchup(
-                subscription,
-                componentName
-        );
+        eventCatchupProcessorBean.performEventCatchup(catchupContext);
 
         return true;
     }
@@ -36,13 +28,12 @@ public class EventCatchupTask implements Callable<Boolean> {
         if (this == o) return true;
         if (!(o instanceof EventCatchupTask)) return false;
         final EventCatchupTask that = (EventCatchupTask) o;
-        return Objects.equals(subscription, that.subscription) &&
-                Objects.equals(eventCatchupProcessorBean, that.eventCatchupProcessorBean) &&
-                Objects.equals(componentName, that.componentName);
+        return Objects.equals(catchupContext, that.catchupContext) &&
+                Objects.equals(eventCatchupProcessorBean, that.eventCatchupProcessorBean);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subscription, eventCatchupProcessorBean, componentName);
+        return Objects.hash(catchupContext, eventCatchupProcessorBean);
     }
 }

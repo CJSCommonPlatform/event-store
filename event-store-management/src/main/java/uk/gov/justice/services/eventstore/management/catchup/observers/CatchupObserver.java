@@ -12,6 +12,7 @@ import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDura
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupsInProgressCache;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
+import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -46,7 +47,7 @@ public class CatchupObserver {
 
     public void onCatchupRequested(@SuppressWarnings("unused") @Observes final CatchupRequestedEvent catchupRequestedEvent) {
         logger.info("Event catchup requested");
-        eventCatchupRunner.runEventCatchup();
+        eventCatchupRunner.runEventCatchup(catchupRequestedEvent);
     }
 
     public void onCatchupStarted(@Observes final CatchupStartedEvent catchupStartedEvent) {
@@ -85,7 +86,8 @@ public class CatchupObserver {
 
         if(catchupsInProgressCache.noCatchupsInProgress()) {
             final ZonedDateTime completedAt = clock.now();
-            catchupCompletedEventFirer.fire(new CatchupCompletedEvent(completedAt));
+            final SystemCommand target = catchupCompletedForSubscriptionEvent.getTarget();
+            catchupCompletedEventFirer.fire(new CatchupCompletedEvent(target, completedAt));
             logger.info(format("Event catchup completed at %s", completedAt));
         }
     }

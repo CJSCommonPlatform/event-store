@@ -3,8 +3,6 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.junit.Test;
@@ -28,15 +26,13 @@ public class EventCatchupBySubscriptionRunnerTest {
     @Test
     public void shouldCreateEventCatchupTaskForASubscriptionAndRunInASeparateProcess() throws Exception {
 
-        final String componentName = "EVENT_LISTENER";
-
-        final Subscription subscription = mock(Subscription.class);
+        final CatchupContext catchupContext = mock(CatchupContext.class);
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
-                subscription,
-                eventCatchupProcessorBean, componentName);
+                catchupContext,
+                eventCatchupProcessorBean);
 
-        eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(subscription, componentName);
+        eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(catchupContext);
 
         verify(managedExecutorService).submit(eventCatchupTask);
     }

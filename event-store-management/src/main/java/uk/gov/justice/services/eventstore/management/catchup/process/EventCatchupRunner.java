@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedEvent;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
@@ -24,12 +25,14 @@ public class EventCatchupRunner {
     @Inject
     private UtcClock clock;
 
-    public void runEventCatchup() {
+    public void runEventCatchup(final CatchupRequestedEvent catchupRequestedEvent) {
         catchupStartedEventFirer.fire(new CatchupStartedEvent(clock.now()));
 
         final List<SubscriptionsDescriptor> subscriptionsDescriptors =
                 subscriptionsDescriptorsRegistry.getAll();
 
-        subscriptionsDescriptors.forEach(eventCatchupByComponentRunner::runEventCatchupForComponent);
+        subscriptionsDescriptors.forEach(subscriptionsDescriptor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
+                subscriptionsDescriptor,
+                catchupRequestedEvent));
     }
 }

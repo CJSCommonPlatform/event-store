@@ -20,6 +20,7 @@ import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDura
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupsInProgressCache;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
+import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -65,10 +66,11 @@ public class CatchupObserverTest {
     @Test
     public void shouldCallTheCatchupRunnerOnCatchupRequested() throws Exception {
 
-        catchupObserver.onCatchupRequested(mock(CatchupRequestedEvent.class));
+        final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
+        catchupObserver.onCatchupRequested(catchupRequestedEvent);
 
         verify(logger).info("Event catchup requested");
-        verify(eventCatchupRunner).runEventCatchup();
+        verify(eventCatchupRunner).runEventCatchup(catchupRequestedEvent);
     }
 
     @Test
@@ -111,12 +113,14 @@ public class CatchupObserverTest {
         final String subscriptionName = "EVENT_LISTENER";
         final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final int totalNumberOfEvents = 23;
+        final SystemCommand target = mock(SystemCommand.class);
 
         final Duration catchupDuration = Duration.of(5_000, MILLIS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,
                 totalNumberOfEvents,
+                target,
                 catchupCompletedAt
         );
 
@@ -146,12 +150,14 @@ public class CatchupObserverTest {
         final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final ZonedDateTime allCatchupsCompletedAt = catchupCompletedAt.plusSeconds(23);
         final int totalNumberOfEvents = 23;
+        final SystemCommand target = mock(SystemCommand.class);
 
         final Duration catchupDuration = Duration.of(5_000, MILLIS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,
                 totalNumberOfEvents,
+                target,
                 catchupCompletedAt
         );
 
@@ -171,7 +177,7 @@ public class CatchupObserverTest {
         verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' caught up 23 events");
         verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' took 5000 milliseconds");
 
-        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(allCatchupsCompletedAt));
+        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(target, allCatchupsCompletedAt));
         verify(logger).info("Event catchup completed at 2019-02-23T17:12:46Z");
     }
 }

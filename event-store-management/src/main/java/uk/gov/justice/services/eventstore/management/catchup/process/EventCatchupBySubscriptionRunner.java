@@ -1,7 +1,5 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
@@ -14,12 +12,11 @@ public class EventCatchupBySubscriptionRunner {
     @Resource
     private ManagedExecutorService managedExecutorService;
 
-    public void runEventCatchupForSubscription(final Subscription subscription, final String componentName) {
+    public void runEventCatchupForSubscription(final CatchupContext catchupContext) {
 
         final EventCatchupTask eventCatchupTask = new EventCatchupTask(
-                subscription,
-                eventCatchupProcessorBean,
-                componentName);
+                catchupContext,
+                eventCatchupProcessorBean);
 
         managedExecutorService.submit(eventCatchupTask);
     }

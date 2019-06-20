@@ -10,7 +10,9 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.jmx.command.SystemCommand;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
@@ -75,6 +77,9 @@ public class EventCatchupProcessorTest {
 
         final Subscription subscription = mock(Subscription.class);
         final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
+        final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
+        final CatchupContext catchupContext = new CatchupContext(componentName, subscription, catchupRequestedEvent);
+        final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final JsonEnvelope event_1 = mock(JsonEnvelope.class);
         final JsonEnvelope event_2 = mock(JsonEnvelope.class);
@@ -91,8 +96,9 @@ public class EventCatchupProcessorTest {
         when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);
+        when(catchupRequestedEvent.getTarget()).thenReturn(systemCommand);
 
-        eventCatchupProcessor.performEventCatchup(subscription, componentName);
+        eventCatchupProcessor.performEventCatchup(catchupContext);
 
         final InOrder inOrder = inOrder(
                 catchupStartedForSubscriptionEventFirer,
@@ -111,6 +117,7 @@ public class EventCatchupProcessorTest {
         inOrder.verify(catchupCompletedForSubscriptionEventFirer).fire(new CatchupCompletedForSubscriptionEvent(
                 eventSourceName,
                 events.size(),
+                systemCommand,
                 catchupCompetedAt));
     }
 }

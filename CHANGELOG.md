@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Java API to retrieve all stream IDs (active and inactive ones)
 
 ## [1.1.10] 2019-05-22
 ### Changed

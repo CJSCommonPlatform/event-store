@@ -30,7 +30,7 @@ public interface EventRepository {
     /**
      * Get a stream of event envelopes from a given position, ordered by position ascending.
      *
-     * @param streamId   the id of the stream to retrieve
+     * @param streamId the id of the stream to retrieve
      * @param position the position to read the stream from
      * @return the stream of envelopes. Never returns null.
      */
@@ -40,7 +40,7 @@ public interface EventRepository {
      * Get a stream of envelopes from a given version, ordered by sequence id. The stream is paged
      * for efficiency
      *
-     * @param streamId   the id of the stream to retrieve
+     * @param streamId the id of the stream to retrieve
      * @param position the sequence id to read the stream from
      * @param pageSize the size of the result set page.
      * @return the stream of envelopes. Never returns null.
@@ -60,8 +60,7 @@ public interface EventRepository {
      * Returns the position for the given stream id.
      *
      * @param streamId id of the stream.
-     * @return position for the stream.  Returns 0 if stream doesn't exist. Never returns
-     * null.
+     * @return position for the stream.  Returns 0 if stream doesn't exist. Never returns null.
      */
     long getStreamSize(final UUID streamId);
 
@@ -87,6 +86,13 @@ public interface EventRepository {
      * @return the Stream of active streamIds
      */
     Stream<UUID> getAllActiveStreamIds();
+
+    /**
+     * Returns Stream of all streamIds (includes active / inactive ones)
+     *
+     * @return the Stream of streamIds (includes active / inactive ones)
+     */
+    Stream<UUID> getAllStreamIds();
 
     /**
      * Clears all of the events from a stream.
@@ -127,8 +133,7 @@ public interface EventRepository {
     long getStreamPosition(final UUID streamId);
 
     /**
-     * Returns stream of EventStreamMetadata
-     * ascending
+     * Returns stream of EventStreamMetadata ascending
      *
      * @return the stream of envelope streams
      */

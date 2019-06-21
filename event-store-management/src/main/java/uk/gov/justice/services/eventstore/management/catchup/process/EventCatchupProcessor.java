@@ -7,6 +7,7 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
@@ -42,10 +43,14 @@ public class EventCatchupProcessor {
     }
 
     @Transactional(NOT_SUPPORTED)
-    public void performEventCatchup(final Subscription subscription, final String componentName) {
+    public void performEventCatchup(final CatchupContext catchupContext) {
 
+        final Subscription subscription = catchupContext.getSubscription();
         final String subscriptionName = subscription.getName();
         final String eventSourceName = subscription.getEventSourceName();
+        final String componentName = catchupContext.getComponentName();
+        final CatchupRequestedEvent catchupRequestedEvent = catchupContext.getCatchupRequestedEvent();
+
         final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
 
@@ -61,6 +66,7 @@ public class EventCatchupProcessor {
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
                 eventSourceName,
                 totalEventsProcessed,
+                catchupRequestedEvent.getTarget(),
                 clock.now());
 
         catchupCompletedForSubscriptionEventFirer.fire(event);

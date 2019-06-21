@@ -5,8 +5,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import org.junit.Test;
 
 public class EventCatchupTaskTest {
@@ -14,15 +12,13 @@ public class EventCatchupTaskTest {
     @Test
     public void shouldStartSubscription() throws Exception {
 
-        final String componentName = "EVENT_LISTENER";
-        
-        final Subscription subscription = mock(Subscription.class);
+        final CatchupContext catchupContext = mock(CatchupContext.class);
         final EventCatchupProcessorBean eventCatchupProcessorBean = mock(EventCatchupProcessorBean.class);
 
-        final EventCatchupTask eventCatchupTask = new EventCatchupTask(subscription, eventCatchupProcessorBean, componentName);
+        final EventCatchupTask eventCatchupTask = new EventCatchupTask(catchupContext, eventCatchupProcessorBean);
 
         assertThat(eventCatchupTask.call(), is(true));
 
-        verify(eventCatchupProcessorBean).performEventCatchup(subscription, componentName);
+        verify(eventCatchupProcessorBean).performEventCatchup(catchupContext);
     }
 }

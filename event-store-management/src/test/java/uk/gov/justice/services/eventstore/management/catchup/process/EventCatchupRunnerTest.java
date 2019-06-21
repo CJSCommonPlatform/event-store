@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedEvent;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
@@ -48,10 +49,12 @@ public class EventCatchupRunnerTest {
         final SubscriptionsDescriptor subscriptionsDescriptor_1 = mock(SubscriptionsDescriptor.class);
         final SubscriptionsDescriptor subscriptionsDescriptor_2 = mock(SubscriptionsDescriptor.class);
 
+        final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
+
         when(clock.now()).thenReturn(startTime, endTime);
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(asList(subscriptionsDescriptor_1, subscriptionsDescriptor_2));
 
-        eventCatchupRunner.runEventCatchup();
+        eventCatchupRunner.runEventCatchup(catchupRequestedEvent);
 
         final InOrder inOrder = inOrder(
                 catchupStartedEventFirer,
@@ -59,7 +62,7 @@ public class EventCatchupRunnerTest {
         );
 
         inOrder.verify(catchupStartedEventFirer).fire(new CatchupStartedEvent(startTime));
-        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_1);
-        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_2);
+        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_1, catchupRequestedEvent);
+        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_2, catchupRequestedEvent);
     }
 }

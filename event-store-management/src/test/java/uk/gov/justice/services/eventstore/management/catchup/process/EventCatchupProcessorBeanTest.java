@@ -4,8 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,15 +22,13 @@ public class EventCatchupProcessorBeanTest {
     @Test
     public void shouldPerformEventCatchup() throws Exception {
 
-        final String componentName = "EVENT_LISTENER";
-
-        final Subscription subscription = mock(Subscription.class);
+        final CatchupContext catchupContext = mock(CatchupContext.class);
         final EventCatchupProcessor eventCatchupProcessor = mock(EventCatchupProcessor.class);
 
         when(eventCatchupProcessorFactory.create()).thenReturn(eventCatchupProcessor);
 
-        eventCatchupProcessorBean.performEventCatchup(subscription, componentName);
+        eventCatchupProcessorBean.performEventCatchup(catchupContext);
 
-        verify(eventCatchupProcessor).performEventCatchup(subscription, componentName);
+        verify(eventCatchupProcessor).performEventCatchup(catchupContext);
     }
 }

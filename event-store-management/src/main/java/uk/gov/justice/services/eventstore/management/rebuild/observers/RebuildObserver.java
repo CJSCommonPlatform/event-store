@@ -5,8 +5,8 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
+import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
-import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildStartedEvent;
 import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.ZonedDateTime;
@@ -23,7 +23,7 @@ public class RebuildObserver {
     private PublishedEventRebuilder publishedEventRebuilder;
 
     @Inject
-    private Event<RebuildStartedEvent> rebuildStartedEventFirer;
+    private Event<RebuildCompleteEvent> rebuildCompletedEventFirer;
 
     @Inject
     private UtcClock clock;
@@ -33,20 +33,21 @@ public class RebuildObserver {
 
     public void onRebuildRequested(@Observes final RebuildRequestedEvent rebuildRequestedEvent) {
 
-        final SystemCommand cause = rebuildRequestedEvent.getTarget();
+        final SystemCommand target = rebuildRequestedEvent.getTarget();
 
-        final String causeCommandName = cause.getName();
-        logger.info(format("Rebuild requested by '%s' at %tc", causeCommandName, rebuildRequestedEvent.getRebuildRequestedAt()));
+        final String commandName = target.getName();
+        logger.info(format("Rebuild requested by '%s' command at %tc", commandName, rebuildRequestedEvent.getRebuildRequestedAt()));
 
         final ZonedDateTime rebuildStartedAt = clock.now();
-        logger.info(format("Rebuild for '%s' started at %tc", causeCommandName, rebuildStartedAt));
-        rebuildStartedEventFirer.fire(new RebuildStartedEvent(cause, rebuildStartedAt));
+        logger.info(format("Rebuild for '%s' command started at %tc", commandName, rebuildStartedAt));
 
         publishedEventRebuilder.rebuild();
 
         final ZonedDateTime rebuildCompletedAt = clock.now();
-        final String format = format("Rebuild for '%s' completed at %tc", causeCommandName, rebuildCompletedAt);
+        final String format = format("Rebuild for '%s' command completed at %tc", commandName, rebuildCompletedAt);
         logger.info(format);
         logger.info(format("Rebuild took %d milliseconds", MILLIS.between(rebuildStartedAt, rebuildCompletedAt)));
+
+        rebuildCompletedEventFirer.fire(new RebuildCompleteEvent(target, rebuildCompletedAt));
     }
 }

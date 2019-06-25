@@ -1,6 +1,6 @@
-package uk.gov.justice.services.eventstore.management.shuttercatchup.commands;
+package uk.gov.justice.services.eventstore.management.catchup.commands;
 
-import static uk.gov.justice.services.eventstore.management.shuttercatchup.commands.ShutterCatchupCommand.SHUTTER_CATCHUP;
+import static uk.gov.justice.services.eventstore.management.catchup.commands.CatchupCommand.CATCHUP;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedEvent;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-public class ShutterCatchupCommandHandler {
+public class CatchupCommandHandler {
 
     @Inject
     private Event<ShutteringRequestedEvent> shutteringRequestedEventFirer;
@@ -35,13 +35,13 @@ public class ShutterCatchupCommandHandler {
     private Logger logger;
 
 
-    @HandlesSystemCommand(SHUTTER_CATCHUP)
-    public void doCatchupWhilstShuttered(final ShutterCatchupCommand shutterCatchupCommand) {
+    @HandlesSystemCommand(CATCHUP)
+    public void doCatchupWhilstShuttered(final CatchupCommand catchupCommand) {
 
         logger.info("Catchup requested. Shuttering application first");
 
         final ShutteringRequestedEvent shutteringRequestedEvent = new ShutteringRequestedEvent(
-                shutterCatchupCommand,
+                catchupCommand,
                 clock.now());
 
         shutteringRequestedEventFirer.fire(shutteringRequestedEvent);
@@ -51,7 +51,7 @@ public class ShutterCatchupCommandHandler {
 
         final SystemCommand systemCommand = shutteringCompleteEvent.getTarget();
 
-        if(systemCommand instanceof ShutterCatchupCommand) {
+        if(systemCommand instanceof CatchupCommand) {
 
             logger.info("Received ShutteringComplete event. Now firing CatchupRequested event");
 
@@ -66,7 +66,7 @@ public class ShutterCatchupCommandHandler {
     public void onCatchupComplete(@Observes final CatchupCompletedEvent catchupCompletedEvent) {
 
         final SystemCommand systemCommand = catchupCompletedEvent.getTarget();
-        if(systemCommand instanceof ShutterCatchupCommand) {
+        if(systemCommand instanceof CatchupCommand) {
 
             logger.info("Received CatchupCompleted event. Now firing UnshutteringRequested event");
             final UnshutteringRequestedEvent unshutteringRequestedEvent = new UnshutteringRequestedEvent(

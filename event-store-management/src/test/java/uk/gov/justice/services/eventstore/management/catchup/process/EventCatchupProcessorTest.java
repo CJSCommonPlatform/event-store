@@ -106,7 +106,7 @@ public class EventCatchupProcessorTest {
                 catchupCompletedForSubscriptionEventFirer);
 
         inOrder.verify(catchupStartedForSubscriptionEventFirer).fire(new CatchupStartedForSubscriptionEvent(
-                eventSourceName,
+                subscriptionName,
                 catchupStartedAt));
 
         inOrder.verify(eventStreamConsumerManager).add(event_1, subscriptionName);
@@ -115,9 +115,11 @@ public class EventCatchupProcessorTest {
         inOrder.verify(eventStreamConsumerManager).waitForCompletion();
 
         inOrder.verify(catchupCompletedForSubscriptionEventFirer).fire(new CatchupCompletedForSubscriptionEvent(
+                subscriptionName,
                 eventSourceName,
-                events.size(),
+                componentName,
                 systemCommand,
-                catchupCompetedAt));
+                catchupCompetedAt,
+                events.size()));
     }
 }

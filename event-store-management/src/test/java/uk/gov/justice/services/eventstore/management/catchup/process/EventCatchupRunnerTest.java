@@ -21,6 +21,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventCatchupRunnerTest {
@@ -36,6 +37,9 @@ public class EventCatchupRunnerTest {
 
     @Mock
     private UtcClock clock;
+
+    @Mock
+    private Logger logger;
 
     @InjectMocks
     private EventCatchupRunner eventCatchupRunner;
@@ -57,10 +61,12 @@ public class EventCatchupRunnerTest {
         eventCatchupRunner.runEventCatchup(catchupRequestedEvent);
 
         final InOrder inOrder = inOrder(
+                logger,
                 catchupStartedEventFirer,
                 eventCatchupByComponentRunner
         );
 
+        inOrder.verify(logger).info("Received CatchupRequestedEvent");
         inOrder.verify(catchupStartedEventFirer).fire(new CatchupStartedEvent(startTime));
         inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_1, catchupRequestedEvent);
         inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_2, catchupRequestedEvent);

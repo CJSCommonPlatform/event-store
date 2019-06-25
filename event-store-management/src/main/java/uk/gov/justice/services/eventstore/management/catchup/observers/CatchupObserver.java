@@ -69,7 +69,8 @@ public class CatchupObserver {
 
     public void onCatchupCompleteForSubscription(@Observes final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
 
-        final String subscriptionName = catchupCompletedForSubscriptionEvent.getEventSourceName();
+        final String subscriptionName = catchupCompletedForSubscriptionEvent.getSubscriptionName();
+
         final ZonedDateTime catchupCompletedAt = catchupCompletedForSubscriptionEvent.getCatchupCompletedAt();
         final int totalNumberOfEvents = catchupCompletedForSubscriptionEvent.getTotalNumberOfEvents();
 
@@ -88,7 +89,7 @@ public class CatchupObserver {
             final ZonedDateTime completedAt = clock.now();
             final SystemCommand target = catchupCompletedForSubscriptionEvent.getTarget();
             catchupCompletedEventFirer.fire(new CatchupCompletedEvent(target, completedAt));
-            logger.info(format("Event catchup completed at %s", completedAt));
+            logger.info(format("Event catchup fully complete at %s", completedAt));
         }
     }
 }

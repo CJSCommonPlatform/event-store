@@ -55,7 +55,7 @@ public class EventCatchupProcessor {
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
 
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
-                eventSourceName,
+                subscriptionName,
                 clock.now()));
 
         final Stream<JsonEnvelope> events = eventSource.findEventsSince(latestProcessedEventNumber);
@@ -64,10 +64,12 @@ public class EventCatchupProcessor {
         eventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
+                subscriptionName,
                 eventSourceName,
-                totalEventsProcessed,
+                componentName,
                 catchupRequestedEvent.getTarget(),
-                clock.now());
+                clock.now(),
+                totalEventsProcessed);
 
         catchupCompletedForSubscriptionEventFirer.fire(event);
     }

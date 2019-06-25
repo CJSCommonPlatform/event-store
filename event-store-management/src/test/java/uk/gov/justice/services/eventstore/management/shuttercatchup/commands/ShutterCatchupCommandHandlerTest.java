@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 
 import javax.enterprise.event.Event;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -76,7 +77,7 @@ public class ShutterCatchupCommandHandlerTest {
 
         final InOrder inOrder = inOrder(logger, catchupRequestedEventFirer);
 
-        inOrder.verify(logger).info("Shuttering complete. Now running Catchup");
+        inOrder.verify(logger).info("Received ShutteringComplete event. Now firing CatchupRequested event");
         inOrder.verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(
                 shutterCatchupCommand,
                 clock.now()));
@@ -108,7 +109,7 @@ public class ShutterCatchupCommandHandlerTest {
 
         final InOrder inOrder = inOrder(logger, unshutteringRequestedEventFirer);
 
-        inOrder.verify(logger).info("Catchup complete. Unshuttering application");
+        inOrder.verify(logger).info("Received CatchupCompleted event. Now firing UnshutteringRequested event");
         inOrder.verify(unshutteringRequestedEventFirer).fire(new UnshutteringRequestedEvent(
                 shutterCatchupCommand,
                 clock.now()));

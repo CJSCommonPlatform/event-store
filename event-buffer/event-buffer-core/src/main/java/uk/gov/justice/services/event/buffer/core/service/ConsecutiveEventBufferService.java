@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.buffer.core.service;
 
+import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
 
@@ -10,6 +11,7 @@ import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamS
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.Metadata;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -57,7 +59,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
         logger.trace("Message buffering for message: {}", incomingEvent);
 
-        final UUID streamId = incomingEvent.metadata().streamId().orElseThrow(() -> new IllegalStateException("Event must have a a streamId "));
+        final Metadata metadata = incomingEvent.metadata();
+        final UUID streamId = metadata.streamId().orElseThrow(() -> new IllegalStateException("Event must have a a streamId "));
         final long incomingEventVersion = versionOf(incomingEvent);
         final String source = getSource(incomingEvent);
 
@@ -68,7 +71,13 @@ public class ConsecutiveEventBufferService implements EventBufferService {
                 .getPosition();
 
         if (incomingEventObsolete(incomingEventVersion, currentVersion)) {
-            logger.warn("Message : {} is an obsolete version", incomingEvent);
+            logger.warn(format("Obsolete EventBuffer message: id = '%s', streamId = '%s', name = '%s', source = '%s', eventNumber = %s, component = '%s'",
+                    metadata.id(),
+                    metadata.streamId(),
+                    metadata.name(),
+                    metadata.source(),
+                    metadata.eventNumber().orElse(null),
+                    component));
             return Stream.empty();
 
         } else if (incomingEventNotInOrder(incomingEventVersion, currentVersion)) {

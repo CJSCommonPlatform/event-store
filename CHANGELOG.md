@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-M41] - 2019-06-25
+### Changed
+- Shuttering executors no longer register themselves but are discovered at system startup and registered
+
 ## [2.0.0-M40] - 2019-06-21
 ### Added
 - Java API to retrieve all stream IDs (active and inactive ones)

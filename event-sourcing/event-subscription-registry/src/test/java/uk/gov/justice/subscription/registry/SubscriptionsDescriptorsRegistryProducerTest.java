@@ -133,8 +133,8 @@ public class SubscriptionsDescriptorsRegistryProducerTest {
 
         subscriptionsDescriptorsRegistryProducer.subscriptionDescriptorRegistry();
 
-        verify(logger).info("Subscription name in registry : Subscription_1");
-        verify(logger).info("Subscription name in registry : Subscription_2");
+        verify(logger).debug("Subscription name in registry : Subscription_1");
+        verify(logger).debug("Subscription name in registry : Subscription_2");
     }
 
     @Test

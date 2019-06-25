@@ -27,20 +27,20 @@ import org.slf4j.Logger;
 public class SubscriptionsDescriptorsRegistryProducer {
 
     @Inject
-    Logger logger;
+    private Logger logger;
 
     @Inject
-    YamlFileFinder yamlFileFinder;
+    private YamlFileFinder yamlFileFinder;
 
     @Inject
-    SubscriptionsDescriptorParser subscriptionsDescriptorParser;
+    private SubscriptionsDescriptorParser subscriptionsDescriptorParser;
 
     private SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry;
 
     private Consumer<SubscriptionsDescriptor> logRegisteredSubscriptionNames = subscriptionDescriptorDefinition ->
             subscriptionDescriptorDefinition.getSubscriptions()
                     .forEach(subscription ->
-                            logger.info(format("Subscription name in registry : %s", subscription.getName())));
+                            logger.debug(format("Subscription name in registry : %s", subscription.getName())));
 
     /**
      * Either creates the single instance of the {@link SubscriptionsDescriptorsRegistry} and

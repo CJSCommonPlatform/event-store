@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -41,14 +40,6 @@ public class ShutterCommandHandlerObserverTest {
 
     @InjectMocks
     private ShutterCommandHandlerObserver shutterCommandHandlerObserver;
-
-    @Test
-    public void shouldRegisterAsUnshutterable() throws Exception {
-
-        shutterCommandHandlerObserver.registerAsUnshutterable();
-
-        verify(shutteringRegistry).registerAsShutterable(ShutterCommandHandlerObserver.class);
-    }
 
     @Test
     public void shouldPollUntilQueueEmptyThenInformTheShutteringRegistry() throws Exception {

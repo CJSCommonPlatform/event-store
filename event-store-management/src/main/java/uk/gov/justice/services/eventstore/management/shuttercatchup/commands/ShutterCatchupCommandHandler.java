@@ -53,7 +53,7 @@ public class ShutterCatchupCommandHandler {
 
         if(systemCommand instanceof ShutterCatchupCommand) {
 
-            logger.info("Shuttering complete. Now running Catchup");
+            logger.info("Received ShutteringComplete event. Now firing CatchupRequested event");
 
             final CatchupRequestedEvent catchupRequestedEvent = new CatchupRequestedEvent(
                     systemCommand,
@@ -68,7 +68,7 @@ public class ShutterCatchupCommandHandler {
         final SystemCommand systemCommand = catchupCompletedEvent.getTarget();
         if(systemCommand instanceof ShutterCatchupCommand) {
 
-            logger.info("Catchup complete. Unshuttering application");
+            logger.info("Received CatchupCompleted event. Now firing UnshutteringRequested event");
             final UnshutteringRequestedEvent unshutteringRequestedEvent = new UnshutteringRequestedEvent(
                     systemCommand,
                     clock.now());

@@ -6,14 +6,15 @@ import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueChecker;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
+import uk.gov.justice.services.management.shuttering.startup.ShutteringExecutor;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
+@ShutteringExecutor
 public class ShutterCommandHandlerObserver {
 
     @Inject
@@ -27,11 +28,6 @@ public class ShutterCommandHandlerObserver {
 
     @Inject
     private Logger logger;
-
-    @PostConstruct
-    public void registerAsUnshutterable() {
-        shutteringRegistry.registerAsShutterable(getClass());
-    }
 
     public void onShutteringProcessStarted(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
 

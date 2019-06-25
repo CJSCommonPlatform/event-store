@@ -88,7 +88,7 @@ public class CatchupObserverTest {
     @Test
     public void shouldLogCatchupStartedForSubscriptionAndStoreProgress() throws Exception {
 
-        final String subscriptionName = "EVENT_LISTENER";
+        final String subscriptionName = "mySubscription";
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
 
         final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent = new CatchupStartedForSubscriptionEvent(
@@ -98,7 +98,7 @@ public class CatchupObserverTest {
         catchupObserver.onCatchupStartedForSubscription(catchupStartedForSubscriptionEvent);
 
          verify(catchupsInProgressCache).addCatchupInProgress(catchupInProgressCaptor.capture());
-         verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' started at 2019-02-23T17:12:23Z");
+         verify(logger).info("Event catchup for subscription 'mySubscription' started at 2019-02-23T17:12:23Z");
 
         final CatchupInProgress catchupInProgress = catchupInProgressCaptor.getValue();
 
@@ -110,7 +110,10 @@ public class CatchupObserverTest {
     public void shouldRemoveTheCatchupForSubscriptionInProgressOnCatchupForSubscriptionComplete() throws Exception {
 
 
-        final String subscriptionName = "EVENT_LISTENER";
+        final String subscriptionName = "mySubscription";
+        final String eventSourceName = "myEventSource";
+        final String componentName = "EVENT_LISTENER";
+
         final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final int totalNumberOfEvents = 23;
         final SystemCommand target = mock(SystemCommand.class);
@@ -119,9 +122,11 @@ public class CatchupObserverTest {
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,
-                totalNumberOfEvents,
+                eventSourceName,
+                componentName,
                 target,
-                catchupCompletedAt
+                catchupCompletedAt,
+                totalNumberOfEvents
         );
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
@@ -135,9 +140,9 @@ public class CatchupObserverTest {
 
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' completed at 2019-02-23T17:12:23Z");
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' caught up 23 events");
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' took 5000 milliseconds");
+        verify(logger).info("Event catchup for subscription 'mySubscription' completed at 2019-02-23T17:12:23Z");
+        verify(logger).info("Event catchup for subscription 'mySubscription' caught up 23 events");
+        verify(logger).info("Event catchup for subscription 'mySubscription' took 5000 milliseconds");
 
         verifyZeroInteractions(catchupCompletedEventFirer);
     }
@@ -145,8 +150,9 @@ public class CatchupObserverTest {
     @Test
     public void shouldFireTheCatchupCompleteEventIfAllCatchupsForSubscriptionsComplete() throws Exception {
 
-
-        final String subscriptionName = "EVENT_LISTENER";
+        final String subscriptionName = "mySubscription";
+        final String eventSourceName = "myEventSource";
+        final String componentName = "EVENT_LISTENER";
         final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final ZonedDateTime allCatchupsCompletedAt = catchupCompletedAt.plusSeconds(23);
         final int totalNumberOfEvents = 23;
@@ -156,9 +162,11 @@ public class CatchupObserverTest {
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,
-                totalNumberOfEvents,
+                eventSourceName,
+                componentName,
                 target,
-                catchupCompletedAt
+                catchupCompletedAt,
+                totalNumberOfEvents
         );
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
@@ -173,11 +181,11 @@ public class CatchupObserverTest {
 
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' completed at 2019-02-23T17:12:23Z");
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' caught up 23 events");
-        verify(logger).info("Event catchup for subscription 'EVENT_LISTENER' took 5000 milliseconds");
+        verify(logger).info("Event catchup for subscription 'mySubscription' completed at 2019-02-23T17:12:23Z");
+        verify(logger).info("Event catchup for subscription 'mySubscription' caught up 23 events");
+        verify(logger).info("Event catchup for subscription 'mySubscription' took 5000 milliseconds");
 
         verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(target, allCatchupsCompletedAt));
-        verify(logger).info("Event catchup completed at 2019-02-23T17:12:46Z");
+        verify(logger).info("Event catchup fully complete at 2019-02-23T17:12:46Z");
     }
 }

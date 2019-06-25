@@ -8,8 +8,9 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
+import uk.gov.justice.services.eventstore.management.rebuild.commands.RebuildCommand;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
-import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildStartedEvent;
+import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
 import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.ZonedDateTime;
@@ -32,7 +33,7 @@ public class RebuildObserverTest {
     private PublishedEventRebuilder publishedEventRebuilder;
 
     @Mock
-    private Event<RebuildStartedEvent> rebuildStartedEventFirer;
+    private Event<RebuildCompleteEvent> rebuildCompletedEventFirer;
 
     @Mock
     private UtcClock clock;
@@ -50,26 +51,24 @@ public class RebuildObserverTest {
         final ZonedDateTime rebuildRequestedAt = rebuildStartedAt.minusSeconds(1);
         final ZonedDateTime rebuildCompletedAt = rebuildStartedAt.plusSeconds(1);
 
-        final String commandName = "REBUILD_FOR_CATCHUP";
-        final SystemCommand cause = mock(SystemCommand.class);
+        final RebuildCommand target = new RebuildCommand();
 
         final RebuildRequestedEvent rebuildRequestedEvent = new RebuildRequestedEvent(
                 rebuildRequestedAt,
-                cause);
+                target);
 
         when(clock.now()).thenReturn(rebuildStartedAt, rebuildCompletedAt);
-        when(cause.getName()).thenReturn(commandName);
 
         rebuildObserver.onRebuildRequested(rebuildRequestedEvent);
 
-        final InOrder inOrder = inOrder(logger, rebuildStartedEventFirer, publishedEventRebuilder);
+        final InOrder inOrder = inOrder(logger, publishedEventRebuilder, rebuildCompletedEventFirer);
 
-        inOrder.verify(logger).info("Rebuild requested by 'REBUILD_FOR_CATCHUP' at Fri May 24 11:59:59 Z 2019");
-        inOrder.verify(logger).info("Rebuild for 'REBUILD_FOR_CATCHUP' started at Fri May 24 12:00:00 Z 2019");
-        inOrder.verify(rebuildStartedEventFirer).fire(new RebuildStartedEvent(cause, rebuildStartedAt));
+        inOrder.verify(logger).info("Rebuild requested by 'REBUILD' command at Fri May 24 11:59:59 Z 2019");
+        inOrder.verify(logger).info("Rebuild for 'REBUILD' command started at Fri May 24 12:00:00 Z 2019");
         inOrder.verify(publishedEventRebuilder).rebuild();
-        inOrder.verify(logger).info("Rebuild for 'REBUILD_FOR_CATCHUP' completed at Fri May 24 12:00:01 Z 2019");
+        inOrder.verify(logger).info("Rebuild for 'REBUILD' command completed at Fri May 24 12:00:01 Z 2019");
         inOrder.verify(logger).info("Rebuild took 1000 milliseconds");
+        inOrder.verify(rebuildCompletedEventFirer).fire(new RebuildCompleteEvent(target, rebuildCompletedAt));
 
     }
 }

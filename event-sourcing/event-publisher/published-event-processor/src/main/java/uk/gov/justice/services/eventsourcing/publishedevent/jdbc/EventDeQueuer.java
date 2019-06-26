@@ -29,6 +29,7 @@ public class EventDeQueuer {
 
     private static final String SELECT_FROM_PUBLISH_TABLE_QUERY_PATTERN = "SELECT id, event_log_id FROM %s ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED ";
     private static final String DELETE_FROM_PUBLISH_TABLE_QUERY_PATTERN = "DELETE FROM %s where id = ?";
+    private static final String COUNT_ROWS_QUERY_PATTERN = "SELECT COUNT (*) FROM %s";
 
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
@@ -66,6 +67,21 @@ public class EventDeQueuer {
     }
 
 
+    public int getSizeOfQueue(final String tableName) {
+        final String sql = format(COUNT_ROWS_QUERY_PATTERN, tableName);
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             final ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            } 
+        } catch (final SQLException e) {
+            throw new PublishedEventException(format("Failed to publish from %s table", tableName), e);
+        }
+
+        throw new PublishedEventException(format("Query '%s' returned no results", sql));
+    }
 
     /**
      * Method that deletes the next event from the pre_publish_queue table using the event_log_id.

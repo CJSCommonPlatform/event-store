@@ -23,4 +23,14 @@ public class StopWatchFactoryTest {
         assertThat(stopWatch_2, is(notNullValue()));
         assertThat(stopWatch_1, is(not(sameInstance(stopWatch_2))));
     }
+
+    @Test
+    public void shouldCreateSartedStopWatch() throws Exception {
+
+        final StopWatchFactory stopWatchFactory = new StopWatchFactory();
+
+        final StopWatch startedStopWatch = stopWatchFactory.createStartedStopWatch();
+
+        assertThat(startedStopWatch.isStarted(), is(true));
+    }
 }

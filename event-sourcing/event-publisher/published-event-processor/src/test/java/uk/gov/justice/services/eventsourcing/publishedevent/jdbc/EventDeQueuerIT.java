@@ -95,6 +95,26 @@ public class EventDeQueuerIT {
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
     }
 
+    @Test
+    public void shouldGetTheSizeOfTheQueue() throws Exception {
+
+        final String tableName = "publish_queue";
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+
+        final Event event_1 = eventBuilder().withName("example.first-event").withPositionInStream(1L).build();
+        final Event event_2 = eventBuilder().withName("example.second-event").withPositionInStream(2L).build();
+        final Event event_3 = eventBuilder().withName("example.third-event").withPositionInStream(3L).build();
+
+        insertInPublishQueue(event_1,  event_2, event_3);
+
+        testEventInserter.insertIntoEventLog(event_1);
+        testEventInserter.insertIntoEventLog(event_2);
+        testEventInserter.insertIntoEventLog(event_3);
+
+        assertThat(eventDeQueuer.getSizeOfQueue(tableName), is(3));
+    }
+
     private void insertInPublishQueue(final Event... events) throws SQLException {
         try(final Connection connection = dataSource.getConnection()) {
 

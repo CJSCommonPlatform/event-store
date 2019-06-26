@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventstore.management.shuttering.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
+import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
 import uk.gov.justice.services.management.shuttering.startup.ShutteringExecutor;
@@ -15,33 +15,33 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
 @ShutteringExecutor
-public class ShutterCommandHandlerObserver {
+public class PublishQueueDrainedShutteringObserver {
 
     @Inject
-    private ShutteringRegistry shutteringRegistry;
-
-    @Inject
-    private CommandHandlerQueueInterrogator commandHandlerQueueInterrogator;
+    private PublishQueueInterrogator publishQueueInterrogator;
 
     @Inject
     private StopWatchFactory stopWatchFactory;
 
     @Inject
+    private ShutteringRegistry shutteringRegistry;
+
+    @Inject
     private Logger logger;
 
-    public void waitForCommandQueueToEmpty(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
+    public void waitForPublishQueueToEmpty(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
 
-        logger.info("Shuttering Command Handler. Waiting for queue to drain");
+        logger.info("Waiting for Publish Queue to empty");
 
         final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
+        final boolean queueEmpty = publishQueueInterrogator.pollUntilPublishQueueEmpty();
 
-        final boolean queueEmpty = commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue();
         if (!queueEmpty) {
-            stopWatch.stop();
-            throw new ShutteringException(format("Failed to drain command handler queue in %d milliseconds", stopWatch.getTime()));
+           stopWatch.stop();
+           throw new ShutteringException(format("PublishQueue failed to drain after %d milliseconds", stopWatch.getTime()));
         }
 
-        logger.info("Command Handler Queue empty");
+        logger.info("Publish Queue empty");
         shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
     }
 }

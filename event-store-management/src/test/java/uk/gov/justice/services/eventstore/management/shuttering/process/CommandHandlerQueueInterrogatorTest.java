@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CommandHandlerQueueCheckerTest {
+public class CommandHandlerQueueInterrogatorTest {
 
     @Mock
     private CommandHandlerQueueSupplierFactory commandHandlerQueueSupplierFactory;
@@ -26,7 +26,7 @@ public class CommandHandlerQueueCheckerTest {
     private MultiIteratingPollerFactory multiIteratingPollerFactory;
 
     @InjectMocks
-    private CommandHandlerQueueChecker commandHandlerQueueChecker;
+    private CommandHandlerQueueInterrogator commandHandlerQueueInterrogator;
 
     @Test
     public void shouldReturnTrueIfHandlerQueueIsEmpty() {
@@ -42,7 +42,7 @@ public class CommandHandlerQueueCheckerTest {
         when(commandHandlerQueueSupplierFactory.isCommandHandlerQueueEmpty()).thenReturn(booleanSupplier);
         when(multiIteratingPoller.pollUntilTrue(booleanSupplier)).thenReturn(true);
 
-        final boolean state = commandHandlerQueueChecker.pollUntilEmptyHandlerQueue();
+        final boolean state = commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue();
 
         assertThat(state, is(true));
     }

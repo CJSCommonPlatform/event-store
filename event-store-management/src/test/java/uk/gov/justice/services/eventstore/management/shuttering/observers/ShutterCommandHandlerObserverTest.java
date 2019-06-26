@@ -5,11 +5,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueChecker;
+import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
 import uk.gov.justice.services.jmx.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
@@ -30,7 +31,7 @@ public class ShutterCommandHandlerObserverTest {
     private ShutteringRegistry shutteringRegistry;
 
     @Mock
-    private CommandHandlerQueueChecker commandHandlerQueueChecker;
+    private CommandHandlerQueueInterrogator commandHandlerQueueInterrogator;
 
     @Mock
     private StopWatchFactory stopWatchFactory;
@@ -48,23 +49,21 @@ public class ShutterCommandHandlerObserverTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
-        when(stopWatchFactory.createStopWatch()).thenReturn(stopWatch);
-        when(commandHandlerQueueChecker.pollUntilEmptyHandlerQueue()).thenReturn(true);
+        when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
+        when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(true);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
 
 
-        shutterCommandHandlerObserver.onShutteringProcessStarted(shutteringProcessStartedEvent);
+        shutterCommandHandlerObserver.waitForCommandQueueToEmpty(shutteringProcessStartedEvent);
 
         final InOrder inOrder = inOrder(
                 logger,
                 stopWatch,
-                commandHandlerQueueChecker,
+                commandHandlerQueueInterrogator,
                 shutteringRegistry);
 
         inOrder.verify(logger).info("Shuttering Command Handler. Waiting for queue to drain");
-        inOrder.verify(stopWatch).start();
-        inOrder.verify(commandHandlerQueueChecker).pollUntilEmptyHandlerQueue();
-        inOrder.verify(stopWatch).stop();
+        inOrder.verify(commandHandlerQueueInterrogator).pollUntilEmptyHandlerQueue();
         inOrder.verify(logger).info("Command Handler Queue empty");
         inOrder.verify(shutteringRegistry).markShutteringCompleteFor(ShutterCommandHandlerObserver.class, systemCommand);
     }
@@ -76,17 +75,19 @@ public class ShutterCommandHandlerObserverTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
-        when(stopWatchFactory.createStopWatch()).thenReturn(stopWatch);
-        when(commandHandlerQueueChecker.pollUntilEmptyHandlerQueue()).thenReturn(false);
+        when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
+        when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(false);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
         when(stopWatch.getTime()).thenReturn(12345L);
 
         try {
-            shutterCommandHandlerObserver.onShutteringProcessStarted(shutteringProcessStartedEvent);
+            shutterCommandHandlerObserver.waitForCommandQueueToEmpty(shutteringProcessStartedEvent);
             fail();
-        } catch (final CommandHandlerShutteringException expected) {
+        } catch (final ShutteringException expected) {
             assertThat(expected.getMessage(), is("Failed to drain command handler queue in 12345 milliseconds"));
         }
+
+        verify(stopWatch).stop();
 
         verifyZeroInteractions(shutteringRegistry);
     }

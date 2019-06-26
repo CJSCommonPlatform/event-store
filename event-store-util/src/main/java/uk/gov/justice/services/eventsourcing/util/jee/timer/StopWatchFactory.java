@@ -7,4 +7,12 @@ public class StopWatchFactory {
     public StopWatch createStopWatch() {
         return new StopWatch();
     }
+
+    public StopWatch createStartedStopWatch() {
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        return stopWatch;
+    }
 }

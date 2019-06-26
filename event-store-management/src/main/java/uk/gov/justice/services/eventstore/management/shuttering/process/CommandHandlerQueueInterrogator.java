@@ -5,7 +5,7 @@ import uk.gov.justice.services.common.polling.MultiIteratingPollerFactory;
 
 import javax.inject.Inject;
 
-public class CommandHandlerQueueChecker {
+public class CommandHandlerQueueInterrogator {
 
     @Inject
     private CommandHandlerQueueSupplierFactory commandHandlerQueueSupplierFactory;

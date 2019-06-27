@@ -80,7 +80,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getSystemConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + "shuttered_command_store")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("DELETE FROM " + "stored_command")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanSystemTables(contextName);
 
@@ -203,7 +203,7 @@ public class DatabaseCleanerTest {
     @Test
     public void shouldThrowADatAccessExceptionIfClosingTheSystemConnectionFails() throws Exception {
 
-        final String tableName = "shuttered_command_store";
+        final String tableName = "stored_command";
         final String contextName = "my-context";
 
         final SQLException sqlException = new SQLException("Oops");
@@ -218,7 +218,7 @@ public class DatabaseCleanerTest {
         try {
             databaseCleaner.cleanSystemTables(contextName);
             fail();
-        } catch (Exception expected) {
+        } catch (final DataAccessException expected) {
             assertThat(expected.getCause(), is(sqlException));
         }
 

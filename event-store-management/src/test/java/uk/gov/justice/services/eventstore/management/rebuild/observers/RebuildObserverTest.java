@@ -3,15 +3,13 @@ package uk.gov.justice.services.eventstore.management.rebuild.observers;
 import static java.time.ZoneOffset.UTC;
 import static java.time.ZonedDateTime.of;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
 import uk.gov.justice.services.eventstore.management.rebuild.commands.RebuildCommand;
-import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
-import uk.gov.justice.services.jmx.command.SystemCommand;
+import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
 
 import java.time.ZonedDateTime;
 

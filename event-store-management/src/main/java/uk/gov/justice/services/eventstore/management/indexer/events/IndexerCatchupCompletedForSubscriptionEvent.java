@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventstore.management.indexer.events;
 
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.jmx.command.SystemCommand;
 
 import java.time.ZonedDateTime;

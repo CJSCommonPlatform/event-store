@@ -2,12 +2,10 @@ package uk.gov.justice.services.eventstore.management.indexer.commands;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupCommand;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.services.jmx.command.SystemCommand;

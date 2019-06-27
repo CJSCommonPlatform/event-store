@@ -6,8 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedForSubscriptionEvent;
 
 import java.time.Duration;

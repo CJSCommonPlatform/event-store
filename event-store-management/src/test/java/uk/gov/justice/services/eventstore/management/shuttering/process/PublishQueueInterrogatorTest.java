@@ -17,12 +17,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PublishQueueInterrogatorTest {
 
+    private static final String PUBLISH_QUEUE_TABLE_NAME = "publish_queue";
+
     @Mock
     private EventDeQueuer eventDeQueuer;
 
     @Mock
     private MultiIteratingPollerFactory multiIteratingPollerFactory;
-
+    
     @InjectMocks
     private PublishQueueInterrogator publishQueueInterrogator;
 
@@ -30,7 +32,7 @@ public class PublishQueueInterrogatorTest {
     public void shouldPollPublishQueueUntilItIsEmpty() throws Exception {
 
         when(multiIteratingPollerFactory.create(3, 500L, 3, 500L)).thenReturn(new DummyMultiIteratingPoller());
-        when(eventDeQueuer.getSizeOfQueue("published_event")).thenReturn(0);
+        when(eventDeQueuer.getSizeOfQueue(PUBLISH_QUEUE_TABLE_NAME)).thenReturn(0);
 
         assertThat(publishQueueInterrogator.pollUntilPublishQueueEmpty(), is(true));
     }

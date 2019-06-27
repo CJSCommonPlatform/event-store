@@ -7,7 +7,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [2.0.0-RC2] - 2019-06-27
 ### Fixed
-- fix of the pubish_queue draining problem
+- fix of the publish_queue draining problem
 
 ## [2.0.0-RC1] - 2019-06-27
 

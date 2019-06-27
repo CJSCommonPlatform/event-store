@@ -3,10 +3,6 @@ package uk.gov.justice.services.eventstore.management.indexer.process;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.services.eventstore.management.catchup.process.CatchupContext;
-import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupTask;
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
-
 import javax.enterprise.concurrent.ManagedExecutorService;
 
 import org.junit.Test;

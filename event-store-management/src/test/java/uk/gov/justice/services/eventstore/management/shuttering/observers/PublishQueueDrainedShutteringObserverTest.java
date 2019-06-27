@@ -1,29 +1,27 @@
 package uk.gov.justice.services.eventstore.management.shuttering.observers;
 
-import static java.lang.String.format;
-
-import org.apache.commons.lang3.time.StopWatch;
-import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.slf4j.Logger;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.*;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
 import uk.gov.justice.services.jmx.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
+
+import org.apache.commons.lang3.time.StopWatch;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 
 @RunWith(MockitoJUnitRunner.class)

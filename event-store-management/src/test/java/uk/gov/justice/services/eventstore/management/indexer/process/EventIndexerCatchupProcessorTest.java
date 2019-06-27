@@ -9,8 +9,6 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupStartedForSubscriptionEvent;

@@ -4,8 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventstore.management.catchup.process.CatchupContext;
-import uk.gov.justice.services.eventstore.management.indexer.process.EventIndexerCatchupProcessor;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import org.junit.Test;

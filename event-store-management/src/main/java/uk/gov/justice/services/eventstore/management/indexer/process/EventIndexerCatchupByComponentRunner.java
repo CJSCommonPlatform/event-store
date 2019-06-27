@@ -2,7 +2,6 @@ package uk.gov.justice.services.eventstore.management.indexer.process;
 
 import static java.lang.String.format;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;

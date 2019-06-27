@@ -27,6 +27,6 @@ public class PublishQueueInterrogator {
                 NUMBER_OF_POLLING_ITERATIONS,
                 WAIT_TIME_BETWEEN_ITERATIONS_MILLIS);
 
-        return multiIteratingPoller.pollUntilTrue(() -> eventDeQueuer.getSizeOfQueue("published_event") == 0);
+        return multiIteratingPoller.pollUntilTrue(() -> eventDeQueuer.getSizeOfQueue("publish_queue") == 0);
     }
 }

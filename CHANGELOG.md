@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-RC2] - 2019-06-27
+### Fixed
+- fix of the pubish_queue draining problem
+
 ## [2.0.0-RC1] - 2019-06-27
 
 ### Added

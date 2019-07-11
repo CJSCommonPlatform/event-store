@@ -60,7 +60,7 @@ import uk.gov.justice.services.yaml.YamlParser;
 import uk.gov.justice.services.yaml.YamlSchemaLoader;
 import uk.gov.justice.subscription.EventSourcesParser;
 import uk.gov.justice.subscription.ParserProducer;
-import uk.gov.justice.subscription.SubscriptionHelper;
+import uk.gov.justice.subscription.SubscriptionSorter;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
@@ -154,7 +154,7 @@ public class EventPublishIT {
             PublisherTimerConfig.class,
             PrePublishTimerBean.class,
             PrePublishTimerConfig.class,
-            SubscriptionHelper.class,
+            SubscriptionSorter.class,
             PublishedEventQueries.class,
             EventJdbcRepository.class,
             JdbcResultSetStreamer.class,

@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -12,8 +14,6 @@ import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceN
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.domain.eventsource.Location;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
-
-import java.util.Optional;
 
 import javax.enterprise.inject.CreationException;
 
@@ -42,7 +42,7 @@ public class EventSourceProducerTest {
         final EventSourceDefinition eventSourceDefinition = eventSourceDefinition()
                 .withName("defaultEventSource")
                 .withDefault(true)
-                .withLocation(new Location("", "", Optional.of(jndiDataSourceName)))
+                .withLocation(new Location("", empty(), of(jndiDataSourceName)))
                 .build();
         final EventSourceName eventSourceName = mock(EventSourceName.class);
         final JdbcBasedEventSource jdbcBasedEventSource = mock(JdbcBasedEventSource.class);
@@ -61,7 +61,7 @@ public class EventSourceProducerTest {
         final EventSourceDefinition eventSourceDefinition = eventSourceDefinition()
                 .withName("defaultEventSource")
                 .withDefault(true)
-                .withLocation(new Location("", "", Optional.of(jndiDataSourceName)))
+                .withLocation(new Location("", empty(), of(jndiDataSourceName)))
                 .build();
 
         final JdbcBasedEventSource jdbcBasedEventSource = mock(JdbcBasedEventSource.class);
@@ -78,7 +78,7 @@ public class EventSourceProducerTest {
         final EventSourceDefinition eventSourceDefinition = eventSourceDefinition()
                 .withName("defaultEventSource")
                 .withDefault(true)
-                .withLocation(new Location("", "", Optional.empty()))
+                .withLocation(new Location("", empty(), empty()))
                 .build();
         final EventSourceName eventSourceName = mock(EventSourceName.class);
         final JdbcBasedEventSource jdbcBasedEventSource = mock(JdbcBasedEventSource.class);

@@ -78,7 +78,7 @@ import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourc
 import uk.gov.justice.services.yaml.YamlParser;
 import uk.gov.justice.services.yaml.YamlSchemaLoader;
 import uk.gov.justice.subscription.ParserProducer;
-import uk.gov.justice.subscription.SubscriptionHelper;
+import uk.gov.justice.subscription.SubscriptionSorter;
 import uk.gov.justice.subscription.YamlFileFinder;
 import uk.gov.justice.subscription.domain.eventsource.DefaultEventSourceDefinitionFactory;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistryProducer;
@@ -217,7 +217,7 @@ public class EventStreamPageIT {
             JdbcEventSourceFactory.class,
 
             DefaultEventSourceDefinitionFactory.class,
-            SubscriptionHelper.class,
+            SubscriptionSorter.class,
             MultipleDataSourcePublishedEventRepository.class,
             EventJdbcRepository.class,
             EventStreamJdbcRepository.class,

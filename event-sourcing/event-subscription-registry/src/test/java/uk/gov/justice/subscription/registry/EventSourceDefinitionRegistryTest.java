@@ -46,7 +46,7 @@ public class EventSourceDefinitionRegistryTest {
     @Test
     public void shouldReturnDefaultEventSourceDefinition() {
 
-        final Location location = new Location("", "", Optional.of("dataSource"));
+        final Location location = new Location("", empty(), Optional.of("dataSource"));
 
         final EventSourceDefinition eventSourceDefinition1 = eventSourceDefinition()
                 .withLocation(location)
@@ -74,8 +74,8 @@ public class EventSourceDefinitionRegistryTest {
     @Test
     public void shouldThrowExceptionIfSecondDefaultEventSourceIsAdded() {
 
-        final Location location1 = new Location("", "", Optional.of("dataSource"));
-        final Location location2 = new Location("", "", Optional.of("dataSource"));
+        final Location location1 = new Location("", empty(), Optional.of("dataSource"));
+        final Location location2 = new Location("", empty(), Optional.of("dataSource"));
 
         final EventSourceDefinition eventSourceDefinition1 = eventSourceDefinition()
                 .withLocation(location1)
@@ -103,8 +103,8 @@ public class EventSourceDefinitionRegistryTest {
     @Test
     public void shouldThrowExceptionIfNoDataSourceDefinedForDefaultEventSource() {
 
-        final Location location1 = new Location("", "", empty());
-        final Location location2 = new Location("", "", empty());
+        final Location location1 = new Location("", empty(), empty());
+        final Location location2 = new Location("", empty(), empty());
 
         final EventSourceDefinition eventSourceDefinition1 = eventSourceDefinition()
                 .withLocation(location1)
@@ -150,7 +150,7 @@ public class EventSourceDefinitionRegistryTest {
             assertThat(expected.getMessage(), is("You must define a default event source"));
         }
     }
-    
+
 
     @Test
     public void shouldReturnEmptyEventSourceDefinitionIfEventSourceNameNotFound() {
@@ -164,7 +164,6 @@ public class EventSourceDefinitionRegistryTest {
 
         assertThat(eventSourceDefinitionRegistry.getEventSourceDefinitionFor("nonExitingEventSourceDefinition"), is(empty()));
     }
-
 
 
 }

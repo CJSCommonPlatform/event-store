@@ -29,11 +29,6 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-repository-liquibase</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-publisher-jms</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -69,6 +64,12 @@
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>test-utils-event</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>event-repository-liquibase</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

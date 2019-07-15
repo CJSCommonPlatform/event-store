@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed 
+- Moved liquibase jars to correct test scope
 
 ## [2.0.0-RC5] - 2019-07-12
 ### Changed

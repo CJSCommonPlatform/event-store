@@ -1,12 +1,13 @@
 package uk.gov.justice.services.eventstore.management.indexer.commands;
 
-import static uk.gov.justice.services.eventstore.management.indexer.commands.IndexerCatchupCommand.INDEXER_CATCHUP;
+import static uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand.INDEXER_CATCHUP;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
+import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
-import uk.gov.justice.services.jmx.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringCompleteEvent;
 import uk.gov.justice.services.management.shuttering.events.ShutteringRequestedEvent;
 import uk.gov.justice.services.management.shuttering.events.UnshutteringRequestedEvent;

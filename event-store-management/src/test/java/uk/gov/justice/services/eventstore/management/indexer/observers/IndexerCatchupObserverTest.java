@@ -20,7 +20,7 @@ import uk.gov.justice.services.eventstore.management.indexer.process.EventIndexe
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupDurationCalculator;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupInProgress;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupsInProgressCache;
-import uk.gov.justice.services.jmx.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;

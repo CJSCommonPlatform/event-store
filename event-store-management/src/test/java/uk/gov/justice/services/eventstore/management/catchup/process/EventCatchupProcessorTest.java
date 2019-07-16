@@ -12,7 +12,7 @@ import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.jmx.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;

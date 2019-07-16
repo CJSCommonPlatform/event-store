@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-RC7] - 2019-07-16
+### Changed
+- Make package of SystemCommander MBean match that of its interface
 
 ## [2.0.0-RC6] - 2019-07-16
 ### Changed

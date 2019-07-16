@@ -1,12 +1,13 @@
 package uk.gov.justice.services.eventstore.management.rebuild.commands;
 
-import static uk.gov.justice.services.eventstore.management.rebuild.commands.RebuildCommand.REBUILD;
+import static uk.gov.justice.services.jmx.api.command.RebuildCommand.REBUILD;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
+import uk.gov.justice.services.jmx.api.command.RebuildCommand;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
-import uk.gov.justice.services.jmx.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringCompleteEvent;
 import uk.gov.justice.services.management.shuttering.events.ShutteringRequestedEvent;
 import uk.gov.justice.services.management.shuttering.events.UnshutteringRequestedEvent;

@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.0.0-RC6] - 2019-07-16
+### Changed
+- Moved system commands to framework jmx-api
 ### Fixed 
 - Moved liquibase jars to correct test scope
 

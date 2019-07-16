@@ -12,7 +12,7 @@ import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDura
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupsInProgressCache;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
-import uk.gov.justice.services.jmx.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;

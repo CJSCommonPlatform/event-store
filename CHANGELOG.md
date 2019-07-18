@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.0-RC9] - 2019-07-18
+### Changed
+- Update framework to 6.0.0-RC9
+
 ## [2.0.0-RC8] - 2019-07-18
 ### Changed
 - Update framework to 6.0.0-RC8

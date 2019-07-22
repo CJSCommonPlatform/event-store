@@ -46,7 +46,7 @@ public class PublishedEventRebuilder {
         final AtomicLong previousEventNumber = new AtomicLong(0);
         final Set<UUID> activeStreamIds = activeEventStreamIdProvider.getActiveStreamIds();
 
-        try(final Stream<Event> eventStream = eventJdbcRepository.findAllOrderedByEventNumber()) {
+        try (final Stream<Event> eventStream = eventJdbcRepository.findAllOrderedByEventNumber()) {
             eventStream.forEach(event -> convertAndSave(event, previousEventNumber, activeStreamIds));
         }
     }

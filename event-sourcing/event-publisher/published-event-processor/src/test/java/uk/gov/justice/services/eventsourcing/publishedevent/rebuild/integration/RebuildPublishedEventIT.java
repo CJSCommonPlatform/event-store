@@ -4,6 +4,7 @@ import static org.apache.openejb.util.NetworkUtil.getNextAvailablePort;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
+import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataFrom;
 import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
@@ -29,17 +30,21 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventSt
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.test.utils.events.TestEventInserter;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.test.utils.persistence.SequenceSetter;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
@@ -146,10 +151,11 @@ public class RebuildPublishedEventIT {
 
         assertThat(publishedEvents.size(), is(numberOfEvents));
 
-
         for (int i = 0; i < numberOfEvents; i++) {
             final long previousEventNumber = i;
             final long currentEventNumber = i + 1;
+
+            final Metadata expectedMetadata = createExpectedMetadataFrom(events.get(i).getMetadata(), previousEventNumber, currentEventNumber);
 
             assertThat(publishedEvents.get(i).getName(), is(events.get(i).getName()));
             assertThat(publishedEvents.get(i).getEventNumber().orElse(-1L), is(currentEventNumber));
@@ -157,11 +163,20 @@ public class RebuildPublishedEventIT {
 
             assertThat(publishedEvents.get(i).getStreamId(), is(events.get(i).getStreamId()));
             assertThat(publishedEvents.get(i).getPayload(), is(events.get(i).getPayload()));
-            assertThat(publishedEvents.get(i).getMetadata(), is(events.get(i).getMetadata()));
+            assertThat(publishedEvents.get(i).getMetadata(), is(expectedMetadata.asJsonObject().toString()));
             assertThat(publishedEvents.get(i).getCreatedAt(), is(events.get(i).getCreatedAt()));
             assertThat(publishedEvents.get(i).getPositionInStream(), is(events.get(i).getPositionInStream()));
         }
 
         assertThat(sequenceSetter.getCurrentSequenceValue("event_sequence_seq", eventStoreDataSource), is((long) numberOfEvents));
+    }
+
+    private Metadata createExpectedMetadataFrom(final String metadata, final long previousEventNumber, final long currentEventNumber) {
+
+        final JsonObject metadataJsonObject = Json.createReader(new StringReader(metadata)).readObject();
+        return metadataFrom(metadataJsonObject)
+                .withEventNumber(currentEventNumber)
+                .withPreviousEventNumber(previousEventNumber)
+                .build();
     }
 }

@@ -1,12 +1,13 @@
 package uk.gov.justice.services.test.utils.events;
 
+import static java.lang.String.format;
 import static java.util.Optional.of;
-import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.jdbc.persistence.DataAccessException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -43,7 +43,7 @@ public class EventStoreDataAccess {
         this.eventStoreDataSource = eventStoreDataSource;
     }
 
-    public void insertIntoEventLog(final Event event) throws SQLException {
+    public void insertIntoEventLog(final Event event) {
         insertIntoEventLog(
                 event.getId(),
                 event.getStreamId(),
@@ -63,10 +63,13 @@ public class EventStoreDataAccess {
             final String eventName,
             final String payload,
             final String metadata
-    ) throws SQLException {
+    ) {
+
+        final String query = INSERT_INTO_EVENT_LOG_QUERY;
+
         try (final Connection connection = eventStoreDataSource.getConnection()) {
 
-            try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_EVENT_LOG_QUERY)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setObject(1, eventLogId);
                 preparedStatement.setObject(2, streamId);
                 preparedStatement.setLong(3, positionInStream);
@@ -77,14 +80,18 @@ public class EventStoreDataAccess {
 
                 preparedStatement.executeUpdate();
             }
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
         }
     }
 
-    public void insertIntoPublishedEvent(final PublishedEvent publishedEvent) throws SQLException {
+    public void insertIntoPublishedEvent(final PublishedEvent publishedEvent) {
+
+        final String query = INSERT_INTO_PUBLISHED_EVENT_QUERY;
 
         try (final Connection connection = eventStoreDataSource.getConnection()) {
 
-            try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_PUBLISHED_EVENT_QUERY)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setObject(1, publishedEvent.getId());
                 preparedStatement.setObject(2, publishedEvent.getStreamId());
                 preparedStatement.setLong(3, publishedEvent.getPositionInStream());
@@ -97,15 +104,19 @@ public class EventStoreDataAccess {
 
                 preparedStatement.executeUpdate();
             }
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
         }
     }
 
-    public List<Event> findAllEvents() throws SQLException {
+    public List<Event> findAllEvents() {
+
+        final String query = FIND_ALL_EVENTS_QUERY;
 
         final List<Event> events = new ArrayList<>();
-        try(final Connection connection = eventStoreDataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_EVENTS_QUERY);
-            final ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (final Connection connection = eventStoreDataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(query);
+             final ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
 
@@ -122,17 +133,22 @@ public class EventStoreDataAccess {
             }
 
             return events;
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
         }
     }
 
-    public List<Event> findEventsByStream(final UUID streamId) throws SQLException {
+    public List<Event> findEventsByStream(final UUID streamId) {
+
+        final String query = FIND_ALL_EVENTS_BY_STREAM_ID_QUERY;
+
         final List<Event> events = new ArrayList<>();
-        try(final Connection connection = eventStoreDataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_EVENTS_BY_STREAM_ID_QUERY)) {
+        try (final Connection connection = eventStoreDataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setObject(1, streamId);
 
-            try(final ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
 
                     final Event event = new Event((UUID) resultSet.getObject("id"),
@@ -149,23 +165,25 @@ public class EventStoreDataAccess {
             }
 
             return events;
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
         }
     }
 
-    public List<PublishedEvent> findAllPublishedEvents() throws SQLException {
+    public List<PublishedEvent> findAllPublishedEvents() {
         return doGetPublishedEvents(FIND_ALL_PUBLISHED_EVENTS_QUERY);
     }
 
-    public List<PublishedEvent> findAllPublishedEventsOrderedByEventNumber() throws SQLException {
+    public List<PublishedEvent> findAllPublishedEventsOrderedByEventNumber() {
         return doGetPublishedEvents(FIND_ALL_PUBLISHED_EVENTS_ORDERED_BT_EVENT_NUMBER_QUERY);
     }
 
-    private List<PublishedEvent> doGetPublishedEvents(final String sql) throws SQLException {
+    private List<PublishedEvent> doGetPublishedEvents(final String query) {
         final List<PublishedEvent> events = new ArrayList<>();
 
-        try(final Connection connection = eventStoreDataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            final ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (final Connection connection = eventStoreDataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(query);
+             final ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
 
@@ -179,12 +197,14 @@ public class EventStoreDataAccess {
                         fromSqlTimestamp(resultSet.getTimestamp("date_created")),
                         resultSet.getLong("event_number"),
                         resultSet.getLong("previous_event_number")
-                        );
+                );
 
                 events.add(publishedEvent);
             }
 
             return events;
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
         }
     }
 }

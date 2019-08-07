@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-RC12] - 2019-08-07
+### Changed
+- Improved utility classes for getting Postgres DataSources
+
 ## [2.0.0-RC11] - 2019-08-07
 ### Changed
 - Renamed TestEventInserter to EventStoreDataAccess as an improved test class

@@ -31,7 +31,7 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.Metadata;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -63,7 +63,7 @@ public class RebuildPublishedEventIT {
 
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     private final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
     private final SequenceSetter sequenceSetter = new SequenceSetter();
     private final StreamIdGenerator streamIdGenerator = new StreamIdGenerator();
@@ -129,11 +129,11 @@ public class RebuildPublishedEventIT {
 
         sequenceSetter.setSequenceTo(CURRENT_EVENT_START_NUMBER, "event_sequence_seq", eventStoreDataSource);
 
-        testEventInserter.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1001).withPreviousEventNumber(1000).build());
-        testEventInserter.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1002).withPreviousEventNumber(1001).build());
-        testEventInserter.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1003).withPreviousEventNumber(1002).build());
-        testEventInserter.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1004).withPreviousEventNumber(1003).build());
-        testEventInserter.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1005).withPreviousEventNumber(1004).build());
+        eventStoreDataAccess.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1001).withPreviousEventNumber(1000).build());
+        eventStoreDataAccess.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1002).withPreviousEventNumber(1001).build());
+        eventStoreDataAccess.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1003).withPreviousEventNumber(1002).build());
+        eventStoreDataAccess.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1004).withPreviousEventNumber(1003).build());
+        eventStoreDataAccess.insertIntoPublishedEvent(publishedEventBuilder().withEventNumber(1005).withPreviousEventNumber(1004).build());
 
         final int numberOfStreams = 10;
         final int numberOfEvents = 20;
@@ -143,11 +143,11 @@ public class RebuildPublishedEventIT {
 
         eventInserter.insertSomeEvents(numberOfEvents, streamIds);
 
-        final List<Event> events = testEventInserter.findAllEvents();
+        final List<Event> events = eventStoreDataAccess.findAllEvents();
 
         publishedEventRebuilder.rebuild();
 
-        final List<PublishedEvent> publishedEvents = testEventInserter.findAllPublishedEvents();
+        final List<PublishedEvent> publishedEvents = eventStoreDataAccess.findAllPublishedEvents();
 
         assertThat(publishedEvents.size(), is(numberOfEvents));
 

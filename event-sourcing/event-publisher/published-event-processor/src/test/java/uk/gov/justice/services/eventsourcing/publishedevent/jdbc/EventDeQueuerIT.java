@@ -11,7 +11,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -31,7 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventDeQueuerIT {
 
     private final DataSource dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(dataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(dataSource);
     private final Clock clock = new UtcClock();
 
     @Mock
@@ -58,9 +58,9 @@ public class EventDeQueuerIT {
         final Event event_2 = eventBuilder().withName("example.second-event").withPositionInStream(2L).build();
         final Event event_3 = eventBuilder().withName("example.third-event").withPositionInStream(3L).build();
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_1.getId()));
         assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_2.getId()));
@@ -84,9 +84,9 @@ public class EventDeQueuerIT {
 
         insertInPublishQueue(event_1,  event_2, event_3);
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_1.getId()));
         assertThat(eventDeQueuer.popNextEventId(tableName).get(), is(event_2.getId()));
@@ -108,9 +108,9 @@ public class EventDeQueuerIT {
 
         insertInPublishQueue(event_1,  event_2, event_3);
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
 
         assertThat(eventDeQueuer.getSizeOfQueue(tableName), is(3));
     }

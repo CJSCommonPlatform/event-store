@@ -53,7 +53,7 @@ import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
@@ -99,13 +99,13 @@ public class EventPublishIT {
     private final EventStoreInitializer eventStoreInitializer = new EventStoreInitializer();
     private final Clock clock = new UtcClock();
 
-    private TestEventInserter testEventInserter;
+    private EventStoreDataAccess eventStoreDataAccess;
 
     @Before
     public void initializeDatabase() throws Exception {
         final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         eventStoreInitializer.initializeEventStore(eventStoreDataSource);
-        testEventInserter = new TestEventInserter(eventStoreDataSource);
+        eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     }
 
     @Module
@@ -192,9 +192,9 @@ public class EventPublishIT {
         final Event event_2 = eventBuilder().withStreamId(streamId).withName("event_2").withEventNumber(2L).withPositionInStream(2L).build();
         final Event event_3 = eventBuilder().withStreamId(streamId).withName("event_3").withEventNumber(3L).withPositionInStream(3L).build();
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
 
         testEventStreamInserter.insertIntoEventStream(streamId, 1, true, clock.now());
 

@@ -5,7 +5,7 @@ import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilde
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.jdbc.persistence.DataAccessException;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,10 +19,10 @@ public class EventInserter {
     private final PositionInStreamCounter positionInStreamCounter = new PositionInStreamCounter();
     private final Random random = new Random();
 
-    private final TestEventInserter testEventInserter;
+    private final EventStoreDataAccess eventStoreDataAccess;
 
     public EventInserter(final DataSource eventStoreDataSource) {
-        this.testEventInserter = new TestEventInserter(eventStoreDataSource);
+        this.eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     }
 
     public void insertSomeEvents(final int numberOfEvents, final List<UUID> streamIds) {
@@ -39,7 +39,7 @@ public class EventInserter {
                         .withPositionInStream(positionInStreamCounter.getNextPosition(streamId))
                         .build();
 
-                testEventInserter.insertIntoEventLog(event);
+                eventStoreDataAccess.insertIntoEventLog(event);
 
                 if ((count % 100) == 0 && count != 0) {
                     System.out.println("Inserted " + count + " events...");

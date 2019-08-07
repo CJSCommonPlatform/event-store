@@ -1,6 +1,7 @@
 package uk.gov.justice.services.test.utils.events;
 
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
@@ -15,10 +16,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-public class TestEventInserter {
+public class EventStoreDataAccess {
 
     private final DataSource eventStoreDataSource;
 
@@ -33,10 +35,11 @@ public class TestEventInserter {
                     ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String FIND_ALL_EVENTS_QUERY = "SELECT * FROM event_log";
+    private static final String FIND_ALL_EVENTS_BY_STREAM_ID_QUERY = "SELECT * FROM event_log WHERE stream_id = ?";
     private static final String FIND_ALL_PUBLISHED_EVENTS_QUERY = "SELECT * FROM published_event";
     private static final String FIND_ALL_PUBLISHED_EVENTS_ORDERED_BT_EVENT_NUMBER_QUERY = "SELECT * FROM published_event ORDER BY event_number";
 
-    public TestEventInserter(final DataSource eventStoreDataSource) {
+    public EventStoreDataAccess(final DataSource eventStoreDataSource) {
         this.eventStoreDataSource = eventStoreDataSource;
     }
 
@@ -116,6 +119,33 @@ public class TestEventInserter {
                         of(resultSet.getLong("event_number")));
 
                 events.add(event);
+            }
+
+            return events;
+        }
+    }
+
+    public List<Event> findEventsByStream(final UUID streamId) throws SQLException {
+        final List<Event> events = new ArrayList<>();
+        try(final Connection connection = eventStoreDataSource.getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_EVENTS_BY_STREAM_ID_QUERY)) {
+
+            preparedStatement.setObject(1, streamId);
+
+            try(final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+
+                    final Event event = new Event((UUID) resultSet.getObject("id"),
+                            (UUID) resultSet.getObject("stream_id"),
+                            resultSet.getLong("position_in_stream"),
+                            resultSet.getString("name"),
+                            resultSet.getString("metadata"),
+                            resultSet.getString("payload"),
+                            fromSqlTimestamp(resultSet.getTimestamp("date_created")),
+                            of(resultSet.getLong("event_number")));
+
+                    events.add(event);
+                }
             }
 
             return events;

@@ -12,7 +12,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class PrePublishRepositoryIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     private final TestEventStreamInserter testEventStreamInserter = new TestEventStreamInserter();
     private final Clock clock = new UtcClock();
 
@@ -54,10 +54,10 @@ public class PrePublishRepositoryIT {
         final Event event_3 = eventBuilder().withName("event-3").withPositionInStream(103L).build();
         final Event event_4 = eventBuilder().withName("event-4").withPositionInStream(104L).build();
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
-        testEventInserter.insertIntoEventLog(event_4);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_4);
 
         assertThat(prePublishRepository.getEventNumber(event_1.getId(), eventStoreDataSource), is(1L));
         assertThat(prePublishRepository.getEventNumber(event_2.getId(), eventStoreDataSource), is(2L));
@@ -78,10 +78,10 @@ public class PrePublishRepositoryIT {
         final Event event_3 = eventBuilder().withStreamId(streamId).withName("event-3").withEventNumber(3l).withPositionInStream(103L).build();
         final Event event_4 = eventBuilder().withStreamId(streamId).withName("event-4").withEventNumber(4l).withPositionInStream(104L).build();
 
-        testEventInserter.insertIntoEventLog(event_1);
-        testEventInserter.insertIntoEventLog(event_2);
-        testEventInserter.insertIntoEventLog(event_3);
-        testEventInserter.insertIntoEventLog(event_4);
+        eventStoreDataAccess.insertIntoEventLog(event_1);
+        eventStoreDataAccess.insertIntoEventLog(event_2);
+        eventStoreDataAccess.insertIntoEventLog(event_3);
+        eventStoreDataAccess.insertIntoEventLog(event_4);
 
 
         assertThat(prePublishRepository.getPreviousEventNumber(1, eventStoreDataSource), is(0L));

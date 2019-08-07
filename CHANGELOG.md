@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.0-RC11] - 2019-08-07
+### Changed
+- Renamed TestEventInserter to EventStoreDataAccess as an improved test class
+- Added a findEventsByStreamId() method to EventStoreDataAccess
+
 ## [2.0.0-RC10] - 2019-07-22
 ### Fixed
 - Metadata missing event number and previous event number after a JMX REBUILD command is run.

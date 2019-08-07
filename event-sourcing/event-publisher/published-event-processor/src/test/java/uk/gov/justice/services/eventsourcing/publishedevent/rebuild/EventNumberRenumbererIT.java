@@ -7,7 +7,7 @@ import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilde
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.SequenceSetter;
@@ -34,7 +34,7 @@ public class EventNumberRenumbererIT {
     private EventNumberRenumberer eventNumberRenumberer;
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     private final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
 
     @Before
@@ -54,13 +54,13 @@ public class EventNumberRenumbererIT {
         assertThat(sequenceSetter.getCurrentSequenceValue("event_sequence_seq", eventStoreDataSource), is(11L));
 
 
-        testEventInserter.insertIntoEventLog(eventBuilder().withName("event 1").build());
-        testEventInserter.insertIntoEventLog(eventBuilder().withName("event 2").build());
-        testEventInserter.insertIntoEventLog(eventBuilder().withName("event 3").build());
-        testEventInserter.insertIntoEventLog(eventBuilder().withName("event 4").build());
-        testEventInserter.insertIntoEventLog(eventBuilder().withName("event 5").build());
+        eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 1").build());
+        eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 2").build());
+        eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 3").build());
+        eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 4").build());
+        eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 5").build());
 
-        final List<Event> allEvents = testEventInserter.findAllEvents();
+        final List<Event> allEvents = eventStoreDataAccess.findAllEvents();
 
         assertThat(allEvents.size(), is(5));
 
@@ -77,7 +77,7 @@ public class EventNumberRenumbererIT {
 
         eventNumberRenumberer.renumberEventLogEventNumber();
 
-        final List<Event> renumberedEvents = testEventInserter.findAllEvents();
+        final List<Event> renumberedEvents = eventStoreDataAccess.findAllEvents();
 
         assertThat(renumberedEvents.get(0).getName(), is("event 1"));
         assertThat(renumberedEvents.get(0).getEventNumber().orElse(-1L), is(1L));

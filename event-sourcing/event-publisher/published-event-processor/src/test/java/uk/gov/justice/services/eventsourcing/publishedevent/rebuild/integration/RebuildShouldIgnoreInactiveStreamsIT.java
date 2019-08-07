@@ -27,7 +27,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventSt
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -56,7 +56,7 @@ public class RebuildShouldIgnoreInactiveStreamsIT {
 
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     private final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
     private final StreamIdGenerator streamIdGenerator = new StreamIdGenerator();
     private final StreamStatusInserter streamStatusInserter = new StreamStatusInserter(eventStoreDataSource);
@@ -133,7 +133,7 @@ public class RebuildShouldIgnoreInactiveStreamsIT {
 
         publishedEventRebuilder.rebuild();
 
-        final List<PublishedEvent> publishedEvents = testEventInserter.findAllPublishedEventsOrderedByEventNumber();
+        final List<PublishedEvent> publishedEvents = eventStoreDataAccess.findAllPublishedEventsOrderedByEventNumber();
 
         assertThat(publishedEvents.size(), is(numberOfEvents / 2));
 

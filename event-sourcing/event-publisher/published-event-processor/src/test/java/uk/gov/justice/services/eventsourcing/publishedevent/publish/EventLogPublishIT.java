@@ -16,7 +16,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
-import uk.gov.justice.services.test.utils.events.TestEventInserter;
+import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import java.sql.Connection;
@@ -33,7 +33,7 @@ import org.junit.Test;
 public class EventLogPublishIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final TestEventInserter testEventInserter = new TestEventInserter(eventStoreDataSource);
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
 
     private final UtcClock utcClock = new UtcClock();
 
@@ -65,7 +65,7 @@ public class EventLogPublishIT {
                 .withPayloadJSON(jsonEnvelope.payloadAsJsonObject().toString())
                 .build();
 
-        testEventInserter.insertIntoEventLog(event);
+        eventStoreDataAccess.insertIntoEventLog(event);
 
         try (final Connection connection = eventStoreDataSource.getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM pre_publish_queue");

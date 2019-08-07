@@ -1,5 +1,9 @@
 package uk.gov.justice.services.test.utils.persistence;
 
+import static uk.gov.justice.services.test.utils.common.host.TestHostProvider.getHost;
+
+import uk.gov.justice.services.test.utils.common.host.TestHostProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -49,6 +53,7 @@ public class FrameworkTestDataSourceFactory {
 
         final Properties prop = getTestDatSourceProperties();
         final PGSimpleDataSource dataSource = new PGSimpleDataSource();
+        dataSource.setServerName(getHost());
         dataSource.setPortNumber(Integer.parseInt(prop.getProperty("PORT_NUMBER")));
         dataSource.setDatabaseName(databaseName);
         dataSource.setUser(prop.getProperty("USERNAME"));

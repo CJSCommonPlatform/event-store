@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Catchup, Rebuild and Index no longer call shutter/unshutter when running
+
 ## [2.0.0-RC12] - 2019-08-07
 ### Changed
 - Improved utility classes for getting Postgres DataSources

@@ -1,19 +1,16 @@
 package uk.gov.justice.services.eventstore.management.rebuild.commands;
 
+import static java.lang.String.format;
 import static uk.gov.justice.services.jmx.api.command.RebuildCommand.REBUILD;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
 import uk.gov.justice.services.jmx.api.command.RebuildCommand;
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
-import uk.gov.justice.services.management.shuttering.events.ShutteringCompleteEvent;
-import uk.gov.justice.services.management.shuttering.events.ShutteringRequestedEvent;
-import uk.gov.justice.services.management.shuttering.events.UnshutteringRequestedEvent;
+
+import java.time.ZonedDateTime;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -21,13 +18,7 @@ import org.slf4j.Logger;
 public class RebuildCommandHandler {
 
     @Inject
-    private Event<ShutteringRequestedEvent> shutteringRequestedEventFirer;
-
-    @Inject
     private Event<RebuildRequestedEvent> rebuildRequestedEventEventFirer;
-
-    @Inject
-    private Event<UnshutteringRequestedEvent> unshutteringRequestedEventFirer;
 
     @Inject
     private UtcClock clock;
@@ -37,31 +28,9 @@ public class RebuildCommandHandler {
 
     @HandlesSystemCommand(REBUILD)
     public void doRebuild(final RebuildCommand rebuildCommand) {
-        shutteringRequestedEventFirer.fire(new ShutteringRequestedEvent(rebuildCommand, clock.now()));
-    }
 
-    public void onShutteringComplete(@Observes final ShutteringCompleteEvent shutteringCompleteEvent) {
-
-        final SystemCommand systemCommand = shutteringCompleteEvent.getTarget();
-
-        if(systemCommand instanceof RebuildCommand) {
-
-            logger.info("Received ShutteringComplete event. Now firing RebuildRequestedEvent");
-
-            rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(clock.now(), systemCommand));
-        }
-    }
-
-    public void onRebuildComplete(@Observes final RebuildCompleteEvent rebuildCompleteEvent) {
-
-        final SystemCommand systemCommand = rebuildCompleteEvent.getTarget();
-        if(systemCommand instanceof RebuildCommand) {
-
-            logger.info("Received RebuildComplete event. Now firing UnshutteringRequested event");
-
-            unshutteringRequestedEventFirer.fire(new UnshutteringRequestedEvent(
-                    systemCommand,
-                    clock.now()));
-        }
+        final ZonedDateTime now = clock.now();
+        logger.info(format("Received command '%s' at %tr", rebuildCommand, now));
+        rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(now, rebuildCommand));
     }
 }

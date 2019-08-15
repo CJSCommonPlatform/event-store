@@ -5,61 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-### Changed
-- Catchup, Rebuild and Index no longer call shutter/unshutter when running
-
-## [2.0.0-RC12] - 2019-08-07
-### Changed
-- Improved utility classes for getting Postgres DataSources
-
-## [2.0.0-RC11] - 2019-08-07
-### Changed
-- Renamed TestEventInserter to EventStoreDataAccess as an improved test class
-- Added a findEventsByStreamId() method to EventStoreDataAccess
-
-## [2.0.0-RC10] - 2019-07-22
-### Fixed
-- Metadata missing event number and previous event number after a JMX REBUILD command is run.
-
-## [2.0.0-RC9] - 2019-07-18
-### Changed
-- Update framework to 6.0.0-RC9
-
-## [2.0.0-RC8] - 2019-07-18
-### Changed
-- Update framework to 6.0.0-RC8
-
-## [2.0.0-RC7] - 2019-07-16
-### Changed
-- Make package of SystemCommander MBean match that of its interface
-
-## [2.0.0-RC6] - 2019-07-16
-### Changed
-- Moved system commands to framework jmx-api
-### Fixed 
-- Moved liquibase jars to correct test scope
-
-## [2.0.0-RC5] - 2019-07-12
-### Changed
-- Update framework-api to 4.0.1
-- Update framework to 6.0.0-RC4
-- Update common-bom to 2.4.0
-- Update utilities to 1.20.1
-- Update test-utils to 1.24.3
-
-## [2.0.0-RC4] - 2019-07-11
-### Changed
-- Update framework to 6.0.0-RC3
-
-## [2.0.0-RC3] - 2019-07-04
-### Changed
-- Update framework to 6.0.0-RC2
-
-## [2.0.0-RC2] - 2019-06-27
-### Fixed
-- fix of the publish_queue draining problem
-
-## [2.0.0-RC1] - 2019-06-27
+## [2.0.0] - 2019-08-15
 
 ### Added
 - Event Catchup is now Observable using the JEE event system
@@ -98,11 +44,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Create concurrent catchup process, replays events on different streams concurrently
 - Catchup now returns events from published_event rather than from event_log
 - Replaced BackwardsCompatibleJsonSchemaValidator with DummyJsonSchemaValidator in Integration Tests
-- Updated framework-api to 4.0.0
+- Catchup, Rebuild and Index no longer call shutter/unshutter when running
+- Improved utility classes for getting Postgres DataSources
+- Renamed TestEventInserter to EventStoreDataAccess as an improved test class
+- Added a findEventsByStreamId() method to EventStoreDataAccess
+- Moved system commands to framework jmx-api
+- Updated framework-api to 4.0.1
 - Updated framework to 6.0.0
-- Updated common-bom to 2.3.0
-- Updated utilities to 1.20
-- Updated test-utils to 1.24.2
+- Updated common-bom to 2.4.0
+- Updated utilities to 1.20.1
+- Updated test-utils to 1.24.3
 
 ## [1.1.3] - 2019-02-04
 ### Changed

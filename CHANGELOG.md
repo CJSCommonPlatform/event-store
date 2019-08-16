@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.3] - 2019-08-16
+### Changed
+- Update framework to 6.0.3
+
 ## [2.0.2] - 2019-08-15
 ### Changed
 - Update framework to 6.0.2
@@ -15,7 +19,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [2.0.0] - 2019-08-15
 
-### Added
+### Added``
 - Event Catchup is now Observable using the JEE event system
 - Observers for the shutter then catchup process
 - Add Shuttering implementation to PublisherTimerBean

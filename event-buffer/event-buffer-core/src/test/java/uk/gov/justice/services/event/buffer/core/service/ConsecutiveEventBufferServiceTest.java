@@ -19,6 +19,7 @@ import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBu
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
+import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
@@ -50,6 +51,9 @@ public class ConsecutiveEventBufferServiceTest {
 
     @Mock
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
+
+    @Mock
+    private EventSourceNameCalculator eventSourceNameCalculator;
 
     @InjectMocks
     private ConsecutiveEventBufferService bufferService;
@@ -95,23 +99,24 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
 
-        final Subscription subscription = mock(Subscription.class);
-
-        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(subscription));
-        when(subscription.getPosition()).thenReturn(4L);
-
         final JsonEnvelope event_3 = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
                 createObjectBuilder()
         );
-
-        assertThat(bufferService.currentOrderedEventsWith(event_3, EVENT_LISTENER), is(empty()));
-
         final JsonEnvelope event_4 = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(4L),
                 createObjectBuilder()
         );
 
+        final Subscription subscription = mock(Subscription.class);
+
+        when(eventSourceNameCalculator.getSource(event_3)).thenReturn(source);
+        when(eventSourceNameCalculator.getSource(event_4)).thenReturn(source);
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(subscription));
+        when(subscription.getPosition()).thenReturn(4L);
+
+
+        assertThat(bufferService.currentOrderedEventsWith(event_3, EVENT_LISTENER), is(empty()));
         assertThat(bufferService.currentOrderedEventsWith(event_4, EVENT_LISTENER), is(empty()));
 
         verifyZeroInteractions(streamBufferRepository);
@@ -131,17 +136,18 @@ public class ConsecutiveEventBufferServiceTest {
         final String eventName = "source.event.name";
         final String component = EVENT_LISTENER;
 
-        final Subscription subscription = mock(Subscription.class);
-
-        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
-        when(subscription.getPosition()).thenReturn(4L);
-
-        when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(Stream.empty());
-
         final JsonEnvelope incomingEvent = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(5L),
                 createObjectBuilder()
         );
+
+        final Subscription subscription = mock(Subscription.class);
+
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
+        when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
+        when(subscription.getPosition()).thenReturn(4L);
+
+        when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(Stream.empty());
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
         assertThat(returnedEvents, contains(incomingEvent));
@@ -167,6 +173,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
         when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(Stream.empty());
@@ -195,6 +202,7 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(4L);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(new Subscription(streamId, 4L, source, EVENT_LISTENER)));
@@ -221,8 +229,14 @@ public class ConsecutiveEventBufferServiceTest {
         final String eventName = "source.event.name";
         final String component = EVENT_LISTENER;
 
+        final JsonEnvelope incomingEvent = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
+                createObjectBuilder()
+        );
+
         final Subscription subscription = mock(Subscription.class);
 
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
@@ -242,11 +256,6 @@ public class ConsecutiveEventBufferServiceTest {
         when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent4")).thenReturn(bufferedEvent4);
         when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent5")).thenReturn(bufferedEvent5);
         when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent6")).thenReturn(bufferedEvent6);
-
-        final JsonEnvelope incomingEvent = envelopeFrom(
-                metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
-                createObjectBuilder()
-        );
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
         assertThat(returnedEvents, contains(incomingEvent, bufferedEvent4, bufferedEvent5, bufferedEvent6));
@@ -269,6 +278,12 @@ public class ConsecutiveEventBufferServiceTest {
 
         final Subscription subscription = mock(Subscription.class);
 
+        final JsonEnvelope incomingEvent = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
+                createObjectBuilder()
+        );
+
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
@@ -282,11 +297,6 @@ public class ConsecutiveEventBufferServiceTest {
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
         when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent4")).thenReturn(bufferedEvent4);
 
-        final JsonEnvelope incomingEvent = envelopeFrom(
-                metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
-                createObjectBuilder()
-        );
-
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
         returnedEvents.close();
 
@@ -297,7 +307,6 @@ public class ConsecutiveEventBufferServiceTest {
         inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source, component);
         inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, 0L, source, component));
         inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source, component);
-
     }
 
     @Test
@@ -318,21 +327,22 @@ public class ConsecutiveEventBufferServiceTest {
         final EventBufferEvent event5 = new EventBufferEvent(streamId, 5L, "someEventContent5", "source_2", component);
         final EventBufferEvent event6 = new EventBufferEvent(streamId, 6L, "someEventContent6", "source_3", component);
 
-        when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(
-                Stream.of(event4, event5, event6));
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
         final JsonEnvelope bufferedEvent5 = mock(JsonEnvelope.class);
         final JsonEnvelope bufferedEvent6 = mock(JsonEnvelope.class);
 
-        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent4")).thenReturn(bufferedEvent4);
-        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent5")).thenReturn(bufferedEvent5);
-        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent6")).thenReturn(bufferedEvent6);
-
         final JsonEnvelope incomingEvent = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
                 createObjectBuilder()
         );
+
+        when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
+        when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(
+                Stream.of(event4, event5, event6));
+        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent4")).thenReturn(bufferedEvent4);
+        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent5")).thenReturn(bufferedEvent5);
+        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent6")).thenReturn(bufferedEvent6);
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
 

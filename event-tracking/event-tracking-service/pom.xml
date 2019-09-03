@@ -26,6 +26,11 @@
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>persistence-jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>event-store-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

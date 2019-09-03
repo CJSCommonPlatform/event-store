@@ -18,6 +18,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import static uk.gov.justice.services.subscription.ProcessedEventTrackItemBuilder.processedEventTrackItem;
 
+import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
 
@@ -37,6 +38,9 @@ public class ProcessedEventTrackingServiceTest {
 
     @Mock
     private ProcessedEventTrackingRepository processedEventTrackingRepository;
+
+    @Mock
+    private EventSourceNameCalculator eventSourceNameCalculator;
 
     @InjectMocks
     private ProcessedEventTrackingService processedEventTrackingService;
@@ -59,6 +63,8 @@ public class ProcessedEventTrackingServiceTest {
                         .withEventNumber(eventNumber)
                         .withSource(source),
                 createObjectBuilder());
+
+        when(eventSourceNameCalculator.getSource(event)).thenReturn(source);
 
         processedEventTrackingService.trackProcessedEvent(event, componentName);
 
@@ -112,31 +118,6 @@ public class ProcessedEventTrackingServiceTest {
             fail();
         } catch (final ProcessedEventTrackingException expected) {
             assertThat(expected.getMessage(), is("Missing event number for event with id '8df3a64b-589e-4c55-adc1-b767ddbab42f'"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionIfNoSourceFound() throws Exception {
-
-        final long previousEventNumber = 23;
-        final long eventNumber = 24;
-        final String componentName = "EVENT_LISTENER";
-
-        final UUID id = fromString("8df3a64b-589e-4c55-adc1-b767ddbab42f");
-
-        final JsonEnvelope event = envelopeFrom(
-                metadataBuilder()
-                        .withId(id)
-                        .withName("event-name")
-                        .withPreviousEventNumber(previousEventNumber)
-                        .withEventNumber(eventNumber),
-                createObjectBuilder());
-
-        try {
-            processedEventTrackingService.trackProcessedEvent(event, componentName);
-            fail();
-        } catch (final ProcessedEventTrackingException expected) {
-            assertThat(expected.getMessage(), is("No source found in event with id '8df3a64b-589e-4c55-adc1-b767ddbab42f'"));
         }
     }
 

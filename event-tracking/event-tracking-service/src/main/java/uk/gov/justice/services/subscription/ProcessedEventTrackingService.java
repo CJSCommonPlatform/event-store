@@ -2,6 +2,7 @@ package uk.gov.justice.services.subscription;
 
 import static java.lang.String.format;
 
+import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
@@ -18,6 +19,9 @@ public class ProcessedEventTrackingService {
     @Inject
     private ProcessedEventTrackingRepository processedEventTrackingRepository;
 
+    @Inject
+    private EventSourceNameCalculator eventSourceNameCalculator;
+
     public void trackProcessedEvent(final JsonEnvelope event, final String componentName) {
 
         final Metadata metadata = event.metadata();
@@ -28,9 +32,8 @@ public class ProcessedEventTrackingService {
         final Long eventNumber = metadata
                 .eventNumber()
                 .orElseThrow(() -> new ProcessedEventTrackingException(format("Missing event number for event with id '%s'", id)));
-        final String source = metadata
-                .source()
-                .orElseThrow(() -> new ProcessedEventTrackingException(format("No source found in event with id '%s'", id)));
+
+        final String source = eventSourceNameCalculator.getSource(event);
 
         final ProcessedEventTrackItem processedEventTrackItem = new ProcessedEventTrackItem(
                 previousEventNumber,

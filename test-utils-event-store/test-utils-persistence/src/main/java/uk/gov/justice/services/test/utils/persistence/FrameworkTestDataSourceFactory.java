@@ -2,8 +2,6 @@ package uk.gov.justice.services.test.utils.persistence;
 
 import static uk.gov.justice.services.test.utils.common.host.TestHostProvider.getHost;
 
-import uk.gov.justice.services.test.utils.common.host.TestHostProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;

@@ -63,6 +63,7 @@ import uk.gov.justice.services.core.mapping.SchemaIdMappingObserver;
 import uk.gov.justice.services.core.requester.RequesterProducer;
 import uk.gov.justice.services.core.sender.SenderProducer;
 import uk.gov.justice.services.event.source.subscriptions.interceptors.SubscriptionEventInterceptor;
+import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
@@ -214,7 +215,8 @@ public class SubscriptionEventInterceptorIT {
             JndiAppNameProvider.class,
             InitialContextProducer.class,
 
-            SchemaValidationErrorMessageGenerator.class
+            SchemaValidationErrorMessageGenerator.class,
+            EventSourceNameCalculator.class
     })
 
     public WebApp war() {

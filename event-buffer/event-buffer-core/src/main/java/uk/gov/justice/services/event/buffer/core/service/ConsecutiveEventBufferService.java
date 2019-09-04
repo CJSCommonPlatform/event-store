@@ -9,6 +9,7 @@ import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBu
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.Subscription;
+import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.Metadata;
@@ -21,7 +22,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 @ApplicationScoped
@@ -43,6 +43,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
     @Inject
     private JsonObjectEnvelopeConverter jsonObjectEnvelopeConverter;
 
+    @Inject
+    private EventSourceNameCalculator eventSourceNameCalculator;
 
     /**
      * Takes an incoming event and returns a stream of json envelopes. If the event is not
@@ -62,7 +64,7 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         final Metadata metadata = incomingEvent.metadata();
         final UUID streamId = metadata.streamId().orElseThrow(() -> new IllegalStateException("Event must have a a streamId "));
         final long incomingEventVersion = versionOf(incomingEvent);
-        final String source = getSource(incomingEvent);
+        final String source = eventSourceNameCalculator.getSource(incomingEvent);
 
         streamStatusJdbcRepository.updateSource(streamId, source, component);
         streamStatusJdbcRepository.insertOrDoNothing(new Subscription(streamId, 0L, source, component));
@@ -82,13 +84,13 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
         } else if (incomingEventNotInOrder(incomingEventVersion, currentVersion)) {
             logger.trace("Message : {} is not consecutive, adding to buffer", incomingEvent);
-            addToBuffer(incomingEvent, streamId, incomingEventVersion, component);
+            addToBuffer(incomingEvent, streamId, incomingEventVersion, component, source);
             return Stream.empty();
 
         } else {
             logger.trace("Message : {} version is valid sending stream to dispatcher", incomingEvent);
             streamStatusJdbcRepository.update(new Subscription(streamId, incomingEventVersion, source, component));
-            return bufferedEvents(streamId, incomingEvent, incomingEventVersion, component);
+            return bufferedEvents(streamId, incomingEvent, incomingEventVersion, component, source);
         }
     }
 
@@ -102,8 +104,12 @@ public class ConsecutiveEventBufferService implements EventBufferService {
         return incomingEventVersion;
     }
 
-    private Stream<JsonEnvelope> bufferedEvents(final UUID streamId, final JsonEnvelope incomingEvent, final long incomingEventVersion, final String component) {
-        final String source = getSource(incomingEvent);
+    private Stream<JsonEnvelope> bufferedEvents(
+            final UUID streamId,
+            final JsonEnvelope incomingEvent,
+            final long incomingEventVersion,
+            final String component,
+            final String source) {
         final Stream<EventBufferEvent> stream = streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component);
         return concat(Stream.of(incomingEvent), consecutiveEventStreamFromBuffer(stream, incomingEventVersion)
                 .peek(streamBufferEvent -> streamBufferRepository.remove(streamBufferEvent))
@@ -115,12 +121,17 @@ public class ConsecutiveEventBufferService implements EventBufferService {
                 .map(streamBufferEvent -> jsonObjectEnvelopeConverter.asEnvelope(streamBufferEvent.getEvent())));
     }
 
-    private void addToBuffer(final JsonEnvelope incomingEvent, final UUID streamId, final Long incomingEventVersion, final String component) {
+    private void addToBuffer(
+            final JsonEnvelope incomingEvent,
+            final UUID streamId,
+            final Long incomingEventVersion,
+            final String component,
+            final String source) {
         streamBufferRepository.insert(
                 new EventBufferEvent(streamId,
                         incomingEventVersion,
                         jsonObjectEnvelopeConverter.asJsonString(incomingEvent),
-                        getSource(incomingEvent),
+                        source,
                         component));
 
     }
@@ -135,9 +146,5 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
     private boolean incomingEventObsolete(final long incomingEventVersion, final long currentVersion) {
         return incomingEventVersion - currentVersion <= 0;
-    }
-
-    private String getSource(final JsonEnvelope incomingEvent) {
-        return StringUtils.substringBefore(incomingEvent.metadata().name(), ".");
     }
 }

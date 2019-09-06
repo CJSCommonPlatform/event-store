@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.13] - 2019-09-06
+### Changed
+- Events are now renumbered according to their date_created order during rebuild
+
 ## [2.0.12] - 2019-09-04
 ### Changed
 - If the event source name in the JsonEnvelope is missing is calculated from the event name rather 

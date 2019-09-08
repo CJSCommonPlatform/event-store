@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.14] - 2019-09-08
+### Changed
+- Update framework to 6.0.12
+
 ## [2.0.13] - 2019-09-06
 ### Changed
 - Events are now renumbered according to their date_created order during rebuild

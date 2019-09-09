@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Reduced the maximum runtime for each iteration of the publishing beans to 450 milliseconds
 
 ## [2.0.14] - 2019-09-08
 ### Changed

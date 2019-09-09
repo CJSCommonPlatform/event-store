@@ -17,7 +17,7 @@ public class PrePublishTimerConfig {
     private String timerIntervalMilliseconds;
 
     @Inject
-    @GlobalValue(key = "pre.publish.timer.max.runtime.milliseconds", defaultValue = "495")
+    @GlobalValue(key = "pre.publish.timer.max.runtime.milliseconds", defaultValue = "450")
     private String timerMaxRuntimeMilliseconds;
 
     public long getTimerStartWaitMilliseconds() {

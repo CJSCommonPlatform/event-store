@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
 
 import static java.lang.String.format;
-import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
@@ -28,7 +28,7 @@ public class EventNumberRenumberer {
     @Inject
     private Logger logger;
 
-    @Transactional(REQUIRES_NEW)
+    @Transactional(REQUIRED)
     public void renumberEventLogEventNumber() {
         resetSequence();
         renumberEvents();

@@ -45,7 +45,6 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
-import uk.gov.justice.services.jmx.api.mbean.AsynchronousCommandRunnerBean;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -171,7 +170,6 @@ public class EventPublishIT {
             DummySystemCommandStore.class,
 
             JndiAppNameProvider.class,
-            AsynchronousCommandRunnerBean.class,
             StackTraceProvider.class
     })
     public WebApp war() {

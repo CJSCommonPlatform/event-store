@@ -17,6 +17,7 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventR
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -61,7 +62,7 @@ public class PublishedEventInserterTest {
                 event,
                 previousEventNumber.get())).thenReturn(publishedEvent);
 
-        assertThat(publishedEventInserter.convertAndSave(event, previousEventNumber, activeStreamIds), is(1));
+        assertThat(publishedEventInserter.convertAndSave(event, previousEventNumber, activeStreamIds), is(Optional.of(publishedEvent)));
 
         verify(publishedEventRepository).save(publishedEvent);
         verifyZeroInteractions(logger);
@@ -84,40 +85,13 @@ public class PublishedEventInserterTest {
         when(event.getEventNumber()).thenReturn(of(eventNumber));
         when(event.getStreamId()).thenReturn(streamId);
 
-        assertThat(publishedEventInserter.convertAndSave(event, previousEventNumber, activeStreamIds), is(0));
+        assertThat(publishedEventInserter.convertAndSave(event, previousEventNumber, activeStreamIds), is(Optional.empty()));
 
         verifyZeroInteractions(publishedEventConverter);
         verifyZeroInteractions(publishedEventRepository);
         verifyZeroInteractions(logger);
 
         assertThat(previousEventNumber.get(), is(23L));
-    }
-
-    @Test
-    public void shouldLogEveryThousandEvents() throws Exception {
-
-        final UUID streamId = randomUUID();
-
-        final long eventNumber = 2_000L;
-        final AtomicLong previousEventNumber = new AtomicLong(1_999L);
-        final Set<UUID> activeStreamIds = newHashSet(streamId);
-
-        final Event event = mock(Event.class);
-        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
-
-        when(event.getEventNumber()).thenReturn(of(eventNumber));
-        when(event.getStreamId()).thenReturn(streamId);
-        when(publishedEventConverter.toPublishedEvent(
-                event,
-                previousEventNumber.get())).thenReturn(publishedEvent);
-
-        assertThat(publishedEventInserter.convertAndSave(event, previousEventNumber, activeStreamIds), is(1));
-
-        verify(publishedEventRepository).save(publishedEvent);
-
-        assertThat(previousEventNumber.get(), is(eventNumber));
-
-        verify(logger).info("Inserted 2000 PublishedEvents...");
     }
 
     @Test

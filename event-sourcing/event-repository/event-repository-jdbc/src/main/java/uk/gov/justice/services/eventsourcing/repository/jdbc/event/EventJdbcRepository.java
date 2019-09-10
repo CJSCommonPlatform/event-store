@@ -59,6 +59,7 @@ public class EventJdbcRepository {
     static final String SQL_FIND_LATEST_POSITION = "SELECT MAX(position_in_stream) FROM event_log WHERE stream_id=?";
     static final String SQL_DISTINCT_STREAM_ID = "SELECT DISTINCT stream_id FROM event_log";
     static final String SQL_DELETE_STREAM = "DELETE FROM event_log t WHERE t.stream_id=?";
+    static final String SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE = "SELECT * FROM event_log WHERE event_number>? ORDER BY event_number ASC LIMIT ?";
 
     /*
      * Error Messages
@@ -190,6 +191,25 @@ public class EventJdbcRepository {
         }
     }
 
+    public Stream<Event> findByStreamIdFromPositionOrderByPositionAsc(final UUID streamId,
+                                                                      final Long versionFrom,
+                                                                      final Integer pageSize) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
+        try {
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE);
+            preparedStatementWrapper.setObject(1, streamId);
+            preparedStatementWrapper.setLong(2, versionFrom);
+            preparedStatementWrapper.setInt(3, pageSize);
+
+            return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
+        } catch (final SQLException e) {
+            logger.error(FAILED_TO_READ_STREAM, streamId, e);
+            throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
+        }
+    }
+
     /**
      * Returns a Stream of all events in the event_log table ordered by event_number.
      *
@@ -211,22 +231,27 @@ public class EventJdbcRepository {
         }
     }
 
-    public Stream<Event> findByStreamIdFromPositionOrderByPositionAsc(final UUID streamId,
-                                                                      final Long versionFrom,
-                                                                      final Integer pageSize) {
+    /**
+     * Returns a Stream of Events from the given event number (exclusive) to the given page size.  This method
+     * returns all events greater than eventNumber, limited by the page size.
+     *
+     * @param eventNumber - return all events greater than
+     * @param pageSize    - limit the page size of the returned result
+     * @return Stream of Event
+     */
+    public Stream<Event> findAllFromEventNumberUptoPageSize(final Long eventNumber, final Integer pageSize) {
 
         final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
 
         try {
-            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE);
-            preparedStatementWrapper.setObject(1, streamId);
-            preparedStatementWrapper.setLong(2, versionFrom);
-            preparedStatementWrapper.setInt(3, pageSize);
+            final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE);
+            preparedStatementWrapper.setLong(1, eventNumber);
+            preparedStatementWrapper.setInt(2, pageSize);
 
             return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, asEvent());
         } catch (final SQLException e) {
-            logger.warn(FAILED_TO_READ_STREAM, streamId, e);
-            throw new JdbcRepositoryException(format(READING_STREAM_EXCEPTION, streamId), e);
+            logger.error(format("Failed to read events from event_log from event number : '%s' with page size : '%s'", eventNumber, pageSize), e);
+            throw new JdbcRepositoryException(format("Failed to read events from event_log from event number : '%s' with page size : '%s'", eventNumber, pageSize), e);
         }
     }
 
@@ -294,6 +319,29 @@ public class EventJdbcRepository {
 
     }
 
+    public void clear(final UUID streamId) {
+
+        final long eventCount = getStreamSize(streamId);
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(
+                dataSource,
+                SQL_DELETE_STREAM)) {
+
+            preparedStatementWrapper.setObject(1, streamId);
+
+            final int deletedRows = preparedStatementWrapper.executeUpdate();
+
+            if (deletedRows != eventCount) {
+                // Rollback, something went wrong
+                throw new JdbcRepositoryException(format(DELETING_STREAM_EXCEPTION_DETAILS, streamId, eventCount, deletedRows));
+            }
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(format(DELETING_STREAM_EXCEPTION, streamId), e);
+        }
+    }
+
     private Stream<UUID> streamFrom(final PreparedStatementWrapper preparedStatementWrapper) throws SQLException {
         return jdbcResultSetStreamer.streamOf(preparedStatementWrapper, resultSet -> {
             try {
@@ -321,29 +369,6 @@ public class EventJdbcRepository {
                 throw new JdbcRepositoryException(e);
             }
         };
-    }
-
-    public void clear(final UUID streamId) {
-
-        final long eventCount = getStreamSize(streamId);
-
-        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
-
-        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(
-                dataSource,
-                SQL_DELETE_STREAM)) {
-
-            preparedStatementWrapper.setObject(1, streamId);
-
-            final int deletedRows = preparedStatementWrapper.executeUpdate();
-
-            if (deletedRows != eventCount) {
-                // Rollback, something went wrong
-                throw new JdbcRepositoryException(format(DELETING_STREAM_EXCEPTION_DETAILS, streamId, eventCount, deletedRows));
-            }
-        } catch (final SQLException e) {
-            throw new JdbcRepositoryException(format(DELETING_STREAM_EXCEPTION, streamId), e);
-        }
     }
 
 }

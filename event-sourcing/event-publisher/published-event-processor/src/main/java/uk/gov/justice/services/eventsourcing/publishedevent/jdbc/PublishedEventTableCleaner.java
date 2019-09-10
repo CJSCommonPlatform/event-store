@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static java.lang.String.format;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
@@ -9,6 +10,7 @@ import java.sql.SQLException;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 
 public class PublishedEventTableCleaner {
 
@@ -20,6 +22,7 @@ public class PublishedEventTableCleaner {
     @Inject
     private DatabaseTableTruncator databaseTableTruncator;
 
+    @Transactional(REQUIRES_NEW)
     public void deleteAll() {
 
         final DataSource defaultDataSource = eventStoreDataSourceProvider.getDefaultDataSource();

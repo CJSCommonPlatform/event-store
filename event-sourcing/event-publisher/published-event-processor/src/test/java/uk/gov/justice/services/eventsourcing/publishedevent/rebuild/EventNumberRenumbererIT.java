@@ -15,7 +15,6 @@ import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFac
 import uk.gov.justice.services.test.utils.persistence.SequenceSetter;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -25,13 +24,16 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventNumberRenumbererIT {
 
     @Mock
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
+
+    @Mock
+    private Logger logger;
 
     @InjectMocks
     private EventNumberRenumberer eventNumberRenumberer;

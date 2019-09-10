@@ -21,6 +21,7 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PrePublishRepos
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventQueries;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummyEventPublisher;
+import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummySystemCommandStore;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
@@ -45,7 +46,6 @@ import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jmx.api.mbean.AsynchronousCommandRunnerBean;
-import uk.gov.justice.services.jmx.command.SystemCommandStore;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -83,12 +83,10 @@ import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 
-@Ignore("This is suffering form CDI weirdness since I made SystemCommandStore @Singleton. Needs proper investigation")
 @RunWith(ApplicationComposer.class)
 public class EventPublishIT {
 
@@ -170,7 +168,7 @@ public class EventPublishIT {
             PrePublishRepository.class,
             PublishedEventQueries.class,
             StopWatchFactory.class,
-            SystemCommandStore.class,
+            DummySystemCommandStore.class,
 
             JndiAppNameProvider.class,
             AsynchronousCommandRunnerBean.class,

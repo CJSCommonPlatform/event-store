@@ -11,7 +11,6 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
-import uk.gov.justice.services.jmx.command.SystemCommandStore;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 
@@ -20,7 +19,6 @@ import java.util.Properties;
 import java.util.Queue;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.openejb.jee.WebApp;
@@ -29,11 +27,9 @@ import org.apache.openejb.testing.Application;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@Ignore("This is suffering form CDI weirdness since I made SystemCommandStore @Singleton. Needs proper investigation")
 @RunWith(ApplicationComposer.class)
 public class EventStreamCatchupIT {
 
@@ -53,7 +49,7 @@ public class EventStreamCatchupIT {
             ConsumeEventQueueBean.class,
             EventQueueConsumerFactory.class,
             LoggerProducer.class,
-            SystemCommandStore.class
+            DummySystemCommandStore.class
     })
     public WebApp war() {
         return new WebApp()

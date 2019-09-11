@@ -12,6 +12,7 @@ import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJ
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE;
+import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
@@ -53,6 +54,7 @@ public class EventJdbcRepositoryExceptionsTest {
 
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInInsert() throws Exception {
+
         final UUID streamId = randomUUID();
         final SQLException sqlException = new SQLException();
         final String statement = "STATEMENT";
@@ -124,6 +126,7 @@ public class EventJdbcRepositoryExceptionsTest {
 
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInFindByStreamIdOrderByPositionAsc() throws Exception {
+
         final UUID streamId = randomUUID();
         final SQLException sqlException = new SQLException();
 
@@ -143,6 +146,7 @@ public class EventJdbcRepositoryExceptionsTest {
 
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInFindByStreamIdFromPositionOrderByPositionAsc() throws Exception {
+
         final UUID streamId = randomUUID();
         final long position = 2L;
         final SQLException sqlException = new SQLException();
@@ -163,6 +167,7 @@ public class EventJdbcRepositoryExceptionsTest {
 
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInFindByStreamIdFromPositionOrderByPositionAscWithPage() throws Exception {
+
         final UUID streamId = randomUUID();
         final long position = 2L;
         final int pageSize = 10;
@@ -178,7 +183,28 @@ public class EventJdbcRepositoryExceptionsTest {
             fail();
         } catch (final JdbcRepositoryException e) {
             assertThat(e.getMessage(), is("Exception while reading stream " + streamId));
-            verify(logger).warn("Failed to read stream {}", streamId, sqlException);
+            verify(logger).error("Failed to read stream {}", streamId, sqlException);
+        }
+    }
+
+    @Test
+    public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInFindAllFromEventNumberUptoPageSize() throws Exception {
+
+        final long eventNumber = 2L;
+        final int pageSize = 10;
+        final SQLException sqlException = new SQLException();
+
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE)).thenThrow(sqlException);
+
+        try {
+            eventJdbcRepository.findAllFromEventNumberUptoPageSize(eventNumber, pageSize);
+            fail();
+        } catch (final JdbcRepositoryException e) {
+            assertThat(e.getMessage(), is("Failed to read events from event_log from event number : '2' with page size : '10'"));
+            verify(logger).error("Failed to read events from event_log from event number : '2' with page size : '10'", sqlException);
         }
     }
 }

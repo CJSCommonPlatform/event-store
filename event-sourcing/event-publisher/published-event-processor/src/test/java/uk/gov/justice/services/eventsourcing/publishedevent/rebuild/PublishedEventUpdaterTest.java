@@ -2,23 +2,15 @@ package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.UUID.randomUUID;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,13 +21,13 @@ import org.slf4j.Logger;
 public class PublishedEventUpdaterTest {
 
     @Mock
-    private EventJdbcRepository eventJdbcRepository;
+    private BatchProcessingDetailsCalculator batchProcessingDetailsCalculator;
 
     @Mock
     private ActiveEventStreamIdProvider activeEventStreamIdProvider;
 
     @Mock
-    private  PublishedEventInserter publishedEventInserter;
+    private  BatchPublishedEventProcessor batchPublishedEventProcessor;
 
     @Mock
     private Logger logger;
@@ -44,37 +36,25 @@ public class PublishedEventUpdaterTest {
     private PublishedEventUpdater publishedEventUpdater;
 
     @Test
-    public void shouldGetAllEventsAndSaveThem() throws Exception {
+    public void shouldIterateThroughAllBatchesOfEventsAndProcessThem() throws Exception {
 
         final Set<UUID> activeStreamIds = newHashSet(randomUUID());
-
-        final Event event_1 = mock(Event.class, "event_1");
-        final Event event_2 = mock(Event.class, "event_2");
-        final Event event_3 = mock(Event.class, "event_3");
+        final BatchProcessDetails startBatchProcessDetails = mock(BatchProcessDetails.class);
+        final BatchProcessDetails nextBatchProcessDetails = mock(BatchProcessDetails.class);
+        final BatchProcessDetails finalBatchProcessDetails = mock(BatchProcessDetails.class);
 
         when(activeEventStreamIdProvider.getActiveStreamIds()).thenReturn(activeStreamIds);
-
-        when(eventJdbcRepository.findAllOrderedByEventNumber()).thenReturn(Stream.of(event_1, event_2, event_3));
-
-        when(publishedEventInserter.convertAndSave(eq(event_1), any(AtomicLong.class), eq(activeStreamIds))).thenReturn(1);
-        when(publishedEventInserter.convertAndSave(eq(event_2), any(AtomicLong.class), eq(activeStreamIds))).thenReturn(0);
-        when(publishedEventInserter.convertAndSave(eq(event_3), any(AtomicLong.class), eq(activeStreamIds))).thenReturn(1);
+        when(batchProcessingDetailsCalculator.createFirstBatchProcessDetails()).thenReturn(startBatchProcessDetails);
+        when(startBatchProcessDetails.isComplete()).thenReturn(false);
+        when(batchPublishedEventProcessor.processNextBatchOfEvents(startBatchProcessDetails, activeStreamIds)).thenReturn(nextBatchProcessDetails);
+        when(nextBatchProcessDetails.isComplete()).thenReturn(false);
+        when(batchPublishedEventProcessor.processNextBatchOfEvents(nextBatchProcessDetails, activeStreamIds)).thenReturn(finalBatchProcessDetails);
+        when(finalBatchProcessDetails.isComplete()).thenReturn(true);
+        when(finalBatchProcessDetails.getProcessCount()).thenReturn(23);
 
         publishedEventUpdater.createPublishedEvents();
 
-        final InOrder inOrder = inOrder(
-                logger,
-                activeEventStreamIdProvider,
-                eventJdbcRepository,
-                publishedEventInserter
-        );
-
-        inOrder.verify(logger).info("Creating PublishedEvents..");
-        inOrder.verify(activeEventStreamIdProvider).getActiveStreamIds();
-        inOrder.verify(eventJdbcRepository).findAllOrderedByEventNumber();
-        inOrder.verify(publishedEventInserter).convertAndSave(eq(event_1), any(AtomicLong.class), eq(activeStreamIds));
-        inOrder.verify(publishedEventInserter).convertAndSave(eq(event_2), any(AtomicLong.class), eq(activeStreamIds));
-        inOrder.verify(publishedEventInserter).convertAndSave(eq(event_3), any(AtomicLong.class), eq(activeStreamIds));
-        inOrder.verify(logger).info("Inserted 2 PublishedEvents");
+        verify(logger).info("Creating PublishedEvents..");
+        verify(logger).info("Inserted 23 PublishedEvents in total");
     }
 }

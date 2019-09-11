@@ -191,7 +191,7 @@ public class EventJdbcRepositoryIT {
     }
 
     @Test
-    public void shouldReturnEventsByStreamIdFromPostionOrderByPositionByPage() throws InvalidPositionException {
+    public void shouldReturnEventsByStreamIdFromPositionOrderByPositionByPage() throws InvalidPositionException {
 
         final int pageSize = 2;
 
@@ -243,6 +243,30 @@ public class EventJdbcRepositoryIT {
         assertThat(streamIdList, hasItem(streamId1));
         assertThat(streamIdList, hasItem(streamId2));
         assertThat(streamIdList, hasItem(streamId3));
+    }
+
+    @Test
+    public void shouldReturnEventsFromEventNumberByPage() throws Exception {
+
+        final int pageSize = 2;
+
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+
+        final List<Event> page_1 = jdbcRepository.findAllFromEventNumberUptoPageSize(0L, pageSize).collect(toList());
+        assertThat(page_1, hasSize(2));
+        assertThat(page_1.get(0).getPositionInStream(), is(3L));
+        assertThat(page_1.get(1).getPositionInStream(), is(4L));
+
+        final long nextEventNumber_1 = page_1.get(1).getEventNumber().get();
+        final List<Event> page_2 = jdbcRepository.findAllFromEventNumberUptoPageSize(nextEventNumber_1, pageSize).collect(toList());
+        assertThat(page_2, hasSize(1));
+        assertThat(page_2.get(0).getPositionInStream(), is(7L));
+
+        final Long eventNumber_2 = page_2.get(0).getEventNumber().get();
+        final List<Event> page_3 = jdbcRepository.findAllFromEventNumberUptoPageSize(eventNumber_2, pageSize).collect(toList());
+        assertThat(page_3, hasSize(0));
     }
 
     @Test(expected = JdbcRepositoryException.class)

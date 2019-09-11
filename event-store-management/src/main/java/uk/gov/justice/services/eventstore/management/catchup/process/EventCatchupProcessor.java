@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
+import static javax.transaction.Transactional.TxType.NEVER;
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.common.util.UtcClock;
@@ -42,7 +43,7 @@ public class EventCatchupProcessor {
         this.clock = clock;
     }
 
-    @Transactional(NOT_SUPPORTED)
+    @Transactional(NEVER)
     public void performEventCatchup(final CatchupContext catchupContext) {
 
         final Subscription subscription = catchupContext.getSubscription();

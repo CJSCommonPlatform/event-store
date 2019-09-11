@@ -11,6 +11,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Changed transaction type of EventCatchupProcessorBean to NEVER to fix timeouts for long running transactions
 - Reduced the maximum runtime for each iteration of the publishing beans to 450 milliseconds
 - Long running transaction during rebuild broken into separate transactions
+- Update framework to 6.0.14
 
 ## [2.0.14] - 2019-09-08
 ### Changed

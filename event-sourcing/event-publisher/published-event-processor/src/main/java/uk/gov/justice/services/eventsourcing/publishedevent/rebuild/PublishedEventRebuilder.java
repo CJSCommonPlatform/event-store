@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventTableCleaner;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;

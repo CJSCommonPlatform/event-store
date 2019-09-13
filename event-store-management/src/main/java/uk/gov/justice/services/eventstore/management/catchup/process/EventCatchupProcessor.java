@@ -1,7 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static javax.transaction.Transactional.TxType.NEVER;
-import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration;
 
+import static java.util.Optional.of;
 import static org.apache.openejb.util.NetworkUtil.getNextAvailablePort;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,12 +16,12 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.DatabaseTableTr
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventTableCleaner;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.ActiveEventStreamIdProvider;
-import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventConverter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.EventInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamIdGenerator;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamStatusInserter;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategyProducer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -143,22 +144,23 @@ public class RebuildPublishedEventIT {
 
         eventInserter.insertSomeEvents(numberOfEvents, streamIds);
 
-        final List<Event> events = eventStoreDataAccess.findAllEvents();
+        final List<Event> events = eventStoreDataAccess.findAllEventsOrderedByDateCreated();
 
         publishedEventRebuilder.rebuild();
 
-        final List<PublishedEvent> publishedEvents = eventStoreDataAccess.findAllPublishedEvents();
+        final List<PublishedEvent> publishedEvents = eventStoreDataAccess.findAllPublishedEventsOrderedByEventNumber();
 
         assertThat(publishedEvents.size(), is(numberOfEvents));
 
         for (int i = 0; i < numberOfEvents; i++) {
+
             final long previousEventNumber = i;
-            final long currentEventNumber = i + 1;
+            final long currentEventNumber = previousEventNumber + 1;
 
             final Metadata expectedMetadata = createExpectedMetadataFrom(events.get(i).getMetadata(), previousEventNumber, currentEventNumber);
 
-            assertThat(publishedEvents.get(i).getName(), is(events.get(i).getName()));
-            assertThat(publishedEvents.get(i).getEventNumber().orElse(-1L), is(currentEventNumber));
+            assertThat(publishedEvents.get(i).getName(), is("event " + currentEventNumber));
+            assertThat(publishedEvents.get(i).getEventNumber(), is(of(currentEventNumber)));
             assertThat(publishedEvents.get(i).getPreviousEventNumber(), is(previousEventNumber));
 
             assertThat(publishedEvents.get(i).getStreamId(), is(events.get(i).getStreamId()));

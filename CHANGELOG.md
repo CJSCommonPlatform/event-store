@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.16] - 2019-09-13
+### Changed
+- Renumbering of events during rebuild is now run in batches to allow shorter transactions
+
 ## [2.0.15] - 2019-09-11
 ### Changed
 - Process rebuild in pages of events

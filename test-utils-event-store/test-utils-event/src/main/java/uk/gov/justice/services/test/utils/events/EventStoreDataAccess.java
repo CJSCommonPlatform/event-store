@@ -35,6 +35,7 @@ public class EventStoreDataAccess {
                     ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String FIND_ALL_EVENTS_QUERY = "SELECT * FROM event_log";
+    private static final String FIND_ALL_EVENTS_ORDERED_BY_DATE_CREATED_QUERY = "SELECT * FROM event_log ORDER BY date_created";
     private static final String FIND_ALL_EVENTS_BY_STREAM_ID_QUERY = "SELECT * FROM event_log WHERE stream_id = ?";
     private static final String FIND_ALL_PUBLISHED_EVENTS_QUERY = "SELECT * FROM published_event";
     private static final String FIND_ALL_PUBLISHED_EVENTS_ORDERED_BT_EVENT_NUMBER_QUERY = "SELECT * FROM published_event ORDER BY event_number";
@@ -112,6 +113,35 @@ public class EventStoreDataAccess {
     public List<Event> findAllEvents() {
 
         final String query = FIND_ALL_EVENTS_QUERY;
+
+        final List<Event> events = new ArrayList<>();
+        try (final Connection connection = eventStoreDataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(query);
+             final ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+
+                final Event event = new Event((UUID) resultSet.getObject("id"),
+                        (UUID) resultSet.getObject("stream_id"),
+                        resultSet.getLong("position_in_stream"),
+                        resultSet.getString("name"),
+                        resultSet.getString("metadata"),
+                        resultSet.getString("payload"),
+                        fromSqlTimestamp(resultSet.getTimestamp("date_created")),
+                        of(resultSet.getLong("event_number")));
+
+                events.add(event);
+            }
+
+            return events;
+        } catch (final SQLException e) {
+            throw new DataAccessException(format("Failed to execute query '%s'", query), e);
+        }
+    }
+
+    public List<Event> findAllEventsOrderedByDateCreated() {
+
+        final String query = FIND_ALL_EVENTS_ORDERED_BY_DATE_CREATED_QUERY;
 
         final List<Event> events = new ArrayList<>();
         try (final Connection connection = eventStoreDataSource.getConnection();

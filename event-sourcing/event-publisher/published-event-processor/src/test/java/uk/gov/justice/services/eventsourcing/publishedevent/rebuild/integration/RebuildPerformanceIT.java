@@ -11,12 +11,12 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.DatabaseTableTr
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventTableCleaner;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.ActiveEventStreamIdProvider;
-import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventConverter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.EventInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamIdGenerator;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamStatusInserter;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategyProducer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;

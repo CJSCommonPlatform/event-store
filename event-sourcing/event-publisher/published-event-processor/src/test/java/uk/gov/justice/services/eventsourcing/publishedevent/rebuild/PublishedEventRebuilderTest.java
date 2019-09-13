@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
 import static org.mockito.Mockito.inOrder;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventTableCleaner;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

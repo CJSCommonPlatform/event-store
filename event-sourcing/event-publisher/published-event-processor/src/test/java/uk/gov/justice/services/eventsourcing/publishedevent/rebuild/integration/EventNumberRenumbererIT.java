@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
+package uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration;
 
 import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.EventNumberRenumbererFactory;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
@@ -21,7 +23,6 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
@@ -35,7 +36,6 @@ public class EventNumberRenumbererIT {
     @Mock
     private Logger logger;
 
-    @InjectMocks
     private EventNumberRenumberer eventNumberRenumberer;
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
@@ -44,8 +44,12 @@ public class EventNumberRenumbererIT {
     private final UtcClock clock = new UtcClock();
 
     @Before
-
     public void initialize() throws Exception {
+
+        eventNumberRenumberer = new EventNumberRenumbererFactory().eventNumberRenumberer(
+                eventStoreDataSourceProvider,
+                logger
+        );
 
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
         databaseCleaner.cleanEventStoreTables("framework");

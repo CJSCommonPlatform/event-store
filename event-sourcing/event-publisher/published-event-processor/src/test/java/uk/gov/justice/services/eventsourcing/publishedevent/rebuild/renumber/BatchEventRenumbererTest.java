@@ -76,7 +76,6 @@ public class BatchEventRenumbererTest {
         inOrder.verify(preparedStatement).executeUpdate();
         inOrder.verify(preparedStatement).setObject(1, eventId_3);
         inOrder.verify(preparedStatement).executeUpdate();
-        inOrder.verify(logger).info("Renumbered 3 events");
 
         verify(connection).close();
         verify(preparedStatement).close();

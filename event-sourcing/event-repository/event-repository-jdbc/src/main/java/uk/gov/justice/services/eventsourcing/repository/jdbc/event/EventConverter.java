@@ -8,6 +8,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSt
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
+import uk.gov.justice.services.messaging.spi.JsonEnvelopeProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,6 +26,9 @@ public class EventConverter {
 
     @Inject
     StringToJsonObjectConverter stringToJsonObjectConverter;
+
+    @Inject
+    DefaultJsonEnvelopeProvider defaultJsonEnvelopeProvider;
 
 
     /**
@@ -55,7 +60,7 @@ public class EventConverter {
      * @return an envelope created from event.
      */
     public JsonEnvelope envelopeOf(final Event event) {
-        return envelopeFrom(metadataOf(event), payloadOf(event));
+        return defaultJsonEnvelopeProvider.envelopeFrom(metadataOf(event), payloadOf(event));
     }
 
     /**
@@ -65,7 +70,8 @@ public class EventConverter {
      * @return metadata from the event.
      */
     public Metadata metadataOf(final Event event) {
-        return metadataFrom(stringToJsonObjectConverter.convert(event.getMetadata())).build();
+        final JsonObject jsonObject = stringToJsonObjectConverter.convert(event.getMetadata());
+        return defaultJsonEnvelopeProvider.metadataFrom(jsonObject).build();
     }
 
     private JsonObject payloadOf(final Event event) {

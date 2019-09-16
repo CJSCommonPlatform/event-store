@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.17] - 2019-09-16
+### Changed
+- Use DefaultJsonEnvelopeProvider in EventConverted directly to fix classloading errors during rebuild
+
 ## [2.0.16] - 2019-09-13
 ### Changed
 - Renumbering of events during rebuild is now run in batches to allow shorter transactions

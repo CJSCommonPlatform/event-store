@@ -32,6 +32,7 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
@@ -114,7 +115,8 @@ public class RebuildPublishedEventIT {
             DefaultJsonObjectEnvelopeConverter.class,
             StringToJsonObjectConverter.class,
             ObjectMapperProducer.class,
-            LoggerProducer.class
+            LoggerProducer.class,
+            DefaultJsonEnvelopeProvider.class
     })
     @Default
     public WebApp war() {

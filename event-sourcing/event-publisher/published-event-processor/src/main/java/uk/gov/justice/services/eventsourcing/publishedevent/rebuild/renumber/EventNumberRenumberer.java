@@ -33,7 +33,11 @@ public class EventNumberRenumberer {
 
         final int total = eventIdBatches.stream()
                 .mapToInt(batchEventRenumberer::renumberEvents)
-                .sum();
+                .reduce(0, (subtotal, count) -> {
+                    final int runningTotal = subtotal + count;
+                    logger.info(format("Renumbered %s events", runningTotal));
+                    return runningTotal;
+                });
 
         logger.info(format("Renumbered %d events in total", total));
     }

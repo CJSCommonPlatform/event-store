@@ -78,6 +78,7 @@ import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.logging.TraceLogger;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
 import uk.gov.justice.services.yaml.YamlParser;
@@ -233,7 +234,8 @@ public class EventsPageIT {
             EventSourceNameProvider.class,
             EventStreamManager.class,
 
-            JndiAppNameProvider.class
+            JndiAppNameProvider.class,
+            DefaultJsonEnvelopeProvider.class
     })
     public WebApp war() {
         return new WebApp()

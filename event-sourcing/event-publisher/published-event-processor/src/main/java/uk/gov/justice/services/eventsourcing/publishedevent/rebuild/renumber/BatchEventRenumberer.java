@@ -48,10 +48,7 @@ public class BatchEventRenumberer {
                 preparedStatement.executeUpdate();
             }
 
-            final int eventsRenumberedCount = eventIds.size();
-            logger.info(format("Renumbered %d events", eventsRenumberedCount));
-
-            return eventsRenumberedCount;
+            return eventIds.size();
 
         } catch (SQLException e) {
             throw new RebuildException("Failed to renumber event_number in event_log table", e);

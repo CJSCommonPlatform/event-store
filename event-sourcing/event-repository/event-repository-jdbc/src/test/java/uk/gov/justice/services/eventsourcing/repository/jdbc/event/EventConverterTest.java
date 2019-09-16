@@ -15,6 +15,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidSt
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.common.helper.StoppedClock;
 
 import java.time.ZonedDateTime;
@@ -48,6 +49,7 @@ public class EventConverterTest {
         eventConverter = new EventConverter();
         eventConverter.stringToJsonObjectConverter = new StringToJsonObjectConverter();
         eventConverter.jsonObjectEnvelopeConverter = new DefaultJsonObjectEnvelopeConverter();
+        eventConverter.defaultJsonEnvelopeProvider = new DefaultJsonEnvelopeProvider();
     }
 
     @Test

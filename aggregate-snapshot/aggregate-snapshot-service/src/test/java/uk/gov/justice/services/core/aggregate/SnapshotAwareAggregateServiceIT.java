@@ -69,6 +69,7 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -207,7 +208,8 @@ public class SnapshotAwareAggregateServiceIT {
             EventSourceNameProvider.class,
             EventStreamManager.class,
 
-            JndiAppNameProvider.class
+            JndiAppNameProvider.class,
+            DefaultJsonEnvelopeProvider.class
     })
 
     public WebApp war() {

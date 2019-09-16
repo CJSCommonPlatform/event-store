@@ -52,6 +52,7 @@ import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
+import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
@@ -170,7 +171,8 @@ public class EventPublishIT {
             DummySystemCommandStore.class,
 
             JndiAppNameProvider.class,
-            StackTraceProvider.class
+            StackTraceProvider.class,
+            DefaultJsonEnvelopeProvider.class
     })
     public WebApp war() {
         return new WebApp()

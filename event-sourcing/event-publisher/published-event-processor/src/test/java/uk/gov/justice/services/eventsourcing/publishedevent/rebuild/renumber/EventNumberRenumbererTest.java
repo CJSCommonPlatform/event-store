@@ -60,8 +60,11 @@ public class EventNumberRenumbererTest {
         inOrder.verify(logger).info("Renumbering events in the event_log table...");
         inOrder.verify(batchEventRenumberer).getEventIdsOrderedByCreationDate();
         inOrder.verify(batchEventRenumberer).renumberEvents(eventIdBatch_1);
+        inOrder.verify(logger).info("Renumbered 1 events");
         inOrder.verify(batchEventRenumberer).renumberEvents(eventIdBatch_2);
+        inOrder.verify(logger).info("Renumbered 3 events");
         inOrder.verify(batchEventRenumberer).renumberEvents(eventIdBatch_3);
+        inOrder.verify(logger).info("Renumbered 6 events");
         inOrder.verify(logger).info("Renumbered 6 events in total");
     }
 }

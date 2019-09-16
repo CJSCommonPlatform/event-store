@@ -8,6 +8,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [2.0.17] - 2019-09-16
 ### Changed
 - Use DefaultJsonEnvelopeProvider in EventConverted directly to fix classloading errors during rebuild
+- The event-source-name is now always calculated from the name of the event and never from its source field
 
 ## [2.0.16] - 2019-09-13
 ### Changed

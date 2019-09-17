@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 import javax.enterprise.event.Event;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+
 public class EventCatchupProcessor {
 
     private final ProcessedEventTrackingService processedEventTrackingService;
@@ -26,6 +28,7 @@ public class EventCatchupProcessor {
     private final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
     private final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
     private final UtcClock clock;
+    private final Logger logger;
 
     public EventCatchupProcessor(
             final ProcessedEventTrackingService processedEventTrackingService,
@@ -33,13 +36,15 @@ public class EventCatchupProcessor {
             final EventStreamConsumerManager eventStreamConsumerManager,
             final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer,
             final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer,
-            final UtcClock clock) {
+            final UtcClock clock,
+            final Logger logger) {
         this.processedEventTrackingService = processedEventTrackingService;
         this.publishedEventSourceProvider = publishedEventSourceProvider;
         this.eventStreamConsumerManager = eventStreamConsumerManager;
         this.catchupStartedForSubscriptionEventFirer = catchupStartedForSubscriptionEventFirer;
         this.catchupCompletedForSubscriptionEventFirer = catchupCompletedForSubscriptionEventFirer;
         this.clock = clock;
+        this.logger = logger;
     }
 
     @Transactional(NEVER)
@@ -54,12 +59,24 @@ public class EventCatchupProcessor {
         final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
 
+        logger.info("Catching up from Event Number: " + latestProcessedEventNumber);
+
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
                 subscriptionName,
                 clock.now()));
 
         final Stream<JsonEnvelope> events = eventSource.findEventsSince(latestProcessedEventNumber);
-        final int totalEventsProcessed = events.mapToInt(event -> eventStreamConsumerManager.add(event, subscriptionName)).sum();
+        final int totalEventsProcessed = events.mapToInt(event -> {
+
+            final Long eventNumber = event.metadata().eventNumber().get();
+
+            if (eventNumber % 1000L == 0) {
+                logger.info("Starting catch up for Event Number: " + eventNumber);
+            }
+
+            return eventStreamConsumerManager.add(event, subscriptionName);
+
+        }).sum();
 
         eventStreamConsumerManager.waitForCompletion();
 

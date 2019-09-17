@@ -1,9 +1,13 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static java.util.Arrays.asList;
+import static javax.json.Json.createObjectBuilder;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
+import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithRandomUUID;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
@@ -28,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventCatchupProcessorTest {
@@ -50,6 +55,9 @@ public class EventCatchupProcessorTest {
     @Mock
     private UtcClock clock;
 
+    @Mock
+    private Logger logger;
+
     private EventCatchupProcessor eventCatchupProcessor;
 
     @Before
@@ -60,7 +68,8 @@ public class EventCatchupProcessorTest {
                 eventStreamConsumerManager,
                 catchupStartedForSubscriptionEventFirer,
                 catchupCompletedForSubscriptionEventFirer,
-                clock
+                clock,
+                logger
         );
     }
 
@@ -70,7 +79,7 @@ public class EventCatchupProcessorTest {
         final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
         final String componentName = "EVENT_LISTENER";
-        final long eventNumber = 983745987L;
+        final long eventNumberFrom = 999L;
 
         final ZonedDateTime catchupStartedAt = new UtcClock().now();
         final ZonedDateTime catchupCompetedAt = catchupStartedAt.plusMinutes(23);
@@ -81,9 +90,20 @@ public class EventCatchupProcessorTest {
         final CatchupContext catchupContext = new CatchupContext(componentName, subscription, catchupRequestedEvent);
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
-        final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_3 = mock(JsonEnvelope.class);
+        final JsonEnvelope event_1 = envelopeFrom(
+                metadataWithRandomUUID("test_1")
+                        .withEventNumber(eventNumberFrom + 1L),
+                createObjectBuilder().build());
+
+        final JsonEnvelope event_2 = envelopeFrom(
+                metadataWithRandomUUID("test_2")
+                        .withEventNumber(eventNumberFrom + 2L),
+                createObjectBuilder().build());
+
+        final JsonEnvelope event_3 = envelopeFrom(
+                metadataWithRandomUUID("test_3")
+                        .withEventNumber(eventNumberFrom + 3L),
+                createObjectBuilder().build());
 
         final List<JsonEnvelope> events = asList(event_1, event_2, event_3);
 
@@ -91,8 +111,8 @@ public class EventCatchupProcessorTest {
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
         when(clock.now()).thenReturn(catchupStartedAt, catchupCompetedAt);
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
-        when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumber);
-        when(publishedEventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
+        when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumberFrom);
+        when(publishedEventSource.findEventsSince(eventNumberFrom)).thenReturn(events.stream());
         when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
         when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);
@@ -121,5 +141,8 @@ public class EventCatchupProcessorTest {
                 systemCommand,
                 catchupCompetedAt,
                 events.size()));
+
+        verify(logger).info("Catching up from Event Number: " + eventNumberFrom);
+        verify(logger).info("Starting catch up for Event Number: " + (eventNumberFrom + 1L));
     }
 }

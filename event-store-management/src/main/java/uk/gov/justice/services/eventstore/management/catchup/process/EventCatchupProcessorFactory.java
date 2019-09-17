@@ -11,6 +11,8 @@ import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import org.slf4j.LoggerFactory;
+
 public class EventCatchupProcessorFactory {
 
     @Inject
@@ -41,7 +43,8 @@ public class EventCatchupProcessorFactory {
                 eventStreamConsumerManager,
                 catchupStartedForSubscriptionEventFirer,
                 catchupCompletedForSubscriptionEventFirer,
-                clock
+                clock,
+                LoggerFactory.getLogger(EventCatchupProcessor.class)
         );
     }
 }

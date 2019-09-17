@@ -1,21 +1,29 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
-import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
 
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.justice.services.messaging.MetadataBuilder;
+import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 
 import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetadataEventNumberUpdaterTest {
+
+    @Mock
+    private DefaultEnvelopeProvider defaultEnvelopeProvider;
 
     @InjectMocks
     private MetadataEventNumberUpdater metadataEventNumberUpdater;
@@ -37,16 +45,21 @@ public class MetadataEventNumberUpdaterTest {
                 .withSource(eventSource)
                 .build();
 
-        final Metadata updatedMetadata = metadataEventNumberUpdater.updateMetadataJson(
-                originalMetadata,
-                previousSequenceNumber,
-                sequenceNumber);
+        final MetadataBuilder metadataBuilder = mock(MetadataBuilder.class);
+        final Metadata expectedMetadata = mock(Metadata.class);
 
-        assertThat(updatedMetadata.id(), is(id));
-        assertThat(updatedMetadata.name(), is(name));
-        assertThat(updatedMetadata.streamId(), is(of(streamId)));
-        assertThat(updatedMetadata.source(), is(of(eventSource)));
-        assertThat(updatedMetadata.eventNumber(), is(of(sequenceNumber)));
-        assertThat(updatedMetadata.previousEventNumber(), is(of(previousSequenceNumber)));
+        when(defaultEnvelopeProvider.metadataFrom(originalMetadata)).thenReturn(metadataBuilder);
+        when(metadataBuilder.withEventNumber(sequenceNumber)).thenReturn(metadataBuilder);
+        when(metadataBuilder.withPreviousEventNumber(previousSequenceNumber)).thenReturn(metadataBuilder);
+        when(metadataBuilder.build()).thenReturn(expectedMetadata);
+
+        assertThat(
+                metadataEventNumberUpdater.updateMetadataJson(originalMetadata, previousSequenceNumber, sequenceNumber),
+                is(expectedMetadata));
+
+        verify(defaultEnvelopeProvider).metadataFrom(originalMetadata);
+        verify(metadataBuilder).withEventNumber(sequenceNumber);
+        verify(metadataBuilder).withPreviousEventNumber(previousSequenceNumber);
+        verify(metadataBuilder).build();
     }
 }

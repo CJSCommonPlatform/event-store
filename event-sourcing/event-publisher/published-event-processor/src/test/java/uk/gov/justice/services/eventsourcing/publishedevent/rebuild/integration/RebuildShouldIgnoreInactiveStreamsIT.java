@@ -27,6 +27,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventSt
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
+import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
@@ -105,7 +106,8 @@ public class RebuildShouldIgnoreInactiveStreamsIT {
             StringToJsonObjectConverter.class,
             ObjectMapperProducer.class,
             LoggerProducer.class,
-            DefaultJsonEnvelopeProvider.class
+            DefaultJsonEnvelopeProvider.class,
+            DefaultEnvelopeProvider.class
     })
     @Default
     public WebApp war() {

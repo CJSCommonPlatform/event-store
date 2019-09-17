@@ -1,13 +1,17 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
-import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
-
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
+
+import javax.inject.Inject;
 
 public class MetadataEventNumberUpdater {
 
+    @Inject
+    private DefaultEnvelopeProvider defaultEnvelopeProvider;
+
     public Metadata updateMetadataJson(final Metadata metadata, final long previousSequenceNumber, final long sequenceNumber) {
-        return metadataFrom(metadata)
+        return defaultEnvelopeProvider.metadataFrom(metadata)
                 .withEventNumber(sequenceNumber)
                 .withPreviousEventNumber(previousSequenceNumber)
                 .build();

@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Use DefaultEnvelopeProvider in MetadataEventNumberUpdater directly to fix classloading errors during rebuild
+- Add logging to catchup processing, log every 1000th event
 
 ## [2.0.17] - 2019-09-16
 ### Changed

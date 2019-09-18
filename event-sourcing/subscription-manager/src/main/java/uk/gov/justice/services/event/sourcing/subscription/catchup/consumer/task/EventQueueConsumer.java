@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.FinishedProcessingMessage;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;
@@ -26,14 +27,14 @@ public class EventQueueConsumer {
         this.logger = logger;
     }
 
-    public boolean consumeEventQueue(final Queue<JsonEnvelope> events, final String subscriptionName) {
+    public boolean consumeEventQueue(final Queue<PublishedEvent> events, final String subscriptionName) {
         while (!events.isEmpty()) {
-            final JsonEnvelope event = events.poll();
+            final PublishedEvent publishedEvent = events.poll();
 
             try {
-                transactionalEventProcessor.processWithEventBuffer(event, subscriptionName);
+                transactionalEventProcessor.processWithEventBuffer(publishedEvent, subscriptionName);
             } catch (final RuntimeException e) {
-                final String message = format("Failed to process event with metadata: %s", event.metadata().asJsonObject().toString());
+                final String message = format("Failed to process publishedEvent with metadata: %s", publishedEvent.getMetadata());
                 logger.error(
                         message,
                         e);

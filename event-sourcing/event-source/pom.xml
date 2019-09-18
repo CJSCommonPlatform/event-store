@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-subscription-registry</artifactId>
+            <artifactId>event-source-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -13,6 +13,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.FinishedProcessingMessage;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;
@@ -46,10 +47,10 @@ public class EventQueueConsumerTest {
     @Test
     public void shouldProcessAllEventsOnQueueAndReturnTrueIfComplete() throws Exception {
 
-        final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_2 = mock(JsonEnvelope.class);
+        final PublishedEvent event_1 = mock(PublishedEvent.class);
+        final PublishedEvent event_2 = mock(PublishedEvent.class);
 
-        final Queue<JsonEnvelope> eventQueue = new ConcurrentLinkedQueue<>();
+        final Queue<PublishedEvent> eventQueue = new ConcurrentLinkedQueue<>();
 
         when(eventStreamConsumptionResolver.isEventConsumptionComplete(new FinishedProcessingMessage(eventQueue))).thenReturn(true);
 
@@ -70,15 +71,14 @@ public class EventQueueConsumerTest {
 
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
 
-        final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final UUID eventId = fromString("1b352632-b62c-49d4-a5fd-546ce9cbd2f1");
-        final JsonEnvelope event_2 = envelopeFrom(
-                metadataBuilder().withId(eventId).withName("an-event"),
-                createObjectBuilder());
+        final PublishedEvent event_1 = mock(PublishedEvent.class);
+        final String metadata = "{some: metadata}";
+        final PublishedEvent event_2 = mock(PublishedEvent.class);
 
-        final Queue<JsonEnvelope> eventQueue = new ConcurrentLinkedQueue<>();
+        final Queue<PublishedEvent> eventQueue = new ConcurrentLinkedQueue<>();
 
         when(eventStreamConsumptionResolver.isEventConsumptionComplete(new FinishedProcessingMessage(eventQueue))).thenReturn(true);
+        when(event_2.getMetadata()).thenReturn(metadata);
 
         eventQueue.add(event_1);
         eventQueue.add(event_2);
@@ -90,6 +90,6 @@ public class EventQueueConsumerTest {
 
         verify(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
 
-        verify(logger).error("Failed to process event with metadata: {\"name\":\"an-event\",\"id\":\"1b352632-b62c-49d4-a5fd-546ce9cbd2f1\"}", nullPointerException);
+        verify(logger).error("Failed to process publishedEvent with metadata: {some: metadata}", nullPointerException);
     }
 }

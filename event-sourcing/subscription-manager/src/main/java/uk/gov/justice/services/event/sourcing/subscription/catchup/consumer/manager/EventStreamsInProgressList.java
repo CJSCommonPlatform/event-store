@@ -2,6 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.man
 
 import static java.lang.Thread.currentThread;
 
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.LinkedList;
@@ -12,9 +13,9 @@ public class EventStreamsInProgressList {
 
     private static final Object EXCLUSIVE_LOCK = new Object();
 
-    private final List<Queue<JsonEnvelope>> eventStreamsInProgress = new LinkedList<>();
+    private final List<Queue<PublishedEvent>> eventStreamsInProgress = new LinkedList<>();
 
-    public void add(final Queue<JsonEnvelope> eventStream) {
+    public void add(final Queue<PublishedEvent> eventStream) {
 
         synchronized (EXCLUSIVE_LOCK) {
             eventStreamsInProgress.add(eventStream);
@@ -22,7 +23,7 @@ public class EventStreamsInProgressList {
         }
     }
 
-    public void remove(final Queue<JsonEnvelope> eventStream) {
+    public void remove(final Queue<PublishedEvent> eventStream) {
         synchronized (EXCLUSIVE_LOCK) {
             eventStreamsInProgress.remove(eventStream);
             EXCLUSIVE_LOCK.notify();
@@ -49,7 +50,7 @@ public class EventStreamsInProgressList {
         }
     }
 
-    public boolean contains(final Queue<JsonEnvelope> eventStream) {
+    public boolean contains(final Queue<PublishedEvent> eventStream) {
         synchronized (EXCLUSIVE_LOCK) {
             return eventStreamsInProgress.contains(eventStream);
         }

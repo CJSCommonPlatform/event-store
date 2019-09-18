@@ -8,12 +8,12 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
-import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
@@ -81,11 +81,11 @@ public class EventIndexerCatchupProcessorTest {
         final IndexerCatchupContext catchupContext = new IndexerCatchupContext(componentName, subscription, indexerCatchupRequestedEvent);
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
-        final JsonEnvelope event_1 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_2 = mock(JsonEnvelope.class);
-        final JsonEnvelope event_3 = mock(JsonEnvelope.class);
+        final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent_3 = mock(PublishedEvent.class);
 
-        final List<JsonEnvelope> events = asList(event_1, event_2, event_3);
+        final List<PublishedEvent> events = asList(publishedEvent_1, publishedEvent_2, publishedEvent_3);
 
         when(subscription.getName()).thenReturn(subscriptionName);
         when(subscription.getEventSourceName()).thenReturn(eventSourceName);
@@ -93,9 +93,9 @@ public class EventIndexerCatchupProcessorTest {
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumber);
         when(publishedEventSource.findEventsSince(eventNumber)).thenReturn(events.stream());
-        when(eventStreamConsumerManager.add(event_1, subscriptionName)).thenReturn(1);
-        when(eventStreamConsumerManager.add(event_2, subscriptionName)).thenReturn(1);
-        when(eventStreamConsumerManager.add(event_3, subscriptionName)).thenReturn(1);
+        when(eventStreamConsumerManager.add(publishedEvent_1, subscriptionName)).thenReturn(1);
+        when(eventStreamConsumerManager.add(publishedEvent_2, subscriptionName)).thenReturn(1);
+        when(eventStreamConsumerManager.add(publishedEvent_3, subscriptionName)).thenReturn(1);
         when(indexerCatchupRequestedEvent.getTarget()).thenReturn(systemCommand);
 
         eventIndexerCatchupProcessor.performEventIndexerCatchup(catchupContext);
@@ -109,9 +109,9 @@ public class EventIndexerCatchupProcessorTest {
                 subscriptionName,
                 catchupStartedAt));
 
-        inOrder.verify(eventStreamConsumerManager).add(event_1, subscriptionName);
-        inOrder.verify(eventStreamConsumerManager).add(event_2, subscriptionName);
-        inOrder.verify(eventStreamConsumerManager).add(event_3, subscriptionName);
+        inOrder.verify(eventStreamConsumerManager).add(publishedEvent_1, subscriptionName);
+        inOrder.verify(eventStreamConsumerManager).add(publishedEvent_2, subscriptionName);
+        inOrder.verify(eventStreamConsumerManager).add(publishedEvent_3, subscriptionName);
         inOrder.verify(eventStreamConsumerManager).waitForCompletion();
 
         inOrder.verify(indexerCatchupCompletedForSubscriptionEventFirer).fire(new IndexerCatchupCompletedForSubscriptionEvent(

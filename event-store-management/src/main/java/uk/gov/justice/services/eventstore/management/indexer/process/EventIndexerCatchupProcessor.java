@@ -5,7 +5,8 @@ import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
-import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupStartedForSubscriptionEvent;
@@ -58,7 +59,7 @@ public class EventIndexerCatchupProcessor {
                 subscriptionName,
                 clock.now()));
 
-        final Stream<JsonEnvelope> events = eventSource.findEventsSince(latestProcessedEventNumber);
+        final Stream<PublishedEvent> events = eventSource.findEventsSince(latestProcessedEventNumber);
         final int totalEventsProcessed = events.mapToInt(event -> eventStreamConsumerManager.add(event, subscriptionName)).sum();
 
         eventStreamConsumerManager.waitForCompletion();

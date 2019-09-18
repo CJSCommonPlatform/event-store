@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.EventSourceNameQualifier;
-import uk.gov.justice.services.eventsourcing.source.core.PublishedEventSource;
+import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 
 import javax.enterprise.inject.Instance;
 

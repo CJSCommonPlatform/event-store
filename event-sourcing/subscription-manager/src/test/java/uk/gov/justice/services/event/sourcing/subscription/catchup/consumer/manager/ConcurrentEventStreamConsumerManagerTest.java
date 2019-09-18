@@ -16,6 +16,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.List;
@@ -47,25 +48,27 @@ public class ConcurrentEventStreamConsumerManagerTest {
     private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
 
     @Captor
-    private ArgumentCaptor<Queue<JsonEnvelope>> eventQueueCaptor;
+    private ArgumentCaptor<Queue<PublishedEvent>> eventQueueCaptor;
 
     @Test
     public void shouldCreateQueueAndCreateTaskToConsumeQueueForNewStreamId() {
 
         final String subscriptionName = "subscriptionName";
-        final JsonEnvelope event = generateJsonEnvelope(randomUUID(), 1);
+        final UUID streamId = randomUUID();
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
+        when(publishedEvent.getStreamId()).thenReturn(streamId);
 
-        concurrentEventStreamConsumerManager.add(event, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent, subscriptionName);
 
         verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
-        final Queue<JsonEnvelope> events = eventQueueCaptor.getValue();
+        final Queue<PublishedEvent> events = eventQueueCaptor.getValue();
         assertThat(events.size(), is(1));
-        assertThat(events.poll(), is(event));
+        assertThat(events.poll(), is(publishedEvent));
 
     }
 
@@ -74,21 +77,23 @@ public class ConcurrentEventStreamConsumerManagerTest {
 
         final String subscriptionName = "subscriptionName";
         final UUID streamId = randomUUID();
-        final JsonEnvelope event_1 = generateJsonEnvelope(streamId, 1);
-        final JsonEnvelope event_2 = generateJsonEnvelope(streamId, 2);
+        final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
+        when(publishedEvent_1.getStreamId()).thenReturn(streamId);
+        when(publishedEvent_2.getStreamId()).thenReturn(streamId);
 
-        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
-        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName);
 
         verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
-        final Queue<JsonEnvelope> eventsStream = eventQueueCaptor.getValue();
+        final Queue<PublishedEvent> eventsStream = eventQueueCaptor.getValue();
         assertThat(eventsStream.size(), is(2));
-        assertThat(eventsStream.poll(), is(event_1));
-        assertThat(eventsStream.poll(), is(event_2));
+        assertThat(eventsStream.poll(), is(publishedEvent_1));
+        assertThat(eventsStream.poll(), is(publishedEvent_2));
     }
 
     @Test
@@ -97,26 +102,28 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
-        final JsonEnvelope event_1 = generateJsonEnvelope(streamId_1, 1);
-        final JsonEnvelope event_2 = generateJsonEnvelope(streamId_2, 1);
+        final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
+        when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
+        when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
 
-        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
-        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName);
 
         verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
-        final List<Queue<JsonEnvelope>> allValues = eventQueueCaptor.getAllValues();
+        final List<Queue<PublishedEvent>> allValues = eventQueueCaptor.getAllValues();
 
-        final Queue<JsonEnvelope> eventsStream_1 = allValues.get(0);
+        final Queue<PublishedEvent> eventsStream_1 = allValues.get(0);
         assertThat(eventsStream_1.size(), is(1));
-        assertThat(eventsStream_1.poll(), is(event_1));
+        assertThat(eventsStream_1.poll(), is(publishedEvent_1));
 
-        final Queue<JsonEnvelope> eventsStream_2 = allValues.get(1);
+        final Queue<PublishedEvent> eventsStream_2 = allValues.get(1);
         assertThat(eventsStream_2.size(), is(1));
-        assertThat(eventsStream_2.poll(), is(event_2));
+        assertThat(eventsStream_2.poll(), is(publishedEvent_2));
     }
 
     @Test
@@ -125,47 +132,30 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
-        final JsonEnvelope event_1 = generateJsonEnvelope(streamId_1, 1);
-        final JsonEnvelope event_2 = generateJsonEnvelope(streamId_2, 1);
+        final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
+        final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
+        when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
+        when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
 
-        concurrentEventStreamConsumerManager.add(event_1, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName);
 
         verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
-        final Queue<JsonEnvelope> eventsStream_1 = eventQueueCaptor.getValue();
+        final Queue<PublishedEvent> eventsStream_1 = eventQueueCaptor.getValue();
         assertThat(eventsStream_1.size(), is(1));
-        assertThat(eventsStream_1.poll(), is(event_1));
+        assertThat(eventsStream_1.poll(), is(publishedEvent_1));
 
         concurrentEventStreamConsumerManager.isEventConsumptionComplete(new FinishedProcessingMessage(eventsStream_1));
-        concurrentEventStreamConsumerManager.add(event_2, subscriptionName);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName);
 
         verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName));
 
-        final Queue<JsonEnvelope> eventsStream_2 = eventQueueCaptor.getValue();
+        final Queue<PublishedEvent> eventsStream_2 = eventQueueCaptor.getValue();
         assertThat(eventsStream_2.size(), is(1));
-        assertThat(eventsStream_2.poll(), is(event_2));
-    }
-
-    @Test
-    public void shouldThrowExceptionIfStreamIdIsMissingFromEvent() {
-
-        final String subscriptionName = "subscriptionName";
-        final JsonEnvelope event = envelopeFrom(metadataBuilder()
-                        .withId(UUID.fromString("caeb2531-02f7-49d4-97da-11a692801035"))
-                        .withName("testEvent")
-                        .withPosition(1)
-                        .withSource("test_source"),
-                createObjectBuilder().build());
-
-        try {
-            concurrentEventStreamConsumerManager.add(event, subscriptionName);
-            fail("Expected EventCatchupException to be thrown");
-        } catch (final EventCatchupException e) {
-            assertThat(e.getMessage(), is("Event with id 'caeb2531-02f7-49d4-97da-11a692801035' has no streamId"));
-        }
+        assertThat(eventsStream_2.poll(), is(publishedEvent_2));
     }
 
     @Test
@@ -174,15 +164,5 @@ public class ConcurrentEventStreamConsumerManagerTest {
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         verify(eventStreamsInProgressList).blockUntilEmpty();
-    }
-
-    private JsonEnvelope generateJsonEnvelope(final UUID streamId, final int version) {
-        return envelopeFrom(metadataBuilder()
-                        .withId(randomUUID())
-                        .withName("testEvent")
-                        .withStreamId(streamId)
-                        .withPosition(version)
-                        .withSource("test_source"),
-                createObjectBuilder().build());
     }
 }

@@ -5,6 +5,7 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ public class TestCatchupBean {
         transactionalEventProcessor.setExpectedNumberOfEvents(numberOfEventsToCreate);
 
         final EventFactory eventFactory = new EventFactory(numberOfStreams, numberOfUniqueEventNames);
-        final Stream<JsonEnvelope> eventStream = eventFactory.generateEvents(numberOfEventsToCreate).stream();
+        final Stream<PublishedEvent> eventStream = eventFactory.generateEvents(numberOfEventsToCreate).stream();
 
         final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
                 eventStreamsInProgressList,

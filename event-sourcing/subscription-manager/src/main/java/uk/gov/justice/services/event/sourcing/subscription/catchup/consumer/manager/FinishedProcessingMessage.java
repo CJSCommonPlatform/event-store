@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Objects;
@@ -10,13 +11,13 @@ import java.util.Queue;
  */
 public class FinishedProcessingMessage {
 
-    private final Queue<JsonEnvelope> queue;
+    private final Queue<PublishedEvent> queue;
 
-    public FinishedProcessingMessage(final Queue<JsonEnvelope> queue) {
+    public FinishedProcessingMessage(final Queue<PublishedEvent> queue) {
         this.queue = queue;
     }
 
-    public Queue<JsonEnvelope> getQueue() {
+    public Queue<PublishedEvent> getQueue() {
         return queue;
     }
 

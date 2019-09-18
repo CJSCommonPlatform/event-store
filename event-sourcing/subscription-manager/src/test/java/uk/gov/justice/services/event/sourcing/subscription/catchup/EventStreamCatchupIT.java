@@ -11,6 +11,7 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 
@@ -71,9 +72,9 @@ public class EventStreamCatchupIT {
         final StopWatch stopWatch = new StopWatch();
         testCatchupBean.run(stopWatch);
 
-        final Optional<Queue<JsonEnvelope>> events = poller.pollUntilFound(() -> {
+        final Optional<Queue<PublishedEvent>> events = poller.pollUntilFound(() -> {
             if (dummyTransactionalEventProcessor.isComplete()) {
-                return of(dummyTransactionalEventProcessor.getEvents());
+                return of(dummyTransactionalEventProcessor.getPublishedEvents());
             }
 
             return empty();

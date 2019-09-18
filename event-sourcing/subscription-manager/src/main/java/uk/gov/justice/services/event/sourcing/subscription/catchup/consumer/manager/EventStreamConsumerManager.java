@@ -1,6 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
-import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
 /**
  * Interface for managing the consuming of JsonEnvelope events from Stream of events.
@@ -11,14 +11,14 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 public interface EventStreamConsumerManager {
 
     /**
-     * Add an JsonEnvelope event to the EventStreamConsumerManager
+     * Add an JsonEnvelope publishedEvent to the EventStreamConsumerManager
      *
-     * @param event - the JsonEnvelope to be consumed
+     * @param publishedEvent - the JsonEnvelope to be consumed
      *
      * @return The number of events added to the stream. Note this is always one and is used
      *         to count the number of events consumed
      */
-    int add(final JsonEnvelope event, final String subscriptionName);
+    int add(final PublishedEvent publishedEvent, final String subscriptionName);
 
     void waitForCompletion();
 }

@@ -4,9 +4,11 @@ import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 import static javax.json.Json.createObjectBuilder;
-import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 
+import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.messaging.Metadata;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,15 +23,17 @@ public class EventFactory {
     private final int numberOfStreams;
     private final int numberOfUniqueEventNames;
 
+    private final UtcClock clock = new UtcClock();
+
     private final Random random = new Random();
-    private final Map<UUID, List<JsonEnvelope>> eventsByStream = new HashMap<>();
+    private final Map<UUID, List<PublishedEvent>> eventsByStream = new HashMap<>();
 
     public EventFactory(final int numberOfStreams, final int numberOfUniqueEventNames) {
         this.numberOfStreams = numberOfStreams;
         this.numberOfUniqueEventNames = numberOfUniqueEventNames;
     }
 
-    public List<JsonEnvelope> generateEvents(final int numberOfEventsToCreate) {
+    public List<PublishedEvent> generateEvents(final int numberOfEventsToCreate) {
 
         final List<UUID> streamIds = generateStreamIds();
         final List<String> eventNames = generateEventNames();
@@ -67,29 +71,43 @@ public class EventFactory {
         return eventNames.get(index);
     }
 
-    private JsonEnvelope generateEnvelope(final List<UUID> streamIds, final List<String> eventNames, final int eventNumber) {
+    private PublishedEvent generateEnvelope(final List<UUID> streamIds, final List<String> eventNames, final int eventNumber) {
 
         final UUID streamId = getARandomStreamId(streamIds);
         final String eventName = getARandomEventName(eventNames);
 
-        final List<JsonEnvelope> jsonEnvelopesByStream = eventsByStream.get(streamId);
+        final List<PublishedEvent> jsonEnvelopesByStream = eventsByStream.get(streamId);
         final int version = jsonEnvelopesByStream.size() + 1;
 
-        final JsonEnvelope jsonEnvelope = generateJsonEnvelope(streamId, eventName, version, eventNumber);
+        final PublishedEvent publishedEvent = generateJsonEnvelope(streamId, eventName, version, eventNumber);
 
-        jsonEnvelopesByStream.add(jsonEnvelope);
+        jsonEnvelopesByStream.add(publishedEvent);
 
-        return jsonEnvelope;
+        return publishedEvent;
     }
 
-    private JsonEnvelope generateJsonEnvelope(final UUID streamId, final String eventName, final int version, final int eventNumber) {
-        return envelopeFrom(JsonEnvelope.metadataBuilder()
-                        .withId(UUID.randomUUID())
-                        .withName(eventName)
-                        .withStreamId(streamId)
-                        .withPosition(version)
-                        .withSource("test_source")
-                        .withEventNumber(eventNumber),
-                createObjectBuilder().build());
+    private PublishedEvent generateJsonEnvelope(final UUID streamId, final String eventName, final long positionInStream, final long eventNumber) {
+        final UUID id = randomUUID();
+        final Metadata metadata = JsonEnvelope.metadataBuilder()
+                .withId(id)
+                .withName(eventName)
+                .withStreamId(streamId)
+                .withPosition(positionInStream)
+                .withSource("test_source")
+                .withEventNumber(eventNumber).build();
+
+        final String metadataJson = metadata.asJsonObject().toString();
+
+        return new PublishedEvent(
+                id,
+                streamId,
+                positionInStream,
+                eventName,
+                metadataJson,
+                createObjectBuilder().build().toString(),
+                clock.now(),
+                eventNumber,
+                eventNumber - 1
+        );
     }
 }

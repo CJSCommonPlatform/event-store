@@ -26,9 +26,6 @@ public class DefaultPublishedEventSourceTest {
     @Mock
     private MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository;
 
-    @Mock
-    private EventConverter eventConverter;
-
     @InjectMocks
     private DefaultPublishedEventSource defaultPublishedEventSource;
 
@@ -38,14 +35,12 @@ public class DefaultPublishedEventSourceTest {
         final long eventNumber = 972834L;
 
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
-        final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
         when(multipleDataSourcePublishedEventRepository.findEventsSince(eventNumber)).thenReturn(Stream.of(publishedEvent));
-        when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
 
-        final List<JsonEnvelope> envelopes = defaultPublishedEventSource.findEventsSince(eventNumber).collect(toList());
+        final List<PublishedEvent> envelopes = defaultPublishedEventSource.findEventsSince(eventNumber).collect(toList());
 
         assertThat(envelopes.size(), is(1));
-        assertThat(envelopes.get(0), is(jsonEnvelope));
+        assertThat(envelopes.get(0), is(publishedEvent));
     }
 }

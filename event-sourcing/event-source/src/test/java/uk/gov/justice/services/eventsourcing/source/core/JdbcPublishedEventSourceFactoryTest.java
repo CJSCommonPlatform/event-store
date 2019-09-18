@@ -22,9 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class JdbcPublishedEventSourceFactoryTest {
 
     @Mock
-    private EventConverter eventConverter;
-
-    @Mock
     private MultipleDataSourcePublishedEventRepositoryFactory multipleDataSourcePublishedEventRepositoryFactory;
 
     @Mock
@@ -44,10 +41,8 @@ public class JdbcPublishedEventSourceFactoryTest {
         when(jdbcDataSourceProvider.getDataSource(jndiDatasource)).thenReturn(dataSource);
         when(multipleDataSourcePublishedEventRepositoryFactory.create(dataSource)).thenReturn(multipleDataSourcePublishedEventRepository);
 
-
         final DefaultPublishedEventSource defaultPublishedEventSource = jdbcPublishedEventSourceFactory.create(jndiDatasource);
 
         assertThat(getValueOfField(defaultPublishedEventSource, "multipleDataSourcePublishedEventRepository", MultipleDataSourcePublishedEventRepository.class), is(multipleDataSourcePublishedEventRepository));
-        assertThat(getValueOfField(defaultPublishedEventSource, "eventConverter", EventConverter.class), is(eventConverter));
     }
 }

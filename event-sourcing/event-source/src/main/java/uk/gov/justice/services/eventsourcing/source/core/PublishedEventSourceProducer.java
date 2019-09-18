@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.source.core;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
+import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.eventsourcing.source.core.annotation.EventSourceName;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.domain.eventsource.Location;

@@ -1,7 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util;
 
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
-import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,7 +13,7 @@ public class DummyTransactionalEventProcessor implements TransactionalEventProce
 
     private static final int SLEEP_TIME = 10;
 
-    private final Queue<JsonEnvelope> events = new ConcurrentLinkedQueue<>();
+    private final Queue<PublishedEvent> publishedEvents = new ConcurrentLinkedQueue<>();
     private int expectedNumberOfEvents = 0;
 
     public void setExpectedNumberOfEvents(final int expectedNumberOfEvents) {
@@ -21,9 +21,9 @@ public class DummyTransactionalEventProcessor implements TransactionalEventProce
     }
 
     @Override
-    public int processWithEventBuffer(final JsonEnvelope event, final String subscriptionName) {
+    public int processWithEventBuffer(final PublishedEvent event, final String subscriptionName) {
 
-        events.add(event);
+        publishedEvents.add(event);
 
         try {
             Thread.sleep(SLEEP_TIME);
@@ -34,11 +34,11 @@ public class DummyTransactionalEventProcessor implements TransactionalEventProce
         return 1;
     }
 
-    public Queue<JsonEnvelope> getEvents() {
-        return events;
+    public Queue<PublishedEvent> getPublishedEvents() {
+        return publishedEvents;
     }
 
     public boolean isComplete() {
-        return events.size() >= expectedNumberOfEvents;
+        return publishedEvents.size() >= expectedNumberOfEvents;
     }
 }

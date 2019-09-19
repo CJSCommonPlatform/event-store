@@ -20,10 +20,12 @@ import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDura
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupsInProgressCache;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 
 import javax.enterprise.event.Event;
 
@@ -55,6 +57,9 @@ public class CatchupObserverTest {
     private UtcClock clock;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -63,10 +68,15 @@ public class CatchupObserverTest {
     @Captor
     private ArgumentCaptor<CatchupInProgress> catchupInProgressCaptor;
 
+    private Consumer<Runnable> testConsumer = Runnable::run;
+
     @Test
     public void shouldCallTheCatchupRunnerOnCatchupRequested() throws Exception {
 
         final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+
         catchupObserver.onCatchupRequested(catchupRequestedEvent);
 
         verify(logger).info("Event catchup requested");
@@ -77,6 +87,8 @@ public class CatchupObserverTest {
     public void shouldClearEventsInProgressOnCatchupStart() throws Exception {
 
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         catchupObserver.onCatchupStarted(new CatchupStartedEvent(catchupStartedAt));
 
@@ -95,10 +107,12 @@ public class CatchupObserverTest {
                 subscriptionName,
                 catchupStartedAt);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+
         catchupObserver.onCatchupStartedForSubscription(catchupStartedForSubscriptionEvent);
 
-         verify(catchupsInProgressCache).addCatchupInProgress(catchupInProgressCaptor.capture());
-         verify(logger).info("Event catchup for subscription 'mySubscription' started at 2019-02-23T17:12:23Z");
+        verify(catchupsInProgressCache).addCatchupInProgress(catchupInProgressCaptor.capture());
+        verify(logger).info("Event catchup for subscription 'mySubscription' started at 2019-02-23T17:12:23Z");
 
         final CatchupInProgress catchupInProgress = catchupInProgressCaptor.getValue();
 
@@ -131,6 +145,7 @@ public class CatchupObserverTest {
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(catchupsInProgressCache.removeCatchupInProgress(subscriptionName)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(
                 catchupInProgress,
@@ -171,6 +186,7 @@ public class CatchupObserverTest {
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(catchupsInProgressCache.removeCatchupInProgress(subscriptionName)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(
                 catchupInProgress,

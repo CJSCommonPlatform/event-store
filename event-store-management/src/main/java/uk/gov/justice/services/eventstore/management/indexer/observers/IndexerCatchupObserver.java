@@ -12,6 +12,7 @@ import uk.gov.justice.services.eventstore.management.indexer.process.EventIndexe
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupDurationCalculator;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupInProgress;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupsInProgressCache;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
@@ -43,52 +44,63 @@ public class IndexerCatchupObserver {
     private UtcClock clock;
 
     @Inject
+    private MdcLogger mdcLogger;
+
+    @Inject
     private Logger logger;
 
     public void onIndexerCatchupRequested(@SuppressWarnings("unused") @Observes final IndexerCatchupRequestedEvent indexerCatchupRequestedEvent) {
-        logger.info("Event indexer catchup requested");
-        eventIndexerCatchupRunner.runEventIndexerCatchup(indexerCatchupRequestedEvent);
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
+            logger.info("Event indexer catchup requested");
+            eventIndexerCatchupRunner.runEventIndexerCatchup(indexerCatchupRequestedEvent);
+        });
     }
 
     public void onIndexerCatchupStarted(@Observes final IndexerCatchupStartedEvent catchupStartedEvent) {
-        logger.info("Event indexer catchup started at " + catchupStartedEvent.getCatchupStartedAt());
-        logger.info("Performing indexer catchup of events...");
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
+            logger.info("Event indexer catchup started at " + catchupStartedEvent.getCatchupStartedAt());
+            logger.info("Performing indexer catchup of events...");
 
-        indexerCatchupsInProgressCache.removeAll();
+            indexerCatchupsInProgressCache.removeAll();
+        });
     }
 
     public void onIndexerCatchupStartedForSubscription(@Observes final IndexerCatchupStartedForSubscriptionEvent indexerCatchupStartedForSubscriptionEvent) {
 
-        final String subscriptionName = indexerCatchupStartedForSubscriptionEvent.getSubscriptionName();
-        final ZonedDateTime catchupStartedAt = indexerCatchupStartedForSubscriptionEvent.getCatchupStartedAt();
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
+            final String subscriptionName = indexerCatchupStartedForSubscriptionEvent.getSubscriptionName();
+            final ZonedDateTime catchupStartedAt = indexerCatchupStartedForSubscriptionEvent.getCatchupStartedAt();
 
-        indexerCatchupsInProgressCache.addCatchupInProgress(new IndexerCatchupInProgress(subscriptionName, catchupStartedAt));
+            indexerCatchupsInProgressCache.addCatchupInProgress(new IndexerCatchupInProgress(subscriptionName, catchupStartedAt));
 
-        logger.info(format("Event indexer catchup for subscription '%s' started at %s", subscriptionName, catchupStartedAt));
+            logger.info(format("Event indexer catchup for subscription '%s' started at %s", subscriptionName, catchupStartedAt));
+        });
     }
 
     public void onIndexerCatchupCompleteForSubscription(@Observes final IndexerCatchupCompletedForSubscriptionEvent indexerCatchupCompletedForSubscriptionEvent) {
 
-        final String subscriptionName = indexerCatchupCompletedForSubscriptionEvent.getSubscriptionName();
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
+            final String subscriptionName = indexerCatchupCompletedForSubscriptionEvent.getSubscriptionName();
 
-        final ZonedDateTime catchupCompletedAt = indexerCatchupCompletedForSubscriptionEvent.getIndexerCatchupCompletedAt();
-        final int totalNumberOfEvents = indexerCatchupCompletedForSubscriptionEvent.getTotalNumberOfEvents();
+            final ZonedDateTime catchupCompletedAt = indexerCatchupCompletedForSubscriptionEvent.getIndexerCatchupCompletedAt();
+            final int totalNumberOfEvents = indexerCatchupCompletedForSubscriptionEvent.getTotalNumberOfEvents();
 
-        logger.info(format("Event indexer catchup for subscription '%s' completed at %s", subscriptionName, catchupCompletedAt));
-        logger.info(format("Event indexer catchup for subscription '%s' caught up %d events", subscriptionName, totalNumberOfEvents));
+            logger.info(format("Event indexer catchup for subscription '%s' completed at %s", subscriptionName, catchupCompletedAt));
+            logger.info(format("Event indexer catchup for subscription '%s' caught up %d events", subscriptionName, totalNumberOfEvents));
 
-        final IndexerCatchupInProgress catchupInProgress = indexerCatchupsInProgressCache.removeCatchupInProgress(subscriptionName);
+            final IndexerCatchupInProgress catchupInProgress = indexerCatchupsInProgressCache.removeCatchupInProgress(subscriptionName);
 
-        final Duration catchupDuration = indexerCatchupDurationCalculator.calculate(
-                catchupInProgress, indexerCatchupCompletedForSubscriptionEvent);
+            final Duration catchupDuration = indexerCatchupDurationCalculator.calculate(
+                    catchupInProgress, indexerCatchupCompletedForSubscriptionEvent);
 
-        logger.info(format("Event indexer catchup for subscription '%s' took %d milliseconds", subscriptionName, catchupDuration.toMillis()));
+            logger.info(format("Event indexer catchup for subscription '%s' took %d milliseconds", subscriptionName, catchupDuration.toMillis()));
 
-        if(indexerCatchupsInProgressCache.noCatchupsInProgress()) {
-            final ZonedDateTime completedAt = clock.now();
-            final SystemCommand target = indexerCatchupCompletedForSubscriptionEvent.getTarget();
-            indexerCatchupCompletedEventFirer.fire(new IndexerCatchupCompletedEvent(target, completedAt));
-            logger.info(format("Event indexer catchup fully complete at %s", completedAt));
-        }
+            if (indexerCatchupsInProgressCache.noCatchupsInProgress()) {
+                final ZonedDateTime completedAt = clock.now();
+                final SystemCommand target = indexerCatchupCompletedForSubscriptionEvent.getTarget();
+                indexerCatchupCompletedEventFirer.fire(new IndexerCatchupCompletedEvent(target, completedAt));
+                logger.info(format("Event indexer catchup fully complete at %s", completedAt));
+            }
+        });
     }
 }

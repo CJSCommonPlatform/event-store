@@ -20,10 +20,12 @@ import uk.gov.justice.services.eventstore.management.indexer.process.EventIndexe
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupDurationCalculator;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupInProgress;
 import uk.gov.justice.services.eventstore.management.indexer.process.IndexerCatchupsInProgressCache;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 
 import javax.enterprise.event.Event;
 
@@ -56,16 +58,24 @@ public class IndexerCatchupObserverTest {
     @Mock
     private UtcClock clock;
 
+    @Mock
+    private MdcLogger mdcLogger;
+
     @Captor
     private ArgumentCaptor<IndexerCatchupInProgress> indexerCatchupInProgressArgumentCaptor;
 
     @InjectMocks
     private IndexerCatchupObserver indexerCatchupObserver;
 
+    private Consumer<Runnable> testConsumer = Runnable::run;
+
     @Test
     public void shouldCallTheIndexerCatchupRunnerOnCatchupRequested() throws Exception {
 
         final IndexerCatchupRequestedEvent indexerCatchupRequestedEvent = mock(IndexerCatchupRequestedEvent.class);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+
         indexerCatchupObserver.onIndexerCatchupRequested(indexerCatchupRequestedEvent);
 
         verify(logger).info("Event indexer catchup requested");
@@ -76,6 +86,8 @@ public class IndexerCatchupObserverTest {
     public void shouldClearEventsInProgressOnIndexerCatchupStart() throws Exception {
 
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         indexerCatchupObserver.onIndexerCatchupStarted(new IndexerCatchupStartedEvent(catchupStartedAt));
 
@@ -93,6 +105,8 @@ public class IndexerCatchupObserverTest {
         final IndexerCatchupStartedForSubscriptionEvent indexerCatchupStartedForSubscriptionEvent = new IndexerCatchupStartedForSubscriptionEvent(
                 subscriptionName,
                 catchupStartedAt);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         indexerCatchupObserver.onIndexerCatchupStartedForSubscription(indexerCatchupStartedForSubscriptionEvent);
 
@@ -130,6 +144,7 @@ public class IndexerCatchupObserverTest {
 
         final IndexerCatchupInProgress catchupInProgress = mock(IndexerCatchupInProgress.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(indexerCatchupsInProgressCache.removeCatchupInProgress(subscriptionName)).thenReturn(catchupInProgress);
         when(indexerCatchupDurationCalculator.calculate(catchupInProgress, catchupCompletedForSubscriptionEvent)).thenReturn(catchupDuration);
 
@@ -168,6 +183,7 @@ public class IndexerCatchupObserverTest {
 
         final IndexerCatchupInProgress indexerCatchupInProgress = mock(IndexerCatchupInProgress.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(indexerCatchupsInProgressCache.removeCatchupInProgress(subscriptionName)).thenReturn(indexerCatchupInProgress);
         when(indexerCatchupDurationCalculator.calculate(indexerCatchupInProgress, indexerCatchupCompletedForSubscriptionEvent)).thenReturn(catchupDuration);
 

@@ -1,15 +1,14 @@
 package uk.gov.justice.services.eventstore.management.untrigger.commands;
 
-import static java.lang.String.format;
-import static org.junit.Assert.*;
-
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
+import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
+import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
+import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
+
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,17 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
-import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
-import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
-
-import javax.inject.Inject;
-
 @RunWith(MockitoJUnitRunner.class)
 public class AddRemoveTriggerCommandHandlerTest {
 
@@ -36,15 +24,22 @@ public class AddRemoveTriggerCommandHandlerTest {
     private EventLogTriggerManipulator eventLogTriggerManipulator;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
     private AddRemoveTriggerCommandHandler addRemoveTriggerCommandHandler;
 
+    private Consumer<Runnable> testConsumer = Runnable::run;
+
     @Test
     public void shouldCallTheAddEventLogTriggerProcess() throws Exception {
 
         final AddTriggerCommand addTriggerCommand = new AddTriggerCommand();
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand);
 
@@ -56,6 +51,8 @@ public class AddRemoveTriggerCommandHandlerTest {
     public void shouldCallTheRemoveEventLogTriggerProcess() throws Exception {
 
         final RemoveTriggerCommand removeTriggerCommand = new RemoveTriggerCommand();
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         addRemoveTriggerCommandHandler.removeTriggerFromEventLogTable(removeTriggerCommand);
 

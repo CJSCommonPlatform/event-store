@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildCompleteEvent;
 import uk.gov.justice.services.eventstore.management.rebuild.events.RebuildRequestedEvent;
 import uk.gov.justice.services.jmx.api.command.RebuildCommand;
 
 import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 
 import javax.enterprise.event.Event;
 
@@ -37,10 +39,15 @@ public class RebuildObserverTest {
     private UtcClock clock;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
     private RebuildObserver rebuildObserver;
+
+    private Consumer<Runnable> testConsumer = Runnable::run;
 
     @Test
     public void shouldRunRebuild() throws Exception {
@@ -55,6 +62,7 @@ public class RebuildObserverTest {
                 rebuildRequestedAt,
                 target);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(clock.now()).thenReturn(rebuildStartedAt, rebuildCompletedAt);
 
         rebuildObserver.onRebuildRequested(rebuildRequestedEvent);
@@ -67,6 +75,5 @@ public class RebuildObserverTest {
         inOrder.verify(logger).info("Rebuild for 'REBUILD' command completed at Fri May 24 12:00:01 Z 2019");
         inOrder.verify(logger).info("Rebuild took 1000 milliseconds");
         inOrder.verify(rebuildCompletedEventFirer).fire(new RebuildCompleteEvent(target, rebuildCompletedAt));
-
     }
 }

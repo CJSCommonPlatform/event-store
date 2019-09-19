@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventstore.management.shuttering.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
@@ -27,21 +28,27 @@ public class ShutterCommandHandlerObserver {
     private StopWatchFactory stopWatchFactory;
 
     @Inject
+    private MdcLogger mdcLogger;
+
+    @Inject
     private Logger logger;
 
     public void waitForCommandQueueToEmpty(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
 
-        logger.info("Shuttering Command Handler. Waiting for queue to drain");
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
 
-        final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
+            logger.info("Shuttering Command Handler. Waiting for queue to drain");
 
-        final boolean queueEmpty = commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue();
-        if (!queueEmpty) {
-            stopWatch.stop();
-            throw new ShutteringException(format("Failed to drain command handler queue in %d milliseconds", stopWatch.getTime()));
-        }
+            final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
 
-        logger.info("Command Handler Queue empty");
-        shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+            final boolean queueEmpty = commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue();
+            if (!queueEmpty) {
+                stopWatch.stop();
+                throw new ShutteringException(format("Failed to drain command handler queue in %d milliseconds", stopWatch.getTime()));
+            }
+
+            logger.info("Command Handler Queue empty");
+            shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+        });
     }
 }

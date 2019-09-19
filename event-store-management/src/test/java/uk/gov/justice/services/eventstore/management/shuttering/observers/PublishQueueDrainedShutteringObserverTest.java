@@ -9,10 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
+
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
@@ -37,10 +40,15 @@ public class PublishQueueDrainedShutteringObserverTest {
     private ShutteringRegistry shutteringRegistry;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
     private PublishQueueDrainedShutteringObserver publishQueueDrainedShutteringObserver;
+
+    private Consumer<Runnable> testConsumer = Runnable::run;
 
     @Test
     public void shouldWaitForPublishQueueToEmpty() throws Exception {
@@ -48,6 +56,7 @@ public class PublishQueueDrainedShutteringObserverTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
         when(publishQueueInterrogator.pollUntilPublishQueueEmpty()).thenReturn(true);
 
@@ -68,6 +77,7 @@ public class PublishQueueDrainedShutteringObserverTest {
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
         final StopWatch stopWatch = mock(StopWatch.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(publishQueueInterrogator.pollUntilPublishQueueEmpty()).thenReturn(false);

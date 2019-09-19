@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventstore.management.shuttering.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
@@ -27,21 +28,27 @@ public class PublishQueueDrainedShutteringObserver {
     private ShutteringRegistry shutteringRegistry;
 
     @Inject
+    private MdcLogger mdcLogger;
+
+    @Inject
     private Logger logger;
 
     public void waitForPublishQueueToEmpty(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
 
-        logger.info("Waiting for Publish Queue to empty");
+        mdcLogger.mdcLoggerConsumer().accept(() -> {
 
-        final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
-        final boolean queueEmpty = publishQueueInterrogator.pollUntilPublishQueueEmpty();
+            logger.info("Waiting for Publish Queue to empty");
 
-        if (!queueEmpty) {
-           stopWatch.stop();
-           throw new ShutteringException(format("PublishQueue failed to drain after %d milliseconds", stopWatch.getTime()));
-        }
+            final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
+            final boolean queueEmpty = publishQueueInterrogator.pollUntilPublishQueueEmpty();
 
-        logger.info("Publish Queue empty");
-        shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+            if (!queueEmpty) {
+                stopWatch.stop();
+                throw new ShutteringException(format("PublishQueue failed to drain after %d milliseconds", stopWatch.getTime()));
+            }
+
+            logger.info("Publish Queue empty");
+            shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+        });
     }
 }

@@ -10,10 +10,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
+
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
@@ -37,10 +40,15 @@ public class ShutterCommandHandlerObserverTest {
     private StopWatchFactory stopWatchFactory;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
     private ShutterCommandHandlerObserver shutterCommandHandlerObserver;
+
+    private Consumer<Runnable> testConsumer = Runnable::run;
 
     @Test
     public void shouldPollUntilQueueEmptyThenInformTheShutteringRegistry() throws Exception {
@@ -49,6 +57,7 @@ public class ShutterCommandHandlerObserverTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(true);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
@@ -75,6 +84,7 @@ public class ShutterCommandHandlerObserverTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(false);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);

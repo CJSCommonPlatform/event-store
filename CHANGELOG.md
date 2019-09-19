@@ -8,6 +8,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [2.0.19] - 2019-09-19
 ### Added
 - New SystemCommands AddTrigger and RemoveTrigger to manage the trigger on the event_log table 
+- MDC logging of the service context for JMX commands
 
 ## [2.0.18] - 2019-09-18
 ### Changed

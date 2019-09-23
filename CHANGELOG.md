@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.20] - 2019-09-23
+### Fixed
+- Fixed name of publish queue trigger 
+
 ## [2.0.19] - 2019-09-19
 ### Added
 - New SystemCommands AddTrigger and RemoveTrigger to manage the trigger on the event_log table 

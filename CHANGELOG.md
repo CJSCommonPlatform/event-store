@@ -4,6 +4,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.21] - 2019-09-23
+### Added
+- New SystemCommand to verify the results of running catchup 
+    - Verifies that the number of active events in event_log matches the number of events in published_event
+    - Verifies that the number of events in published_event matches the number of events in processed_event
+    - Verifies that the stream_buffer table is empty
+    - Verifies that each event_number in published_event correctly links to an existing previous_event 
+    - Verifies that each event_number in processed_event correctly links to an existing previous_event 
+    - Verifies that each active stream has at least one event 
 
 ## [2.0.20] - 2019-09-23
 ### Fixed

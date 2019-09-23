@@ -37,12 +37,12 @@ public class EventLogTriggerManipulatorTest {
         final DatabaseTriggerManipulator databaseTriggerManipulator = mock(DatabaseTriggerManipulator.class);
 
         when(eventStoreTriggerManipulatorProvider.getDatabaseTriggerManipulator()).thenReturn(databaseTriggerManipulator);
-        when(databaseTriggerManipulator.findTriggerOnTable("queue_publish_event", "event_log")).thenReturn(empty());
+        when(databaseTriggerManipulator.findTriggerOnTable("update_pre_publish_queue", "event_log")).thenReturn(empty());
 
         eventLogTriggerManipulator.addTriggerToEventLogTable();
 
-        verify(databaseTriggerManipulator).addInsertTriggerToTable("queue_publish_event", "event_log", "EXECUTE PROCEDURE update_publish_queue()");
-        verify(logger).info("Trigger 'queue_publish_event' successfully added to event_log table");
+        verify(databaseTriggerManipulator).addInsertTriggerToTable("update_pre_publish_queue", "event_log", "EXECUTE PROCEDURE update_pre_publish_queue()");
+        verify(logger).info("Trigger 'update_pre_publish_queue' successfully added to event_log table");
     }
 
     @Test
@@ -52,11 +52,11 @@ public class EventLogTriggerManipulatorTest {
         final DatabaseTriggerManipulator databaseTriggerManipulator = mock(DatabaseTriggerManipulator.class);
 
         when(eventStoreTriggerManipulatorProvider.getDatabaseTriggerManipulator()).thenReturn(databaseTriggerManipulator);
-        when(databaseTriggerManipulator.findTriggerOnTable("queue_publish_event", "event_log")).thenReturn(of(triggerData));
+        when(databaseTriggerManipulator.findTriggerOnTable("update_pre_publish_queue", "event_log")).thenReturn(of(triggerData));
 
         eventLogTriggerManipulator.addTriggerToEventLogTable();
 
-        verify(logger).warn("Trigger 'queue_publish_event' already exists on event_log table");
+        verify(logger).warn("Trigger 'update_pre_publish_queue' already exists on event_log table");
         verify(databaseTriggerManipulator, never()).addInsertTriggerToTable(anyString(), anyString(), anyString());
     }
 
@@ -67,12 +67,12 @@ public class EventLogTriggerManipulatorTest {
         final TriggerData triggerData = mock(TriggerData.class);
 
         when(eventStoreTriggerManipulatorProvider.getDatabaseTriggerManipulator()).thenReturn(databaseTriggerManipulator);
-        when(databaseTriggerManipulator.findTriggerOnTable("queue_publish_event", "event_log")).thenReturn(of(triggerData));
+        when(databaseTriggerManipulator.findTriggerOnTable("update_pre_publish_queue", "event_log")).thenReturn(of(triggerData));
 
         eventLogTriggerManipulator.removeTriggerFromEventLogTable();
 
-        verify(databaseTriggerManipulator).removeTriggerFromTable("queue_publish_event", "event_log");
-        verify(logger).info("Removed trigger 'queue_publish_event' from event_log table");
+        verify(databaseTriggerManipulator).removeTriggerFromTable("update_pre_publish_queue", "event_log");
+        verify(logger).info("Removed trigger 'update_pre_publish_queue' from event_log table");
     }
 
     @Test
@@ -81,11 +81,11 @@ public class EventLogTriggerManipulatorTest {
         final DatabaseTriggerManipulator databaseTriggerManipulator = mock(DatabaseTriggerManipulator.class);
 
         when(eventStoreTriggerManipulatorProvider.getDatabaseTriggerManipulator()).thenReturn(databaseTriggerManipulator);
-        when(databaseTriggerManipulator.findTriggerOnTable("queue_publish_event", "event_log")).thenReturn(empty());
+        when(databaseTriggerManipulator.findTriggerOnTable("update_pre_publish_queue", "event_log")).thenReturn(empty());
 
         eventLogTriggerManipulator.removeTriggerFromEventLogTable();
 
-        verify(logger).warn("No trigger named 'queue_publish_event' found on event_log table");
+        verify(logger).warn("No trigger named 'update_pre_publish_queue' found on event_log table");
         verify(databaseTriggerManipulator, never()).removeTriggerFromTable(anyString(), anyString());
     }
 }

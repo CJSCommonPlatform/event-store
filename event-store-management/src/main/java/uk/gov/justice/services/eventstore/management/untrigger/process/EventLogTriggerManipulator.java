@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 
 public class EventLogTriggerManipulator {
 
-    private static final String TRIGGER_NAME = "queue_publish_event";
+    private static final String TRIGGER_NAME = "update_pre_publish_queue";
     private static final String TABLE_NAME = "event_log";
-    private static final String ACTION = "EXECUTE PROCEDURE update_publish_queue()";
+    private static final String ACTION = "EXECUTE PROCEDURE update_pre_publish_queue()";
 
     @Inject
     private EventStoreTriggerManipulatorProvider eventStoreTriggerManipulatorProvider;

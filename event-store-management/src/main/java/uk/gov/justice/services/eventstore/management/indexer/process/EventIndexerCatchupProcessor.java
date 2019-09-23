@@ -10,7 +10,6 @@ import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEv
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.indexer.events.IndexerCatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 

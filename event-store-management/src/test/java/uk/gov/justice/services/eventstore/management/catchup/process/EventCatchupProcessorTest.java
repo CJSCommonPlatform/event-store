@@ -92,7 +92,7 @@ public class EventCatchupProcessorTest {
         final Subscription subscription = mock(Subscription.class);
         final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
         final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
-        final CatchupContext catchupContext = new CatchupContext(componentName, subscription, catchupRequestedEvent);
+        final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(componentName, subscription, catchupRequestedEvent);
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
@@ -116,7 +116,7 @@ public class EventCatchupProcessorTest {
         when(eventStreamConsumerManager.add(publishedEvent_3, subscriptionName)).thenReturn(1);
         when(catchupRequestedEvent.getTarget()).thenReturn(systemCommand);
 
-        eventCatchupProcessor.performEventCatchup(catchupContext);
+        eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
 
         final InOrder inOrder = inOrder(
                 catchupStartedForSubscriptionEventFirer,
@@ -159,7 +159,7 @@ public class EventCatchupProcessorTest {
         final Subscription subscription = mock(Subscription.class);
         final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
         final CatchupRequestedEvent catchupRequestedEvent = mock(CatchupRequestedEvent.class);
-        final CatchupContext catchupContext = new CatchupContext(componentName, subscription, catchupRequestedEvent);
+        final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(componentName, subscription, catchupRequestedEvent);
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
@@ -185,7 +185,7 @@ public class EventCatchupProcessorTest {
         when(catchupRequestedEvent.getTarget()).thenReturn(systemCommand);
 
         try {
-            eventCatchupProcessor.performEventCatchup(catchupContext);
+            eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
             fail();
         } catch (final MissingEventNumberException expected) {
             assertThat(expected.getMessage(), is("PublishedEvent with id '937f9fd6-3679-4bc2-a73c-6a7b18a651e1' is missing its event number"));

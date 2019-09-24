@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 public class EventCatchupByComponentRunnerTest {
 
     @Mock
-    private EventCatchupBySubscriptionRunner eventCatchupBySubscriptionRunner;
+    private EventCatchupProcessorBean eventCatchupProcessorBean;
 
     @Mock
     private Logger logger;
@@ -51,12 +51,12 @@ public class EventCatchupByComponentRunnerTest {
 
         eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor, catchupRequestedEvent);
 
-        final InOrder inOrder = inOrder(logger, eventCatchupBySubscriptionRunner);
+        final InOrder inOrder = inOrder(logger, eventCatchupProcessorBean);
 
         inOrder.verify(logger).info("Running catchup for Component 'AN_EVENT_LISTENER', Subscription 'subscriptionName_1'");
-        inOrder.verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(new CatchupContext(componentName, subscription_1, catchupRequestedEvent));
+        inOrder.verify(eventCatchupProcessorBean).performEventCatchup(new CatchupSubscriptionContext(componentName, subscription_1, catchupRequestedEvent));
         inOrder.verify(logger).info("Running catchup for Component 'AN_EVENT_LISTENER', Subscription 'subscriptionName_2'");
-        inOrder.verify(eventCatchupBySubscriptionRunner).runEventCatchupForSubscription(new CatchupContext(componentName, subscription_2, catchupRequestedEvent));
+        inOrder.verify(eventCatchupProcessorBean).performEventCatchup(new CatchupSubscriptionContext(componentName, subscription_2, catchupRequestedEvent));
     }
 
     @Test
@@ -70,6 +70,6 @@ public class EventCatchupByComponentRunnerTest {
 
         eventCatchupByComponentRunner.runEventCatchupForComponent(subscriptionsDescriptor, catchupRequestedEvent);
 
-        verifyZeroInteractions(eventCatchupBySubscriptionRunner);
+        verifyZeroInteractions(eventCatchupProcessorBean);
     }
 }

@@ -16,10 +16,10 @@ public class EventCatchupProcessorBean {
     @Inject
     EventCatchupProcessorFactory eventCatchupProcessorFactory;
 
-    public void performEventCatchup(final CatchupContext catchupContext) {
+    public void performEventCatchup(final CatchupSubscriptionContext catchupSubscriptionContext) {
 
         final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.create();
 
-        eventCatchupProcessor.performEventCatchup(catchupContext);
+        eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
     }
 }

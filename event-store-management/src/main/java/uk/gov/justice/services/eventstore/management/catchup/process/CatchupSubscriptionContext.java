@@ -5,13 +5,13 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.Objects;
 
-public class CatchupContext {
+public class CatchupSubscriptionContext {
 
     private final String componentName;
     private final Subscription subscription;
     private final CatchupRequestedEvent catchupRequestedEvent;
 
-    public CatchupContext(final String componentName, final Subscription subscription, final CatchupRequestedEvent catchupRequestedEvent) {
+    public CatchupSubscriptionContext(final String componentName, final Subscription subscription, final CatchupRequestedEvent catchupRequestedEvent) {
         this.componentName = componentName;
         this.subscription = subscription;
         this.catchupRequestedEvent = catchupRequestedEvent;
@@ -32,8 +32,8 @@ public class CatchupContext {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof CatchupContext)) return false;
-        final CatchupContext that = (CatchupContext) o;
+        if (!(o instanceof CatchupSubscriptionContext)) return false;
+        final CatchupSubscriptionContext that = (CatchupSubscriptionContext) o;
         return Objects.equals(componentName, that.componentName) &&
                 Objects.equals(subscription, that.subscription) &&
                 Objects.equals(catchupRequestedEvent, that.catchupRequestedEvent);

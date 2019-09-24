@@ -22,13 +22,13 @@ public class EventCatchupProcessorBeanTest {
     @Test
     public void shouldPerformEventCatchup() throws Exception {
 
-        final CatchupContext catchupContext = mock(CatchupContext.class);
+        final CatchupSubscriptionContext catchupSubscriptionContext = mock(CatchupSubscriptionContext.class);
         final EventCatchupProcessor eventCatchupProcessor = mock(EventCatchupProcessor.class);
 
         when(eventCatchupProcessorFactory.create()).thenReturn(eventCatchupProcessor);
 
-        eventCatchupProcessorBean.performEventCatchup(catchupContext);
+        eventCatchupProcessorBean.performEventCatchup(catchupSubscriptionContext);
 
-        verify(eventCatchupProcessor).performEventCatchup(catchupContext);
+        verify(eventCatchupProcessor).performEventCatchup(catchupSubscriptionContext);
     }
 }

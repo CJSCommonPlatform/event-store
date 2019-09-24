@@ -50,13 +50,13 @@ public class EventCatchupProcessor {
     }
 
     @Transactional(NEVER)
-    public void performEventCatchup(final CatchupContext catchupContext) {
+    public void performEventCatchup(final CatchupSubscriptionContext catchupSubscriptionContext) {
 
-        final Subscription subscription = catchupContext.getSubscription();
+        final Subscription subscription = catchupSubscriptionContext.getSubscription();
         final String subscriptionName = subscription.getName();
         final String eventSourceName = subscription.getEventSourceName();
-        final String componentName = catchupContext.getComponentName();
-        final CatchupRequestedEvent catchupRequestedEvent = catchupContext.getCatchupRequestedEvent();
+        final String componentName = catchupSubscriptionContext.getComponentName();
+        final CatchupRequestedEvent catchupRequestedEvent = catchupSubscriptionContext.getCatchupRequestedEvent();
 
         final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);

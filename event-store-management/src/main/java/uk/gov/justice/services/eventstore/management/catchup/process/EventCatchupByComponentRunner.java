@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 public class EventCatchupByComponentRunner {
 
     @Inject
-    private EventCatchupBySubscriptionRunner eventCatchupBySubscriptionRunner;
+    private EventCatchupProcessorBean eventCatchupProcessorBean;
 
     @Inject
     private Logger logger;
@@ -37,11 +37,11 @@ public class EventCatchupByComponentRunner {
 
         logger.info(format("Running catchup for Component '%s', Subscription '%s'", componentName, subscription.getName()));
 
-        final CatchupContext catchupContext = new CatchupContext(
+        final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(
                 componentName,
                 subscription,
                 catchupRequestedEvent);
 
-        eventCatchupBySubscriptionRunner.runEventCatchupForSubscription(catchupContext);
+        eventCatchupProcessorBean.performEventCatchup(catchupSubscriptionContext);
     }
 }

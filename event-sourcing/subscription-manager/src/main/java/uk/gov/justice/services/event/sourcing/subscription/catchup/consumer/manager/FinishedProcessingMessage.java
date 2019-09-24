@@ -1,7 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Objects;
 import java.util.Queue;

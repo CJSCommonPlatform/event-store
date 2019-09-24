@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventstore.management.indexer.process;
 import static javax.transaction.Transactional.TxType.NOT_SUPPORTED;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
@@ -16,31 +16,28 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import java.util.stream.Stream;
 
 import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 public class EventIndexerCatchupProcessor {
 
-    private final ProcessedEventTrackingService processedEventTrackingService;
-    private final PublishedEventSourceProvider publishedEventSourceProvider;
-    private final EventStreamConsumerManager eventStreamConsumerManager;
-    private final Event<IndexerCatchupStartedForSubscriptionEvent> indexerCatchupStartedForSubscriptionEventFirer;
-    private final Event<IndexerCatchupCompletedForSubscriptionEvent> indexerCatchupCompletedForSubscriptionEventFirer;
-    private final UtcClock clock;
+    @Inject
+    private ProcessedEventTrackingService processedEventTrackingService;
 
-    public EventIndexerCatchupProcessor(
-            final ProcessedEventTrackingService processedEventTrackingService,
-            final PublishedEventSourceProvider publishedEventSourceProvider,
-            final EventStreamConsumerManager eventStreamConsumerManager,
-            final Event<IndexerCatchupStartedForSubscriptionEvent> indexerCatchupStartedForSubscriptionEventFirer,
-            final Event<IndexerCatchupCompletedForSubscriptionEvent> indexerCatchupCompletedForSubscriptionEventFirer,
-            final UtcClock clock) {
-        this.processedEventTrackingService = processedEventTrackingService;
-        this.publishedEventSourceProvider = publishedEventSourceProvider;
-        this.eventStreamConsumerManager = eventStreamConsumerManager;
-        this.indexerCatchupStartedForSubscriptionEventFirer = indexerCatchupStartedForSubscriptionEventFirer;
-        this.indexerCatchupCompletedForSubscriptionEventFirer = indexerCatchupCompletedForSubscriptionEventFirer;
-        this.clock = clock;
-    }
+    @Inject
+    private PublishedEventSourceProvider publishedEventSourceProvider;
+
+    @Inject
+    private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
+
+    @Inject
+    private Event<IndexerCatchupStartedForSubscriptionEvent> indexerCatchupStartedForSubscriptionEventFirer;
+
+    @Inject
+    private Event<IndexerCatchupCompletedForSubscriptionEvent> indexerCatchupCompletedForSubscriptionEventFirer;
+
+    @Inject
+    private UtcClock clock;
 
     @Transactional(NOT_SUPPORTED)
     public void performEventIndexerCatchup(final IndexerCatchupContext indexerCatchupContext) {
@@ -59,9 +56,9 @@ public class EventIndexerCatchupProcessor {
                 clock.now()));
 
         final Stream<PublishedEvent> events = eventSource.findEventsSince(latestProcessedEventNumber);
-        final int totalEventsProcessed = events.mapToInt(event -> eventStreamConsumerManager.add(event, subscriptionName)).sum();
+        final int totalEventsProcessed = events.mapToInt(event -> concurrentEventStreamConsumerManager.add(event, subscriptionName)).sum();
 
-        eventStreamConsumerManager.waitForCompletion();
+        concurrentEventStreamConsumerManager.waitForCompletion();
 
         final IndexerCatchupCompletedForSubscriptionEvent event = new IndexerCatchupCompletedForSubscriptionEvent(
                 subscriptionName,

@@ -1,17 +1,15 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
-import static java.lang.String.format;
-
-import uk.gov.justice.services.event.sourcing.subscription.catchup.EventCatchupException;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.inject.Inject;
 
 /**
  * A concurrent implementation of EventStreamConsumerManager and EventStreamConsumerListener.
@@ -27,17 +25,14 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
 
     private final ConcurrentHashMap<UUID, Queue<PublishedEvent>> allEventStreams = new ConcurrentHashMap<>();
 
-    private final EventStreamsInProgressList eventStreamsInProgressList;
-    private final ConsumeEventQueueBean consumeEventQueueBean;
-    private final EventQueueConsumerFactory eventQueueConsumerFactory;
+    @Inject
+    private EventStreamsInProgressList eventStreamsInProgressList;
 
-    public ConcurrentEventStreamConsumerManager(final EventStreamsInProgressList eventStreamsInProgressList,
-                                                final ConsumeEventQueueBean consumeEventQueueBean,
-                                                final EventQueueConsumerFactory eventQueueConsumerFactory) {
-        this.eventStreamsInProgressList = eventStreamsInProgressList;
-        this.consumeEventQueueBean = consumeEventQueueBean;
-        this.eventQueueConsumerFactory = eventQueueConsumerFactory;
-    }
+    @Inject
+    private ConsumeEventQueueBean consumeEventQueueBean;
+
+    @Inject
+    private EventQueueConsumerFactory eventQueueConsumerFactory;
 
     /**
      * A ConcurrentLinkedQueue is created for each Stream Id and added to a ConcurrentHashMap.  An

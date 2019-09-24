@@ -10,12 +10,11 @@ import javax.transaction.Transactional;
 public class EventIndexerCatchupProcessorBean {
 
     @Inject
-    private EventIndexerCatchupProcessorFactory eventIndexerCatchupProcessorFactory;
+    private EventIndexerCatchupProcessor eventIndexerCatchupProcessor;
+
 
     @Transactional(NOT_SUPPORTED)
     public void performEventIndexerCatchup(final IndexerCatchupContext indexerCatchupContext) {
-
-        final EventIndexerCatchupProcessor eventIndexerCatchupProcessor = eventIndexerCatchupProcessorFactory.create();
 
         eventIndexerCatchupProcessor.performEventIndexerCatchup(indexerCatchupContext);
     }

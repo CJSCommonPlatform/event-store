@@ -2,9 +2,6 @@ package uk.gov.justice.services.eventstore.management.indexer.process;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventIndexerCatchupProcessorBeanTest {
 
     @Mock
-    private EventIndexerCatchupProcessorFactory eventCatchupProcessorFactory;
+    private EventIndexerCatchupProcessor eventCatchupProcessor;
 
     @InjectMocks
     private EventIndexerCatchupProcessorBean eventCatchupProcessorBean;
@@ -24,13 +21,7 @@ public class EventIndexerCatchupProcessorBeanTest {
     @Test
     public void shouldPerformEventCatchup() throws Exception {
 
-        final String componentName = "EVENT_INDEXER";
         final IndexerCatchupContext catchupContext = mock(IndexerCatchupContext.class);
-
-        final Subscription subscription = mock(Subscription.class);
-        final EventIndexerCatchupProcessor eventCatchupProcessor = mock(EventIndexerCatchupProcessor.class);
-
-        when(eventCatchupProcessorFactory.create()).thenReturn(eventCatchupProcessor);
 
         eventCatchupProcessorBean.performEventIndexerCatchup(catchupContext);
 

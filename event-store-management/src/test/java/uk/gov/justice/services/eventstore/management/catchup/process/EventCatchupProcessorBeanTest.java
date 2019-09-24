@@ -2,7 +2,6 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class EventCatchupProcessorBeanTest {
 
     @Mock
-    private EventCatchupProcessorFactory eventCatchupProcessorFactory;
+    private EventCatchupProcessor eventCatchupProcessor;
 
     @InjectMocks
     private EventCatchupProcessorBean eventCatchupProcessorBean;
@@ -23,9 +22,6 @@ public class EventCatchupProcessorBeanTest {
     public void shouldPerformEventCatchup() throws Exception {
 
         final CatchupSubscriptionContext catchupSubscriptionContext = mock(CatchupSubscriptionContext.class);
-        final EventCatchupProcessor eventCatchupProcessor = mock(EventCatchupProcessor.class);
-
-        when(eventCatchupProcessorFactory.create()).thenReturn(eventCatchupProcessor);
 
         eventCatchupProcessorBean.performEventCatchup(catchupSubscriptionContext);
 

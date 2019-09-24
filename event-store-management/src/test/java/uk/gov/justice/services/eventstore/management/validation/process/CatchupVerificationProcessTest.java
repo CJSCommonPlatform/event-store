@@ -55,7 +55,7 @@ public class CatchupVerificationProcessTest {
         inOrder.verify(logger).error("ERROR: error 2");
         inOrder.verify(logger).warn("WARNING: warning 1");
         inOrder.verify(logger).warn("WARNING: warning 2");
-        inOrder.verify(logger).warn("SUCCESS: success 1");
-        inOrder.verify(logger).warn("SUCCESS: success 2");
+        inOrder.verify(logger).info("SUCCESS: success 1");
+        inOrder.verify(logger).info("SUCCESS: success 2");
     }
 }

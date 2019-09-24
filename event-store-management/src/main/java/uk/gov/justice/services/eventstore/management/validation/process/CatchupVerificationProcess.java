@@ -36,7 +36,7 @@ public class CatchupVerificationProcess {
 
         errorResults.forEach(verificationResult -> logger.error("ERROR: " + verificationResult.getMessage()));
         warningResults.forEach(verificationResult -> logger.warn("WARNING: " + verificationResult.getMessage()));
-        successfulResults.forEach(verificationResult -> logger.warn("SUCCESS: " + verificationResult.getMessage()));
+        successfulResults.forEach(verificationResult -> logger.info("SUCCESS: " + verificationResult.getMessage()));
     }
 
     private List<VerificationResult> filter(

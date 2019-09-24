@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.0.22] - 2019-09-24
+### Changed
+- Catchup verification logging now runs in MDC context 
+
 ## [2.0.21] - 2019-09-23
 ### Added
 - New SystemCommand to verify the results of running catchup 

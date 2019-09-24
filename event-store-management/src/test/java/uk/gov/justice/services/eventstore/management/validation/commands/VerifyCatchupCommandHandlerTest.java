@@ -1,9 +1,13 @@
 package uk.gov.justice.services.eventstore.management.validation.commands;
 
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
+
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,13 +24,20 @@ public class VerifyCatchupCommandHandlerTest {
     private CatchupVerificationProcess catchupVerificationProcess;
 
     @Mock
+    private MdcLogger mdcLogger;
+
+    @Mock
     private Logger logger;
+
+    private Consumer<Runnable> testConsumer = Runnable::run;
 
     @InjectMocks
     private VerifyCatchupCommandHandler verifyCatchupCommandHandler;
 
     @Test
     public void shouldRunTheVerificationProcess() throws Exception {
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         verifyCatchupCommandHandler.validateCatchup(new VerifyCatchupCommand());
 

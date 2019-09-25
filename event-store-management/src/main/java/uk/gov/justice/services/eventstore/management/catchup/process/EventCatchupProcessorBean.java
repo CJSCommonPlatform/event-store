@@ -14,11 +14,9 @@ import javax.inject.Inject;
 public class EventCatchupProcessorBean {
 
     @Inject
-    EventCatchupProcessorFactory eventCatchupProcessorFactory;
+    private EventCatchupProcessor eventCatchupProcessor;
 
     public void performEventCatchup(final CatchupSubscriptionContext catchupSubscriptionContext) {
-
-        final EventCatchupProcessor eventCatchupProcessor = eventCatchupProcessorFactory.create();
 
         eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
     }

@@ -1,15 +1,11 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
-import static uk.gov.justice.services.messaging.JsonEnvelope.metadataFrom;
-
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidStreamIdException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
-import uk.gov.justice.services.messaging.spi.JsonEnvelopeProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

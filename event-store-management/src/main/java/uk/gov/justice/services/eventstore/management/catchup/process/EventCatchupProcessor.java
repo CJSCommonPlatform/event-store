@@ -4,7 +4,7 @@ import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.NEVER;
 
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -18,36 +18,33 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import java.util.stream.Stream;
 
 import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 
 public class EventCatchupProcessor {
 
-    private final ProcessedEventTrackingService processedEventTrackingService;
-    private final PublishedEventSourceProvider publishedEventSourceProvider;
-    private final EventStreamConsumerManager eventStreamConsumerManager;
-    private final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
-    private final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
-    private final UtcClock clock;
-    private final Logger logger;
+    @Inject
+    private ProcessedEventTrackingService processedEventTrackingService;
 
-    public EventCatchupProcessor(
-            final ProcessedEventTrackingService processedEventTrackingService,
-            final PublishedEventSourceProvider publishedEventSourceProvider,
-            final EventStreamConsumerManager eventStreamConsumerManager,
-            final Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer,
-            final Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer,
-            final UtcClock clock,
-            final Logger logger) {
-        this.processedEventTrackingService = processedEventTrackingService;
-        this.publishedEventSourceProvider = publishedEventSourceProvider;
-        this.eventStreamConsumerManager = eventStreamConsumerManager;
-        this.catchupStartedForSubscriptionEventFirer = catchupStartedForSubscriptionEventFirer;
-        this.catchupCompletedForSubscriptionEventFirer = catchupCompletedForSubscriptionEventFirer;
-        this.clock = clock;
-        this.logger = logger;
-    }
+    @Inject
+    private PublishedEventSourceProvider publishedEventSourceProvider;
+
+    @Inject
+    private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
+
+    @Inject
+    private Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
+
+    @Inject
+    private Event<CatchupCompletedForSubscriptionEvent> catchupCompletedForSubscriptionEventFirer;
+
+    @Inject
+    private UtcClock clock;
+
+    @Inject
+    private Logger logger;
 
     @Transactional(NEVER)
     public void performEventCatchup(final CatchupSubscriptionContext catchupSubscriptionContext) {
@@ -76,11 +73,11 @@ public class EventCatchupProcessor {
                 logger.info("Starting catch up for Event Number: " + eventNumber);
             }
 
-            return eventStreamConsumerManager.add(event, subscriptionName);
+            return concurrentEventStreamConsumerManager.add(event, subscriptionName);
 
         }).sum();
 
-        eventStreamConsumerManager.waitForCompletion();
+        concurrentEventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
                 subscriptionName,

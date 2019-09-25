@@ -20,8 +20,6 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-
 public class EventPrePublisher {
 
     @Inject

@@ -1,18 +1,11 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventQueueConsumerFactory;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumerManager;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.stream.Stream;
 
-import javax.annotation.Resource;
 import javax.ejb.Singleton;
-import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -21,20 +14,11 @@ import org.slf4j.Logger;
 @Singleton
 public class TestCatchupBean {
 
-    @Resource
-    ManagedExecutorService managedExecutorService;
+    @Inject
+    private DummyTransactionalEventProcessor transactionalEventProcessor;
 
     @Inject
-    DummyTransactionalEventProcessor transactionalEventProcessor;
-
-    @Inject
-    EventStreamsInProgressList eventStreamsInProgressList;
-
-    @Inject
-    private ConsumeEventQueueBean consumeEventQueueBean;
-
-    @Inject
-    private EventQueueConsumerFactory eventQueueConsumerFactory;
+    private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
 
     @Inject
     Logger logger;
@@ -51,18 +35,14 @@ public class TestCatchupBean {
         final EventFactory eventFactory = new EventFactory(numberOfStreams, numberOfUniqueEventNames);
         final Stream<PublishedEvent> eventStream = eventFactory.generateEvents(numberOfEventsToCreate).stream();
 
-        final EventStreamConsumerManager eventStreamConsumerManager = new ConcurrentEventStreamConsumerManager(
-                eventStreamsInProgressList,
-                consumeEventQueueBean,
-                eventQueueConsumerFactory);
 
         stopWatch.start();
         final int totalEventsProcessed = eventStream.mapToInt(event -> {
-            eventStreamConsumerManager.add(event, "");
+            concurrentEventStreamConsumerManager.add(event, "");
             return 1;
         }).sum();
 
-        eventStreamConsumerManager.waitForCompletion();
+        concurrentEventStreamConsumerManager.waitForCompletion();
 
         logger.info("Total events processed: " + totalEventsProcessed);
     }

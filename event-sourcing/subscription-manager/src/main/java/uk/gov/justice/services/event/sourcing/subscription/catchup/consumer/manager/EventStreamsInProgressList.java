@@ -3,7 +3,6 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.man
 import static java.lang.Thread.currentThread;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.LinkedList;
 import java.util.List;

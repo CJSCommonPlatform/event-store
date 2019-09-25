@@ -9,9 +9,10 @@ import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEven
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
+import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupType;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupStartedForSubscriptionEvent;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
@@ -51,9 +52,10 @@ public class EventCatchupProcessor {
 
         final Subscription subscription = catchupSubscriptionContext.getSubscription();
         final String subscriptionName = subscription.getName();
+        final CatchupType catchupType = catchupSubscriptionContext.getCatchupType();
         final String eventSourceName = subscription.getEventSourceName();
         final String componentName = catchupSubscriptionContext.getComponentName();
-        final CatchupRequestedEvent catchupRequestedEvent = catchupSubscriptionContext.getCatchupRequestedEvent();
+        final SystemCommand systemCommand = catchupSubscriptionContext.getSystemCommand();
 
         final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
         final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
@@ -62,6 +64,7 @@ public class EventCatchupProcessor {
 
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
                 subscriptionName,
+                catchupType,
                 clock.now()));
 
         final Stream<PublishedEvent> events = eventSource.findEventsSince(latestProcessedEventNumber);
@@ -70,7 +73,7 @@ public class EventCatchupProcessor {
             final Long eventNumber = event.getEventNumber().orElseThrow(() -> new MissingEventNumberException(format("PublishedEvent with id '%s' is missing its event number", event.getId())));
 
             if (eventNumber % 1000L == 0) {
-                logger.info("Starting catch up for Event Number: " + eventNumber);
+                logger.info(format("%s catch up for Event Number: %d", catchupType.getName(), eventNumber));
             }
 
             return concurrentEventStreamConsumerManager.add(event, subscriptionName);
@@ -80,10 +83,10 @@ public class EventCatchupProcessor {
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
-                subscriptionName,
+                catchupType, subscriptionName,
                 eventSourceName,
                 componentName,
-                catchupRequestedEvent.getTarget(),
+                systemCommand,
                 clock.now(),
                 totalEventsProcessed);
 

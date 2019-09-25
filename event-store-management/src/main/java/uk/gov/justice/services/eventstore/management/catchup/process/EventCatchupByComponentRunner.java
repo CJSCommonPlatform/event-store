@@ -1,9 +1,9 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
-import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
+import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupType;
+import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
@@ -14,33 +14,41 @@ import org.slf4j.Logger;
 public class EventCatchupByComponentRunner {
 
     @Inject
+    private RunCatchupForComponentSelector runCatchupForComponentSelector;
+
+    @Inject
     private EventCatchupProcessorBean eventCatchupProcessorBean;
 
     @Inject
     private Logger logger;
 
-    public void runEventCatchupForComponent(final SubscriptionsDescriptor subscriptionsDescriptor, final CatchupRequestedEvent catchupRequestedEvent) {
+    public void runEventCatchupForComponent(
+            final SubscriptionsDescriptor subscriptionsDescriptor,
+            final CatchupType catchupType,
+            final SystemCommand systemCommand) {
 
         final String componentName = subscriptionsDescriptor.getServiceComponent();
 
-        if (componentName.contains(EVENT_LISTENER)) {
+        if (runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, catchupType)) {
             subscriptionsDescriptor
                     .getSubscriptions()
-                    .forEach(subscription -> runEventCatchupForSubscription(catchupRequestedEvent, componentName, subscription));
+                    .forEach(subscription -> runEventCatchupForSubscription(systemCommand, catchupType, componentName, subscription));
         }
     }
 
     private void runEventCatchupForSubscription(
-            final CatchupRequestedEvent catchupRequestedEvent,
+            final SystemCommand systemCommand,
+            final CatchupType catchupType,
             final String componentName,
             final Subscription subscription) {
 
-        logger.info(format("Running catchup for Component '%s', Subscription '%s'", componentName, subscription.getName()));
+        logger.info(format("Running %s catchup for Component '%s', Subscription '%s'", catchupType, componentName, subscription.getName()));
 
         final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(
                 componentName,
                 subscription,
-                catchupRequestedEvent);
+                catchupType,
+                systemCommand);
 
         eventCatchupProcessorBean.performEventCatchup(catchupSubscriptionContext);
     }

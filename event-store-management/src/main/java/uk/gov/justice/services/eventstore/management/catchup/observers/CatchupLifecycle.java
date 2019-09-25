@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventstore.management.catchup.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupType;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.catchup.events.CatchupRequestedEvent;
@@ -45,25 +46,33 @@ public class CatchupLifecycle {
 
     public void handleCatchupRequested(final CatchupRequestedEvent catchupRequestedEvent) {
 
-        logger.info("Event catchup requested");
-        eventCatchupRunner.runEventCatchup(catchupRequestedEvent);
+        final CatchupType catchupType = catchupRequestedEvent.getCatchupType();
+        final SystemCommand target = catchupRequestedEvent.getTarget();
+
+        logger.info(format("%s catchup requested", catchupType.getName()));
+
+        eventCatchupRunner.runEventCatchup(catchupType, target);
     }
 
     public void handleCatchupStarted(final CatchupStartedEvent catchupStartedEvent) {
-        logger.info("Event catchup started at " + catchupStartedEvent.getCatchupStartedAt());
-        logger.info("Performing catchup of events...");
 
-        catchupsInProgressCache.removeAll();
+        final CatchupType catchupType = catchupStartedEvent.getCatchupType();
+        final ZonedDateTime catchupStartedAt = catchupStartedEvent.getCatchupStartedAt();
+
+        logger.info(format("%s catchup started at %s", catchupType.getName(), catchupStartedAt));
+
+        catchupsInProgressCache.removeAll(catchupType);
     }
 
     public void handleCatchupStartedForSubscription(final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent) {
 
         final String subscriptionName = catchupStartedForSubscriptionEvent.getSubscriptionName();
         final ZonedDateTime catchupStartedAt = catchupStartedForSubscriptionEvent.getCatchupStartedAt();
+        final CatchupType catchupType = catchupStartedForSubscriptionEvent.getCatchupType();
 
-        catchupsInProgressCache.addCatchupInProgress(new CatchupInProgress(subscriptionName, catchupStartedAt));
+        catchupsInProgressCache.addCatchupInProgress(new CatchupInProgress(subscriptionName, catchupStartedAt), catchupType);
 
-        logger.info(format("Event catchup for subscription '%s' started at %s", subscriptionName, catchupStartedAt));
+        logger.info(format("%s catchup for subscription '%s' started at %s", catchupType.getName(), subscriptionName, catchupStartedAt));
     }
 
     public void handleCatchupCompleteForSubscription(final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
@@ -72,23 +81,24 @@ public class CatchupLifecycle {
 
         final ZonedDateTime catchupCompletedAt = catchupCompletedForSubscriptionEvent.getCatchupCompletedAt();
         final int totalNumberOfEvents = catchupCompletedForSubscriptionEvent.getTotalNumberOfEvents();
+        final CatchupType catchupType = catchupCompletedForSubscriptionEvent.getCatchupType();
 
-        logger.info(format("Event catchup for subscription '%s' completed at %s", subscriptionName, catchupCompletedAt));
-        logger.info(format("Event catchup for subscription '%s' caught up %d events", subscriptionName, totalNumberOfEvents));
+        logger.info(format("%s catchup for subscription '%s' completed at %s", catchupType.getName(), subscriptionName, catchupCompletedAt));
+        logger.info(format("%s catchup for subscription '%s' caught up %d events", catchupType.getName(), subscriptionName, totalNumberOfEvents));
 
-        final CatchupInProgress catchupInProgress = catchupsInProgressCache.removeCatchupInProgress(subscriptionName);
+        final CatchupInProgress catchupInProgress = catchupsInProgressCache.removeCatchupInProgress(subscriptionName, catchupType);
 
         final Duration catchupDuration = catchupDurationCalculator.calculate(
                 catchupInProgress,
                 catchupCompletedForSubscriptionEvent);
 
-        logger.info(format("Event catchup for subscription '%s' took %d milliseconds", subscriptionName, catchupDuration.toMillis()));
+        logger.info(format("%s catchup for subscription '%s' took %d milliseconds", catchupType.getName(), subscriptionName, catchupDuration.toMillis()));
 
-        if (catchupsInProgressCache.noCatchupsInProgress()) {
+        if (catchupsInProgressCache.noCatchupsInProgress(catchupType)) {
             final ZonedDateTime completedAt = clock.now();
             final SystemCommand target = catchupCompletedForSubscriptionEvent.getTarget();
             catchupCompletedEventFirer.fire(new CatchupCompletedEvent(target, completedAt));
-            logger.info(format("Event catchup fully complete at %s", completedAt));
+            logger.info(format("%s catchup fully complete at %s", catchupType.getName(), completedAt));
         }
     }
 }

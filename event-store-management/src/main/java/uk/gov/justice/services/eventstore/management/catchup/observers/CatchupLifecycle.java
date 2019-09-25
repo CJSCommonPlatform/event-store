@@ -18,7 +18,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ public class CatchupLifecycle {
         eventCatchupRunner.runEventCatchup(catchupRequestedEvent);
     }
 
-    public void handleCatchupStarted(@Observes final CatchupStartedEvent catchupStartedEvent) {
+    public void handleCatchupStarted(final CatchupStartedEvent catchupStartedEvent) {
         logger.info("Event catchup started at " + catchupStartedEvent.getCatchupStartedAt());
         logger.info("Performing catchup of events...");
 

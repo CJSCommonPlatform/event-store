@@ -1,14 +1,22 @@
 package uk.gov.justice.services.eventstore.management.catchup.events;
 
+import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupType;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class CatchupStartedEvent {
 
+    private final CatchupType catchupType;
     private final ZonedDateTime catchupStartedAt;
 
-    public CatchupStartedEvent(final ZonedDateTime catchupStartedAt) {
+    public CatchupStartedEvent(final CatchupType catchupType, final ZonedDateTime catchupStartedAt) {
+        this.catchupType = catchupType;
         this.catchupStartedAt = catchupStartedAt;
+    }
+
+    public CatchupType getCatchupType() {
+        return catchupType;
     }
 
     public ZonedDateTime getCatchupStartedAt() {
@@ -20,18 +28,20 @@ public class CatchupStartedEvent {
         if (this == o) return true;
         if (!(o instanceof CatchupStartedEvent)) return false;
         final CatchupStartedEvent that = (CatchupStartedEvent) o;
-        return Objects.equals(catchupStartedAt, that.catchupStartedAt);
+        return catchupType == that.catchupType &&
+                Objects.equals(catchupStartedAt, that.catchupStartedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(catchupStartedAt);
+        return Objects.hash(catchupType, catchupStartedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupStartedEvent{" +
-                "catchupStartedAt=" + catchupStartedAt +
+                "catchupType=" + catchupType +
+                ", catchupStartedAt=" + catchupStartedAt +
                 '}';
     }
 }

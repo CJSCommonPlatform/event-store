@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.events;
 
+import uk.gov.justice.services.eventstore.management.catchup.commands.CatchupType;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.ZonedDateTime;
@@ -7,12 +8,21 @@ import java.util.Objects;
 
 public class CatchupRequestedEvent {
 
+    private final CatchupType catchupType;
     private final SystemCommand target;
     private final ZonedDateTime catchupRequestedAt;
 
-    public CatchupRequestedEvent(final SystemCommand target, final ZonedDateTime catchupRequestedAt) {
+    public CatchupRequestedEvent(
+            final CatchupType catchupType,
+            final SystemCommand target,
+            final ZonedDateTime catchupRequestedAt) {
+        this.catchupType = catchupType;
         this.target = target;
         this.catchupRequestedAt = catchupRequestedAt;
+    }
+
+    public CatchupType getCatchupType() {
+        return catchupType;
     }
 
     public SystemCommand getTarget() {
@@ -28,19 +38,21 @@ public class CatchupRequestedEvent {
         if (this == o) return true;
         if (!(o instanceof CatchupRequestedEvent)) return false;
         final CatchupRequestedEvent that = (CatchupRequestedEvent) o;
-        return Objects.equals(target, that.target) &&
+        return catchupType == that.catchupType &&
+                Objects.equals(target, that.target) &&
                 Objects.equals(catchupRequestedAt, that.catchupRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(target, catchupRequestedAt);
+        return Objects.hash(catchupType, target, catchupRequestedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupRequestedEvent{" +
-                "target=" + target +
+                "catchupType=" + catchupType +
+                ", target=" + target +
                 ", catchupRequestedAt=" + catchupRequestedAt +
                 '}';
     }

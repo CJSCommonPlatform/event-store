@@ -5,8 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-09-26
 ### Changed
-- Subscriptions are no longer run asynchronously during catchup
+- Subscriptions are no longer run asynchronously during catchup. Change required for MI catchup.
 - Event catchup and Indexer catchup now run the same code
 
 ## [2.0.22] - 2019-09-24

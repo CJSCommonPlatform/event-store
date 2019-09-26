@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- All system events moved into their own module 'event-store-management-events'
 
 ## [2.1.0] - 2019-09-26
 ### Changed

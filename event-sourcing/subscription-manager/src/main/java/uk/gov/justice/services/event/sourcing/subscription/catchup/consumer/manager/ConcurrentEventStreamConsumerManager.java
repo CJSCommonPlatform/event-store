@@ -3,6 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.man
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -50,7 +51,10 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
      * count the number of events consumed
      */
     @Override
-    public int add(final PublishedEvent publishedEvent, final String subscriptionName) {
+    public int add(
+            final PublishedEvent publishedEvent,
+            final String subscriptionName,
+            final CatchupType catchupType) {
 
         final UUID streamId = publishedEvent.getStreamId();
 
@@ -60,7 +64,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
             events.offer(publishedEvent);
 
             if (notInProgress(events)) {
-                createAndSubmitTaskFor(events, subscriptionName);
+                createAndSubmitTaskFor(events, subscriptionName, catchupType);
             }
         }
 
@@ -98,11 +102,18 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
         return !eventStreamsInProgressList.contains(eventStream);
     }
 
-    private void createAndSubmitTaskFor(final Queue<PublishedEvent> eventStream, final String subscriptionName) {
+    private void createAndSubmitTaskFor(
+            final Queue<PublishedEvent> eventStream,
+            final String subscriptionName,
+            final CatchupType catchupType) {
 
         eventStreamsInProgressList.add(eventStream);
 
         final EventQueueConsumer eventQueueConsumer = eventQueueConsumerFactory.create(this);
-        consumeEventQueueBean.consume(eventStream, eventQueueConsumer, subscriptionName);
+        consumeEventQueueBean.consume(
+                eventStream,
+                eventQueueConsumer,
+                subscriptionName,
+                catchupType);
     }
 }

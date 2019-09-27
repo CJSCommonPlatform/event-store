@@ -103,9 +103,9 @@ public class EventCatchupProcessorTest {
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumberFrom);
         when(publishedEventSource.findEventsSince(eventNumberFrom)).thenReturn(events.stream());
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
 
         eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
 
@@ -119,9 +119,9 @@ public class EventCatchupProcessorTest {
                 EVENT_CATCHUP,
                 catchupStartedAt));
 
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_1, subscriptionName);
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_2, subscriptionName);
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_3, subscriptionName);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_1, subscriptionName, EVENT_CATCHUP);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_2, subscriptionName, EVENT_CATCHUP);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_3, subscriptionName, EVENT_CATCHUP);
         inOrder.verify(concurrentEventStreamConsumerManager).waitForCompletion();
 
         inOrder.verify(catchupCompletedForSubscriptionEventFirer).fire(new CatchupCompletedForSubscriptionEvent(
@@ -176,9 +176,9 @@ public class EventCatchupProcessorTest {
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumberFrom);
         when(publishedEventSource.findEventsSince(eventNumberFrom)).thenReturn(events.stream());
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
 
         try {
             eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);

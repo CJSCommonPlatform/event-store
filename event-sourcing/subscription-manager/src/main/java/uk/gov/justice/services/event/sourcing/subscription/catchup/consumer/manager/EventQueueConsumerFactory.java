@@ -1,7 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventProcessingFailedHandler;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.event.sourcing.subscription.manager.TransactionalEventProcessor;
 
@@ -12,10 +11,13 @@ public class EventQueueConsumerFactory {
     @Inject
     private TransactionalEventProcessor transactionalEventProcessor;
 
+    @Inject
+    private EventProcessingFailedHandler eventProcessingFailedHandler;
+
     public EventQueueConsumer create(final EventStreamConsumptionResolver eventStreamConsumptionResolver) {
         return new EventQueueConsumer(
                 transactionalEventProcessor,
                 eventStreamConsumptionResolver,
-                getLogger(EventQueueConsumer.class));
+                eventProcessingFailedHandler);
     }
 }

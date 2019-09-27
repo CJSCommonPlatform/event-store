@@ -3,8 +3,13 @@ package uk.gov.justice.services.eventstore.management.catchup.observers;
 import static java.time.ZoneOffset.UTC;
 import static java.time.ZonedDateTime.of;
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -14,10 +19,13 @@ import static uk.gov.justice.services.eventstore.management.events.catchup.Catch
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDurationCalculator;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
-import uk.gov.justice.services.eventstore.management.catchup.process.CatchupsInProgressCache;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
+import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
+import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
+import uk.gov.justice.services.eventstore.management.catchup.state.CatchupStateManager;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
@@ -27,6 +35,9 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 
@@ -34,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -46,7 +58,10 @@ public class CatchupLifecycleTest {
     private EventCatchupRunner eventCatchupRunner;
 
     @Mock
-    private CatchupsInProgressCache catchupsInProgressCache;
+    private CatchupStateManager catchupStateManager;
+
+    @Mock
+    private CatchupErrorStateManager catchupErrorStateManager;
 
     @Mock
     private CatchupDurationCalculator catchupDurationCalculator;
@@ -66,6 +81,9 @@ public class CatchupLifecycleTest {
     @Captor
     private ArgumentCaptor<CatchupType> catchupTypeCaptor;
 
+    @Captor
+    private ArgumentCaptor<CatchupError> catchupErrorCaptor;
+
     @InjectMocks
     private CatchupLifecycle catchupLifecycle;
 
@@ -73,10 +91,11 @@ public class CatchupLifecycleTest {
     public void shouldCallTheCatchupRunnerOnCatchupRequested() throws Exception {
 
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+        final CatchupType catchupType = EVENT_CATCHUP;
 
         final CatchupCommand catchupCommand = new CatchupCommand();
         final CatchupRequestedEvent catchupRequestedEvent = new CatchupRequestedEvent(
-                EVENT_CATCHUP,
+                catchupType,
                 catchupCommand,
                 catchupStartedAt
         );
@@ -84,18 +103,25 @@ public class CatchupLifecycleTest {
         catchupLifecycle.handleCatchupRequested(catchupRequestedEvent);
 
         verify(logger).info("Event catchup requested");
-        verify(eventCatchupRunner).runEventCatchup(EVENT_CATCHUP, catchupCommand);
+
+        final InOrder inOrder = inOrder(
+                catchupStateManager,
+                catchupErrorStateManager,
+                eventCatchupRunner);
+
+        inOrder.verify(catchupStateManager).clear(catchupType);
+        inOrder.verify(catchupErrorStateManager).clear(catchupType);
+        inOrder.verify(eventCatchupRunner).runEventCatchup(catchupType, catchupCommand);
     }
 
     @Test
-    public void shouldClearEventsInProgressOnCatchupStart() throws Exception {
+    public void shouldHanldeCatchupStarted() throws Exception {
 
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
 
         catchupLifecycle.handleCatchupStarted(new CatchupStartedEvent(EVENT_CATCHUP, catchupStartedAt));
 
         verify(logger).info("Event catchup started at 2019-02-23T17:12:23Z");
-        verify(catchupsInProgressCache).removeAll(EVENT_CATCHUP);
     }
 
     @Test
@@ -110,7 +136,7 @@ public class CatchupLifecycleTest {
                 catchupStartedAt);
         catchupLifecycle.handleCatchupStartedForSubscription(catchupStartedForSubscriptionEvent);
 
-        verify(catchupsInProgressCache).addCatchupInProgress(catchupInProgressCaptor.capture(), catchupTypeCaptor.capture());
+        verify(catchupStateManager).addCatchupInProgress(catchupInProgressCaptor.capture(), catchupTypeCaptor.capture());
         verify(logger).info("Event catchup for subscription 'mySubscription' started at 2019-02-23T17:12:23Z");
 
         final CatchupInProgress catchupInProgress = catchupInProgressCaptor.getValue();
@@ -146,12 +172,12 @@ public class CatchupLifecycleTest {
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
-        when(catchupsInProgressCache.removeCatchupInProgress(subscriptionName, EVENT_CATCHUP)).thenReturn(catchupInProgress);
+        when(catchupStateManager.removeCatchupInProgress(subscriptionName, EVENT_CATCHUP)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(
                 catchupInProgress,
                 catchupCompletedForSubscriptionEvent)).thenReturn(catchupDuration);
 
-        when(catchupsInProgressCache.noCatchupsInProgress(EVENT_CATCHUP)).thenReturn(false);
+        when(catchupStateManager.noCatchupsInProgress(EVENT_CATCHUP)).thenReturn(false);
 
         catchupLifecycle.handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
@@ -187,12 +213,12 @@ public class CatchupLifecycleTest {
 
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
-        when(catchupsInProgressCache.removeCatchupInProgress(subscriptionName, EVENT_CATCHUP)).thenReturn(catchupInProgress);
+        when(catchupStateManager.removeCatchupInProgress(subscriptionName, EVENT_CATCHUP)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(
                 catchupInProgress,
                 catchupCompletedForSubscriptionEvent)).thenReturn(catchupDuration);
 
-        when(catchupsInProgressCache.noCatchupsInProgress(EVENT_CATCHUP)).thenReturn(true);
+        when(catchupStateManager.noCatchupsInProgress(EVENT_CATCHUP)).thenReturn(true);
         when(clock.now()).thenReturn(allCatchupsCompletedAt);
 
         catchupLifecycle.handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
@@ -201,7 +227,80 @@ public class CatchupLifecycleTest {
         verify(logger).info("Event catchup for subscription 'mySubscription' caught up 23 events");
         verify(logger).info("Event catchup for subscription 'mySubscription' took 5000 milliseconds");
 
-        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(target, allCatchupsCompletedAt));
-        verify(logger).info("Event catchup fully complete at 2019-02-23T17:12:46Z");
+        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(target, allCatchupsCompletedAt, EVENT_CATCHUP));
+    }
+
+    @Test
+    public void shouldHandleCatchupFailureCompletion() throws Exception {
+
+        final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+        final CatchupCommand target = new CatchupCommand();
+        final CatchupType catchupType = EVENT_CATCHUP;
+        final CatchupCompletedEvent catchupCompletedEvent = new CatchupCompletedEvent(
+                target,
+                catchupCompletedAt,
+                catchupType
+        );
+
+        when(catchupErrorStateManager.getErrors(catchupType)).thenReturn(emptyList());
+
+        catchupLifecycle.handleCatchupComplete(catchupCompletedEvent);
+
+        verify(logger).info("Event catchup successfully completed with 0 errors at 2019-02-23T17:12:23Z");
+    }
+
+    @Test
+    public void shouldHandleCatchupSuccessfulCompletion() throws Exception {
+
+
+        final List<CatchupError> catchupErrors = asList(
+                mock(CatchupError.class),
+                mock(CatchupError.class),
+                mock(CatchupError.class));
+
+        final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+        final CatchupCommand target = new CatchupCommand();
+        final CatchupType catchupType = EVENT_CATCHUP;
+        final CatchupCompletedEvent catchupCompletedEvent = new CatchupCompletedEvent(
+                target,
+                catchupCompletedAt,
+                catchupType
+        );
+
+        when(catchupErrorStateManager.getErrors(catchupType)).thenReturn(catchupErrors);
+
+        catchupLifecycle.handleCatchupComplete(catchupCompletedEvent);
+
+        verify(logger).error("Event catchup failed with 3 errors");
+    }
+
+    @Test
+    public void shouldHandleCatchupProcessingOfEventFailed() throws Exception {
+
+        final UUID eventId = randomUUID();
+        final String metadata = "{some: metadata}";
+        final NullPointerException exception = new NullPointerException("Ooops");
+        final CatchupType catchupType = EVENT_CATCHUP;
+        final String subscriptionName = "subscriptionName";
+
+        final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = new CatchupProcessingOfEventFailedEvent(
+                eventId,
+                metadata,
+                exception,
+                catchupType,
+                subscriptionName
+        );
+
+        catchupLifecycle.handleCatchupProcessingOfEventFailed(catchupProcessingOfEventFailedEvent);
+
+        verify(catchupErrorStateManager).add(catchupErrorCaptor.capture(), eq(catchupType));
+
+        final CatchupError catchupError = catchupErrorCaptor.getValue();
+
+        assertThat(catchupError.getEventId(), is(eventId));
+        assertThat(catchupError.getException(), is(exception));
+        assertThat(catchupError.getMetadata(), is(metadata));
+        assertThat(catchupError.getCatchupType(), is(catchupType));
+        assertThat(catchupError.getSubscriptionName(), is(subscriptionName));
     }
 }

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventstore.management.shuttering.observers;
 
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -9,12 +10,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
 import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -53,10 +55,12 @@ public class PublishQueueDrainedShutteringObserverTest {
     @Test
     public void shouldWaitForPublishQueueToEmpty() throws Exception {
 
+        final UUID commandId = randomUUID();
         final SystemCommand systemCommand = mock(SystemCommand.class);
         final ShutteringProcessStartedEvent shutteringProcessStartedEvent = mock(ShutteringProcessStartedEvent.class);
 
         when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+        when(shutteringProcessStartedEvent.getCommandId()).thenReturn(commandId);
         when(shutteringProcessStartedEvent.getTarget()).thenReturn(systemCommand);
         when(publishQueueInterrogator.pollUntilPublishQueueEmpty()).thenReturn(true);
 
@@ -67,7 +71,7 @@ public class PublishQueueDrainedShutteringObserverTest {
         inOrder.verify(logger).info("Waiting for Publish Queue to empty");
         inOrder.verify(publishQueueInterrogator).pollUntilPublishQueueEmpty();
         inOrder.verify(logger).info("Publish Queue empty");
-        inOrder.verify(shutteringRegistry).markShutteringCompleteFor(PublishQueueDrainedShutteringObserver.class, systemCommand);
+        inOrder.verify(shutteringRegistry).markShutteringCompleteFor(commandId, PublishQueueDrainedShutteringObserver.class, systemCommand);
     }
 
     @Test

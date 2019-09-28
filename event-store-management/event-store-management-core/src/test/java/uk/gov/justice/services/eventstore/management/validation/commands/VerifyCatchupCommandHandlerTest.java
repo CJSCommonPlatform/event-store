@@ -3,9 +3,9 @@ package uk.gov.justice.services.eventstore.management.validation.commands;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.util.UUID;
 import java.util.function.Consumer;

@@ -72,11 +72,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>test-utils-persistence</artifactId>
             <version>${project.version}</version>

@@ -9,8 +9,8 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
 import uk.gov.justice.services.eventstore.management.events.rebuild.RebuildCompleteEvent;
 import uk.gov.justice.services.eventstore.management.events.rebuild.RebuildRequestedEvent;
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.jmx.api.command.RebuildCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;

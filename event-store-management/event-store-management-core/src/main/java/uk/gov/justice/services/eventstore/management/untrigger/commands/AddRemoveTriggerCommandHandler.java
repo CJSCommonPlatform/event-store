@@ -4,11 +4,11 @@ import static java.lang.String.format;
 import static uk.gov.justice.services.jmx.api.command.AddTriggerCommand.ADD_TRIGGER;
 import static uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand.REMOVE_TRIGGER;
 
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.util.UUID;
 

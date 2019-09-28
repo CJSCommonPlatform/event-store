@@ -35,7 +35,6 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 

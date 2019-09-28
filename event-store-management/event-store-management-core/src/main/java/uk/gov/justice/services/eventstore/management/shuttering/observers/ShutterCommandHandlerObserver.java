@@ -3,11 +3,13 @@ package uk.gov.justice.services.eventstore.management.shuttering.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
 import uk.gov.justice.services.management.shuttering.startup.ShutteringExecutor;
+
+import java.util.UUID;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ public class ShutterCommandHandlerObserver {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
 
+            final UUID commandId = shutteringProcessStartedEvent.getCommandId();
             logger.info("Shuttering Command Handler. Waiting for queue to drain");
 
             final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
@@ -48,7 +51,10 @@ public class ShutterCommandHandlerObserver {
             }
 
             logger.info("Command Handler Queue empty");
-            shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+            shutteringRegistry.markShutteringCompleteFor(
+                    commandId,
+                    getClass(),
+                    shutteringProcessStartedEvent.getTarget());
         });
     }
 }

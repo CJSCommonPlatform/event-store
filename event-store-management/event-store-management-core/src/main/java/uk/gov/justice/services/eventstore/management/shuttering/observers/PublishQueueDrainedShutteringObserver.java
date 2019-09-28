@@ -3,11 +3,13 @@ package uk.gov.justice.services.eventstore.management.shuttering.observers;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 import uk.gov.justice.services.management.shuttering.events.ShutteringProcessStartedEvent;
 import uk.gov.justice.services.management.shuttering.observers.shuttering.ShutteringRegistry;
 import uk.gov.justice.services.management.shuttering.startup.ShutteringExecutor;
+
+import java.util.UUID;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -33,10 +35,13 @@ public class PublishQueueDrainedShutteringObserver {
     @Inject
     private Logger logger;
 
+
+    // TODO: error handling here, extract to its own class
     public void waitForPublishQueueToEmpty(@Observes final ShutteringProcessStartedEvent shutteringProcessStartedEvent) {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
 
+            final UUID commandId = shutteringProcessStartedEvent.getCommandId();
             logger.info("Waiting for Publish Queue to empty");
 
             final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
@@ -48,7 +53,10 @@ public class PublishQueueDrainedShutteringObserver {
             }
 
             logger.info("Publish Queue empty");
-            shutteringRegistry.markShutteringCompleteFor(getClass(), shutteringProcessStartedEvent.getTarget());
+            shutteringRegistry.markShutteringCompleteFor(
+                    commandId,
+                    getClass(),
+                    shutteringProcessStartedEvent.getTarget());
         });
     }
 }

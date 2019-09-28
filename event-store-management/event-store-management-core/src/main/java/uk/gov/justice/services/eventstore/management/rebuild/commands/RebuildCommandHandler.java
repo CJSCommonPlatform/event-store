@@ -9,6 +9,7 @@ import uk.gov.justice.services.jmx.api.command.RebuildCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -27,7 +28,7 @@ public class RebuildCommandHandler {
     private Logger logger;
 
     @HandlesSystemCommand(REBUILD)
-    public void doRebuild(final RebuildCommand rebuildCommand) {
+    public void doRebuild(final RebuildCommand rebuildCommand, final UUID commandId) {
 
         final ZonedDateTime now = clock.now();
         logger.info(format("Received command '%s' at %tr", rebuildCommand, now));

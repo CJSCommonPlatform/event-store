@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventstore.management.untrigger.commands;
 
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +9,7 @@ import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogT
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -37,11 +39,12 @@ public class AddRemoveTriggerCommandHandlerTest {
     @Test
     public void shouldCallTheAddEventLogTriggerProcess() throws Exception {
 
+        final UUID commandId = randomUUID();
         final AddTriggerCommand addTriggerCommand = new AddTriggerCommand();
 
         when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
-        addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand);
+        addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand, commandId);
 
         verify(logger).info("Received command ADD_TRIGGER");
         verify(eventLogTriggerManipulator).addTriggerToEventLogTable();

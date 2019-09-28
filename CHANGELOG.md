@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Updated to framework 6.1.0
+- All SystemCommand handlers now take a mandatory UUID, commandId.
 
 ## [2.1.1] - 2019-09-28
 ### Added

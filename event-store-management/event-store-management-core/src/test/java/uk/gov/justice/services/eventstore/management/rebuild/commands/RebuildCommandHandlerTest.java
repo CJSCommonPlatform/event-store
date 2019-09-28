@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventstore.management.rebuild.commands;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.ZonedDateTime.of;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import uk.gov.justice.services.management.shuttering.events.ShutteringRequestedE
 import uk.gov.justice.services.management.shuttering.events.UnshutteringRequestedEvent;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 
@@ -46,12 +48,13 @@ public class RebuildCommandHandlerTest {
     @Test
     public void shouldFireRebuildEvent() throws Exception {
 
+        final UUID commandId = randomUUID();
         final RebuildCommand rebuildCommand = new RebuildCommand();
         final ZonedDateTime now = of(2019, 8, 23, 11, 22, 1, 0, UTC);
 
         when(clock.now()).thenReturn(now);
 
-        rebuildCommandHandler.doRebuild(rebuildCommand);
+        rebuildCommandHandler.doRebuild(rebuildCommand, commandId);
 
         verify(logger).info("Received command 'REBUILD' at 11:22:01 AM");
         verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(now, rebuildCommand));

@@ -7,6 +7,7 @@ import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -37,9 +38,10 @@ public class VerifyCatchupCommandHandlerTest {
     @Test
     public void shouldRunTheVerificationProcess() throws Exception {
 
+        final UUID commandId = UUID.randomUUID();
         when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
-        verifyCatchupCommandHandler.validateCatchup(new VerifyCatchupCommand());
+        verifyCatchupCommandHandler.validateCatchup(new VerifyCatchupCommand(), commandId);
 
         final InOrder inOrder = inOrder(logger, catchupVerificationProcess);
 

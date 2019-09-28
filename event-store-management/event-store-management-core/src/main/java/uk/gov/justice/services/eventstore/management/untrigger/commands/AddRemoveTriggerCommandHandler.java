@@ -10,6 +10,8 @@ import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -26,7 +28,7 @@ public class AddRemoveTriggerCommandHandler {
     private Logger logger;
 
     @HandlesSystemCommand(ADD_TRIGGER)
-    public void addTriggerToEventLogTable(final AddTriggerCommand addTriggerCommand) {
+    public void addTriggerToEventLogTable(final AddTriggerCommand addTriggerCommand, final UUID commandId) {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
 

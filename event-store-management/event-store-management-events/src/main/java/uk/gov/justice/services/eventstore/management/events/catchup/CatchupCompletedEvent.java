@@ -9,18 +9,24 @@ public class CatchupCompletedEvent {
 
     private final SystemCommand target;
     private final ZonedDateTime completedAt;
+    private final CatchupType catchupType;
 
-    public CatchupCompletedEvent(final SystemCommand target, final ZonedDateTime completedAt) {
+    public CatchupCompletedEvent(final SystemCommand target, final ZonedDateTime completedAt, final CatchupType catchupType) {
         this.target = target;
         this.completedAt = completedAt;
+        this.catchupType = catchupType;
+    }
+
+    public SystemCommand getTarget() {
+        return target;
     }
 
     public ZonedDateTime getCompletedAt() {
         return completedAt;
     }
 
-    public SystemCommand getTarget() {
-        return target;
+    public CatchupType getCatchupType() {
+        return catchupType;
     }
 
     @Override
@@ -29,12 +35,13 @@ public class CatchupCompletedEvent {
         if (!(o instanceof CatchupCompletedEvent)) return false;
         final CatchupCompletedEvent that = (CatchupCompletedEvent) o;
         return Objects.equals(target, that.target) &&
-                Objects.equals(completedAt, that.completedAt);
+                Objects.equals(completedAt, that.completedAt) &&
+                catchupType == that.catchupType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(target, completedAt);
+        return Objects.hash(target, completedAt, catchupType);
     }
 
     @Override
@@ -42,6 +49,7 @@ public class CatchupCompletedEvent {
         return "CatchupCompletedEvent{" +
                 "target=" + target +
                 ", completedAt=" + completedAt +
+                ", catchupType=" + catchupType +
                 '}';
     }
 }

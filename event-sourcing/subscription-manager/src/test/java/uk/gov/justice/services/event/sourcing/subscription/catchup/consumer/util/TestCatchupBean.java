@@ -1,5 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util;
 
+import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
+
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
@@ -38,7 +40,7 @@ public class TestCatchupBean {
 
         stopWatch.start();
         final int totalEventsProcessed = eventStream.mapToInt(event -> {
-            concurrentEventStreamConsumerManager.add(event, "");
+            concurrentEventStreamConsumerManager.add(event, "subscriptionName", EVENT_CATCHUP);
             return 1;
         }).sum();
 

@@ -10,6 +10,7 @@ import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.mana
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventQueueConsumerFactory;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventProcessingFailedHandler;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -51,7 +52,8 @@ public class EventStreamCatchupIT {
             EventQueueConsumerFactory.class,
             LoggerProducer.class,
             DummySystemCommandStore.class,
-            ConcurrentEventStreamConsumerManager.class
+            ConcurrentEventStreamConsumerManager.class,
+            EventProcessingFailedHandler.class
     })
     public WebApp war() {
         return new WebApp()

@@ -4,8 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.1.1] - 2019-09-28
+### Added
+- New system event 'CatchupProcessingOfEventFailedEvent' fired if processing of any PublishedEvent during catchup fails
 ### Changed
 - All system events moved into their own module 'event-store-management-events'
+- Unsuccessful catchups now logged correctly in catchup completion.
 
 ## [2.1.0] - 2019-09-26
 ### Changed

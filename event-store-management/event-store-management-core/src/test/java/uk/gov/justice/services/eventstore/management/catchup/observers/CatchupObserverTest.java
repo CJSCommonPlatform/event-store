@@ -4,7 +4,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
+import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
@@ -77,5 +79,29 @@ public class CatchupObserverTest {
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
         verify(catchupLifecycle).handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
+    }
+
+    @Test
+    public void shouldHandleCatchupComplete() throws Exception {
+
+        final CatchupCompletedEvent catchupCompletedEvent = mock(CatchupCompletedEvent.class);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+
+        catchupObserver.onCatchupComplete(catchupCompletedEvent);
+
+        verify(catchupLifecycle).handleCatchupComplete(catchupCompletedEvent);
+    }
+
+    @Test
+    public void shouldHandleCatchupProcessingOfEventFailed() throws Exception {
+
+        final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = mock(CatchupProcessingOfEventFailedEvent.class);
+
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
+
+        catchupObserver.onCatchupProcessingOfEventFailed(catchupProcessingOfEventFailedEvent);
+
+        verify(catchupLifecycle).handleCatchupProcessingOfEventFailed(catchupProcessingOfEventFailedEvent);
     }
 }

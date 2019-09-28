@@ -76,14 +76,15 @@ public class EventCatchupProcessor {
                 logger.info(format("%s catch up for Event Number: %d", catchupType.getName(), eventNumber));
             }
 
-            return concurrentEventStreamConsumerManager.add(event, subscriptionName);
+            return concurrentEventStreamConsumerManager.add(event, subscriptionName, catchupType);
 
         }).sum();
 
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
-                catchupType, subscriptionName,
+                catchupType,
+                subscriptionName,
                 eventSourceName,
                 componentName,
                 systemCommand,

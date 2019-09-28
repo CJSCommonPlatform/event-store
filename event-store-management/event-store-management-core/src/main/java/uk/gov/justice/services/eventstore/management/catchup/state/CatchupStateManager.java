@@ -1,7 +1,8 @@
-package uk.gov.justice.services.eventstore.management.catchup.process;
+package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
 
+import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
 import java.util.ArrayList;
@@ -9,12 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CatchupsInProgressCache {
+import javax.inject.Singleton;
+
+@Singleton
+public class CatchupStateManager {
 
     private final Map<String, CatchupInProgress> eventCatchupsInProgress = new ConcurrentHashMap<>();
     private final Map<String, CatchupInProgress> indexCatchupsInProgress = new ConcurrentHashMap<>();
 
-    public void removeAll(final CatchupType catchupType) {
+    public void clear(final CatchupType catchupType) {
         getCache(catchupType).clear();
     }
 

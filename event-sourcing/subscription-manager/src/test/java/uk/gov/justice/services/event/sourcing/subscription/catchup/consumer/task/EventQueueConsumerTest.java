@@ -5,6 +5,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.FinishedProcessingMessage;
@@ -20,7 +21,6 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventQueueConsumerTest {
@@ -32,7 +32,7 @@ public class EventQueueConsumerTest {
     private EventStreamConsumptionResolver eventStreamConsumptionResolver;
 
     @Mock
-    private Logger logger;
+    private EventProcessingFailedHandler eventProcessingFailedHandler;
 
 
     @InjectMocks
@@ -52,7 +52,7 @@ public class EventQueueConsumerTest {
         eventQueue.add(event_2);
         final String subscriptionName = "subscriptionName";
 
-        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName);
+        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName, EVENT_CATCHUP);
 
         final InOrder inOrder = inOrder(transactionalEventProcessor);
 
@@ -61,7 +61,7 @@ public class EventQueueConsumerTest {
     }
 
     @Test
-    public void shouldLogAnyExceptionsThrownWhilstProcessing() throws Exception {
+    public void shouldHandleExceptionsThrownWhilstProcessing() throws Exception {
 
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
 
@@ -78,12 +78,17 @@ public class EventQueueConsumerTest {
         eventQueue.add(event_2);
         final String subscriptionName = "subscriptionName";
 
-        doThrow(nullPointerException).when(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
+        doThrow(nullPointerException).when(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
 
-        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName);
+        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName, EVENT_CATCHUP);
 
-        verify(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
+        verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
 
-        verify(logger).error("Failed to process publishedEvent with metadata: {some: metadata}", nullPointerException);
+        verify(eventProcessingFailedHandler).handle(
+                nullPointerException,
+                event_1,
+                subscriptionName,
+                EVENT_CATCHUP
+        );
     }
 }

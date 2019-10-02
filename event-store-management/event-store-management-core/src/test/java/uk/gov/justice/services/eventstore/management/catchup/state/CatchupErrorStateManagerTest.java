@@ -1,33 +1,18 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.*;
-
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
+import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
-
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
-
-import java.util.Collections;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CatchupErrorStateManagerTest {

@@ -4,10 +4,10 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
 import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.util.UUID;
 import java.util.function.Consumer;

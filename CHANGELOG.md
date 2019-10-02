@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.0-M1] - 2019-10-02
+### Changed
+- Updated to framework 6.2.0-M1
+- All SystemCommand handlers now take a mandatory UUID, commandId.
+- Moved MdcLogger to framework 'jmx-command-handling' module
+
 ## [2.1.2] - 2019-10-01
 ### Changed
 - Updated to framework 6.1.1

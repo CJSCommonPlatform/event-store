@@ -10,7 +10,7 @@ import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProce
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.eventstore.management.logging.MdcLogger;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.util.function.Consumer;
 

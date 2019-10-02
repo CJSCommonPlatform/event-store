@@ -4,20 +4,28 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CatchupRequestedEvent {
 
+    private final UUID commandId;
     private final CatchupType catchupType;
     private final SystemCommand target;
     private final ZonedDateTime catchupRequestedAt;
 
     public CatchupRequestedEvent(
+            final UUID commandId,
             final CatchupType catchupType,
             final SystemCommand target,
             final ZonedDateTime catchupRequestedAt) {
+        this.commandId = commandId;
         this.catchupType = catchupType;
         this.target = target;
         this.catchupRequestedAt = catchupRequestedAt;
+    }
+
+    public UUID getCommandId() {
+        return commandId;
     }
 
     public CatchupType getCatchupType() {
@@ -37,20 +45,22 @@ public class CatchupRequestedEvent {
         if (this == o) return true;
         if (!(o instanceof CatchupRequestedEvent)) return false;
         final CatchupRequestedEvent that = (CatchupRequestedEvent) o;
-        return catchupType == that.catchupType &&
+        return Objects.equals(commandId, that.commandId) &&
+                catchupType == that.catchupType &&
                 Objects.equals(target, that.target) &&
                 Objects.equals(catchupRequestedAt, that.catchupRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(catchupType, target, catchupRequestedAt);
+        return Objects.hash(commandId, catchupType, target, catchupRequestedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupRequestedEvent{" +
-                "catchupType=" + catchupType +
+                "commandId=" + commandId +
+                ", catchupType=" + catchupType +
                 ", target=" + target +
                 ", catchupRequestedAt=" + catchupRequestedAt +
                 '}';

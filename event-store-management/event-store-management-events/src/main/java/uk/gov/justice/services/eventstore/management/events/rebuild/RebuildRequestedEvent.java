@@ -4,15 +4,25 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 public class RebuildRequestedEvent {
 
+    private final UUID commandId;
     private final SystemCommand target;
     private final ZonedDateTime rebuildRequestedAt;
 
-    public RebuildRequestedEvent(final ZonedDateTime rebuildRequestedAt, final SystemCommand target) {
+    public RebuildRequestedEvent(
+            final UUID commandId,
+            final ZonedDateTime rebuildRequestedAt,
+            final SystemCommand target) {
+        this.commandId = commandId;
         this.target = target;
         this.rebuildRequestedAt = rebuildRequestedAt;
+    }
+
+    public UUID getCommandId() {
+        return commandId;
     }
 
     public SystemCommand getTarget() {
@@ -28,19 +38,21 @@ public class RebuildRequestedEvent {
         if (this == o) return true;
         if (!(o instanceof RebuildRequestedEvent)) return false;
         final RebuildRequestedEvent that = (RebuildRequestedEvent) o;
-        return Objects.equals(target, that.target) &&
+        return Objects.equals(commandId, that.commandId) &&
+                Objects.equals(target, that.target) &&
                 Objects.equals(rebuildRequestedAt, that.rebuildRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(target, rebuildRequestedAt);
+        return Objects.hash(commandId, target, rebuildRequestedAt);
     }
 
     @Override
     public String toString() {
         return "RebuildRequestedEvent{" +
-                "target=" + target +
+                "commandId=" + commandId +
+                ", target=" + target +
                 ", rebuildRequestedAt=" + rebuildRequestedAt +
                 '}';
     }

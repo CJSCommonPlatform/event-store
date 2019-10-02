@@ -4,6 +4,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
 import java.util.Queue;
+import java.util.UUID;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
@@ -16,11 +17,13 @@ public class ConsumeEventQueueBean {
             final Queue<PublishedEvent> events,
             final EventQueueConsumer eventQueueConsumer,
             final String subscriptionName,
-            final CatchupType catchupType) {
+            final CatchupType catchupType,
+            final UUID commandId) {
 
         boolean consumed = false;
         while(! consumed) {
             consumed = eventQueueConsumer.consumeEventQueue(
+                    commandId,
                     events,
                     subscriptionName,
                     catchupType);

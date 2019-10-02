@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.fromString;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -69,6 +70,7 @@ public class EventCatchupProcessorTest {
     @Test
     public void shouldFetchAllMissingEventsAndProcess() throws Exception {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
         final String componentName = "EVENT_LISTENER";
@@ -82,6 +84,7 @@ public class EventCatchupProcessorTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(
+                commandId,
                 componentName,
                 subscription,
                 EVENT_CATCHUP,
@@ -103,9 +106,9 @@ public class EventCatchupProcessorTest {
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumberFrom);
         when(publishedEventSource.findEventsSince(eventNumberFrom)).thenReturn(events.stream());
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
 
         eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);
 
@@ -115,16 +118,18 @@ public class EventCatchupProcessorTest {
                 catchupCompletedForSubscriptionEventFirer);
 
         inOrder.verify(catchupStartedForSubscriptionEventFirer).fire(new CatchupStartedForSubscriptionEvent(
+                commandId,
                 subscriptionName,
                 EVENT_CATCHUP,
                 catchupStartedAt));
 
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_1, subscriptionName, EVENT_CATCHUP);
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_2, subscriptionName, EVENT_CATCHUP);
-        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_3, subscriptionName, EVENT_CATCHUP);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId);
+        inOrder.verify(concurrentEventStreamConsumerManager).add(publishedEvent_3, subscriptionName, EVENT_CATCHUP, commandId);
         inOrder.verify(concurrentEventStreamConsumerManager).waitForCompletion();
 
         inOrder.verify(catchupCompletedForSubscriptionEventFirer).fire(new CatchupCompletedForSubscriptionEvent(
+                commandId,
                 EVENT_CATCHUP,
                 subscriptionName,
                 eventSourceName,
@@ -140,6 +145,7 @@ public class EventCatchupProcessorTest {
     @Test
     public void shouldThrowExceptionIfEventNumberIsAbsentFromPublishedEvent() throws Exception {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final String eventSourceName = "event source";
         final String componentName = "EVENT_LISTENER";
@@ -154,6 +160,7 @@ public class EventCatchupProcessorTest {
         final SystemCommand systemCommand = mock(SystemCommand.class);
 
         final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(
+                commandId,
                 componentName,
                 subscription,
                 EVENT_CATCHUP,
@@ -176,9 +183,9 @@ public class EventCatchupProcessorTest {
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
         when(processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName)).thenReturn(eventNumberFrom);
         when(publishedEventSource.findEventsSince(eventNumberFrom)).thenReturn(events.stream());
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
+        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, EVENT_CATCHUP, commandId)).thenReturn(1);
 
         try {
             eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);

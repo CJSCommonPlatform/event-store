@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public class CatchupProcessingOfEventFailedEvent {
 
+    private final UUID commandId;
     private final UUID eventId;
     private final String metadata;
     private final Throwable exception;
@@ -12,16 +13,22 @@ public class CatchupProcessingOfEventFailedEvent {
     private final String subscriptionName;
 
     public CatchupProcessingOfEventFailedEvent(
+            final UUID commandId,
             final UUID eventId,
             final String metadata,
             final Throwable exception,
             final CatchupType catchupType,
             final String subscriptionName) {
+        this.commandId = commandId;
         this.eventId = eventId;
         this.metadata = metadata;
         this.exception = exception;
         this.catchupType = catchupType;
         this.subscriptionName = subscriptionName;
+    }
+
+    public UUID getCommandId() {
+        return commandId;
     }
 
     public UUID getEventId() {
@@ -49,7 +56,8 @@ public class CatchupProcessingOfEventFailedEvent {
         if (this == o) return true;
         if (!(o instanceof CatchupProcessingOfEventFailedEvent)) return false;
         final CatchupProcessingOfEventFailedEvent that = (CatchupProcessingOfEventFailedEvent) o;
-        return Objects.equals(eventId, that.eventId) &&
+        return Objects.equals(commandId, that.commandId) &&
+                Objects.equals(eventId, that.eventId) &&
                 Objects.equals(metadata, that.metadata) &&
                 Objects.equals(exception, that.exception) &&
                 catchupType == that.catchupType &&
@@ -58,13 +66,14 @@ public class CatchupProcessingOfEventFailedEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(eventId, metadata, exception, catchupType, subscriptionName);
+        return Objects.hash(commandId, eventId, metadata, exception, catchupType, subscriptionName);
     }
 
     @Override
     public String toString() {
         return "CatchupProcessingOfEventFailedEvent{" +
-                "eventId=" + eventId +
+                "commandId=" + commandId +
+                ", eventId=" + eventId +
                 ", metadata='" + metadata + '\'' +
                 ", exception=" + exception +
                 ", catchupType=" + catchupType +

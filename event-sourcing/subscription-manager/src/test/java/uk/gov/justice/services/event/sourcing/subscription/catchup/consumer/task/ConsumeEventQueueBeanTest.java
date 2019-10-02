@@ -1,6 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
 import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,6 +12,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Test;
@@ -27,20 +29,22 @@ public class ConsumeEventQueueBeanTest {
     @Test
     public void shouldConsumeTheEventQueueUntilEventsConsumedIsTrue() throws Exception {
 
+        final UUID commandId = randomUUID();
         final Queue<PublishedEvent> events = new ConcurrentLinkedQueue<>(singletonList(mock(PublishedEvent.class))) ;
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
         final String subscriptionName = "subscriptionName";
         final CatchupType catchupType = EVENT_CATCHUP;
 
-        when(eventQueueConsumer.consumeEventQueue(events, subscriptionName, catchupType)).thenReturn(false, false, true);
+        when(eventQueueConsumer.consumeEventQueue(commandId, events, subscriptionName, catchupType)).thenReturn(false, false, true);
 
         consumeEventQueueBean.consume(
                 events,
                 eventQueueConsumer,
                 subscriptionName,
-                catchupType
+                catchupType,
+                commandId
         );
 
-        verify(eventQueueConsumer, times(3)).consumeEventQueue(events, subscriptionName, catchupType);
+        verify(eventQueueConsumer, times(3)).consumeEventQueue(commandId, events, subscriptionName, catchupType);
     }
 }

@@ -35,19 +35,20 @@ public class CatchupCommandHandler {
 
     @HandlesSystemCommand(CATCHUP)
     public void catchupEvents(final CatchupCommand catchupCommand, final UUID commandId) {
-        doCatchup(catchupCommand, EVENT_CATCHUP);
+        doCatchup(catchupCommand, EVENT_CATCHUP, commandId);
     }
 
     @HandlesSystemCommand(INDEXER_CATCHUP)
     public void catchupSearchIndexes(final IndexerCatchupCommand indexerCatchupCommand, final UUID commandId) {
-        doCatchup(indexerCatchupCommand, INDEX_CATCHUP);
+        doCatchup(indexerCatchupCommand, INDEX_CATCHUP, commandId);
     }
 
-    private void doCatchup(final SystemCommand systemCommand, final CatchupType catchupType) {
+    private void doCatchup(final SystemCommand systemCommand, final CatchupType catchupType, final UUID commandId) {
         final ZonedDateTime now = clock.now();
 
         logger.info(format("Received command '%s' at %tr", systemCommand, now));
         final CatchupRequestedEvent catchupRequestedEvent = new CatchupRequestedEvent(
+                commandId,
                 catchupType,
                 systemCommand,
                 now);

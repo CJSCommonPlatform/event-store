@@ -7,6 +7,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
 import java.util.Queue;
+import java.util.UUID;
 
 public class EventQueueConsumer {
 
@@ -24,6 +25,7 @@ public class EventQueueConsumer {
     }
 
     public boolean consumeEventQueue(
+            final UUID commandId,
             final Queue<PublishedEvent> events,
             final String subscriptionName,
             final CatchupType catchupType) {
@@ -33,7 +35,7 @@ public class EventQueueConsumer {
             try {
                 transactionalEventProcessor.processWithEventBuffer(publishedEvent, subscriptionName);
             } catch (final RuntimeException e) {
-                eventProcessingFailedHandler.handle(e, publishedEvent, subscriptionName, catchupType);
+                eventProcessingFailedHandler.handle(e, publishedEvent, subscriptionName, catchupType, commandId);
             }
         }
 

@@ -1,10 +1,12 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util;
 
+import static java.util.UUID.randomUUID;
 import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.ejb.Singleton;
@@ -32,6 +34,8 @@ public class TestCatchupBean {
         final int numberOfEventsToCreate = 60;
         final int numberOfUniqueEventNames = 10;
 
+        final UUID commandId = randomUUID();
+
         transactionalEventProcessor.setExpectedNumberOfEvents(numberOfEventsToCreate);
 
         final EventFactory eventFactory = new EventFactory(numberOfStreams, numberOfUniqueEventNames);
@@ -40,7 +44,7 @@ public class TestCatchupBean {
 
         stopWatch.start();
         final int totalEventsProcessed = eventStream.mapToInt(event -> {
-            concurrentEventStreamConsumerManager.add(event, "subscriptionName", EVENT_CATCHUP);
+            concurrentEventStreamConsumerManager.add(event, "subscriptionName", EVENT_CATCHUP, commandId);
             return 1;
         }).sum();
 

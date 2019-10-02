@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -13,6 +14,7 @@ import uk.gov.justice.services.event.sourcing.subscription.manager.Transactional
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Test;
@@ -41,6 +43,8 @@ public class EventQueueConsumerTest {
     @Test
     public void shouldProcessAllEventsOnQueueAndReturnTrueIfComplete() throws Exception {
 
+        final UUID commandId = randomUUID();
+        
         final PublishedEvent event_1 = mock(PublishedEvent.class);
         final PublishedEvent event_2 = mock(PublishedEvent.class);
 
@@ -52,7 +56,7 @@ public class EventQueueConsumerTest {
         eventQueue.add(event_2);
         final String subscriptionName = "subscriptionName";
 
-        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName, EVENT_CATCHUP);
+        eventQueueConsumer.consumeEventQueue(commandId, eventQueue, subscriptionName, EVENT_CATCHUP);
 
         final InOrder inOrder = inOrder(transactionalEventProcessor);
 
@@ -65,6 +69,7 @@ public class EventQueueConsumerTest {
 
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
 
+        final UUID commandId = randomUUID();
         final PublishedEvent event_1 = mock(PublishedEvent.class);
         final String metadata = "{some: metadata}";
         final PublishedEvent event_2 = mock(PublishedEvent.class);
@@ -80,7 +85,7 @@ public class EventQueueConsumerTest {
 
         doThrow(nullPointerException).when(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
 
-        eventQueueConsumer.consumeEventQueue(eventQueue, subscriptionName, EVENT_CATCHUP);
+        eventQueueConsumer.consumeEventQueue(commandId, eventQueue, subscriptionName, EVENT_CATCHUP);
 
         verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
 
@@ -88,7 +93,8 @@ public class EventQueueConsumerTest {
                 nullPointerException,
                 event_1,
                 subscriptionName,
-                EVENT_CATCHUP
+                EVENT_CATCHUP,
+                commandId
         );
     }
 }

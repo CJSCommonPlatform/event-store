@@ -10,6 +10,7 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -33,16 +34,17 @@ public class EventCatchupRunner {
     @Inject
     private Logger logger;
 
-    public void runEventCatchup(final CatchupType catchupType, final SystemCommand systemCommand) {
+    public void runEventCatchup(final UUID commandId, final CatchupType catchupType, final SystemCommand systemCommand) {
 
         logger.info(format("Received CatchupRequestedEvent for %s", catchupType));
 
-        catchupStartedEventFirer.fire(new CatchupStartedEvent(catchupType, clock.now()));
+        catchupStartedEventFirer.fire(new CatchupStartedEvent(commandId, catchupType, clock.now()));
 
         final List<SubscriptionsDescriptor> subscriptionsDescriptors =
                 subscriptionsDescriptorsRegistry.getAll();
 
         subscriptionsDescriptors.forEach(subscriptionsDescriptor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
+                commandId,
                 subscriptionsDescriptor,
                 catchupType,
                 systemCommand));

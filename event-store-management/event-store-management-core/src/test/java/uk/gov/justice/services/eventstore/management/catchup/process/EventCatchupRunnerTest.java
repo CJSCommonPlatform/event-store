@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static java.util.Arrays.asList;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,7 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 
@@ -48,6 +50,7 @@ public class EventCatchupRunnerTest {
     @Test
     public void shouldRunEventCatchupForEachSubscription() throws Exception {
 
+        final UUID commandId = randomUUID();
         final ZonedDateTime startTime = new UtcClock().now();
         final ZonedDateTime endTime = startTime.plusMinutes(23);
 
@@ -59,7 +62,7 @@ public class EventCatchupRunnerTest {
         when(clock.now()).thenReturn(startTime, endTime);
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(asList(subscriptionsDescriptor_1, subscriptionsDescriptor_2));
 
-        eventCatchupRunner.runEventCatchup(EVENT_CATCHUP, catchupCommand);
+        eventCatchupRunner.runEventCatchup(commandId, EVENT_CATCHUP, catchupCommand);
 
         final InOrder inOrder = inOrder(
                 logger,
@@ -68,8 +71,8 @@ public class EventCatchupRunnerTest {
         );
 
         inOrder.verify(logger).info("Received CatchupRequestedEvent for EVENT_CATCHUP");
-        inOrder.verify(catchupStartedEventFirer).fire(new CatchupStartedEvent(EVENT_CATCHUP, startTime));
-        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_1, EVENT_CATCHUP, catchupCommand);
-        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(subscriptionsDescriptor_2, EVENT_CATCHUP, catchupCommand);
+        inOrder.verify(catchupStartedEventFirer).fire(new CatchupStartedEvent(commandId, EVENT_CATCHUP, startTime));
+        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(commandId, subscriptionsDescriptor_1, EVENT_CATCHUP, catchupCommand);
+        inOrder.verify(eventCatchupByComponentRunner).runEventCatchupForComponent(commandId, subscriptionsDescriptor_2, EVENT_CATCHUP, catchupCommand);
     }
 }

@@ -48,6 +48,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
     @Test
     public void shouldCreateQueueAndCreateTaskToConsumeQueueForNewStreamId() {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final UUID streamId = randomUUID();
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
@@ -57,9 +58,9 @@ public class ConcurrentEventStreamConsumerManagerTest {
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
         when(publishedEvent.getStreamId()).thenReturn(streamId);
 
-        concurrentEventStreamConsumerManager.add(publishedEvent, subscriptionName, EVENT_CATCHUP);
+        concurrentEventStreamConsumerManager.add(publishedEvent, subscriptionName, EVENT_CATCHUP, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP));
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP), eq(commandId));
 
         final Queue<PublishedEvent> events = eventQueueCaptor.getValue();
         assertThat(events.size(), is(1));
@@ -70,6 +71,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
     @Test
     public void shouldNotCreateQueueOrCreateTaskIfEventIsSameStreamId() {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final UUID streamId = randomUUID();
         final PublishedEvent publishedEvent_1 = mock(PublishedEvent.class);
@@ -80,10 +82,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         when(publishedEvent_1.getStreamId()).thenReturn(streamId);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId);
 
-        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP);
-        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP));
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream = eventQueueCaptor.getValue();
         assertThat(eventsStream.size(), is(2));
@@ -94,6 +96,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
     @Test
     public void shouldCreateQueueForEachStreamId() {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
@@ -105,10 +108,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
 
-        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP);
-        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId);
 
-        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP));
+        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP), eq(commandId));
 
         final List<Queue<PublishedEvent>> allValues = eventQueueCaptor.getAllValues();
 
@@ -124,6 +127,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
     @Test
     public void shouldBeAbleToFinishQueueAndAllowAnotherProcessToPickupQueueIfNotEmpty() {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final UUID streamId_1 = randomUUID();
         final UUID streamId_2 = randomUUID();
@@ -135,18 +139,18 @@ public class ConcurrentEventStreamConsumerManagerTest {
         when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
 
-        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP);
+        concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, EVENT_CATCHUP, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP));
+        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream_1 = eventQueueCaptor.getValue();
         assertThat(eventsStream_1.size(), is(1));
         assertThat(eventsStream_1.poll(), is(publishedEvent_1));
 
         concurrentEventStreamConsumerManager.isEventConsumptionComplete(new FinishedProcessingMessage(eventsStream_1));
-        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP);
+        concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, EVENT_CATCHUP, commandId);
 
-        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP));
+        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(EVENT_CATCHUP), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream_2 = eventQueueCaptor.getValue();
         assertThat(eventsStream_2.size(), is(1));

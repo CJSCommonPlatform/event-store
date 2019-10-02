@@ -89,11 +89,13 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldCallTheCatchupRunnerOnCatchupRequested() throws Exception {
 
+        final UUID commandId = randomUUID();
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final CatchupType catchupType = EVENT_CATCHUP;
 
         final CatchupCommand catchupCommand = new CatchupCommand();
         final CatchupRequestedEvent catchupRequestedEvent = new CatchupRequestedEvent(
+                commandId,
                 catchupType,
                 catchupCommand,
                 catchupStartedAt
@@ -110,15 +112,16 @@ public class CatchupLifecycleTest {
 
         inOrder.verify(catchupStateManager).clear(catchupType);
         inOrder.verify(catchupErrorStateManager).clear(catchupType);
-        inOrder.verify(eventCatchupRunner).runEventCatchup(catchupType, catchupCommand);
+        inOrder.verify(eventCatchupRunner).runEventCatchup(commandId, catchupType, catchupCommand);
     }
 
     @Test
     public void shouldHanldeCatchupStarted() throws Exception {
 
+        final UUID commandId = randomUUID();
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
 
-        catchupLifecycle.handleCatchupStarted(new CatchupStartedEvent(EVENT_CATCHUP, catchupStartedAt));
+        catchupLifecycle.handleCatchupStarted(new CatchupStartedEvent(commandId, EVENT_CATCHUP, catchupStartedAt));
 
         verify(logger).info("Event catchup started at 2019-02-23T17:12:23Z");
     }
@@ -126,10 +129,12 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldLogCatchupStartedForSubscriptionAndStoreProgress() throws Exception {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "mySubscription";
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
 
         final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent = new CatchupStartedForSubscriptionEvent(
+                commandId,
                 subscriptionName,
                 EVENT_CATCHUP,
                 catchupStartedAt);
@@ -149,6 +154,7 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldRemoveTheCatchupForSubscriptionInProgressOnCatchupForSubscriptionComplete() throws Exception {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "mySubscription";
         final String eventSourceName = "myEventSource";
         final String componentName = "EVENT_LISTENER";
@@ -160,6 +166,7 @@ public class CatchupLifecycleTest {
         final Duration catchupDuration = Duration.of(5_000, MILLIS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
+                commandId,
                 EVENT_CATCHUP,
                 subscriptionName,
                 eventSourceName,
@@ -190,6 +197,7 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldFireTheCatchupCompleteEventIfAllCatchupsForSubscriptionsComplete() throws Exception {
 
+        final UUID commandId = randomUUID();
         final String subscriptionName = "mySubscription";
         final String eventSourceName = "myEventSource";
         final String componentName = "EVENT_LISTENER";
@@ -201,6 +209,7 @@ public class CatchupLifecycleTest {
         final Duration catchupDuration = Duration.of(5_000, MILLIS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
+                commandId,
                 EVENT_CATCHUP,
                 subscriptionName,
                 eventSourceName,
@@ -226,16 +235,18 @@ public class CatchupLifecycleTest {
         verify(logger).info("Event catchup for subscription 'mySubscription' caught up 23 events");
         verify(logger).info("Event catchup for subscription 'mySubscription' took 5000 milliseconds");
 
-        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(target, allCatchupsCompletedAt, EVENT_CATCHUP));
+        verify(catchupCompletedEventFirer).fire(new CatchupCompletedEvent(commandId, target, allCatchupsCompletedAt, EVENT_CATCHUP));
     }
 
     @Test
     public void shouldHandleCatchupFailureCompletion() throws Exception {
 
+        final UUID commandId = randomUUID();
         final ZonedDateTime catchupCompletedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
         final CatchupCommand target = new CatchupCommand();
         final CatchupType catchupType = EVENT_CATCHUP;
         final CatchupCompletedEvent catchupCompletedEvent = new CatchupCompletedEvent(
+                commandId,
                 target,
                 catchupCompletedAt,
                 catchupType
@@ -251,7 +262,7 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldHandleCatchupSuccessfulCompletion() throws Exception {
 
-
+        final UUID commandId = randomUUID();
         final List<CatchupError> catchupErrors = asList(
                 mock(CatchupError.class),
                 mock(CatchupError.class),
@@ -261,6 +272,7 @@ public class CatchupLifecycleTest {
         final CatchupCommand target = new CatchupCommand();
         final CatchupType catchupType = EVENT_CATCHUP;
         final CatchupCompletedEvent catchupCompletedEvent = new CatchupCompletedEvent(
+                commandId,
                 target,
                 catchupCompletedAt,
                 catchupType
@@ -276,6 +288,7 @@ public class CatchupLifecycleTest {
     @Test
     public void shouldHandleCatchupProcessingOfEventFailed() throws Exception {
 
+        final UUID commandId = randomUUID();
         final UUID eventId = randomUUID();
         final String metadata = "{some: metadata}";
         final NullPointerException exception = new NullPointerException("Ooops");
@@ -283,6 +296,7 @@ public class CatchupLifecycleTest {
         final String subscriptionName = "subscriptionName";
 
         final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = new CatchupProcessingOfEventFailedEvent(
+                commandId,
                 eventId,
                 metadata,
                 exception,

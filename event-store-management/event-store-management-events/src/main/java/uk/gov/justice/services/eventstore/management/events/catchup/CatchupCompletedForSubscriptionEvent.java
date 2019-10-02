@@ -4,9 +4,11 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 public class CatchupCompletedForSubscriptionEvent {
 
+    private final UUID commandId;
     private final CatchupType catchupType;
     private final String subscriptionName;
     private final String eventSourceName;
@@ -16,12 +18,15 @@ public class CatchupCompletedForSubscriptionEvent {
     private final int totalNumberOfEvents;
 
     public CatchupCompletedForSubscriptionEvent(
-            final CatchupType catchupType, final String subscriptionName,
+            final UUID commandId,
+            final CatchupType catchupType,
+            final String subscriptionName,
             final String eventSourceName,
             final String componentName,
             final SystemCommand target,
             final ZonedDateTime catchupCompletedAt,
             final int totalNumberOfEvents) {
+        this.commandId = commandId;
         this.catchupType = catchupType;
         this.subscriptionName = subscriptionName;
         this.eventSourceName = eventSourceName;
@@ -29,6 +34,10 @@ public class CatchupCompletedForSubscriptionEvent {
         this.target = target;
         this.catchupCompletedAt = catchupCompletedAt;
         this.totalNumberOfEvents = totalNumberOfEvents;
+    }
+
+    public UUID getCommandId() {
+        return commandId;
     }
 
     public CatchupType getCatchupType() {
@@ -65,6 +74,7 @@ public class CatchupCompletedForSubscriptionEvent {
         if (!(o instanceof CatchupCompletedForSubscriptionEvent)) return false;
         final CatchupCompletedForSubscriptionEvent that = (CatchupCompletedForSubscriptionEvent) o;
         return totalNumberOfEvents == that.totalNumberOfEvents &&
+                Objects.equals(commandId, that.commandId) &&
                 catchupType == that.catchupType &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
                 Objects.equals(eventSourceName, that.eventSourceName) &&
@@ -75,13 +85,14 @@ public class CatchupCompletedForSubscriptionEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(catchupType, subscriptionName, eventSourceName, componentName, target, catchupCompletedAt, totalNumberOfEvents);
+        return Objects.hash(commandId, catchupType, subscriptionName, eventSourceName, componentName, target, catchupCompletedAt, totalNumberOfEvents);
     }
 
     @Override
     public String toString() {
         return "CatchupCompletedForSubscriptionEvent{" +
-                "catchupType=" + catchupType +
+                "commandId=" + commandId +
+                ", catchupType=" + catchupType +
                 ", subscriptionName='" + subscriptionName + '\'' +
                 ", eventSourceName='" + eventSourceName + '\'' +
                 ", componentName='" + componentName + '\'' +

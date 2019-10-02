@@ -54,7 +54,8 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     public int add(
             final PublishedEvent publishedEvent,
             final String subscriptionName,
-            final CatchupType catchupType) {
+            final CatchupType catchupType,
+            final UUID commandId) {
 
         final UUID streamId = publishedEvent.getStreamId();
 
@@ -64,7 +65,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
             events.offer(publishedEvent);
 
             if (notInProgress(events)) {
-                createAndSubmitTaskFor(events, subscriptionName, catchupType);
+                createAndSubmitTaskFor(events, subscriptionName, catchupType, commandId);
             }
         }
 
@@ -105,7 +106,8 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     private void createAndSubmitTaskFor(
             final Queue<PublishedEvent> eventStream,
             final String subscriptionName,
-            final CatchupType catchupType) {
+            final CatchupType catchupType,
+            final UUID commandId) {
 
         eventStreamsInProgressList.add(eventStream);
 
@@ -114,6 +116,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
                 eventStream,
                 eventQueueConsumer,
                 subscriptionName,
-                catchupType);
+                catchupType,
+                commandId);
     }
 }

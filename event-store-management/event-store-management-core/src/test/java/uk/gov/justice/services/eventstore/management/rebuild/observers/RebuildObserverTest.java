@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventstore.management.rebuild.observers;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.ZonedDateTime.of;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,7 @@ import uk.gov.justice.services.jmx.api.command.RebuildCommand;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.enterprise.event.Event;
@@ -51,6 +53,7 @@ public class RebuildObserverTest {
     @Test
     public void shouldRunRebuild() throws Exception {
 
+        final UUID commandId = randomUUID();
         final ZonedDateTime rebuildStartedAt = of(2019, 5, 24, 12, 0, 0, 0, UTC);
         final ZonedDateTime rebuildRequestedAt = rebuildStartedAt.minusSeconds(1);
         final ZonedDateTime rebuildCompletedAt = rebuildStartedAt.plusSeconds(1);
@@ -58,6 +61,7 @@ public class RebuildObserverTest {
         final RebuildCommand target = new RebuildCommand();
 
         final RebuildRequestedEvent rebuildRequestedEvent = new RebuildRequestedEvent(
+                commandId,
                 rebuildRequestedAt,
                 target);
 
@@ -73,6 +77,6 @@ public class RebuildObserverTest {
         inOrder.verify(publishedEventRebuilder).rebuild();
         inOrder.verify(logger).info("Rebuild for 'REBUILD' command completed at Fri May 24 12:00:01 Z 2019");
         inOrder.verify(logger).info("Rebuild took 1000 milliseconds");
-        inOrder.verify(rebuildCompletedEventFirer).fire(new RebuildCompleteEvent(target, rebuildCompletedAt));
+        inOrder.verify(rebuildCompletedEventFirer).fire(new RebuildCompleteEvent(commandId, target, rebuildCompletedAt));
     }
 }

@@ -43,6 +43,7 @@ public class EventProcessingFailedHandlerTest {
     public void shouldLogExceptionAndFireFailureEvent() throws Exception {
 
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
+        final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
         final String metadata = "{some: metadata}";
         final UUID eventId = randomUUID();
@@ -56,7 +57,8 @@ public class EventProcessingFailedHandlerTest {
                 nullPointerException,
                 publishedEvent,
                 subscriptionName,
-                EVENT_CATCHUP);
+                EVENT_CATCHUP,
+                commandId);
 
         verify(logger).error("Failed to process publishedEvent with metadata: {some: metadata}", nullPointerException);
 

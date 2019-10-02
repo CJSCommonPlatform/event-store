@@ -28,13 +28,7 @@ import org.slf4j.Logger;
 public class RebuildCommandHandlerTest {
 
     @Mock
-    private Event<ShutteringRequestedEvent> shutteringRequestedEventFirer;
-
-    @Mock
     private Event<RebuildRequestedEvent> rebuildRequestedEventEventFirer;
-
-    @Mock
-    private Event<UnshutteringRequestedEvent> unshutteringRequestedEventFirer;
 
     @Mock
     private UtcClock clock;
@@ -57,6 +51,6 @@ public class RebuildCommandHandlerTest {
         rebuildCommandHandler.doRebuild(rebuildCommand, commandId);
 
         verify(logger).info("Received command 'REBUILD' at 11:22:01 AM");
-        verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(now, rebuildCommand));
+        verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(commandId, now, rebuildCommand));
     }
 }

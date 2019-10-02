@@ -6,6 +6,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
 
+import java.util.UUID;
+
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -19,7 +21,8 @@ public class EventProcessingFailedHandler {
     @Inject
     private Logger logger;
 
-    public void handle(final RuntimeException exception, final PublishedEvent publishedEvent, final String subscriptionName, final CatchupType catchupType) {
+    public void handle(
+            final RuntimeException exception, final PublishedEvent publishedEvent, final String subscriptionName, final CatchupType catchupType, final UUID commandId) {
 
         final String logMessage = format("Failed to process publishedEvent with metadata: %s", publishedEvent.getMetadata());
         logger.error(
@@ -27,6 +30,7 @@ public class EventProcessingFailedHandler {
                 exception);
 
         final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = new CatchupProcessingOfEventFailedEvent(
+                commandId,
                 publishedEvent.getId(),
                 publishedEvent.getMetadata(),
                 exception,

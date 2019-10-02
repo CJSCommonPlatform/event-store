@@ -11,6 +11,7 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -39,6 +40,7 @@ public class RebuildObserver {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
 
+            final UUID commandId = rebuildRequestedEvent.getCommandId();
             final SystemCommand target = rebuildRequestedEvent.getTarget();
 
             final String commandName = target.getName();
@@ -54,7 +56,7 @@ public class RebuildObserver {
             logger.info(format);
             logger.info(format("Rebuild took %d milliseconds", MILLIS.between(rebuildStartedAt, rebuildCompletedAt)));
 
-            rebuildCompletedEventFirer.fire(new RebuildCompleteEvent(target, rebuildCompletedAt));
+            rebuildCompletedEventFirer.fire(new RebuildCompleteEvent(commandId, target, rebuildCompletedAt));
         });
     }
 }

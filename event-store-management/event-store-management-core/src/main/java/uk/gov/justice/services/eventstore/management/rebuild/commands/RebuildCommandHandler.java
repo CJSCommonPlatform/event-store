@@ -32,6 +32,6 @@ public class RebuildCommandHandler {
 
         final ZonedDateTime now = clock.now();
         logger.info(format("Received command '%s' at %tr", rebuildCommand, now));
-        rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(now, rebuildCommand));
+        rebuildRequestedEventEventFirer.fire(new RebuildRequestedEvent(commandId, now, rebuildCommand));
     }
 }

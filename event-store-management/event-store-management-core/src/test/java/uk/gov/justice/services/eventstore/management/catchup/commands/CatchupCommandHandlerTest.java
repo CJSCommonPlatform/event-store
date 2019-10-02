@@ -52,7 +52,7 @@ public class CatchupCommandHandlerTest {
         catchupCommandHandler.catchupEvents(catchupCommand, commandId);
 
         verify(logger).info("Received command 'CATCHUP' at 11:22:01 AM");
-        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(EVENT_CATCHUP, catchupCommand, now));
+        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, EVENT_CATCHUP, catchupCommand, now));
     }
 
     @Test
@@ -67,6 +67,6 @@ public class CatchupCommandHandlerTest {
         catchupCommandHandler.catchupSearchIndexes(indexerCatchupCommand, commandId);
 
         verify(logger).info("Received command 'INDEXER_CATCHUP' at 11:22:01 AM");
-        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(INDEX_CATCHUP, indexerCatchupCommand, now));
+        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, INDEX_CATCHUP, indexerCatchupCommand, now));
     }
 }

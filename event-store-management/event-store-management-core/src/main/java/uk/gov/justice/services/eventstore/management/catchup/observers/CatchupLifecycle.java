@@ -21,6 +21,7 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -52,6 +53,7 @@ public class CatchupLifecycle {
 
     public void handleCatchupRequested(final CatchupRequestedEvent catchupRequestedEvent) {
 
+        final UUID commandId = catchupRequestedEvent.getCommandId();
         final CatchupType catchupType = catchupRequestedEvent.getCatchupType();
         final SystemCommand target = catchupRequestedEvent.getTarget();
 
@@ -60,7 +62,7 @@ public class CatchupLifecycle {
         catchupStateManager.clear(catchupType);
         catchupErrorStateManager.clear(catchupType);
 
-        eventCatchupRunner.runEventCatchup(catchupType, target);
+        eventCatchupRunner.runEventCatchup(commandId, catchupType, target);
     }
 
     public void handleCatchupStarted(final CatchupStartedEvent catchupStartedEvent) {
@@ -84,6 +86,7 @@ public class CatchupLifecycle {
 
     public void handleCatchupCompleteForSubscription(final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
 
+        final UUID commandId = catchupCompletedForSubscriptionEvent.getCommandId();
         final String subscriptionName = catchupCompletedForSubscriptionEvent.getSubscriptionName();
 
         final ZonedDateTime catchupCompletedAt = catchupCompletedForSubscriptionEvent.getCatchupCompletedAt();
@@ -106,6 +109,7 @@ public class CatchupLifecycle {
             final ZonedDateTime completedAt = clock.now();
 
             catchupCompletedEventFirer.fire(new CatchupCompletedEvent(
+                    commandId,
                     target,
                     completedAt,
                     catchupType));

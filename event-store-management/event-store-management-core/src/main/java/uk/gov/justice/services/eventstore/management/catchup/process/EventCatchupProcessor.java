@@ -16,6 +16,7 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.enterprise.event.Event;
@@ -50,6 +51,7 @@ public class EventCatchupProcessor {
     @Transactional(NEVER)
     public void performEventCatchup(final CatchupSubscriptionContext catchupSubscriptionContext) {
 
+        final UUID commandId = catchupSubscriptionContext.getCommandId();
         final Subscription subscription = catchupSubscriptionContext.getSubscription();
         final String subscriptionName = subscription.getName();
         final CatchupType catchupType = catchupSubscriptionContext.getCatchupType();
@@ -63,6 +65,7 @@ public class EventCatchupProcessor {
         logger.info("Catching up from Event Number: " + latestProcessedEventNumber);
 
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
+                commandId,
                 subscriptionName,
                 catchupType,
                 clock.now()));
@@ -76,13 +79,14 @@ public class EventCatchupProcessor {
                 logger.info(format("%s catch up for Event Number: %d", catchupType.getName(), eventNumber));
             }
 
-            return concurrentEventStreamConsumerManager.add(event, subscriptionName, catchupType);
+            return concurrentEventStreamConsumerManager.add(event, subscriptionName, catchupType, commandId);
 
         }).sum();
 
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(
+                commandId,
                 catchupType,
                 subscriptionName,
                 eventSourceName,

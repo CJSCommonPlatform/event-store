@@ -7,6 +7,8 @@ import uk.gov.justice.services.jmx.api.command.SystemCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ public class EventCatchupByComponentRunner {
     private Logger logger;
 
     public void runEventCatchupForComponent(
-            final SubscriptionsDescriptor subscriptionsDescriptor,
+            final UUID commandId, final SubscriptionsDescriptor subscriptionsDescriptor,
             final CatchupType catchupType,
             final SystemCommand systemCommand) {
 
@@ -32,11 +34,12 @@ public class EventCatchupByComponentRunner {
         if (runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, catchupType)) {
             subscriptionsDescriptor
                     .getSubscriptions()
-                    .forEach(subscription -> runEventCatchupForSubscription(systemCommand, catchupType, componentName, subscription));
+                    .forEach(subscription -> runEventCatchupForSubscription(commandId, systemCommand, catchupType, componentName, subscription));
         }
     }
 
     private void runEventCatchupForSubscription(
+            final UUID commandId,
             final SystemCommand systemCommand,
             final CatchupType catchupType,
             final String componentName,
@@ -45,6 +48,7 @@ public class EventCatchupByComponentRunner {
         logger.info(format("Running %s catchup for Component '%s', Subscription '%s'", catchupType, componentName, subscription.getName()));
 
         final CatchupSubscriptionContext catchupSubscriptionContext = new CatchupSubscriptionContext(
+                commandId,
                 componentName,
                 subscription,
                 catchupType,

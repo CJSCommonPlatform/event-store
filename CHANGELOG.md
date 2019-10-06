@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.0-M3] - 2018-10-09
+### Changed
+- Updated framework t0 6.2.0-M3
+- Converted ShutteringExecutors to use the new ShutteringExecutor interface
+
 ## [2.2.0-M2] - 2018-10-02
 ### Added
 - Added commandId to all SystemEvents

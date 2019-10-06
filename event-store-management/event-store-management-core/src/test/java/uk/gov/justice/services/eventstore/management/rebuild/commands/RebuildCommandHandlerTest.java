@@ -9,8 +9,6 @@ import static org.mockito.Mockito.when;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.events.rebuild.RebuildRequestedEvent;
 import uk.gov.justice.services.jmx.api.command.RebuildCommand;
-import uk.gov.justice.services.management.shuttering.events.ShutteringRequestedEvent;
-import uk.gov.justice.services.management.shuttering.events.UnshutteringRequestedEvent;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

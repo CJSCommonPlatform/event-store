@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_COUNT_EVENTS_FROM_EVENT_NUMBER;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION;
@@ -205,6 +206,26 @@ public class EventJdbcRepositoryExceptionsTest {
         } catch (final JdbcRepositoryException e) {
             assertThat(e.getMessage(), is("Failed to read events from event_log from event number : '2' with page size : '10'"));
             verify(logger).error("Failed to read events from event_log from event number : '2' with page size : '10'", sqlException);
+        }
+    }
+
+    @Test
+    public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInCountEventsFrom() throws Exception {
+
+        final long eventNumber = 2L;
+        final SQLException sqlException = new SQLException();
+
+        final DataSource dataSource = mock(DataSource.class);
+
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_COUNT_EVENTS_FROM_EVENT_NUMBER)).thenThrow(sqlException);
+
+        try {
+            eventJdbcRepository.countEventsFrom(eventNumber);
+            fail();
+        } catch (final JdbcRepositoryException e) {
+            assertThat(e.getMessage(), is("Failed to read events from event_log from event number : '2'"));
+            verify(logger).error("Failed to read events from event_log from event number : '2'", sqlException);
         }
     }
 }

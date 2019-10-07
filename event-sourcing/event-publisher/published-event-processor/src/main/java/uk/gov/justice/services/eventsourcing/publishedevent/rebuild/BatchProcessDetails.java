@@ -8,13 +8,17 @@ public class BatchProcessDetails {
     private final AtomicLong previousEventNumber;
     private final AtomicLong currentEventNumber;
     private final int processCount;
-    private final boolean complete;
+    private final int processedInBatchCount;
 
-    public BatchProcessDetails(final AtomicLong previousEventNumber, final AtomicLong currentEventNumber, final int processCount, final boolean complete) {
+    public BatchProcessDetails(
+            final AtomicLong previousEventNumber,
+            final AtomicLong currentEventNumber,
+            final int processCount,
+            final int processedInBatchCount) {
         this.previousEventNumber = previousEventNumber;
         this.currentEventNumber = currentEventNumber;
         this.processCount = processCount;
-        this.complete = complete;
+        this.processedInBatchCount = processedInBatchCount;
     }
 
     public AtomicLong getPreviousEventNumber() {
@@ -29,8 +33,8 @@ public class BatchProcessDetails {
         return processCount;
     }
 
-    public boolean isComplete() {
-        return complete;
+    public int getProcessedInBatchCount() {
+        return processedInBatchCount;
     }
 
     @Override
@@ -39,14 +43,14 @@ public class BatchProcessDetails {
         if (!(o instanceof BatchProcessDetails)) return false;
         final BatchProcessDetails that = (BatchProcessDetails) o;
         return processCount == that.processCount &&
-                complete == that.complete &&
+                processedInBatchCount == that.processedInBatchCount &&
                 Objects.equals(previousEventNumber, that.previousEventNumber) &&
                 Objects.equals(currentEventNumber, that.currentEventNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(previousEventNumber, currentEventNumber, processCount, complete);
+        return Objects.hash(previousEventNumber, currentEventNumber, processCount, processedInBatchCount);
     }
 
     @Override
@@ -55,7 +59,7 @@ public class BatchProcessDetails {
                 "previousEventNumber=" + previousEventNumber +
                 ", currentEventNumber=" + currentEventNumber +
                 ", processCount=" + processCount +
-                ", complete=" + complete +
+                ", processedInBatchCount=" + processedInBatchCount +
                 '}';
     }
 }

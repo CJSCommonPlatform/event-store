@@ -63,7 +63,6 @@ public class EventNumberRenumbererIT {
         sequenceSetter.setSequenceTo(11L, "event_sequence_seq", eventStoreDataSource);
         assertThat(sequenceSetter.getCurrentSequenceValue("event_sequence_seq", eventStoreDataSource), is(11L));
 
-
         eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 1").withTimestamp(clock.now()).build());
         eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 2").withTimestamp(clock.now()).build());
         eventStoreDataAccess.insertIntoEventLog(eventBuilder().withName("event 3").withTimestamp(clock.now()).build());

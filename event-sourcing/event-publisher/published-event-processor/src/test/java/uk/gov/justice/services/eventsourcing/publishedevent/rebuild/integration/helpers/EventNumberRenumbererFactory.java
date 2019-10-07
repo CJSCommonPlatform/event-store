@@ -18,10 +18,7 @@ public class EventNumberRenumbererFactory {
 
 
         final EventNumberRenumberer eventNumberRenumberer = new EventNumberRenumberer();
-        final BatchEventRenumberer batchEventRenumberer = batchEventRenumberer(
-                eventStoreDataSourceProvider,
-                logger
-        );
+        final BatchEventRenumberer batchEventRenumberer = batchEventRenumberer(eventStoreDataSourceProvider);
 
         final EventNumberSequenceResetter eventNumberSequenceResetter = eventNumberSequenceResetter(
                 eventStoreDataSourceProvider
@@ -35,14 +32,12 @@ public class EventNumberRenumbererFactory {
     }
 
     private BatchEventRenumberer batchEventRenumberer(
-            final EventStoreDataSourceProvider eventStoreDataSourceProvider,
-            final Logger logger) {
+            final EventStoreDataSourceProvider eventStoreDataSourceProvider) {
 
         final BatchEventRenumberer batchEventRenumberer = new BatchEventRenumberer();
 
         setField(batchEventRenumberer, "eventStoreDataSourceProvider", eventStoreDataSourceProvider);
         setField(batchEventRenumberer, "eventIdsByBatchProvider", new EventIdsByBatchProvider());
-        setField(batchEventRenumberer, "logger", logger);
 
         return batchEventRenumberer;
     }

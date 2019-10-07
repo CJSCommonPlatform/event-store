@@ -71,11 +71,13 @@ public class BatchEventRenumbererTest {
         );
 
         inOrder.verify(preparedStatement).setObject(1, eventId_1);
-        inOrder.verify(preparedStatement).executeUpdate();
+        inOrder.verify(preparedStatement).addBatch();
         inOrder.verify(preparedStatement).setObject(1, eventId_2);
-        inOrder.verify(preparedStatement).executeUpdate();
+        inOrder.verify(preparedStatement).addBatch();
         inOrder.verify(preparedStatement).setObject(1, eventId_3);
-        inOrder.verify(preparedStatement).executeUpdate();
+        inOrder.verify(preparedStatement).addBatch();
+
+        inOrder.verify(preparedStatement).executeBatch();
 
         verify(connection).close();
         verify(preparedStatement).close();

@@ -5,6 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.24] - 2019-10-07
+### Fixed
+- Fix issue where more than 1000 inactive events stops the rebuild process
+
+### Changed
+Run the renumbering of events in a batch
+
 ## [2.0.23] - 2019-10-04
 ### Changed
 - Updated framework to 6.0.17  

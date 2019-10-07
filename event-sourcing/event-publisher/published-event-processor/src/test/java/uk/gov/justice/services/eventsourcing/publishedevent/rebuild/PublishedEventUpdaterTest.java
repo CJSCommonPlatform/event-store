@@ -30,6 +30,9 @@ public class PublishedEventUpdaterTest {
     private  BatchPublishedEventProcessor batchPublishedEventProcessor;
 
     @Mock
+    private ProcessCompleteDecider processCompleteDecider;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -45,11 +48,11 @@ public class PublishedEventUpdaterTest {
 
         when(activeEventStreamIdProvider.getActiveStreamIds()).thenReturn(activeStreamIds);
         when(batchProcessingDetailsCalculator.createFirstBatchProcessDetails()).thenReturn(startBatchProcessDetails);
-        when(startBatchProcessDetails.isComplete()).thenReturn(false);
+        when(processCompleteDecider.isProcessingComplete(startBatchProcessDetails)).thenReturn(false);
         when(batchPublishedEventProcessor.processNextBatchOfEvents(startBatchProcessDetails, activeStreamIds)).thenReturn(nextBatchProcessDetails);
-        when(nextBatchProcessDetails.isComplete()).thenReturn(false);
+        when(processCompleteDecider.isProcessingComplete(nextBatchProcessDetails)).thenReturn(false);
         when(batchPublishedEventProcessor.processNextBatchOfEvents(nextBatchProcessDetails, activeStreamIds)).thenReturn(finalBatchProcessDetails);
-        when(finalBatchProcessDetails.isComplete()).thenReturn(true);
+        when(processCompleteDecider.isProcessingComplete(finalBatchProcessDetails)).thenReturn(true);
         when(finalBatchProcessDetails.getProcessCount()).thenReturn(23);
 
         publishedEventUpdater.createPublishedEvents();

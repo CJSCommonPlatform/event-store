@@ -60,6 +60,7 @@ public class EventJdbcRepository {
     static final String SQL_DISTINCT_STREAM_ID = "SELECT DISTINCT stream_id FROM event_log";
     static final String SQL_DELETE_STREAM = "DELETE FROM event_log t WHERE t.stream_id=?";
     static final String SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE = "SELECT * FROM event_log WHERE event_number>? ORDER BY event_number ASC LIMIT ?";
+    static final String SQL_COUNT_EVENTS_FROM_EVENT_NUMBER = "SELECT COUNT(*) FROM event_log WHERE event_number>?";
 
     /*
      * Error Messages
@@ -232,8 +233,8 @@ public class EventJdbcRepository {
     }
 
     /**
-     * Returns a Stream of Events from the given event number (exclusive) to the given page size.  This method
-     * returns all events greater than eventNumber, limited by the page size.
+     * Returns a Stream of Events from the given event number (exclusive) to the given page size.
+     * This method returns all events greater than eventNumber, limited by the page size.
      *
      * @param eventNumber - return all events greater than
      * @param pageSize    - limit the page size of the returned result
@@ -253,6 +254,33 @@ public class EventJdbcRepository {
             logger.error(format("Failed to read events from event_log from event number : '%s' with page size : '%s'", eventNumber, pageSize), e);
             throw new JdbcRepositoryException(format("Failed to read events from event_log from event number : '%s' with page size : '%s'", eventNumber, pageSize), e);
         }
+    }
+
+    /**
+     * Returns a count of Events from the given event number (exclusive).
+     *
+     * @param eventNumber - return count of events greater than
+     * @return count of events
+     */
+    public long countEventsFrom(final long eventNumber) {
+
+        final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
+
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_COUNT_EVENTS_FROM_EVENT_NUMBER)) {
+            preparedStatementWrapper.setLong(1, eventNumber);
+
+            final ResultSet resultSet = preparedStatementWrapper.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+
+        } catch (final SQLException e) {
+            logger.error(format("Failed to read events from event_log from event number : '%s'", eventNumber), e);
+            throw new JdbcRepositoryException(format("Failed to read events from event_log from event number : '%s'", eventNumber), e);
+        }
+
+        return NO_EXISTING_VERSION;
     }
 
     /**

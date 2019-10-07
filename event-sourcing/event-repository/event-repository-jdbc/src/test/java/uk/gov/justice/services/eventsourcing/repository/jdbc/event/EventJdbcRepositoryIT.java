@@ -269,6 +269,20 @@ public class EventJdbcRepositoryIT {
         assertThat(page_3, hasSize(0));
     }
 
+    @Test
+    public void shouldReturnCountOfEventsFromEventNumber() throws Exception {
+
+        final long initialNumberOfEvents = jdbcRepository.countEventsFrom(0L);
+        assertThat(initialNumberOfEvents, is(0L));
+
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
+        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
+
+        final long finalNumberOfEvents = jdbcRepository.countEventsFrom(0L);
+        assertThat(finalNumberOfEvents, is(3L));
+    }
+
     @Test(expected = JdbcRepositoryException.class)
     public void shouldThrowExceptionOnDuplicateId() throws InvalidPositionException {
         final UUID id = randomUUID();

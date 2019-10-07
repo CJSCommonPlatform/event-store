@@ -46,19 +46,25 @@ public class BatchPublishedEventProcessor {
         final List<PublishedEvent> publishedEvents = new ArrayList<>();
         try (final Stream<Event> eventStream = eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), PAGE_SIZE)) {
 
-            eventStream.forEach(event -> publishedEventInserter
-                    .convertAndSave(event, previousEventNumber, activeStreamIds)
-                    .ifPresent(publishedEvents::add));
+            eventStream
+                    .peek(event -> currentEventNumber.set(event.getEventNumber().get()))
+                    .forEach(event -> publishedEventInserter
+                            .convertAndSave(event, previousEventNumber, activeStreamIds)
+                            .ifPresent(publishedEvents::add));
 
         }
 
         final BatchProcessDetails currentBatchProcessDetails = batchProcessingDetailsCalculator.calculateNextBatchProcessDetails(
                 batchProcessDetails,
+                currentEventNumber,
                 previousEventNumber,
                 publishedEvents);
 
-        final int processCount = currentBatchProcessDetails.getProcessCount();
-        logger.info(format("Inserted %d PublishedEvents", processCount));
+        if (currentBatchProcessDetails.getProcessedInBatchCount() > 0) {
+            logger.info(format("Inserted %d PublishedEvents", currentBatchProcessDetails.getProcessCount()));
+        } else {
+            logger.info("Skipping inactive events...");
+        }
 
         return currentBatchProcessDetails;
     }

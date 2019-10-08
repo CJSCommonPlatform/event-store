@@ -36,6 +36,8 @@ public class PublishedEventUpdater {
         final Set<UUID> activeStreamIds = activeEventStreamIdProvider.getActiveStreamIds();
 
         BatchProcessDetails batchProcessDetails = batchProcessingDetailsCalculator.createFirstBatchProcessDetails();
+        batchProcessDetails = batchPublishedEventProcessor.processNextBatchOfEvents(batchProcessDetails, activeStreamIds);
+
         while (!processCompleteDecider.isProcessingComplete(batchProcessDetails)) {
             batchProcessDetails = batchPublishedEventProcessor.processNextBatchOfEvents(batchProcessDetails, activeStreamIds);
         }

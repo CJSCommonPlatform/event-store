@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.0.25] - 2019-10-08
+### Fixed
+- Fix single event rebuilding of published_event table
+
 ## [2.0.24] - 2019-10-07
 ### Fixed
 - Fix issue where more than 1000 inactive events stops the rebuild process

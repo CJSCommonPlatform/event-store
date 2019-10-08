@@ -20,7 +20,10 @@ public class PublishedEventUpdater {
     private ActiveEventStreamIdProvider activeEventStreamIdProvider;
 
     @Inject
-    private  BatchPublishedEventProcessor batchPublishedEventProcessor;
+    private BatchPublishedEventProcessor batchPublishedEventProcessor;
+
+    @Inject
+    private ProcessCompleteDecider processCompleteDecider;
 
     @Inject
     private Logger logger;
@@ -33,7 +36,9 @@ public class PublishedEventUpdater {
         final Set<UUID> activeStreamIds = activeEventStreamIdProvider.getActiveStreamIds();
 
         BatchProcessDetails batchProcessDetails = batchProcessingDetailsCalculator.createFirstBatchProcessDetails();
-        while (! batchProcessDetails.isComplete()) {
+        batchProcessDetails = batchPublishedEventProcessor.processNextBatchOfEvents(batchProcessDetails, activeStreamIds);
+
+        while (!processCompleteDecider.isProcessingComplete(batchProcessDetails)) {
             batchProcessDetails = batchPublishedEventProcessor.processNextBatchOfEvents(batchProcessDetails, activeStreamIds);
         }
 

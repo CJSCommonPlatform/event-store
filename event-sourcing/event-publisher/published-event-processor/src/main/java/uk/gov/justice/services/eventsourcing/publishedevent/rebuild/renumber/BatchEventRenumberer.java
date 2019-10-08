@@ -31,9 +31,6 @@ public class BatchEventRenumberer {
     @Inject
     private EventIdsByBatchProvider eventIdsByBatchProvider;
 
-    @Inject
-    private Logger logger;
-
     @Transactional(REQUIRES_NEW)
     public int renumberEvents(final EventIdBatch eventIdBatch) {
 
@@ -44,8 +41,10 @@ public class BatchEventRenumberer {
 
             for (final UUID eventId : eventIds) {
                 preparedStatement.setObject(1, eventId);
-                preparedStatement.executeUpdate();
+                preparedStatement.addBatch();
             }
+
+            preparedStatement.executeBatch();
 
             return eventIds.size();
 

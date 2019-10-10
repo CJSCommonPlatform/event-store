@@ -1,7 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.Objects;
@@ -12,19 +11,17 @@ public class CatchupSubscriptionContext {
     private final UUID commandId;
     private final String componentName;
     private final Subscription subscription;
-    private final CatchupType catchupType;
-    private final SystemCommand systemCommand;
+    private final CatchupCommand catchupCommand;
 
     public CatchupSubscriptionContext(
-            final UUID commandId, final String componentName,
+            final UUID commandId,
+            final String componentName,
             final Subscription subscription,
-            final CatchupType catchupType,
-            final SystemCommand systemCommand) {
+            final CatchupCommand catchupCommand) {
         this.commandId = commandId;
         this.componentName = componentName;
         this.subscription = subscription;
-        this.catchupType = catchupType;
-        this.systemCommand = systemCommand;
+        this.catchupCommand = catchupCommand;
     }
 
     public UUID getCommandId() {
@@ -39,12 +36,8 @@ public class CatchupSubscriptionContext {
         return subscription;
     }
 
-    public CatchupType getCatchupType() {
-        return catchupType;
-    }
-
-    public SystemCommand getSystemCommand() {
-        return systemCommand;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     @Override
@@ -55,13 +48,12 @@ public class CatchupSubscriptionContext {
         return Objects.equals(commandId, that.commandId) &&
                 Objects.equals(componentName, that.componentName) &&
                 Objects.equals(subscription, that.subscription) &&
-                catchupType == that.catchupType &&
-                Objects.equals(systemCommand, that.systemCommand);
+                Objects.equals(catchupCommand, that.catchupCommand);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, componentName, subscription, catchupType, systemCommand);
+        return Objects.hash(commandId, componentName, subscription, catchupCommand);
     }
 
     @Override
@@ -70,8 +62,7 @@ public class CatchupSubscriptionContext {
                 "commandId=" + commandId +
                 ", componentName='" + componentName + '\'' +
                 ", subscription=" + subscription +
-                ", catchupType=" + catchupType +
-                ", systemCommand=" + systemCommand +
+                ", catchupCommand=" + catchupCommand +
                 '}';
     }
 }

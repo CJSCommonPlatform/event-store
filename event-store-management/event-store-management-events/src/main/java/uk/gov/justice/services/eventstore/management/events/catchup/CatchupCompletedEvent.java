@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventstore.management.events.catchup;
 
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -9,35 +9,25 @@ import java.util.UUID;
 public class CatchupCompletedEvent {
 
     private final UUID commandId;
-    private final SystemCommand target;
+    private final CatchupCommand catchupCommand;
     private final ZonedDateTime completedAt;
-    private final CatchupType catchupType;
 
-    public CatchupCompletedEvent(
-            final UUID commandId,
-            final SystemCommand target,
-            final ZonedDateTime completedAt,
-            final CatchupType catchupType) {
+    public CatchupCompletedEvent(final UUID commandId, final CatchupCommand catchupCommand, final ZonedDateTime completedAt) {
         this.commandId = commandId;
-        this.target = target;
+        this.catchupCommand = catchupCommand;
         this.completedAt = completedAt;
-        this.catchupType = catchupType;
     }
 
     public UUID getCommandId() {
         return commandId;
     }
 
-    public SystemCommand getTarget() {
-        return target;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public ZonedDateTime getCompletedAt() {
         return completedAt;
-    }
-
-    public CatchupType getCatchupType() {
-        return catchupType;
     }
 
     @Override
@@ -46,23 +36,22 @@ public class CatchupCompletedEvent {
         if (!(o instanceof CatchupCompletedEvent)) return false;
         final CatchupCompletedEvent that = (CatchupCompletedEvent) o;
         return Objects.equals(commandId, that.commandId) &&
-                Objects.equals(target, that.target) &&
-                Objects.equals(completedAt, that.completedAt) &&
-                catchupType == that.catchupType;
+                Objects.equals(catchupCommand, that.catchupCommand) &&
+                Objects.equals(completedAt, that.completedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, target, completedAt, catchupType);
+        return Objects.hash(commandId, catchupCommand, completedAt);
     }
 
     @Override
-    public String toString() {
+    public String
+    toString() {
         return "CatchupCompletedEvent{" +
                 "commandId=" + commandId +
-                ", target=" + target +
+                ", catchupCommand=" + catchupCommand +
                 ", completedAt=" + completedAt +
-                ", catchupType=" + catchupType +
                 '}';
     }
 }

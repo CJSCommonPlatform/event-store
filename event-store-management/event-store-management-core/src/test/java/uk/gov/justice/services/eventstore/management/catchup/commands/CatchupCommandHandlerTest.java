@@ -5,12 +5,10 @@ import static java.time.ZonedDateTime.of;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
 
 import java.time.ZonedDateTime;
@@ -44,15 +42,15 @@ public class CatchupCommandHandlerTest {
     public void shouldFireEventCatchup() throws Exception {
 
         final UUID commandId = randomUUID();
-        final CatchupCommand catchupCommand = new CatchupCommand();
+        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
         final ZonedDateTime now = of(2019, 8, 23, 11, 22, 1, 0, UTC);
 
         when(clock.now()).thenReturn(now);
 
-        catchupCommandHandler.catchupEvents(catchupCommand, commandId);
+        catchupCommandHandler.catchupEvents(eventCatchupCommand, commandId);
 
         verify(logger).info("Received command 'CATCHUP' at 11:22:01 AM");
-        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, EVENT_CATCHUP, catchupCommand, now));
+        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, eventCatchupCommand, now));
     }
 
     @Test
@@ -67,6 +65,6 @@ public class CatchupCommandHandlerTest {
         catchupCommandHandler.catchupSearchIndexes(indexerCatchupCommand, commandId);
 
         verify(logger).info("Received command 'INDEXER_CATCHUP' at 11:22:01 AM");
-        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, INDEX_CATCHUP, indexerCatchupCommand, now));
+        verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, indexerCatchupCommand, now));
     }
 }

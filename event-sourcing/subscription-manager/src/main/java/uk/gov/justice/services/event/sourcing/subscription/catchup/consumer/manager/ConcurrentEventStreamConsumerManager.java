@@ -3,7 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.man
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     public int add(
             final PublishedEvent publishedEvent,
             final String subscriptionName,
-            final CatchupType catchupType,
+            final CatchupCommand catchupCommand,
             final UUID commandId) {
 
         final UUID streamId = publishedEvent.getStreamId();
@@ -65,7 +65,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
             events.offer(publishedEvent);
 
             if (notInProgress(events)) {
-                createAndSubmitTaskFor(events, subscriptionName, catchupType, commandId);
+                createAndSubmitTaskFor(events, subscriptionName, catchupCommand, commandId);
             }
         }
 
@@ -106,7 +106,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     private void createAndSubmitTaskFor(
             final Queue<PublishedEvent> eventStream,
             final String subscriptionName,
-            final CatchupType catchupType,
+            final CatchupCommand catchupCommand,
             final UUID commandId) {
 
         eventStreamsInProgressList.add(eventStream);
@@ -116,7 +116,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
                 eventStream,
                 eventQueueConsumer,
                 subscriptionName,
-                catchupType,
+                catchupCommand,
                 commandId);
     }
 }

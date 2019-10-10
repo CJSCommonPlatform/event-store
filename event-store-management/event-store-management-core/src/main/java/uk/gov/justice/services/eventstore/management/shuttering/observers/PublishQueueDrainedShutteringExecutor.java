@@ -6,7 +6,7 @@ import static uk.gov.justice.services.management.shuttering.api.ShutteringResult
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.ApplicationShutteringCommand;
 import uk.gov.justice.services.management.shuttering.api.ShutteringExecutor;
 import uk.gov.justice.services.management.shuttering.api.ShutteringResult;
 
@@ -34,7 +34,7 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
     }
 
     @Override
-    public ShutteringResult shutter(final UUID commandId, final SystemCommand systemCommand) {
+    public ShutteringResult shutter(final UUID commandId, final ApplicationShutteringCommand applicationShutteringCommand) {
 
         logger.info("Waiting for Publish Queue to empty");
         final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
@@ -50,7 +50,7 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
                         getName(),
                         commandId,
                         message,
-                        systemCommand
+                        applicationShutteringCommand
                 );
             }
 
@@ -64,7 +64,7 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
                     getName(),
                     commandId,
                     message,
-                    systemCommand
+                    applicationShutteringCommand
             );
 
         } finally {

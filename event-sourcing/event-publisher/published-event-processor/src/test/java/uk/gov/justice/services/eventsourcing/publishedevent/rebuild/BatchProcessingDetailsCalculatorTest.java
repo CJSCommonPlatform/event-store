@@ -1,11 +1,9 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.rebuild;
 
 import static java.util.Arrays.asList;
-import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 

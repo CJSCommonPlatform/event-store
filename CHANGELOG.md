@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.0-M4] - 2018-10-10
+### Changed
+- Updated framework t0 6.2.0-M4
+- Now using CatchupCommand to determine if we are running Event or Indexer catchup
+
 ## [2.2.0-M3] - 2018-10-09
 ### Changed
 - Updated framework t0 6.2.0-M3

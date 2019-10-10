@@ -4,7 +4,7 @@ import static java.lang.String.format;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.UUID;
 
@@ -22,7 +22,11 @@ public class EventProcessingFailedHandler {
     private Logger logger;
 
     public void handle(
-            final RuntimeException exception, final PublishedEvent publishedEvent, final String subscriptionName, final CatchupType catchupType, final UUID commandId) {
+            final RuntimeException exception,
+            final PublishedEvent publishedEvent,
+            final String subscriptionName,
+            final CatchupCommand catchupCommand,
+            final UUID commandId) {
 
         final String logMessage = format("Failed to process publishedEvent with metadata: %s", publishedEvent.getMetadata());
         logger.error(
@@ -34,7 +38,7 @@ public class EventProcessingFailedHandler {
                 publishedEvent.getId(),
                 publishedEvent.getMetadata(),
                 exception,
-                catchupType,
+                catchupCommand,
                 subscriptionName
         );
 

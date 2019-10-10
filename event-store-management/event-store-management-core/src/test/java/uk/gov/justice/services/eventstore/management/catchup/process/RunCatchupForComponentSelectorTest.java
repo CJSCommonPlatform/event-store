@@ -3,10 +3,8 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,12 +25,12 @@ public class RunCatchupForComponentSelectorTest {
     public void shouldRunIfRunningEventCatchupAndTheComponentIsEventListener() throws Exception {
 
         final String componentName = "EVENT_LISTENER";
-        final CatchupType catchupType = EVENT_CATCHUP;
+        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
-        when(catchupTypeSelector.isEventCatchup(componentName, catchupType)).thenReturn(true);
-        when(catchupTypeSelector.isIndexerCatchup(componentName, catchupType)).thenReturn(false);
+        when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(true);
+        when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, catchupType);
+        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
 
         assertThat(shouldRun, is(true));
     }
@@ -41,12 +39,12 @@ public class RunCatchupForComponentSelectorTest {
     public void shouldRunIfRunningIndexCatchupAndTheComponentIsEventIndexer() throws Exception {
 
         final String componentName = "EVENT_INDEXER";
-        final CatchupType catchupType = INDEX_CATCHUP;
+        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
-        when(catchupTypeSelector.isEventCatchup(componentName, catchupType)).thenReturn(true);
-        when(catchupTypeSelector.isIndexerCatchup(componentName, catchupType)).thenReturn(false);
+        when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(true);
+        when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, catchupType);
+        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
 
         assertThat(shouldRun, is(true));
     }
@@ -55,12 +53,12 @@ public class RunCatchupForComponentSelectorTest {
     public void shouldNotRunIfRunningIfNeitherComponentShouldRun() throws Exception {
 
         final String componentName = "EVENT_PROCESSOR";
-        final CatchupType catchupType = INDEX_CATCHUP;
+        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
-        when(catchupTypeSelector.isEventCatchup(componentName, catchupType)).thenReturn(false);
-        when(catchupTypeSelector.isIndexerCatchup(componentName, catchupType)).thenReturn(false);
+        when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(false);
+        when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, catchupType);
+        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
 
         assertThat(shouldRun, is(false));
     }

@@ -4,8 +4,7 @@ import static java.lang.String.format;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
@@ -34,11 +33,11 @@ public class EventCatchupRunner {
     @Inject
     private Logger logger;
 
-    public void runEventCatchup(final UUID commandId, final CatchupType catchupType, final SystemCommand systemCommand) {
+    public void runEventCatchup(final UUID commandId, final CatchupCommand catchupCommand) {
 
-        logger.info(format("Received CatchupRequestedEvent for %s", catchupType));
+        logger.info(format("Received CatchupRequestedEvent for %s", catchupCommand.getName()));
 
-        catchupStartedEventFirer.fire(new CatchupStartedEvent(commandId, catchupType, clock.now()));
+        catchupStartedEventFirer.fire(new CatchupStartedEvent(commandId, catchupCommand, clock.now()));
 
         final List<SubscriptionsDescriptor> subscriptionsDescriptors =
                 subscriptionsDescriptorsRegistry.getAll();
@@ -46,7 +45,6 @@ public class EventCatchupRunner {
         subscriptionsDescriptors.forEach(subscriptionsDescriptor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
                 commandId,
                 subscriptionsDescriptor,
-                catchupType,
-                systemCommand));
+                catchupCommand));
     }
 }

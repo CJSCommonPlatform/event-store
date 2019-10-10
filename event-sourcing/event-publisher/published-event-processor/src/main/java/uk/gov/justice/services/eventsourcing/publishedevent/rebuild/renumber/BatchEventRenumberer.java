@@ -16,8 +16,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-
 public class BatchEventRenumberer {
 
     private static final String SELECT_QUERY = "SELECT id FROM event_log ORDER BY date_created";

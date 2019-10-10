@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventstore.management.events.catchup;
 
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -8,17 +10,17 @@ public class CatchupStartedForSubscriptionEvent {
 
     private final UUID commandId;
     private final String subscriptionName;
-    private final CatchupType catchupType;
+    private final CatchupCommand catchupCommand;
     private final ZonedDateTime catchupStartedAt;
 
     public CatchupStartedForSubscriptionEvent(
             final UUID commandId,
             final String subscriptionName,
-            final CatchupType catchupType,
+            final CatchupCommand catchupCommand,
             final ZonedDateTime catchupStartedAt) {
         this.commandId = commandId;
         this.subscriptionName = subscriptionName;
-        this.catchupType = catchupType;
+        this.catchupCommand = catchupCommand;
         this.catchupStartedAt = catchupStartedAt;
     }
 
@@ -30,8 +32,8 @@ public class CatchupStartedForSubscriptionEvent {
         return subscriptionName;
     }
 
-    public CatchupType getCatchupType() {
-        return catchupType;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public ZonedDateTime getCatchupStartedAt() {
@@ -45,13 +47,13 @@ public class CatchupStartedForSubscriptionEvent {
         final CatchupStartedForSubscriptionEvent that = (CatchupStartedForSubscriptionEvent) o;
         return Objects.equals(commandId, that.commandId) &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
-                catchupType == that.catchupType &&
+                Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(catchupStartedAt, that.catchupStartedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, subscriptionName, catchupType, catchupStartedAt);
+        return Objects.hash(commandId, subscriptionName, catchupCommand, catchupStartedAt);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class CatchupStartedForSubscriptionEvent {
         return "CatchupStartedForSubscriptionEvent{" +
                 "commandId=" + commandId +
                 ", subscriptionName='" + subscriptionName + '\'' +
-                ", catchupType=" + catchupType +
+                ", catchupCommand=" + catchupCommand +
                 ", catchupStartedAt=" + catchupStartedAt +
                 '}';
     }

@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventstore.management.events.catchup;
 
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,7 +11,7 @@ public class CatchupProcessingOfEventFailedEvent {
     private final UUID eventId;
     private final String metadata;
     private final Throwable exception;
-    private final CatchupType catchupType;
+    private final CatchupCommand catchupCommand;
     private final String subscriptionName;
 
     public CatchupProcessingOfEventFailedEvent(
@@ -17,13 +19,13 @@ public class CatchupProcessingOfEventFailedEvent {
             final UUID eventId,
             final String metadata,
             final Throwable exception,
-            final CatchupType catchupType,
+            final CatchupCommand catchupCommand,
             final String subscriptionName) {
         this.commandId = commandId;
         this.eventId = eventId;
         this.metadata = metadata;
         this.exception = exception;
-        this.catchupType = catchupType;
+        this.catchupCommand = catchupCommand;
         this.subscriptionName = subscriptionName;
     }
 
@@ -43,8 +45,8 @@ public class CatchupProcessingOfEventFailedEvent {
         return exception;
     }
 
-    public CatchupType getCatchupType() {
-        return catchupType;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public String getSubscriptionName() {
@@ -60,13 +62,13 @@ public class CatchupProcessingOfEventFailedEvent {
                 Objects.equals(eventId, that.eventId) &&
                 Objects.equals(metadata, that.metadata) &&
                 Objects.equals(exception, that.exception) &&
-                catchupType == that.catchupType &&
+                Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(subscriptionName, that.subscriptionName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, eventId, metadata, exception, catchupType, subscriptionName);
+        return Objects.hash(commandId, eventId, metadata, exception, catchupCommand, subscriptionName);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class CatchupProcessingOfEventFailedEvent {
                 ", eventId=" + eventId +
                 ", metadata='" + metadata + '\'' +
                 ", exception=" + exception +
-                ", catchupType=" + catchupType +
+                ", catchupCommand=" + catchupCommand +
                 ", subscriptionName='" + subscriptionName + '\'' +
                 '}';
     }

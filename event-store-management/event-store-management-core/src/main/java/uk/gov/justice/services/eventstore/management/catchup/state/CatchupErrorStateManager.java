@@ -1,9 +1,8 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import static com.google.common.collect.ImmutableList.copyOf;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,20 +12,20 @@ public class CatchupErrorStateManager {
     private final List<CatchupError> eventCatchupErrors = new CopyOnWriteArrayList<>();
     private final List<CatchupError> indexCatchupErrors = new CopyOnWriteArrayList<>();
 
-    public void add(final CatchupError catchupError, final CatchupType catchupType) {
-        listFor(catchupType).add(catchupError);
+    public void add(final CatchupError catchupError, final CatchupCommand catchupCommand) {
+        listFor(catchupCommand).add(catchupError);
     }
 
-    public List<CatchupError> getErrors(final CatchupType catchupType) {
-        return copyOf(listFor(catchupType));
+    public List<CatchupError> getErrors(final CatchupCommand catchupCommand) {
+        return copyOf(listFor(catchupCommand));
     }
 
-    public void clear(final CatchupType catchupType) {
-        listFor(catchupType).clear();
+    public void clear(final CatchupCommand catchupCommand) {
+        listFor(catchupCommand).clear();
     }
 
-    private List<CatchupError> listFor(final CatchupType catchupType) {
-        if (catchupType == EVENT_CATCHUP) {
+    private List<CatchupError> listFor(final CatchupCommand catchupCommand) {
+        if (catchupCommand.isEventCatchup()) {
             return eventCatchupErrors;
         }
 

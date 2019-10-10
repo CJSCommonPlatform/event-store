@@ -6,10 +6,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 
 import java.util.Queue;
 import java.util.UUID;
@@ -33,18 +33,18 @@ public class ConsumeEventQueueBeanTest {
         final Queue<PublishedEvent> events = new ConcurrentLinkedQueue<>(singletonList(mock(PublishedEvent.class))) ;
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
         final String subscriptionName = "subscriptionName";
-        final CatchupType catchupType = EVENT_CATCHUP;
+        final CatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
-        when(eventQueueConsumer.consumeEventQueue(commandId, events, subscriptionName, catchupType)).thenReturn(false, false, true);
+        when(eventQueueConsumer.consumeEventQueue(commandId, events, subscriptionName, eventCatchupCommand)).thenReturn(false, false, true);
 
         consumeEventQueueBean.consume(
                 events,
                 eventQueueConsumer,
                 subscriptionName,
-                catchupType,
+                eventCatchupCommand,
                 commandId
         );
 
-        verify(eventQueueConsumer, times(3)).consumeEventQueue(commandId, events, subscriptionName, catchupType);
+        verify(eventQueueConsumer, times(3)).consumeEventQueue(commandId, events, subscriptionName, eventCatchupCommand);
     }
 }

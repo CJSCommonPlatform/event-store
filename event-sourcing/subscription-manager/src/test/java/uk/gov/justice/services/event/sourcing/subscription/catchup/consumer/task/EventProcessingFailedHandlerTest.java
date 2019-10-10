@@ -6,10 +6,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 
 import java.util.UUID;
 
@@ -47,6 +48,7 @@ public class EventProcessingFailedHandlerTest {
         final String subscriptionName = "subscriptionName";
         final String metadata = "{some: metadata}";
         final UUID eventId = randomUUID();
+        final CatchupCommand catchupCommand = new EventCatchupCommand();
 
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
@@ -57,7 +59,7 @@ public class EventProcessingFailedHandlerTest {
                 nullPointerException,
                 publishedEvent,
                 subscriptionName,
-                EVENT_CATCHUP,
+                catchupCommand,
                 commandId);
 
         verify(logger).error("Failed to process publishedEvent with metadata: {some: metadata}", nullPointerException);
@@ -68,7 +70,7 @@ public class EventProcessingFailedHandlerTest {
 
         assertThat(catchupProcessingOfEventFailedEvent.getEventId(), is(eventId));
         assertThat(catchupProcessingOfEventFailedEvent.getMetadata(), is(metadata));
-        assertThat(catchupProcessingOfEventFailedEvent.getCatchupType(), is(EVENT_CATCHUP));
+        assertThat(catchupProcessingOfEventFailedEvent.getCatchupCommand(), is(catchupCommand));
         assertThat(catchupProcessingOfEventFailedEvent.getException(), is(nullPointerException));
         assertThat(catchupProcessingOfEventFailedEvent.getSubscriptionName(), is(subscriptionName));
     }

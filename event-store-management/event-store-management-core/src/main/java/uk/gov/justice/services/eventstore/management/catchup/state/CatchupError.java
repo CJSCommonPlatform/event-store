@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -10,18 +10,19 @@ public class CatchupError {
     private final UUID eventId;
     private final String metadata;
     private final String subscriptionName;
-    private final CatchupType catchupType;
+    private final CatchupCommand catchupCommand;
     private final Throwable exception;
 
     public CatchupError(
             final UUID eventId,
             final String metadata,
             final String subscriptionName,
-            final CatchupType catchupType, final Throwable exception) {
+            final CatchupCommand catchupCommand,
+            final Throwable exception) {
         this.eventId = eventId;
         this.metadata = metadata;
         this.subscriptionName = subscriptionName;
-        this.catchupType = catchupType;
+        this.catchupCommand = catchupCommand;
         this.exception = exception;
     }
 
@@ -37,8 +38,8 @@ public class CatchupError {
         return subscriptionName;
     }
 
-    public CatchupType getCatchupType() {
-        return catchupType;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public Throwable getException() {
@@ -53,13 +54,13 @@ public class CatchupError {
         return Objects.equals(eventId, that.eventId) &&
                 Objects.equals(metadata, that.metadata) &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
-                catchupType == that.catchupType &&
+                Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(exception, that.exception);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(eventId, metadata, subscriptionName, catchupType, exception);
+        return Objects.hash(eventId, metadata, subscriptionName, catchupCommand, exception);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class CatchupError {
                 "eventId=" + eventId +
                 ", metadata='" + metadata + '\'' +
                 ", subscriptionName='" + subscriptionName + '\'' +
-                ", catchupType=" + catchupType +
+                ", catchupCommand=" + catchupCommand +
                 ", exception=" + exception +
                 '}';
     }

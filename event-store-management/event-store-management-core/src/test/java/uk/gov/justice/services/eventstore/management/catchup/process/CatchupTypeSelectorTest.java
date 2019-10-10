@@ -2,8 +2,9 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.EVENT_CATCHUP;
-import static uk.gov.justice.services.eventstore.management.events.catchup.CatchupType.INDEX_CATCHUP;
+
+import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,16 +20,20 @@ public class CatchupTypeSelectorTest {
     @Test
     public void shouldReturnTrueIfTheComponentIsEventListenerAndTheTypeIsEventCatchup() throws Exception {
 
-        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_LISTENER", EVENT_CATCHUP), is(true));
-        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_INDEXER", EVENT_CATCHUP), is(false));
-        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_PROCESSOR", EVENT_CATCHUP), is(false));
+        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
+
+        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_LISTENER", eventCatchupCommand), is(true));
+        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_INDEXER", eventCatchupCommand), is(false));
+        assertThat(catchupTypeSelector.isEventCatchup("MY_EVENT_PROCESSOR", eventCatchupCommand), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfTheComponentIsEventIndexerAndTheTypeIsIndexCatchup() throws Exception {
 
-        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_INDEXER", INDEX_CATCHUP), is(true));
-        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_LISTENER", INDEX_CATCHUP), is(false));
-        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_PROCESSOR", INDEX_CATCHUP), is(false));
+        final IndexerCatchupCommand indexerCatchupCommand = new IndexerCatchupCommand();
+
+        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_INDEXER", indexerCatchupCommand), is(true));
+        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_LISTENER", indexerCatchupCommand), is(false));
+        assertThat(catchupTypeSelector.isIndexerCatchup("MY_EVENT_PROCESSOR", indexerCatchupCommand), is(false));
     }
 }

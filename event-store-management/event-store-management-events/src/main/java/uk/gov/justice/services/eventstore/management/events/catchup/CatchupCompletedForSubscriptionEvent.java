@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventstore.management.events.catchup;
 
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -9,39 +9,32 @@ import java.util.UUID;
 public class CatchupCompletedForSubscriptionEvent {
 
     private final UUID commandId;
-    private final CatchupType catchupType;
     private final String subscriptionName;
     private final String eventSourceName;
     private final String componentName;
-    private final SystemCommand target;
+    private final CatchupCommand catchupCommand;
     private final ZonedDateTime catchupCompletedAt;
     private final int totalNumberOfEvents;
 
     public CatchupCompletedForSubscriptionEvent(
             final UUID commandId,
-            final CatchupType catchupType,
             final String subscriptionName,
             final String eventSourceName,
             final String componentName,
-            final SystemCommand target,
+            final CatchupCommand catchupCommand,
             final ZonedDateTime catchupCompletedAt,
             final int totalNumberOfEvents) {
         this.commandId = commandId;
-        this.catchupType = catchupType;
         this.subscriptionName = subscriptionName;
         this.eventSourceName = eventSourceName;
         this.componentName = componentName;
-        this.target = target;
+        this.catchupCommand = catchupCommand;
         this.catchupCompletedAt = catchupCompletedAt;
         this.totalNumberOfEvents = totalNumberOfEvents;
     }
 
     public UUID getCommandId() {
         return commandId;
-    }
-
-    public CatchupType getCatchupType() {
-        return catchupType;
     }
 
     public String getSubscriptionName() {
@@ -56,8 +49,8 @@ public class CatchupCompletedForSubscriptionEvent {
         return componentName;
     }
 
-    public SystemCommand getTarget() {
-        return target;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public ZonedDateTime getCatchupCompletedAt() {
@@ -75,28 +68,26 @@ public class CatchupCompletedForSubscriptionEvent {
         final CatchupCompletedForSubscriptionEvent that = (CatchupCompletedForSubscriptionEvent) o;
         return totalNumberOfEvents == that.totalNumberOfEvents &&
                 Objects.equals(commandId, that.commandId) &&
-                catchupType == that.catchupType &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
                 Objects.equals(eventSourceName, that.eventSourceName) &&
                 Objects.equals(componentName, that.componentName) &&
-                Objects.equals(target, that.target) &&
+                Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(catchupCompletedAt, that.catchupCompletedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, catchupType, subscriptionName, eventSourceName, componentName, target, catchupCompletedAt, totalNumberOfEvents);
+        return Objects.hash(commandId, subscriptionName, eventSourceName, componentName, catchupCommand, catchupCompletedAt, totalNumberOfEvents);
     }
 
     @Override
     public String toString() {
         return "CatchupCompletedForSubscriptionEvent{" +
                 "commandId=" + commandId +
-                ", catchupType=" + catchupType +
                 ", subscriptionName='" + subscriptionName + '\'' +
                 ", eventSourceName='" + eventSourceName + '\'' +
                 ", componentName='" + componentName + '\'' +
-                ", target=" + target +
+                ", catchupCommand=" + catchupCommand +
                 ", catchupCompletedAt=" + catchupCompletedAt +
                 ", totalNumberOfEvents=" + totalNumberOfEvents +
                 '}';

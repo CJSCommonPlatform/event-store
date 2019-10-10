@@ -1,7 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupType;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public interface EventStreamConsumerManager {
      * @return The number of events added to the stream. Note this is always one and is used
      *         to count the number of events consumed
      */
-    int add(final PublishedEvent publishedEvent, final String subscriptionName, final CatchupType catchupType, final UUID commandId);
+    int add(final PublishedEvent publishedEvent, final String subscriptionName, final CatchupCommand catchupCommand, final UUID commandId);
 
     void waitForCompletion();
 }

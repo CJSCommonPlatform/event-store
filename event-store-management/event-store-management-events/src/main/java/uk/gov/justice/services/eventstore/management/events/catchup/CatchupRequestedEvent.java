@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventstore.management.events.catchup;
 
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -9,18 +9,15 @@ import java.util.UUID;
 public class CatchupRequestedEvent {
 
     private final UUID commandId;
-    private final CatchupType catchupType;
-    private final SystemCommand target;
+    private final CatchupCommand catchupCommand;
     private final ZonedDateTime catchupRequestedAt;
 
     public CatchupRequestedEvent(
             final UUID commandId,
-            final CatchupType catchupType,
-            final SystemCommand target,
+            final CatchupCommand catchupCommand,
             final ZonedDateTime catchupRequestedAt) {
         this.commandId = commandId;
-        this.catchupType = catchupType;
-        this.target = target;
+        this.catchupCommand = catchupCommand;
         this.catchupRequestedAt = catchupRequestedAt;
     }
 
@@ -28,12 +25,8 @@ public class CatchupRequestedEvent {
         return commandId;
     }
 
-    public CatchupType getCatchupType() {
-        return catchupType;
-    }
-
-    public SystemCommand getTarget() {
-        return target;
+    public CatchupCommand getCatchupCommand() {
+        return catchupCommand;
     }
 
     public ZonedDateTime getCatchupRequestedAt() {
@@ -46,22 +39,20 @@ public class CatchupRequestedEvent {
         if (!(o instanceof CatchupRequestedEvent)) return false;
         final CatchupRequestedEvent that = (CatchupRequestedEvent) o;
         return Objects.equals(commandId, that.commandId) &&
-                catchupType == that.catchupType &&
-                Objects.equals(target, that.target) &&
+                Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(catchupRequestedAt, that.catchupRequestedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, catchupType, target, catchupRequestedAt);
+        return Objects.hash(commandId, catchupCommand, catchupRequestedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupRequestedEvent{" +
                 "commandId=" + commandId +
-                ", catchupType=" + catchupType +
-                ", target=" + target +
+                ", catchupCommand=" + catchupCommand +
                 ", catchupRequestedAt=" + catchupRequestedAt +
                 '}';
     }

@@ -11,7 +11,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
-import uk.gov.justice.services.jmx.api.command.SystemCommand;
+import uk.gov.justice.services.jmx.api.command.ApplicationShutteringCommand;
 import uk.gov.justice.services.management.shuttering.api.ShutteringResult;
 
 import java.util.UUID;
@@ -52,17 +52,17 @@ public class CommandHandlerQueueDrainedShutteringExecutorTest {
 
         final UUID commandId = UUID.randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
-        final SystemCommand systemCommand = mock(SystemCommand.class);
+        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(true);
 
 
-        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, systemCommand);
+        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
 
         assertThat(shutteringResult.getCommandId(), is(commandId));
         assertThat(shutteringResult.getCommandState(), is(COMMAND_COMPLETE));
-        assertThat(shutteringResult.getSystemCommand(), is(systemCommand));
+        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
         assertThat(shutteringResult.getShutteringExecutorName(), is("CommandHandlerQueueDrainedShutteringExecutor"));
         assertThat(shutteringResult.getMessage(), is("Command Handler Queue drained successfully"));
 
@@ -81,17 +81,17 @@ public class CommandHandlerQueueDrainedShutteringExecutorTest {
 
         final UUID commandId = UUID.randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
-        final SystemCommand systemCommand = mock(SystemCommand.class);
+        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(false);
         when(stopWatch.getTime()).thenReturn(12345L);
 
-        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, systemCommand);
+        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
 
         assertThat(shutteringResult.getCommandId(), is(commandId));
         assertThat(shutteringResult.getCommandState(), is(COMMAND_FAILED));
-        assertThat(shutteringResult.getSystemCommand(), is(systemCommand));
+        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
         assertThat(shutteringResult.getShutteringExecutorName(), is("CommandHandlerQueueDrainedShutteringExecutor"));
         assertThat(shutteringResult.getMessage(), is("Failed to drain command handler queue in 12345 milliseconds"));
         assertThat(shutteringResult.getException(), is(empty()));

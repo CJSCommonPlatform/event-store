@@ -1,54 +1,46 @@
 package uk.gov.justice.services.eventstore.management.rebuild.commands;
 
-import static java.time.ZoneOffset.UTC;
-import static java.time.ZonedDateTime.of;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventstore.management.events.rebuild.RebuildRequestedEvent;
+import uk.gov.justice.services.eventstore.management.rebuild.process.RebuildProcessRunner;
 import uk.gov.justice.services.jmx.api.command.RebuildCommand;
+import uk.gov.justice.services.jmx.logging.MdcLogger;
 
-import java.time.ZonedDateTime;
 import java.util.UUID;
-
-import javax.enterprise.event.Event;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RebuildCommandHandlerTest {
 
     @Mock
-    private Event<RebuildRequestedEvent> rebuildRequestedEventEventFirer;
+    private RebuildProcessRunner rebuildProcessRunner;
 
     @Mock
-    private UtcClock clock;
-
-    @Mock
-    private Logger logger;
+    private MdcLogger mdcLogger;
 
     @InjectMocks
     private RebuildCommandHandler rebuildCommandHandler;
+
+    private Consumer<Runnable> testConsumer = Runnable::run;
 
     @Test
     public void shouldFireRebuildEvent() throws Exception {
 
         final UUID commandId = randomUUID();
         final RebuildCommand rebuildCommand = new RebuildCommand();
-        final ZonedDateTime now = of(2019, 8, 23, 11, 22, 1, 0, UTC);
 
-        when(clock.now()).thenReturn(now);
+        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
         rebuildCommandHandler.doRebuild(rebuildCommand, commandId);
 
-        verify(logger).info("Received command 'REBUILD' at 11:22:01 AM");
-        verify(rebuildRequestedEventEventFirer).fire(new RebuildRequestedEvent(commandId, now, rebuildCommand));
+        verify(rebuildProcessRunner).runRebuild(commandId, rebuildCommand);
     }
 }

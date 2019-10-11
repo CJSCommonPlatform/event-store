@@ -1,10 +1,8 @@
 package uk.gov.justice.services.eventstore.management.catchup.observers;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
 
@@ -28,13 +26,6 @@ public class CatchupObserver {
                 .accept(() -> catchupLifecycle.handleCatchupRequested(catchupRequestedEvent));
     }
 
-    public void onCatchupStarted(@Observes final CatchupStartedEvent catchupStartedEvent) {
-
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupStarted(catchupStartedEvent));
-    }
-
     public void onCatchupStartedForSubscription(@Observes final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent) {
 
         mdcLogger
@@ -47,12 +38,6 @@ public class CatchupObserver {
         mdcLogger
                 .mdcLoggerConsumer()
                 .accept(() -> catchupLifecycle.handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent));
-    }
-
-    public void onCatchupComplete(@Observes final CatchupCompletedEvent catchupCompletedEvent) {
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupComplete(catchupCompletedEvent));
     }
 
     public void onCatchupProcessingOfEventFailed(@Observes final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent) {

@@ -4,11 +4,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
 
@@ -47,17 +45,6 @@ public class CatchupObserverTest {
     }
 
     @Test
-    public void shouldHandleCatchupStarted() throws Exception {
-
-        final CatchupStartedEvent catchupStartedEvent = mock(CatchupStartedEvent.class);
-
-        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
-
-        catchupObserver.onCatchupStarted(catchupStartedEvent);
-        verify(catchupLifecycle).handleCatchupStarted(catchupStartedEvent);
-    }
-
-    @Test
     public void shouldHandleCatchupStartedForSubscription() throws Exception {
 
         final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent = mock(CatchupStartedForSubscriptionEvent.class);
@@ -79,18 +66,6 @@ public class CatchupObserverTest {
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
         verify(catchupLifecycle).handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
-    }
-
-    @Test
-    public void shouldHandleCatchupComplete() throws Exception {
-
-        final CatchupCompletedEvent catchupCompletedEvent = mock(CatchupCompletedEvent.class);
-
-        when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
-
-        catchupObserver.onCatchupComplete(catchupCompletedEvent);
-
-        verify(catchupLifecycle).handleCatchupComplete(catchupCompletedEvent);
     }
 
     @Test

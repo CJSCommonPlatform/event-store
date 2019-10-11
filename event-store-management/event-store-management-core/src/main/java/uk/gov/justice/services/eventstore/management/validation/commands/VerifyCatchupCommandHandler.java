@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventstore.management.validation.commands;
 import static java.lang.String.format;
 import static uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand.VERIFY_CATCHUP;
 
-import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
+import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcessRunner;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 public class VerifyCatchupCommandHandler {
 
     @Inject
-    private CatchupVerificationProcess catchupVerificationProcess;
+    private CatchupVerificationProcessRunner catchupVerificationProcessRunner;
 
     @Inject
     private MdcLogger mdcLogger;
@@ -30,7 +30,7 @@ public class VerifyCatchupCommandHandler {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
             logger.info(format("Received %s command", verifyCatchupCommand.getName()));
-            catchupVerificationProcess.runVerification();
+            catchupVerificationProcessRunner.runVerificationProcess(commandId, verifyCatchupCommand);
         });
     }
 }

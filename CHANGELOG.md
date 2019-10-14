@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.0-M5] - 2018-10-14
+### Changed
+- Updated framework to 6.2.0-M5
+- All system commands now store their state in the system_command_status table in the system 
+database. This is to allow the JMX client to wait until the command has completed or failed 
+before it exits.
+
+
 ## [2.2.0-M4] - 2018-10-10
 ### Changed
 - Updated framework t0 6.2.0-M4

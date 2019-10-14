@@ -66,6 +66,14 @@ public class DatabaseCleaner {
         cleanViewStoreTables(contextName, "stream_status");
     }
 
+    /**
+     * Deletes all the data in the 'processed_event' table
+     *
+     * @param contextName the name of the context who's tables you are cleaning
+     */
+    public void cleanProcessedEventTable(final String contextName) {
+        cleanViewStoreTables(contextName, "processed_event");
+    }
 
     /**
      * Deletes all the data in the Event-Store tables

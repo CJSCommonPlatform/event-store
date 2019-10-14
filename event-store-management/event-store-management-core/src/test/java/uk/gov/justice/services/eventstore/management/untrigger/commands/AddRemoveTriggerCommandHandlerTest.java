@@ -4,7 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
+import uk.gov.justice.services.eventstore.management.untrigger.process.AddRemoveTriggerProcessRunner;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 public class AddRemoveTriggerCommandHandlerTest {
 
     @Mock
-    private EventLogTriggerManipulator eventLogTriggerManipulator;
+    private AddRemoveTriggerProcessRunner addRemoveTriggerProcessRunner;
 
     @Mock
     private MdcLogger mdcLogger;
@@ -47,19 +47,20 @@ public class AddRemoveTriggerCommandHandlerTest {
         addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand, commandId);
 
         verify(logger).info("Received command ADD_TRIGGER");
-        verify(eventLogTriggerManipulator).addTriggerToEventLogTable();
+        verify(addRemoveTriggerProcessRunner).addTriggerToEventLogTable(commandId, addTriggerCommand);
     }
 
     @Test
     public void shouldCallTheRemoveEventLogTriggerProcess() throws Exception {
 
+        final UUID commandId = randomUUID();
         final RemoveTriggerCommand removeTriggerCommand = new RemoveTriggerCommand();
 
         when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
-        addRemoveTriggerCommandHandler.removeTriggerFromEventLogTable(removeTriggerCommand);
+        addRemoveTriggerCommandHandler.removeTriggerFromEventLogTable(removeTriggerCommand, commandId);
 
         verify(logger).info("Received command REMOVE_TRIGGER");
-        verify(eventLogTriggerManipulator).removeTriggerFromEventLogTable();
+        verify(addRemoveTriggerProcessRunner).removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
     }
 }

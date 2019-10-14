@@ -4,7 +4,7 @@ import static java.lang.String.format;
 import static uk.gov.justice.services.jmx.api.command.AddTriggerCommand.ADD_TRIGGER;
 import static uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand.REMOVE_TRIGGER;
 
-import uk.gov.justice.services.eventstore.management.untrigger.process.EventLogTriggerManipulator;
+import uk.gov.justice.services.eventstore.management.untrigger.process.AddRemoveTriggerProcessRunner;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 public class AddRemoveTriggerCommandHandler {
 
     @Inject
-    private EventLogTriggerManipulator eventLogTriggerManipulator;
+    private AddRemoveTriggerProcessRunner addRemoveTriggerProcessRunner;
 
     @Inject
     private MdcLogger mdcLogger;
@@ -34,18 +34,18 @@ public class AddRemoveTriggerCommandHandler {
 
             logger.info(format("Received command %s", addTriggerCommand.getName()));
 
-            eventLogTriggerManipulator.addTriggerToEventLogTable();
+            addRemoveTriggerProcessRunner.addTriggerToEventLogTable(commandId, addTriggerCommand);
         });
     }
 
     @HandlesSystemCommand(REMOVE_TRIGGER)
-    public void removeTriggerFromEventLogTable(final RemoveTriggerCommand removeTriggerCommand) {
+    public void removeTriggerFromEventLogTable(final RemoveTriggerCommand removeTriggerCommand, final UUID commandId) {
 
         mdcLogger.mdcLoggerConsumer().accept(() -> {
 
             logger.info(format("Received command %s", removeTriggerCommand.getName()));
 
-            eventLogTriggerManipulator.removeTriggerFromEventLogTable();
+            addRemoveTriggerProcessRunner.removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
         });
     }
 }

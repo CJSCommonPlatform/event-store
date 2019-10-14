@@ -128,6 +128,25 @@ public class DatabaseCleanerTest {
     }
 
     @Test
+    public void shouldCleanTheProcessedEventTable() throws Exception {
+
+        final String tableName = "processed_event";
+        final String contextName = "my-context";
+
+        final Connection connection = mock(Connection.class);
+        final PreparedStatement preparedStatement = mock(PreparedStatement.class);
+
+        when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
+        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+
+        databaseCleaner.cleanProcessedEventTable(contextName);
+
+        verify(preparedStatement).executeUpdate();
+        verify(connection).close();
+        verify(preparedStatement).close();
+    }
+
+    @Test
     public void shouldThrowADataAccessExceptionIfCleaningAViewStoreTableFails() throws Exception {
 
         final String tableName = "stream_buffer";

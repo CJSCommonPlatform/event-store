@@ -4,6 +4,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
+import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcessRunner;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 import uk.gov.justice.services.jmx.logging.MdcLogger;
 
@@ -22,7 +23,7 @@ import org.slf4j.Logger;
 public class VerifyCatchupCommandHandlerTest {
 
     @Mock
-    private CatchupVerificationProcess catchupVerificationProcess;
+    private CatchupVerificationProcessRunner catchupVerificationProcessRunner;
 
     @Mock
     private MdcLogger mdcLogger;
@@ -39,13 +40,15 @@ public class VerifyCatchupCommandHandlerTest {
     public void shouldRunTheVerificationProcess() throws Exception {
 
         final UUID commandId = UUID.randomUUID();
+        final VerifyCatchupCommand verifyCatchupCommand = new VerifyCatchupCommand();
+
         when(mdcLogger.mdcLoggerConsumer()).thenReturn(testConsumer);
 
-        verifyCatchupCommandHandler.validateCatchup(new VerifyCatchupCommand(), commandId);
+        verifyCatchupCommandHandler.validateCatchup(verifyCatchupCommand, commandId);
 
-        final InOrder inOrder = inOrder(logger, catchupVerificationProcess);
+        final InOrder inOrder = inOrder(logger, catchupVerificationProcessRunner);
 
         inOrder.verify(logger).info("Received VERIFY_CATCHUP command");
-        inOrder.verify(catchupVerificationProcess).runVerification();
+        inOrder.verify(catchupVerificationProcessRunner).runVerificationProcess(commandId, verifyCatchupCommand);
     }
 }

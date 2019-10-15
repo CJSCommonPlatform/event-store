@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.untrigger.process;
+package uk.gov.justice.services.eventstore.management.trigger.process;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulator;

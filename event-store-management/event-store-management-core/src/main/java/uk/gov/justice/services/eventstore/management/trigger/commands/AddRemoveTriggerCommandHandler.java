@@ -1,23 +1,30 @@
-package uk.gov.justice.services.eventstore.management.untrigger.process;
+package uk.gov.justice.services.eventstore.management.trigger.commands;
 
 import static java.lang.String.format;
+import static uk.gov.justice.services.jmx.api.command.AddTriggerCommand.ADD_TRIGGER;
+import static uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand.REMOVE_TRIGGER;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.trigger.process.EventLogTriggerManipulator;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
+import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
+import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.util.UUID;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 
 import org.slf4j.Logger;
 
-public class AddRemoveTriggerProcessRunner {
+@Interceptors(MdcLoggerInterceptor.class)
+public class AddRemoveTriggerCommandHandler {
 
     @Inject
     private Event<SystemCommandStateChangedEvent> systemCommandStateChangedEventFirer;
@@ -31,7 +38,10 @@ public class AddRemoveTriggerProcessRunner {
     @Inject
     private Logger logger;
 
-    public void addTriggerToEventLogTable(final UUID commandId, final AddTriggerCommand addTriggerCommand) {
+    @HandlesSystemCommand(ADD_TRIGGER)
+    public void addTriggerToEventLogTable(final AddTriggerCommand addTriggerCommand, final UUID commandId) {
+
+        logger.info(format("Received command %s", addTriggerCommand.getName()));
 
         systemCommandStateChangedEventFirer.fire(new SystemCommandStateChangedEvent(
                 commandId,
@@ -66,7 +76,10 @@ public class AddRemoveTriggerProcessRunner {
         }
     }
 
-    public void removeTriggerFromEventLogTable(final UUID commandId, final RemoveTriggerCommand removeTriggerCommand) {
+    @HandlesSystemCommand(REMOVE_TRIGGER)
+    public void removeTriggerFromEventLogTable(final RemoveTriggerCommand removeTriggerCommand, final UUID commandId) {
+
+        logger.info(format("Received command %s", removeTriggerCommand.getName()));
 
         systemCommandStateChangedEventFirer.fire(new SystemCommandStateChangedEvent(
                 commandId,

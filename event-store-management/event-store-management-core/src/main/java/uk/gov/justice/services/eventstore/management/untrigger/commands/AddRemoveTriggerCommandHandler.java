@@ -8,21 +8,20 @@ import uk.gov.justice.services.eventstore.management.untrigger.process.AddRemove
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
-import uk.gov.justice.services.jmx.logging.MdcLogger;
+import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 
 import org.slf4j.Logger;
 
+@Interceptors(MdcLoggerInterceptor.class)
 public class AddRemoveTriggerCommandHandler {
 
     @Inject
     private AddRemoveTriggerProcessRunner addRemoveTriggerProcessRunner;
-
-    @Inject
-    private MdcLogger mdcLogger;
 
     @Inject
     private Logger logger;
@@ -30,22 +29,16 @@ public class AddRemoveTriggerCommandHandler {
     @HandlesSystemCommand(ADD_TRIGGER)
     public void addTriggerToEventLogTable(final AddTriggerCommand addTriggerCommand, final UUID commandId) {
 
-        mdcLogger.mdcLoggerConsumer().accept(() -> {
+        logger.info(format("Received command %s", addTriggerCommand.getName()));
 
-            logger.info(format("Received command %s", addTriggerCommand.getName()));
-
-            addRemoveTriggerProcessRunner.addTriggerToEventLogTable(commandId, addTriggerCommand);
-        });
+        addRemoveTriggerProcessRunner.addTriggerToEventLogTable(commandId, addTriggerCommand);
     }
 
     @HandlesSystemCommand(REMOVE_TRIGGER)
     public void removeTriggerFromEventLogTable(final RemoveTriggerCommand removeTriggerCommand, final UUID commandId) {
 
-        mdcLogger.mdcLoggerConsumer().accept(() -> {
+        logger.info(format("Received command %s", removeTriggerCommand.getName()));
 
-            logger.info(format("Received command %s", removeTriggerCommand.getName()));
-
-            addRemoveTriggerProcessRunner.removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
-        });
+        addRemoveTriggerProcessRunner.removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
     }
 }

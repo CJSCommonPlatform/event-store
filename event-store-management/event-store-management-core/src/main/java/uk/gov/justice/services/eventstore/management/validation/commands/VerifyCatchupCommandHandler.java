@@ -6,11 +6,12 @@ import static uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand.VERIF
 import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcessRunner;
 import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
-import uk.gov.justice.services.jmx.logging.MdcLogger;
+import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 
 import org.slf4j.Logger;
 
@@ -20,17 +21,13 @@ public class VerifyCatchupCommandHandler {
     private CatchupVerificationProcessRunner catchupVerificationProcessRunner;
 
     @Inject
-    private MdcLogger mdcLogger;
-
-    @Inject
     private Logger logger;
 
+    @Interceptors(MdcLoggerInterceptor.class)
     @HandlesSystemCommand(VERIFY_CATCHUP)
     public void validateCatchup(final VerifyCatchupCommand verifyCatchupCommand, final UUID commandId) {
 
-        mdcLogger.mdcLoggerConsumer().accept(() -> {
-            logger.info(format("Received %s command", verifyCatchupCommand.getName()));
-            catchupVerificationProcessRunner.runVerificationProcess(commandId, verifyCatchupCommand);
-        });
+        logger.info(format("Received %s command", verifyCatchupCommand.getName()));
+        catchupVerificationProcessRunner.runVerificationProcess(commandId, verifyCatchupCommand);
     }
 }

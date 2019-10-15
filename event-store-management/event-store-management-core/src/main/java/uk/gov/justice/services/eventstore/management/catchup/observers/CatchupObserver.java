@@ -4,45 +4,33 @@ import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompl
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.jmx.logging.MdcLogger;
+import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 
+@Interceptors(MdcLoggerInterceptor.class)
 @ApplicationScoped
 public class CatchupObserver {
 
     @Inject
     private CatchupLifecycle catchupLifecycle;
 
-    @Inject
-    private MdcLogger mdcLogger;
-
     public void onCatchupRequested(@Observes final CatchupRequestedEvent catchupRequestedEvent) {
-
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupRequested(catchupRequestedEvent));
+        catchupLifecycle.handleCatchupRequested(catchupRequestedEvent);
     }
 
     public void onCatchupStartedForSubscription(@Observes final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent) {
-
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupStartedForSubscription(catchupStartedForSubscriptionEvent));
+        catchupLifecycle.handleCatchupStartedForSubscription(catchupStartedForSubscriptionEvent);
     }
 
     public void onCatchupCompleteForSubscription(@Observes final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
-
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent));
+        catchupLifecycle.handleCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
     }
 
     public void onCatchupProcessingOfEventFailed(@Observes final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent) {
-        mdcLogger
-                .mdcLoggerConsumer()
-                .accept(() -> catchupLifecycle.handleCatchupProcessingOfEventFailed(catchupProcessingOfEventFailedEvent));
+        catchupLifecycle.handleCatchupProcessingOfEventFailed(catchupProcessingOfEventFailedEvent);
     }
 }

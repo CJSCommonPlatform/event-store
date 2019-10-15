@@ -5,31 +5,17 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [2.2.0-M5] - 2018-10-14
+## [2.2.0] - 2019-10-15
+### Added
+- New table in System database 'system_command_status' for storing state of commands
 ### Changed
-- Updated framework to 6.2.0-M5
+- Updated framework to 6.2.0
 - All system commands now store their state in the system_command_status table in the system 
 database. This is to allow the JMX client to wait until the command has completed or failed 
 before it exits.
-
-
-## [2.2.0-M4] - 2018-10-10
-### Changed
-- Updated framework t0 6.2.0-M4
 - Now using CatchupCommand to determine if we are running Event or Indexer catchup
-
-## [2.2.0-M3] - 2018-10-09
-### Changed
-- Updated framework t0 6.2.0-M3
 - Converted ShutteringExecutors to use the new ShutteringExecutor interface
-
-## [2.2.0-M2] - 2018-10-02
-### Added
 - Added commandId to all SystemEvents
-
-## [2.2.0-M1] - 2019-10-02
-### Changed
-- Updated to framework 6.2.0-M1
 - All SystemCommand handlers now take a mandatory UUID, commandId.
 - Moved MdcLogger to framework 'jmx-command-handling' module
 

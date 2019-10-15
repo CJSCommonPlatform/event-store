@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.untrigger.process;
+package uk.gov.justice.services.eventstore.management.trigger.commands;
 
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
@@ -11,6 +11,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.trigger.process.EventLogTriggerManipulator;
 import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
 import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
@@ -32,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddRemoveTriggerProcessRunnerTest {
+public class AddRemoveTriggerCommandHandlerTest {
 
     @Mock
     private Event<SystemCommandStateChangedEvent> systemCommandStateChangedEventFirer;
@@ -47,7 +48,7 @@ public class AddRemoveTriggerProcessRunnerTest {
     private Logger logger;
 
     @InjectMocks
-    private AddRemoveTriggerProcessRunner addRemoveTriggerProcessRunner;
+    private AddRemoveTriggerCommandHandler addRemoveTriggerCommandHandler;
 
     @Captor
     private ArgumentCaptor<SystemCommandStateChangedEvent> systemCommandStateChangedEventCaptor;
@@ -62,10 +63,11 @@ public class AddRemoveTriggerProcessRunnerTest {
 
         when(clock.now()).thenReturn(startedAt, completedAt);
 
-        addRemoveTriggerProcessRunner.addTriggerToEventLogTable(commandId, addTriggerCommand);
+        addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand, commandId);
 
-        final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, eventLogTriggerManipulator);
+        final InOrder inOrder = inOrder(logger, systemCommandStateChangedEventFirer, eventLogTriggerManipulator);
 
+        inOrder.verify(logger).info("Received command ADD_TRIGGER");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
         inOrder.verify(eventLogTriggerManipulator).addTriggerToEventLogTable();
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
@@ -101,10 +103,11 @@ public class AddRemoveTriggerProcessRunnerTest {
         when(clock.now()).thenReturn(startedAt, failedAt);
         doThrow(nullPointerException).when(eventLogTriggerManipulator).addTriggerToEventLogTable();
 
-        addRemoveTriggerProcessRunner.addTriggerToEventLogTable(commandId, addTriggerCommand);
+        addRemoveTriggerCommandHandler.addTriggerToEventLogTable(addTriggerCommand, commandId);
 
-        final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, eventLogTriggerManipulator, logger);
+        final InOrder inOrder = inOrder(logger, systemCommandStateChangedEventFirer, eventLogTriggerManipulator, logger);
 
+        inOrder.verify(logger).info("Received command ADD_TRIGGER");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
         inOrder.verify(eventLogTriggerManipulator).addTriggerToEventLogTable();
         inOrder.verify(logger).error("Add trigger to event log table process failed: NullPointerException: Ooops", nullPointerException);
@@ -138,10 +141,11 @@ public class AddRemoveTriggerProcessRunnerTest {
 
         when(clock.now()).thenReturn(startedAt, completedAt);
 
-        addRemoveTriggerProcessRunner.removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
+        addRemoveTriggerCommandHandler.removeTriggerFromEventLogTable(removeTriggerCommand, commandId);
 
-        final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, eventLogTriggerManipulator);
+        final InOrder inOrder = inOrder(logger, systemCommandStateChangedEventFirer, eventLogTriggerManipulator);
 
+        inOrder.verify(logger).info("Received command REMOVE_TRIGGER");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
         inOrder.verify(eventLogTriggerManipulator).removeTriggerFromEventLogTable();
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
@@ -177,10 +181,11 @@ public class AddRemoveTriggerProcessRunnerTest {
         when(clock.now()).thenReturn(startedAt, failedAt);
         doThrow(nullPointerException).when(eventLogTriggerManipulator).removeTriggerFromEventLogTable();
 
-        addRemoveTriggerProcessRunner.removeTriggerFromEventLogTable(commandId, removeTriggerCommand);
+        addRemoveTriggerCommandHandler.removeTriggerFromEventLogTable(removeTriggerCommand, commandId);
 
         final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, eventLogTriggerManipulator, logger);
 
+        inOrder.verify(logger).info("Received command REMOVE_TRIGGER");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
         inOrder.verify(eventLogTriggerManipulator).removeTriggerFromEventLogTable();
         inOrder.verify(logger).error("Remove trigger from event log table process failed: NullPointerException: Ooops", nullPointerException);
@@ -204,4 +209,3 @@ public class AddRemoveTriggerProcessRunnerTest {
         assertThat(completeEvent.getMessage(), is("Remove trigger from event log table process failed: NullPointerException: Ooops"));
     }
 }
-

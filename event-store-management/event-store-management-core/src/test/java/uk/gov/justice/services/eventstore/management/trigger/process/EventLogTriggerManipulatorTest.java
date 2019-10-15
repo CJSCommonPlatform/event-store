@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.untrigger.process;
+package uk.gov.justice.services.eventstore.management.trigger.process;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;

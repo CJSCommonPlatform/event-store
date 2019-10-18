@@ -2,7 +2,6 @@ package uk.gov.justice.services.eventstore.management.validation.commands;
 
 import static java.lang.String.format;
 import static uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand.VERIFY_CATCHUP;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
@@ -50,14 +49,14 @@ public class VerifyCatchupCommandHandler {
         ));
 
         try {
-            catchupVerificationProcess.runVerification();
+            final VerificationCommandResult verificationCommandResult = catchupVerificationProcess.runVerification(commandId);
 
             systemCommandStateChangedEventFirer.fire(new SystemCommandStateChangedEvent(
                     commandId,
                     verifyCatchupCommand,
-                    COMMAND_COMPLETE,
+                    verificationCommandResult.getCommandState(),
                     clock.now(),
-                    "Verification of catchup complete"
+                    verificationCommandResult.getMessage()
             ));
         } catch (final Exception e) {
             final String message = format("Verification of catchup failed: %s: %s", e.getClass().getSimpleName(), e.getMessage());

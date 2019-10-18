@@ -1,50 +1,45 @@
 package uk.gov.justice.services.eventstore.management.validation.process;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.VerificationResultType.ERROR;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.VerificationResultType.SUCCESS;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.VerificationResultType.WARNING;
+import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
 
 public class CatchupVerificationProcess {
 
     @Inject
-    private Logger logger;
+    private VerificationRunner verificationRunner;
 
     @Inject
-    private VerifierProvider verifierProvider;
+    private VerificationResultFilter verificationResultFilter;
 
-    public void runVerification() {
+    @Inject
+    private VerificationResultsLogger verificationResultsLogger;
 
-        final List<VerificationResult> verificationResults = verifierProvider.getVerifiers().stream()
-                .map(Verifier::verify)
-                .flatMap(Collection::stream)
-                .collect(toList());
+    @Inject
+    private CommandResultGenerator commandResultGenerator;
 
-        final List<VerificationResult> errorResults = filter(verificationResults, ERROR);
-        final List<VerificationResult> warningResults = filter(verificationResults, WARNING);
-        final List<VerificationResult> successfulResults = filter(verificationResults, SUCCESS);
+    public VerificationCommandResult runVerification(final UUID commandId) {
 
-        logger.info(format("Verification of Catchup completed with %d Errors, %d Warnings and %d Successes", errorResults.size(), warningResults.size(), successfulResults.size()));
+        final List<VerificationResult> verificationResults = verificationRunner.runVerifiers();
 
-        errorResults.forEach(verificationResult -> logger.error("ERROR: " + verificationResult.getMessage()));
-        warningResults.forEach(verificationResult -> logger.warn("WARNING: " + verificationResult.getMessage()));
-        successfulResults.forEach(verificationResult -> logger.info("SUCCESS: " + verificationResult.getMessage()));
-    }
+        final List<VerificationResult> successResults = verificationResultFilter.findSuccesses(verificationResults);
+        final List<VerificationResult> warningResults = verificationResultFilter.findWarnings(verificationResults);
+        final List<VerificationResult> errorResults = verificationResultFilter.findErrors(verificationResults);
 
-    private List<VerificationResult> filter(
-            final List<VerificationResult> verificationResults,
-            final VerificationResult.VerificationResultType verificationResultType) {
+        verificationResultsLogger.logResults(
+                successResults,
+                warningResults,
+                errorResults
+        );
 
-        return verificationResults.stream()
-                .filter(verificationResult -> verificationResult.getVerificationResultType() == verificationResultType)
-                .collect(toList());
+        return commandResultGenerator.createCommandResult(
+                commandId,
+                successResults,
+                warningResults,
+                errorResults
+        );
     }
 }

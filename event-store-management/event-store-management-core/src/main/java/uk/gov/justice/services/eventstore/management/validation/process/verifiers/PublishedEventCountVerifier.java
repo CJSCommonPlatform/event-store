@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -6,6 +6,10 @@ import static uk.gov.justice.services.eventstore.management.validation.process.V
 import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.success;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
+import uk.gov.justice.services.eventstore.management.validation.process.EventLogActiveEventRowCounter;
+import uk.gov.justice.services.eventstore.management.validation.process.TableRowCounter;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
+import uk.gov.justice.services.eventstore.management.validation.process.Verifier;
 
 import java.util.List;
 
@@ -14,7 +18,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 
-public class PublishedEventCountVerifier implements Verifier{
+public class PublishedEventCountVerifier implements Verifier {
 
     private static final String PUBLISHED_EVENT_TABLE_NAME = "published_event";
 

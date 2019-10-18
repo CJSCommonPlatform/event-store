@@ -1,5 +1,8 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
+import uk.gov.justice.services.eventstore.management.validation.process.EventLinkageChecker;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
+import uk.gov.justice.services.eventstore.management.validation.process.Verifier;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.util.List;
@@ -8,7 +11,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-public class ProcessedEventLinkVerifier implements Verifier{
+public class ProcessedEventLinkVerifier implements Verifier {
 
     @Inject
     private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;

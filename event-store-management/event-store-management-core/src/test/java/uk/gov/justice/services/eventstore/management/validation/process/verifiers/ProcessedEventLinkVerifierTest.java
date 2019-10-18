@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventstore.management.validation.process.EventLinkageChecker;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.util.List;

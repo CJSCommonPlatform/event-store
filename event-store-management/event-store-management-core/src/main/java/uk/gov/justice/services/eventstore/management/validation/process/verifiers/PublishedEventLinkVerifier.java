@@ -1,6 +1,9 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
+import uk.gov.justice.services.eventstore.management.validation.process.EventLinkageChecker;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
+import uk.gov.justice.services.eventstore.management.validation.process.Verifier;
 
 import java.util.List;
 

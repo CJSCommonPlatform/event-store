@@ -1,29 +1,38 @@
 package uk.gov.justice.services.eventstore.management.validation.process;
 
-import static java.util.Arrays.asList;
-import static org.mockito.Mockito.inOrder;
+import static java.util.Collections.singletonList;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.error;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.success;
-import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.warning;
+
+import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
+
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CatchupVerificationProcessTest {
 
     @Mock
-    private Logger logger;
+    private VerificationRunner verificationRunner;
 
     @Mock
-    private VerifierProvider verifierProvider;
+    private VerificationResultFilter verificationResultFilter;
+
+    @Mock
+    private VerificationResultsLogger verificationResultsLogger;
+
+    @Mock
+    private CommandResultGenerator commandResultGenerator;
 
     @InjectMocks
     private CatchupVerificationProcess catchupVerificationProcess;
@@ -31,31 +40,31 @@ public class CatchupVerificationProcessTest {
     @Test
     public void shouldRunTheVariousVerificationProcessesAndLogTheResults() throws Exception {
 
-        final VerificationResult error_1 = error("error 1");
-        final VerificationResult error_2 = error("error 2");
-        final VerificationResult warning_1 = warning("warning 1");
-        final VerificationResult warning_2 = warning("warning 2");
-        final VerificationResult success_1 = success("success 1");
-        final VerificationResult success_2 = success("success 2");
+        final UUID commandId = randomUUID();
 
-        final Verifier verifier_1 = mock(Verifier.class);
-        final Verifier verifier_2 = mock(Verifier.class);
+        final List<VerificationResult> verificationResults = singletonList(mock(VerificationResult.class));
+        final List<VerificationResult> successResults = singletonList(mock(VerificationResult.class));
+        final List<VerificationResult> warningResults = singletonList(mock(VerificationResult.class));
+        final List<VerificationResult> errorResults = singletonList(mock(VerificationResult.class));
 
-        when(verifierProvider.getVerifiers()).thenReturn(asList(verifier_1, verifier_2));
-        when(verifier_1.verify()).thenReturn(asList(warning_1, success_1, error_1));
-        when(verifier_2.verify()).thenReturn(asList(success_2, warning_2, error_2));
+        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
 
-        catchupVerificationProcess.runVerification();
+        when(verificationRunner.runVerifiers()).thenReturn(verificationResults);
+        when(verificationResultFilter.findSuccesses(verificationResults)).thenReturn(successResults);
+        when(verificationResultFilter.findWarnings(verificationResults)).thenReturn(warningResults);
+        when(verificationResultFilter.findErrors(verificationResults)).thenReturn(errorResults);
 
-        final InOrder inOrder = inOrder(logger);
+        when(commandResultGenerator.createCommandResult(
+                commandId,
+                successResults,
+                warningResults,
+                errorResults)).thenReturn(verificationCommandResult);
 
-        inOrder.verify(logger).info("Verification of Catchup completed with 2 Errors, 2 Warnings and 2 Successes");
+        assertThat(catchupVerificationProcess.runVerification(commandId), is(verificationCommandResult));
 
-        inOrder.verify(logger).error("ERROR: error 1");
-        inOrder.verify(logger).error("ERROR: error 2");
-        inOrder.verify(logger).warn("WARNING: warning 1");
-        inOrder.verify(logger).warn("WARNING: warning 2");
-        inOrder.verify(logger).info("SUCCESS: success 1");
-        inOrder.verify(logger).info("SUCCESS: success 2");
+        verify(verificationResultsLogger).logResults(
+                successResults,
+                warningResults,
+                errorResults);
     }
 }

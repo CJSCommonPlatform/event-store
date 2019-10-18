@@ -6,7 +6,7 @@ import static uk.gov.justice.services.eventstore.management.validation.process.V
 
 public class VerificationResult {
 
-    enum VerificationResultType {
+    public enum VerificationResultType {
         SUCCESS,
         WARNING,
         ERROR

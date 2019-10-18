@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.UUID.fromString;
@@ -13,6 +13,10 @@ import static uk.gov.justice.services.eventstore.management.validation.process.V
 import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.VerificationResultType.WARNING;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
+import uk.gov.justice.services.eventstore.management.validation.process.ActiveStreamIdProvider;
+import uk.gov.justice.services.eventstore.management.validation.process.AllEventsInStreamsVerifier;
+import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationException;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

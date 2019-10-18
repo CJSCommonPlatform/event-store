@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.1] - 2019-10-18
+### Fixed
+- VERIFY_CATCHUP now correctly marks its status as COMMAND_FAILED if any of 
+the verification steps fail. Verification warnings are considered successful  
+
 ## [2.2.0] - 2019-10-15
 ### Added
 - New table in System database 'system_command_status' for storing state of commands

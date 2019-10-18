@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
+import static uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult.success;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
@@ -52,7 +52,6 @@ public class VerifyCatchupCommandHandlerTest {
     @InjectMocks
     private VerifyCatchupCommandHandler verifyCatchupCommandHandler;
 
-
     @Test
     public void shouldFireCommandStatusEventsAndRunVerification() throws Exception {
 
@@ -62,6 +61,9 @@ public class VerifyCatchupCommandHandlerTest {
         final UUID commandId = randomUUID();
         final VerifyCatchupCommand verifyCatchupCommand = new VerifyCatchupCommand();
 
+        final String successMessage = "success message";
+        final VerificationCommandResult verificationCommandResult = success(commandId, successMessage);
+
         final InOrder inOrder = inOrder(
                 logger,
                 systemCommandStateChangedEventFirer,
@@ -69,12 +71,13 @@ public class VerifyCatchupCommandHandlerTest {
         );
 
         when(clock.now()).thenReturn(startedAt, completedAt);
+        when(catchupVerificationProcess.runVerification(commandId)).thenReturn(verificationCommandResult);
 
         verifyCatchupCommandHandler.validateCatchup(verifyCatchupCommand, commandId);
 
         inOrder.verify(logger).info("Received VERIFY_CATCHUP command");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
-        inOrder.verify(catchupVerificationProcess).runVerification();
+        inOrder.verify(catchupVerificationProcess).runVerification(commandId);
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
 
         final List<SystemCommandStateChangedEvent> allValues = systemCommandStateChangedEventCaptor.getAllValues();
@@ -89,10 +92,10 @@ public class VerifyCatchupCommandHandlerTest {
         assertThat(startEvent.getMessage(), is("Verification of catchup started"));
 
         assertThat(endEvent.getCommandId(), is(commandId));
-        assertThat(endEvent.getCommandState(), is(COMMAND_COMPLETE));
+        assertThat(endEvent.getCommandState(), is(verificationCommandResult.getCommandState()));
         assertThat(endEvent.getSystemCommand(), is(verifyCatchupCommand));
         assertThat(endEvent.getStatusChangedAt(), is(completedAt));
-        assertThat(endEvent.getMessage(), is("Verification of catchup complete"));
+        assertThat(endEvent.getMessage(), is(successMessage));
     }
 
     @Test
@@ -114,13 +117,13 @@ public class VerifyCatchupCommandHandlerTest {
         );
 
         when(clock.now()).thenReturn(startedAt, failedAt);
-        doThrow(nullPointerException).when(catchupVerificationProcess).runVerification();
+        doThrow(nullPointerException).when(catchupVerificationProcess).runVerification(commandId);
 
         verifyCatchupCommandHandler.validateCatchup(verifyCatchupCommand, commandId);
 
         inOrder.verify(logger).info("Received VERIFY_CATCHUP command");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
-        inOrder.verify(catchupVerificationProcess).runVerification();
+        inOrder.verify(catchupVerificationProcess).runVerification(commandId);
         inOrder.verify(logger).error("Verification of catchup failed: NullPointerException: Ooops", nullPointerException);
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
 

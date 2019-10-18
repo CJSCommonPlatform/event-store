@@ -1,10 +1,13 @@
-package uk.gov.justice.services.eventstore.management.validation.process;
+package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.error;
 import static uk.gov.justice.services.eventstore.management.validation.process.VerificationResult.success;
 
+import uk.gov.justice.services.eventstore.management.validation.process.TableRowCounter;
+import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
+import uk.gov.justice.services.eventstore.management.validation.process.Verifier;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.util.List;

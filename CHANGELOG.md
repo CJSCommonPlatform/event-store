@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Pre publish and publish timer beans now run in a separate thread.
+- New JNDI boolean values of 'pre.publish.disable' and 'publish.disable' to disable
+the running of PrePublisherTimerBean and PublisherTimerBean respectively
 
 ## [2.2.1] - 2019-10-18
 ### Fixed

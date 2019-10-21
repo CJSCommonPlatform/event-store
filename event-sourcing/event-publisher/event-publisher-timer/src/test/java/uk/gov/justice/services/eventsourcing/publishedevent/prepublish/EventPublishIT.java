@@ -25,6 +25,7 @@ import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.D
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
+import uk.gov.justice.services.eventsourcing.publishedevent.publishing.AsynchronousPublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerBean;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
@@ -155,8 +156,8 @@ public class EventPublishIT {
             PublishedEventFactory.class,
             PublisherTimerBean.class,
             PublisherTimerConfig.class,
-            PrePublishTimerBean.class,
-            PrePublishTimerConfig.class,
+            PrePublisherTimerBean.class,
+            PrePublisherTimerConfig.class,
             SubscriptionSorter.class,
             PublishedEventQueries.class,
             EventJdbcRepository.class,
@@ -174,7 +175,10 @@ public class EventPublishIT {
             JndiAppNameProvider.class,
             StackTraceProvider.class,
             DefaultJsonEnvelopeProvider.class,
-            DefaultEnvelopeProvider.class
+            DefaultEnvelopeProvider.class,
+
+            AsynchronousPublisher.class,
+            AsynchronousPrePublisher.class
     })
     public WebApp war() {
         return new WebApp()

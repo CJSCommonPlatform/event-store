@@ -1,7 +1,5 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
-import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
@@ -11,8 +9,6 @@ import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
-
-import org.apache.commons.lang3.time.StopWatch;
 
 @Singleton
 @Startup
@@ -30,10 +26,7 @@ public class PublisherTimerBean {
     private TimerServiceManager timerServiceManager;
 
     @Inject
-    private StopWatchFactory stopWatchFactory;
-
-    @Inject
-    private PublishedEventDeQueuerAndPublisher publishedEventDeQueuerAndPublisher;
+    private AsynchronousPublisher asynchronousPublisher;
 
     @PostConstruct
     public void startTimerService() {
@@ -48,16 +41,8 @@ public class PublisherTimerBean {
     @Timeout
     public void doDeQueueAndPublish() {
 
-        final long maxRuntimeMilliseconds = publisherTimerConfig.getTimerMaxRuntimeMilliseconds();
-        final StopWatch stopWatch = stopWatchFactory.createStopWatch();
-
-        stopWatch.start();
-
-        while (publishedEventDeQueuerAndPublisher.deQueueAndPublish()) {
-
-            if (stopWatch.getTime() > maxRuntimeMilliseconds) {
-                break;
-            }
+        if (! publisherTimerConfig.isDisabled()) {
+            asynchronousPublisher.doDeQueueAndPublish();
         }
     }
 }

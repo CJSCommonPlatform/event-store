@@ -6,9 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
-
-import javax.ejb.TimerService;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
@@ -18,16 +15,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PrePublishTimerBeanTest {
+public class AsynchronousPrePublisherTest {
 
     @Mock
-    private TimerService timerService;
-
-    @Mock
-    private PrePublishTimerConfig prePublishTimerConfig;
-
-    @Mock
-    private TimerServiceManager timerServiceManager;
+    private PrePublisherTimerConfig prePublisherTimerConfig;
 
     @Mock
     private PrePublishProcessor prePublishProcessor;
@@ -36,25 +27,7 @@ public class PrePublishTimerBeanTest {
     private StopWatchFactory stopWatchFactory;
 
     @InjectMocks
-    private PrePublishTimerBean prePublishTimerBean;
-
-    @Test
-    public void shouldSetUpTheTimerServiceOnPostConstruct() throws Exception {
-
-        final long timerStartValue = 7250L;
-        final long timerIntervalValue = 2000L;
-
-        when(prePublishTimerConfig.getTimerStartWaitMilliseconds()).thenReturn(timerStartValue);
-        when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
-
-        prePublishTimerBean.startTimerService();
-
-        verify(timerServiceManager).createIntervalTimer(
-                "event-store.pre-publish-events.job",
-                timerStartValue,
-                timerIntervalValue,
-                timerService);
-    }
+    private AsynchronousPrePublisher asynchronousPrePublisher;
 
     @Test
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
@@ -62,13 +35,12 @@ public class PrePublishTimerBeanTest {
         final long timerIntervalValue = 2000L;
         final long timerMaxRuntimeValue = 495L;
 
-
-        when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
-        when(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
+        when(prePublisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
+        when(prePublisherTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(mock(StopWatch.class));
         when(prePublishProcessor.prePublishNextEvent()).thenReturn(true, true, false);
 
-        prePublishTimerBean.performPrePublish();
+        asynchronousPrePublisher.performPrePublish();
 
         verify(prePublishProcessor, times(3)).prePublishNextEvent();
     }
@@ -80,15 +52,14 @@ public class PrePublishTimerBeanTest {
         final long timerMaxRuntimeValue = 495L;
         final StopWatch stopWatch = mock(StopWatch.class);
 
-        when(prePublishTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
-        when(prePublishTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
+        when(prePublisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
+        when(prePublisherTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(stopWatch);
         when(prePublishProcessor.prePublishNextEvent()).thenReturn(true, true, true);
         when(stopWatch.getTime()).thenReturn(timerIntervalValue);
 
-        prePublishTimerBean.performPrePublish();
+        asynchronousPrePublisher.performPrePublish();
 
         verify(prePublishProcessor, times(1)).prePublishNextEvent();
     }
-
 }

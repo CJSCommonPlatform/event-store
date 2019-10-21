@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,5 +43,33 @@ public class PublisherTimerConfigTest {
         publisherTimerConfig.timerMaxRuntimeMilliseconds = "" + milliseconds;
 
         assertThat(publisherTimerConfig.getTimerMaxRuntimeMilliseconds(), is(milliseconds));
+    }
+
+    @Test
+    public void shouldReturnTrueIfDisabled() throws Exception {
+
+        setField(publisherTimerConfig, "disablePublish", "TRUE");
+        assertThat(publisherTimerConfig.isDisabled(), is(true));
+
+        setField(publisherTimerConfig, "disablePublish", "true");
+        assertThat(publisherTimerConfig.isDisabled(), is(true));
+
+        setField(publisherTimerConfig, "disablePublish", "True");
+        assertThat(publisherTimerConfig.isDisabled(), is(true));
+
+        setField(publisherTimerConfig, "disablePublish", "FALSE");
+        assertThat(publisherTimerConfig.isDisabled(), is(false));
+
+        setField(publisherTimerConfig, "disablePublish", "false");
+        assertThat(publisherTimerConfig.isDisabled(), is(false));
+
+        setField(publisherTimerConfig, "disablePublish", "False");
+        assertThat(publisherTimerConfig.isDisabled(), is(false));
+
+        setField(publisherTimerConfig, "disablePublish", "something very silly");
+        assertThat(publisherTimerConfig.isDisabled(), is(false));
+
+        setField(publisherTimerConfig, "disablePublish", null);
+        assertThat(publisherTimerConfig.isDisabled(), is(false));
     }
 }

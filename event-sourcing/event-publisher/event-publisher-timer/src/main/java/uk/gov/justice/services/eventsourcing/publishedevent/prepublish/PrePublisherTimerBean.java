@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
-import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
@@ -11,11 +10,9 @@ import javax.ejb.Timeout;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.time.StopWatch;
-
 @Singleton
 @Startup
-public class PrePublishTimerBean {
+public class PrePublisherTimerBean {
 
     private static final String TIMER_JOB_NAME = "event-store.pre-publish-events.job";
 
@@ -23,40 +20,29 @@ public class PrePublishTimerBean {
     private TimerService timerService;
 
     @Inject
-    private PrePublishTimerConfig prePublishTimerConfig;
+    private PrePublisherTimerConfig prePublisherTimerConfig;
 
     @Inject
     private TimerServiceManager timerServiceManager;
 
     @Inject
-    private PrePublishProcessor prePublishProcessor;
-
-    @Inject
-    private StopWatchFactory stopWatchFactory;
+    private AsynchronousPrePublisher asynchronousPrePublisher;
 
     @PostConstruct
     public void startTimerService() {
 
         timerServiceManager.createIntervalTimer(
                 TIMER_JOB_NAME,
-                prePublishTimerConfig.getTimerStartWaitMilliseconds(),
-                prePublishTimerConfig.getTimerIntervalMilliseconds(),
+                prePublisherTimerConfig.getTimerStartWaitMilliseconds(),
+                prePublisherTimerConfig.getTimerIntervalMilliseconds(),
                 timerService);
     }
 
     @Timeout
     public void performPrePublish() {
 
-        final long maxRuntimeMilliseconds = prePublishTimerConfig.getTimerMaxRuntimeMilliseconds();
-        final StopWatch stopWatch = stopWatchFactory.createStopWatch();
-
-        stopWatch.start();
-
-        while (prePublishProcessor.prePublishNextEvent()) {
-
-            if (stopWatch.getTime() > maxRuntimeMilliseconds) {
-                break;
-            }
+        if (! prePublisherTimerConfig.isDisabled()) {
+            asynchronousPrePublisher.performPrePublish();
         }
     }
 }

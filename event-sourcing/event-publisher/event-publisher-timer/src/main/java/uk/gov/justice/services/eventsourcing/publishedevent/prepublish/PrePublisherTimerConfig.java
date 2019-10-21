@@ -1,12 +1,13 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
+import static java.lang.Boolean.parseBoolean;
 import static java.lang.Long.parseLong;
 
 import uk.gov.justice.services.common.configuration.GlobalValue;
 
 import javax.inject.Inject;
 
-public class PrePublishTimerConfig {
+public class PrePublisherTimerConfig {
 
     @Inject
     @GlobalValue(key = "pre.publish.start.wait.milliseconds", defaultValue = "7250")
@@ -20,6 +21,10 @@ public class PrePublishTimerConfig {
     @GlobalValue(key = "pre.publish.timer.max.runtime.milliseconds", defaultValue = "450")
     private String timerMaxRuntimeMilliseconds;
 
+    @Inject
+    @GlobalValue(key = "pre.publish.disable", defaultValue = "false")
+    private String disablePrePublish;
+
     public long getTimerStartWaitMilliseconds() {
         return parseLong(timerStartWaitMilliseconds);
     }
@@ -30,5 +35,9 @@ public class PrePublishTimerConfig {
 
     public long getTimerMaxRuntimeMilliseconds() {
         return parseLong(timerMaxRuntimeMilliseconds);
+    }
+
+    public boolean isDisabled() {
+        return parseBoolean(disablePrePublish);
     }
 }

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
+import static java.lang.Boolean.parseBoolean;
 import static java.lang.Long.parseLong;
 
 import uk.gov.justice.services.common.configuration.GlobalValue;
@@ -20,6 +21,10 @@ public class PublisherTimerConfig {
     @GlobalValue(key = "event.dequer.timer.max.runtime.milliseconds", defaultValue = "450")
     String timerMaxRuntimeMilliseconds;
 
+    @Inject
+    @GlobalValue(key = "publish.disable", defaultValue = "false")
+    private String disablePublish;
+
     public long getTimerStartWaitMilliseconds() {
         return parseLong(timerStartWaitMilliseconds);
     }
@@ -30,5 +35,9 @@ public class PublisherTimerConfig {
 
     public long getTimerMaxRuntimeMilliseconds() {
         return parseLong(timerMaxRuntimeMilliseconds);
+    }
+
+    public boolean isDisabled() {
+        return parseBoolean(disablePublish);
     }
 }

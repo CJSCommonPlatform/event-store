@@ -8,6 +8,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Pre publish and publish timer beans now run in a separate thread.
 - New JNDI boolean values of 'pre.publish.disable' and 'publish.disable' to disable
 the running of PrePublisherTimerBean and PublisherTimerBean respectively
+- Error message of event linking verification now gives more accurate error messages
+based on whether the problem is in published_event or processed_event
 
 ## [2.2.1] - 2019-10-18
 ### Fixed

@@ -12,15 +12,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 public class EventLinkageChecker {
 
+    @Inject
+    private EventLinkageErrorMessageGenerator eventLinkageErrorMessageGenerator;
+
     public List<VerificationResult> verifyEventNumbersAreLinkedCorrectly(
-            final String tableName,
+            final LinkedEventNumberTable linkedEventNumberTable,
             final DataSource dataSource) {
 
-        final String query = format("SELECT event_number, previous_event_number FROM %s ORDER BY event_number", tableName);
+        final String query = format("SELECT event_number, previous_event_number FROM %s ORDER BY event_number", linkedEventNumberTable.getTableName());
 
         final List<VerificationResult> errors = new ArrayList<>();
 
@@ -36,13 +40,13 @@ public class EventLinkageChecker {
 
                 if (previousEventNumber != lastEventNumber) {
 
-                    final String message =
-                            "Events incorrectly linked in %s table. " +
-                                    "Event with event number %d " +
-                                    "is linked to previous event number %d " +
-                                    "whereas it should be %d";
+                    final String errorMessage = eventLinkageErrorMessageGenerator.generateErrorMessage(
+                            previousEventNumber,
+                            eventNumber,
+                            lastEventNumber,
+                            linkedEventNumberTable);
 
-                    errors.add(error(format(message, tableName, eventNumber, previousEventNumber, lastEventNumber)));
+                    errors.add(error(errorMessage));
                 }
 
                 lastEventNumber = eventNumber;
@@ -54,7 +58,7 @@ public class EventLinkageChecker {
                 final String message = format(
                         "All %d events in the %s table are correctly linked",
                         count,
-                        tableName);
+                        linkedEventNumberTable.getTableName());
 
                 return singletonList(success(message));
             }
@@ -62,7 +66,7 @@ public class EventLinkageChecker {
             return errors;
 
         } catch (final SQLException e) {
-            throw new CatchupVerificationException(format("Failed to get event numbers from %s table", tableName), e);
+            throw new CatchupVerificationException(format("Failed to get event numbers from %s table", linkedEventNumberTable.getTableName()), e);
         }
     }
 }

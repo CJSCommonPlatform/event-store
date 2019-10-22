@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
+import static uk.gov.justice.services.eventstore.management.validation.process.LinkedEventNumberTable.PUBLISHED_EVENT;
+
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventstore.management.validation.process.EventLinkageChecker;
 import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
@@ -28,7 +30,7 @@ public class PublishedEventLinkVerifier implements Verifier {
         logger.info("Verifying all previous_event_numbers in processed_event point to an existing event...");
 
         return eventLinkageChecker.verifyEventNumbersAreLinkedCorrectly(
-                "published_event",
+                PUBLISHED_EVENT,
                 eventStoreDataSourceProvider.getDefaultDataSource());
     }
 }

@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventstore.management.validation.process.verifiers;
 
+import static uk.gov.justice.services.eventstore.management.validation.process.LinkedEventNumberTable.PROCESSED_EVENT;
+
 import uk.gov.justice.services.eventstore.management.validation.process.EventLinkageChecker;
 import uk.gov.justice.services.eventstore.management.validation.process.VerificationResult;
 import uk.gov.justice.services.eventstore.management.validation.process.Verifier;
@@ -28,7 +30,7 @@ public class ProcessedEventLinkVerifier implements Verifier {
         logger.info("Verifying all previous_event_numbers in processed_event point to an existing event...");
 
         return eventLinkageChecker.verifyEventNumbersAreLinkedCorrectly(
-                "processed_event",
+                PROCESSED_EVENT,
                 viewStoreJdbcDataSourceProvider.getDataSource());
     }
 }

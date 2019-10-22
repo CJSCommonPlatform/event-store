@@ -1,39 +1,29 @@
 package uk.gov.justice.services.eventstore.management.catchup.observers;
 
-import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 
-import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
+import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
+import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
-import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import javax.enterprise.event.Event;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class CatchupProcessCompleterTest {
@@ -42,70 +32,57 @@ public class CatchupProcessCompleterTest {
     private CatchupErrorStateManager catchupErrorStateManager;
 
     @Mock
-    private UtcClock clock;
+    private CatchupCompletionEventFirer catchupCompletionEventFirer;
 
     @Mock
-    private Event<SystemCommandStateChangedEvent> systemCommandStateChangedEventFirer;
-
-    @Mock
-    private Logger logger;
+    private CatchupVerificationProcess catchupVerificationProcess;
 
     @InjectMocks
     private CatchupProcessCompleter catchupProcessCompleter;
 
-    @Captor
-    private ArgumentCaptor<SystemCommandStateChangedEvent> systemCommandStateChangedEventCaptor;
-
     @Test
-    public void shouldFireCommandCompleteEventIfCatchupSuccessful() throws Exception {
+    public void shouldCompleteSuccessfullyIfNoErrors() throws Exception {
 
         final UUID commandId = randomUUID();
         final CatchupCommand catchupCommand = new EventCatchupCommand();
-
-        final ZonedDateTime completedAt = ZonedDateTime.of(2016, 10, 10, 23, 23, 23, 0, UTC);
+        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
 
         when(catchupErrorStateManager.getErrors(catchupCommand)).thenReturn(emptyList());
-        when(clock.now()).thenReturn(completedAt);
+        when(catchupVerificationProcess.runVerification(commandId)).thenReturn(verificationCommandResult);
+        when(verificationCommandResult.getCommandState()).thenReturn(COMMAND_COMPLETE);
 
         catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
 
-        verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
-
-        final SystemCommandStateChangedEvent stateChangedEvent = systemCommandStateChangedEventCaptor.getValue();
-
-        assertThat(stateChangedEvent.getCommandId(), is(commandId));
-        assertThat(stateChangedEvent.getCommandState(), is(COMMAND_COMPLETE));
-        assertThat(stateChangedEvent.getSystemCommand(), is(catchupCommand));
-        assertThat(stateChangedEvent.getStatusChangedAt(), is(completedAt));
-        assertThat(stateChangedEvent.getMessage(), is("CATCHUP successfully completed with 0 errors at 2016-10-10T23:23:23Z"));
-
-        verify(logger).info("CATCHUP successfully completed with 0 errors at 2016-10-10T23:23:23Z");
+        verify(catchupCompletionEventFirer).completeSuccessfully(commandId, catchupCommand);
     }
 
     @Test
-    public void shouldFireCommandFailedEventIfCatchupHadAnyErrors() throws Exception {
+    public void shouldFailCatchupIfCatchupCausedAnyErrors() throws Exception {
 
         final UUID commandId = randomUUID();
         final CatchupCommand catchupCommand = new EventCatchupCommand();
-
-        final ZonedDateTime completedAt = ZonedDateTime.of(2016, 10, 10, 23, 23, 23, 0, UTC);
-
         final List<CatchupError> errors = asList(mock(CatchupError.class), mock(CatchupError.class));
+
         when(catchupErrorStateManager.getErrors(catchupCommand)).thenReturn(errors);
-        when(clock.now()).thenReturn(completedAt);
 
         catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
 
-        verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
+        verify(catchupCompletionEventFirer).failCatchup(commandId, catchupCommand, errors);
+    }
 
-        final SystemCommandStateChangedEvent stateChangedEvent = systemCommandStateChangedEventCaptor.getValue();
+    @Test
+    public void shouldFailVerificationIfVerificationFailed() throws Exception {
 
-        assertThat(stateChangedEvent.getCommandId(), is(commandId));
-        assertThat(stateChangedEvent.getCommandState(), is(COMMAND_FAILED));
-        assertThat(stateChangedEvent.getSystemCommand(), is(catchupCommand));
-        assertThat(stateChangedEvent.getStatusChangedAt(), is(completedAt));
-        assertThat(stateChangedEvent.getMessage(), is("CATCHUP failed with 2 errors at 2016-10-10T23:23:23Z"));
+        final UUID commandId = randomUUID();
+        final CatchupCommand catchupCommand = new EventCatchupCommand();
+        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
 
-        verify(logger).error("CATCHUP failed with 2 errors at 2016-10-10T23:23:23Z");
+        when(catchupErrorStateManager.getErrors(catchupCommand)).thenReturn(emptyList());
+        when(catchupVerificationProcess.runVerification(commandId)).thenReturn(verificationCommandResult);
+        when(verificationCommandResult.getCommandState()).thenReturn(COMMAND_FAILED);
+
+        catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
+
+        verify(catchupCompletionEventFirer).failVerification(commandId, catchupCommand, verificationCommandResult);
     }
 }

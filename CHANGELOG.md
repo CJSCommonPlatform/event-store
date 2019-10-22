@@ -10,6 +10,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 the running of PrePublisherTimerBean and PublisherTimerBean respectively
 - Error message of event linking verification now gives more accurate error messages
 based on whether the problem is in published_event or processed_event
+- Catchup now runs verification on completion and will fail catchup if the verification fails
 
 ## [2.2.1] - 2019-10-18
 ### Fixed

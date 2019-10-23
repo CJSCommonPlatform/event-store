@@ -71,5 +71,9 @@ public class PrePublisherTimerConfigTest {
 
         setField(prePublisherTimerConfig, "disablePrePublish", null);
         assertThat(prePublisherTimerConfig.isDisabled(), is(false));
+
+        prePublisherTimerConfig.setDisabled(true);
+
+        assertThat(prePublisherTimerConfig.isDisabled(), is(true));
     }
 }

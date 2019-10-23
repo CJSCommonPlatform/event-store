@@ -71,5 +71,8 @@ public class PublisherTimerConfigTest {
 
         setField(publisherTimerConfig, "disablePublish", null);
         assertThat(publisherTimerConfig.isDisabled(), is(false));
+
+        publisherTimerConfig.setDisabled(true);
+        assertThat(publisherTimerConfig.isDisabled(), is(true));
     }
 }

@@ -6,7 +6,9 @@ import static java.lang.Long.parseLong;
 import uk.gov.justice.services.common.configuration.GlobalValue;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class PublisherTimerConfig {
 
     @Inject
@@ -39,5 +41,9 @@ public class PublisherTimerConfig {
 
     public boolean isDisabled() {
         return parseBoolean(disablePublish);
+    }
+
+    public void setDisabled(final boolean disable) {
+        this.disablePublish = Boolean.toString(disable);
     }
 }

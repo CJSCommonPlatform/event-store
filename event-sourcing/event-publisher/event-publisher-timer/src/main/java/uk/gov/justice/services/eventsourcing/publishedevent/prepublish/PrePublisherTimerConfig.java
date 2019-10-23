@@ -40,4 +40,8 @@ public class PrePublisherTimerConfig {
     public boolean isDisabled() {
         return parseBoolean(disablePrePublish);
     }
+
+    public void setDisabled(final boolean disable) {
+        this.disablePrePublish = Boolean.toString(disable);
+    }
 }

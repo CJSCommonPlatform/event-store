@@ -5,14 +5,11 @@ import static javax.transaction.Transactional.TxType.NEVER;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
-import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.UUID;
@@ -27,13 +24,10 @@ import org.slf4j.Logger;
 public class EventCatchupProcessor {
 
     @Inject
-    private ProcessedEventTrackingService processedEventTrackingService;
-
-    @Inject
-    private PublishedEventSourceProvider publishedEventSourceProvider;
-
-    @Inject
     private ConcurrentEventStreamConsumerManager concurrentEventStreamConsumerManager;
+
+    @Inject
+    private MissingEventStreamer missingEventStreamer;
 
     @Inject
     private Event<CatchupStartedForSubscriptionEvent> catchupStartedForSubscriptionEventFirer;
@@ -57,18 +51,15 @@ public class EventCatchupProcessor {
         final String componentName = catchupSubscriptionContext.getComponentName();
         final CatchupCommand catchupCommand = catchupSubscriptionContext.getCatchupCommand();
 
-        final PublishedEventSource eventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
-        final Long latestProcessedEventNumber = processedEventTrackingService.getLatestProcessedEventNumber(eventSourceName, componentName);
-
-        logger.info("Catching up from Event Number: " + latestProcessedEventNumber);
-
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
                 commandId,
                 subscriptionName,
                 catchupCommand,
                 clock.now()));
 
-        final Stream<PublishedEvent> events = eventSource.findEventsSince(latestProcessedEventNumber);
+        logger.info(format("Finding all missing events for event source '%s', component '%s", eventSourceName, componentName));
+        final Stream<PublishedEvent> events = missingEventStreamer.getMissingEvents(eventSourceName, componentName);
+
         final int totalEventsProcessed = events.mapToInt(event -> {
 
             final Long eventNumber = event.getEventNumber().orElseThrow(() -> new MissingEventNumberException(format("PublishedEvent with id '%s' is missing its event number", event.getId())));

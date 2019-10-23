@@ -1,11 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.observers;
 
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
-
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
-import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
-import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 
 import java.util.List;
@@ -19,9 +15,6 @@ public class CatchupProcessCompleter {
     private CatchupErrorStateManager catchupErrorStateManager;
 
     @Inject
-    private CatchupVerificationProcess catchupVerificationProcess;
-
-    @Inject
     private CatchupCompletionEventFirer catchupCompletionEventFirer;
 
     public void handleCatchupComplete(final UUID commandId, final CatchupCommand catchupCommand) {
@@ -29,13 +22,7 @@ public class CatchupProcessCompleter {
         final List<CatchupError> errors = catchupErrorStateManager.getErrors(catchupCommand);
 
         if (errors.isEmpty()) {
-            final VerificationCommandResult verificationCommandResult = catchupVerificationProcess.runVerification(commandId);
-
-            if (verificationCommandResult.getCommandState() == COMMAND_COMPLETE) {
-                catchupCompletionEventFirer.completeSuccessfully(commandId, catchupCommand);
-            } else {
-                catchupCompletionEventFirer.failVerification(commandId, catchupCommand, verificationCommandResult);
-            }
+            catchupCompletionEventFirer.completeSuccessfully(commandId, catchupCommand);
         } else {
             catchupCompletionEventFirer.failCatchup(commandId, catchupCommand, errors);
         }

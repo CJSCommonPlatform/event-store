@@ -63,7 +63,6 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         insertPublishedEvent(event_4, connection);
         insertPublishedEvent(event_5, connection);
 
-
         final List<PublishedEvent> publishedEvents = multipleDataSourcePublishedEventRepository.findEventsSince(3)
                 .collect(toList());
 
@@ -71,6 +70,33 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
 
         assertThat(publishedEvents.get(0).getId(), is(event_4.getId()));
         assertThat(publishedEvents.get(1).getId(), is(event_5.getId()));
+    }
+
+    @Test
+    public void shouldGetEventRange() throws Exception {
+
+        final PublishedEvent event_1 = publishedEventBuilder().withPreviousEventNumber(0).withEventNumber(1).build();
+        final PublishedEvent event_2 = publishedEventBuilder().withPreviousEventNumber(1).withEventNumber(2).build();
+        final PublishedEvent event_3 = publishedEventBuilder().withPreviousEventNumber(2).withEventNumber(3).build();
+        final PublishedEvent event_4 = publishedEventBuilder().withPreviousEventNumber(3).withEventNumber(4).build();
+        final PublishedEvent event_5 = publishedEventBuilder().withPreviousEventNumber(4).withEventNumber(5).build();
+
+        final Connection connection = dataSource.getConnection();
+
+        insertPublishedEvent(event_1, connection);
+        insertPublishedEvent(event_2, connection);
+        insertPublishedEvent(event_3, connection);
+        insertPublishedEvent(event_4, connection);
+        insertPublishedEvent(event_5, connection);
+
+        final List<PublishedEvent> publishedEvents = multipleDataSourcePublishedEventRepository.findEventRange(1, 4)
+                .collect(toList());
+
+        assertThat(publishedEvents.size(), is(3));
+
+        assertThat(publishedEvents.get(0).getId(), is(event_1.getId()));
+        assertThat(publishedEvents.get(1).getId(), is(event_2.getId()));
+        assertThat(publishedEvents.get(2).getId(), is(event_3.getId()));
     }
 
     public void insertPublishedEvent(final PublishedEvent publishedEvent, final Connection connection) throws SQLException {

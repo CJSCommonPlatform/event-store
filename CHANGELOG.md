@@ -4,14 +4,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.2.2] - 2019-10-24
 ### Changed
 - Pre publish and publish timer beans now run in a separate thread.
 - New JNDI boolean values of 'pre.publish.disable' and 'publish.disable' to disable
 the running of PrePublisherTimerBean and PublisherTimerBean respectively
 - Error message of event linking verification now gives more accurate error messages
 based on whether the problem is in published_event or processed_event
-- Catchup now runs verification on completion and will fail catchup if the verification fails
 - New SystemCommands EnablePublishingCommand and DisablePublishingCommand for enabling/disabling the publishing beans
+- Catchup will check for all missing events in the processed_event table and Catchup only the missing event ranges
 
 ## [2.2.1] - 2019-10-18
 ### Fixed

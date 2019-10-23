@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventsourcing.source.api.service.core;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
 import java.util.stream.Stream;
 
@@ -17,4 +18,6 @@ public interface PublishedEventSource {
      * @return a Java Stream of Events
      */
     Stream<PublishedEvent> findEventsSince(final long eventNumber);
+
+    Stream<PublishedEvent> findEventRange(final MissingEventRange missingEventRange);
 }

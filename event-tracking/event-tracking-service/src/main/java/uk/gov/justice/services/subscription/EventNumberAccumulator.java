@@ -1,5 +1,7 @@
 package uk.gov.justice.services.subscription;
 
+import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
+
 import java.util.LinkedList;
 
 public class EventNumberAccumulator {
@@ -25,7 +27,7 @@ public class EventNumberAccumulator {
     public void addRangeFrom(final long currentEventNumber) {
         missingEventRanges.addFirst(new MissingEventRange(
                 currentEventNumber + 1,
-                lastEventNumber - 1));
+                lastEventNumber));
     }
 
     public LinkedList<MissingEventRange> getMissingEventRanges() {

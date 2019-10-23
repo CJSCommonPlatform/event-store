@@ -34,9 +34,6 @@ public class CatchupProcessCompleterTest {
     @Mock
     private CatchupCompletionEventFirer catchupCompletionEventFirer;
 
-    @Mock
-    private CatchupVerificationProcess catchupVerificationProcess;
-
     @InjectMocks
     private CatchupProcessCompleter catchupProcessCompleter;
 
@@ -45,11 +42,8 @@ public class CatchupProcessCompleterTest {
 
         final UUID commandId = randomUUID();
         final CatchupCommand catchupCommand = new EventCatchupCommand();
-        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
 
         when(catchupErrorStateManager.getErrors(catchupCommand)).thenReturn(emptyList());
-        when(catchupVerificationProcess.runVerification(commandId)).thenReturn(verificationCommandResult);
-        when(verificationCommandResult.getCommandState()).thenReturn(COMMAND_COMPLETE);
 
         catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
 
@@ -68,21 +62,5 @@ public class CatchupProcessCompleterTest {
         catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
 
         verify(catchupCompletionEventFirer).failCatchup(commandId, catchupCommand, errors);
-    }
-
-    @Test
-    public void shouldFailVerificationIfVerificationFailed() throws Exception {
-
-        final UUID commandId = randomUUID();
-        final CatchupCommand catchupCommand = new EventCatchupCommand();
-        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
-
-        when(catchupErrorStateManager.getErrors(catchupCommand)).thenReturn(emptyList());
-        when(catchupVerificationProcess.runVerification(commandId)).thenReturn(verificationCommandResult);
-        when(verificationCommandResult.getCommandState()).thenReturn(COMMAND_FAILED);
-
-        catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);
-
-        verify(catchupCompletionEventFirer).failVerification(commandId, catchupCommand, verificationCommandResult);
     }
 }

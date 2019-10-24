@@ -1,12 +1,14 @@
 package uk.gov.justice.services.subscription;
 
+import static java.lang.Long.MAX_VALUE;
 import static java.lang.String.format;
 
+import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -45,11 +47,19 @@ public class ProcessedEventTrackingService {
         processedEventTrackingRepository.save(processedEventTrackItem);
     }
 
-    public List<MissingEventRange> getAllMissingEvents(final String source, final String componentName) {
+    public Stream<MissingEventRange> getAllMissingEvents(final String eventSourceName, final String componentName) {
 
         final EventNumberAccumulator eventNumberAccumulator = new EventNumberAccumulator();
 
-        try(final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source, componentName)) {
+        final Optional<ProcessedEventTrackItem> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(eventSourceName, componentName);
+
+        if (latestProcessedEvent.isPresent()) {
+            notSeenEventsRange(latestProcessedEvent.get().getPreviousEventNumber(), eventNumberAccumulator);
+        } else {
+            notSeenEventsRange(1L, eventNumberAccumulator);
+        }
+
+        try (final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(eventSourceName, componentName)) {
             allProcessedEvents
                     .forEach(processedEventTrackItem -> findMissingRange(processedEventTrackItem, eventNumberAccumulator));
         }
@@ -58,7 +68,7 @@ public class ProcessedEventTrackingService {
             eventNumberAccumulator.addRangeFrom(FIRST_POSSIBLE_EVENT_NUMBER);
         }
 
-        return eventNumberAccumulator.getMissingEventRanges();
+        return eventNumberAccumulator.getMissingEventRanges().stream();
     }
 
     public Long getLatestProcessedEventNumber(final String source, final String componentName) {
@@ -66,6 +76,17 @@ public class ProcessedEventTrackingService {
         return processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)
                 .map(ProcessedEventTrackItem::getEventNumber)
                 .orElse(FIRST_POSSIBLE_EVENT_NUMBER);
+    }
+
+    private void notSeenEventsRange(final long currentPreviousEventNumber, final EventNumberAccumulator eventNumberAccumulator) {
+
+        final long currentEventNumber = MAX_VALUE;
+
+        if (eventNumberAccumulator.isInitialised() && eventNumberAccumulator.getLastPreviousEventNumber() != currentEventNumber) {
+            eventNumberAccumulator.addRangeFrom(currentEventNumber);
+        }
+
+        eventNumberAccumulator.set(currentPreviousEventNumber, currentEventNumber);
     }
 
     private void findMissingRange(final ProcessedEventTrackItem processedEventTrackItem, final EventNumberAccumulator eventNumberAccumulator) {

@@ -1,11 +1,12 @@
 package uk.gov.justice.services.subscription;
 
+import static java.lang.Long.MAX_VALUE;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.empty;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
@@ -18,6 +19,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import static uk.gov.justice.services.subscription.ProcessedEventTrackItemBuilder.processedEventTrackItem;
 
+import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
@@ -154,17 +156,28 @@ public class ProcessedEventTrackingServiceTest {
                         .build()
         );
 
+        final ProcessedEventTrackItem latestProcessedEventTrackItem = processedEventTrackItem()
+                .withEventNumber(7)
+                .withPreviousEventNumber(6)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName);
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
 
-        assertThat(missingEventRanges.size(), is(1));
+        assertThat(missingEventRanges.size(), is(2));
 
         assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(4L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(6L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(7L));
+        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(8L));
+        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }
@@ -177,20 +190,20 @@ public class ProcessedEventTrackingServiceTest {
 
         final List<ProcessedEventTrackItem> processedEventTrackItems = asList(
                 processedEventTrackItem()
-                        .withEventNumber(25)
                         .withPreviousEventNumber(24)
+                        .withEventNumber(25)
                         .withSource(source)
                         .withComponentName(componentName)
                         .build(),
                 processedEventTrackItem()
-                        .withEventNumber(24)
                         .withPreviousEventNumber(23)
+                        .withEventNumber(24)
                         .withSource(source)
                         .withComponentName(componentName)
                         .build(),
                 processedEventTrackItem()
-                        .withEventNumber(20)
                         .withPreviousEventNumber(19)
+                        .withEventNumber(20)
                         .withSource(source)
                         .withComponentName(componentName)
                         .build()
@@ -199,29 +212,47 @@ public class ProcessedEventTrackingServiceTest {
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        final ProcessedEventTrackItem processedEventTrackItem = processedEventTrackItem()
+                .withPreviousEventNumber(24)
+                .withEventNumber(25)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(processedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName);
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
 
-        assertThat(missingEventRanges.size(), is(2));
+        assertThat(missingEventRanges.size(), is(3));
 
         assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(19L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(20L));
         assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(21L));
-        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(23L));
+        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(24L));
+        assertThat(missingEventRanges.get(2).getMissingEventFrom(), is(26L));
+        assertThat(missingEventRanges.get(2).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }
 
     @Test
-    public void shouldReturnNoMissingEventsIfNoEventsFound() throws Exception {
+    public void shouldReturnRangeOfOneToMaxLongIfNoEventsFound() throws Exception {
 
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(Optional.empty());
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(empty());
 
-        assertThat(processedEventTrackingService.getAllMissingEvents(source, componentName), is(emptyList()));
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
+
+        assertThat(missingEventRanges.size(), is(1));
+
+        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
     }
 
     @Test
@@ -257,12 +288,25 @@ public class ProcessedEventTrackingServiceTest {
                         .build()
         );
 
+        final ProcessedEventTrackItem latestProcessedEventTrackItem = processedEventTrackItem()
+                .withEventNumber(4)
+                .withPreviousEventNumber(3)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        assertThat(processedEventTrackingService.getAllMissingEvents(source, componentName), is(emptyList()));
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
+        assertThat(missingEventRanges.size(), is(1));
+
+        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(5L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }
@@ -282,12 +326,26 @@ public class ProcessedEventTrackingServiceTest {
                         .build()
         );
 
+        final ProcessedEventTrackItem latestProcessedEventTrackItem = processedEventTrackItem()
+                .withEventNumber(1)
+                .withPreviousEventNumber(0)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        assertThat(processedEventTrackingService.getAllMissingEvents(source, componentName), is(emptyList()));
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
+
+        assertThat(missingEventRanges.size(), is(1));
+
+        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(2L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }
@@ -313,17 +371,28 @@ public class ProcessedEventTrackingServiceTest {
                         .build()
         );
 
+        final ProcessedEventTrackItem latestProcessedEventTrackItem = processedEventTrackItem()
+                .withEventNumber(3)
+                .withPreviousEventNumber(2)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName);
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
 
-        assertThat(missingEventRanges.size(), is(1));
+        assertThat(missingEventRanges.size(), is(2));
 
         assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(2L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(2L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(3L));
+        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(4L));
+        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }
@@ -343,17 +412,28 @@ public class ProcessedEventTrackingServiceTest {
                         .build()
         );
 
+        final ProcessedEventTrackItem latestProcessedEventTrackItem = processedEventTrackItem()
+                .withEventNumber(2)
+                .withPreviousEventNumber(1)
+                .withSource(source)
+                .withComponentName(componentName)
+                .build();
+
         final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
+        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
         when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
 
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName);
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+                .collect(toList());
 
-        assertThat(missingEventRanges.size(), is(1));
+        assertThat(missingEventRanges.size(), is(2));
 
         assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(1L));
+        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(2L));
+        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(3L));
+        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
     }

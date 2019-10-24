@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 public class MultipleDataSourcePublishedEventRepository {
 
     private static final String SQL_FIND_ALL_SINCE = "SELECT * FROM published_event WHERE event_number > ? ORDER BY event_number ASC";
+    private static final String SQL_FIND_RANGE = "SELECT * FROM published_event WHERE event_number >= ? AND event_number < ? ORDER BY event_number ASC";
 
     private static final String ID = "id";
     private static final String STREAM_ID = "stream_id";
@@ -44,6 +45,12 @@ public class MultipleDataSourcePublishedEventRepository {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Returns a Stream of PublishedEvent of all events since eventNumber.
+     *
+     * @param eventNumber - exclusive start of events to return
+     * @return a Stream of PublishedEvent
+     */
     public Stream<PublishedEvent> findEventsSince(final long eventNumber) {
 
         try {
@@ -54,6 +61,27 @@ public class MultipleDataSourcePublishedEventRepository {
             return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find events since event_number %d", eventNumber), e);
+        }
+    }
+
+    /**
+     * Returns a Stream of PublishedEvent for a given range of events numbers.
+     *
+     * @param fromEventNumber - inclusive start of range of event numbers
+     * @param toEventNumber   - exclusive end of range of event numbers
+     * @return a Stream of PublishedEvent
+     */
+    public Stream<PublishedEvent> findEventRange(final long fromEventNumber, final long toEventNumber) {
+
+        try {
+            final PreparedStatementWrapper psWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_RANGE);
+
+            psWrapper.setLong(1, fromEventNumber);
+            psWrapper.setLong(2, toEventNumber);
+
+            return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(format("Failed to find events from event_number %d to %d", fromEventNumber, toEventNumber), e);
         }
     }
 

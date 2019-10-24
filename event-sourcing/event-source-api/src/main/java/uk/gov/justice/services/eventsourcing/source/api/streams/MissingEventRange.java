@@ -1,4 +1,4 @@
-package uk.gov.justice.services.subscription;
+package uk.gov.justice.services.eventsourcing.source.api.streams;
 
 import java.util.Objects;
 
@@ -37,8 +37,8 @@ public class MissingEventRange {
     @Override
     public String toString() {
         return "MissingEventRange{" +
-                "missingEventStartExclusive=" + missingEventFrom +
-                ", missingEventEndExclusive=" + missingEventTo +
+                "missingEventFrom (inclusive) = " + missingEventFrom +
+                ", missingEventTo (exclusive) = " + missingEventTo +
                 '}';
     }
 }

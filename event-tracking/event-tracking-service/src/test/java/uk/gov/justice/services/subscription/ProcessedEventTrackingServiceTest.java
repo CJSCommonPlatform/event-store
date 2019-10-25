@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessedEventTrackingServiceTest {
@@ -43,6 +44,9 @@ public class ProcessedEventTrackingServiceTest {
 
     @Mock
     private EventSourceNameCalculator eventSourceNameCalculator;
+
+    @Mock
+    private Logger logger;
 
     @InjectMocks
     private ProcessedEventTrackingService processedEventTrackingService;
@@ -167,7 +171,7 @@ public class ProcessedEventTrackingServiceTest {
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -180,6 +184,12 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 4, missingEventTo (exclusive) = 7},\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 8, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -220,7 +230,7 @@ public class ProcessedEventTrackingServiceTest {
                 .build();
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(processedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -235,6 +245,13 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(2).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = 20},\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 21, missingEventTo (exclusive) = 24},\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 26, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -244,7 +261,7 @@ public class ProcessedEventTrackingServiceTest {
         final String componentName = "EVENT_LISTENER";
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(Optional.empty());
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(empty());
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(empty());
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -253,6 +270,11 @@ public class ProcessedEventTrackingServiceTest {
 
         assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
         assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -299,7 +321,7 @@ public class ProcessedEventTrackingServiceTest {
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -309,6 +331,11 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 5, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -337,7 +364,7 @@ public class ProcessedEventTrackingServiceTest {
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -348,6 +375,11 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 2, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -382,7 +414,7 @@ public class ProcessedEventTrackingServiceTest {
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -395,6 +427,12 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 2, missingEventTo (exclusive) = 3},\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 4, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test
@@ -423,7 +461,7 @@ public class ProcessedEventTrackingServiceTest {
         final Stream<ProcessedEventTrackItem> processedEventTrackItemStream = processedEventTrackItems.stream().onClose(streamCloseSpy);
 
         when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEventTrackItem));
-        when(processedEventTrackingRepository.getAllProcessedEvents(source, componentName)).thenReturn(processedEventTrackItemStream);
+        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
                 .collect(toList());
@@ -436,6 +474,12 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
 
         assertThat(streamCloseSpy.streamClosed(), is(true));
+
+        verify(logger).info("Missing Event Ranges: [\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = 2},\n" +
+                "MissingEventRange{missingEventFrom (inclusive) = 3, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "]"
+        );
     }
 
     @Test

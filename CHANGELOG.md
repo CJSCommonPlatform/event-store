@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.3] - 2019-10-25
+### Fixed
+- Catchup range processing
+
 ## [2.2.2] - 2019-10-24
 ### Changed
 - Pre publish and publish timer beans now run in a separate thread.

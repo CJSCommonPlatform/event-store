@@ -48,7 +48,7 @@ public class ProcessedEventTrackingRepositoryIT {
 
     @Before
     public void ensureOurDatasourceProviderReturnsOurTestDataSource() {
-        
+
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
     }
 
@@ -73,20 +73,20 @@ public class ProcessedEventTrackingRepositoryIT {
         processedEventTrackingRepository.save(processedEventTrackItem_3);
         processedEventTrackingRepository.save(processedEventTrackItem_4);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source, componentName);
+        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
         final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
 
         assertThat(processedEventTrackItems.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_1));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
+        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
+        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
     }
 
     @Test
-    public void shouldReturnProcessedEventsInCorrectOrderEventIfInsertedOutOfOrder() throws Exception {
+    public void shouldReturnProcessedEventsInDescendingOrderIfInsertedOutOfOrder() throws Exception {
 
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
@@ -101,20 +101,20 @@ public class ProcessedEventTrackingRepositoryIT {
         processedEventTrackingRepository.save(processedEventTrackItem_1);
         processedEventTrackingRepository.save(processedEventTrackItem_3);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source, componentName);
+        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
         final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
 
         assertThat(processedEventTrackItems.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_1));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
+        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
+        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
     }
 
     @Test
-    public void shouldReturnOnlyReturnProcessedEventsWIthTheCorrectSource() throws Exception {
+    public void shouldReturnOnlyProcessedEventsWIthTheCorrectSourceInDescendingOrder() throws Exception {
 
         final String source = "example-context";
         final String otherSource = "another-context";
@@ -141,16 +141,16 @@ public class ProcessedEventTrackingRepositoryIT {
         processedEventTrackingRepository.save(processedEventTrackItem_3);
         processedEventTrackingRepository.save(processedEventTrackItem_9);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEvents(source, componentName);
+        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
         final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
 
         assertThat(processedEventTrackItems.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_1));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
+        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
+        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
+        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
     }
 
     @Test

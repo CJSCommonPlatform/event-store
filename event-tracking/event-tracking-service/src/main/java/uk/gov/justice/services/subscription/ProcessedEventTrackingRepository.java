@@ -30,12 +30,12 @@ public class ProcessedEventTrackingRepository {
                     "AND component = ? " +
                     "ORDER BY event_number DESC LIMIT 1";
 
-    private static final String SELECT_SQL =
+    private static final String SELECT_ALL_DESCENDING_ORDER_SQL =
             "SELECT event_number, previous_event_number " +
                     "FROM processed_event " +
                     "WHERE source = ? " +
                     "AND component = ? " +
-                    "ORDER BY event_number ASC";
+                    "ORDER BY event_number DESC";
 
     @Inject
     private JdbcResultSetStreamer jdbcResultSetStreamer;
@@ -64,11 +64,11 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
-    public Stream<ProcessedEventTrackItem> getAllProcessedEvents(final String source, final String componentName) {
+    public Stream<ProcessedEventTrackItem> getAllProcessedEventsDescendingOrder(final String source, final String componentName) {
 
         try {
             final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
-                    viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_SQL);
+                    viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_ALL_DESCENDING_ORDER_SQL);
 
             preparedStatement.setString(1, source);
             preparedStatement.setString(2, componentName);

@@ -1,6 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.manager;
 
-import static javax.transaction.Transactional.TxType.REQUIRED;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -22,7 +22,7 @@ public class DefaultTransactionalEventProcessor implements TransactionalEventPro
     private EventConverter eventConverter;
 
     @Override
-    @Transactional(REQUIRED)
+    @Transactional(REQUIRES_NEW)
     public int processWithEventBuffer(final PublishedEvent publishedEvent, final String subscriptionName) {
 
         final JsonEnvelope eventEnvelope = eventConverter.envelopeOf(publishedEvent);

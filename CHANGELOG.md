@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.4] - 2019-10-28
+### Fixed
+- During catchup each event is now processed in a separate transaction
+
 ## [2.2.3] - 2019-10-25
 ### Fixed
 - Catchup range processing

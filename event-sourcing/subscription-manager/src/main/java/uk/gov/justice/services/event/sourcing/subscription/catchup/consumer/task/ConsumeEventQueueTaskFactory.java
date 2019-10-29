@@ -1,0 +1,32 @@
+package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
+
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+
+import java.util.Queue;
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+public class ConsumeEventQueueTaskFactory {
+
+    @Inject
+    private ConsumeEventQueueBean consumeEventQueueBean;
+
+    public ConsumeEventQueueTask createConsumeEventQueueTask(
+            final Queue<PublishedEvent> events,
+            final EventQueueConsumer eventQueueConsumer,
+            final String subscriptionName,
+            final CatchupCommand catchupCommand,
+            final UUID commandId) {
+
+        return new ConsumeEventQueueTask(
+                consumeEventQueueBean,
+                events,
+                eventQueueConsumer,
+                subscriptionName,
+                catchupCommand,
+                commandId
+        );
+    }
+}

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueTaskManager;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
@@ -32,7 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ConcurrentEventStreamConsumerManagerTest {
 
     @Mock
-    private ConsumeEventQueueBean consumeEventQueueBean;
+    private ConsumeEventQueueTaskManager consumeEventQueueTaskManager;
 
     @Mock
     private EventQueueConsumerFactory eventQueueConsumerFactory;
@@ -62,7 +62,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
 
         concurrentEventStreamConsumerManager.add(publishedEvent, subscriptionName, catchupCommand, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
+        verify(consumeEventQueueTaskManager).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
 
         final Queue<PublishedEvent> events = eventQueueCaptor.getValue();
         assertThat(events.size(), is(1));
@@ -88,7 +88,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
         concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, catchupCommand, commandId);
         concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, catchupCommand, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
+        verify(consumeEventQueueTaskManager).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream = eventQueueCaptor.getValue();
         assertThat(eventsStream.size(), is(2));
@@ -115,7 +115,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
         concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, catchupCommand, commandId);
         concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, catchupCommand, commandId);
 
-        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
+        verify(consumeEventQueueTaskManager, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
 
         final List<Queue<PublishedEvent>> allValues = eventQueueCaptor.getAllValues();
 
@@ -146,7 +146,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
 
         concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, catchupCommand, commandId);
 
-        verify(consumeEventQueueBean).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
+        verify(consumeEventQueueTaskManager).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream_1 = eventQueueCaptor.getValue();
         assertThat(eventsStream_1.size(), is(1));
@@ -155,7 +155,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
         concurrentEventStreamConsumerManager.isEventConsumptionComplete(new FinishedProcessingMessage(eventsStream_1));
         concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, catchupCommand, commandId);
 
-        verify(consumeEventQueueBean, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
+        verify(consumeEventQueueTaskManager, times(2)).consume(eventQueueCaptor.capture(), eq(eventQueueConsumer), eq(subscriptionName), eq(catchupCommand), eq(commandId));
 
         final Queue<PublishedEvent> eventsStream_2 = eventQueueCaptor.getValue();
         assertThat(eventsStream_2.size(), is(1));

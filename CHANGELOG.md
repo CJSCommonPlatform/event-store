@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.5] - 2019-10-29
+### Changed
+- Removed asynchronous bean to run catchup queue and replaced with ManagedExecutor
+
 ## [2.2.4] - 2019-10-28
 ### Fixed
 - During catchup each event is now processed in a separate transaction

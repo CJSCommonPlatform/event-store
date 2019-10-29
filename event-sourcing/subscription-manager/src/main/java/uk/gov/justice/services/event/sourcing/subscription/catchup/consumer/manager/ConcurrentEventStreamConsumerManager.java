@@ -1,6 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueTaskManager;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
@@ -30,7 +30,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     private EventStreamsInProgressList eventStreamsInProgressList;
 
     @Inject
-    private ConsumeEventQueueBean consumeEventQueueBean;
+    private ConsumeEventQueueTaskManager consumeEventQueueTaskManager;
 
     @Inject
     private EventQueueConsumerFactory eventQueueConsumerFactory;
@@ -112,7 +112,7 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
         eventStreamsInProgressList.add(eventStream);
 
         final EventQueueConsumer eventQueueConsumer = eventQueueConsumerFactory.create(this);
-        consumeEventQueueBean.consume(
+        consumeEventQueueTaskManager.consume(
                 eventStream,
                 eventQueueConsumer,
                 subscriptionName,

@@ -60,7 +60,7 @@ public class EventJdbcRepository {
     static final String SQL_DISTINCT_STREAM_ID = "SELECT DISTINCT stream_id FROM event_log";
     static final String SQL_DELETE_STREAM = "DELETE FROM event_log t WHERE t.stream_id=?";
     static final String SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE = "SELECT * FROM event_log WHERE event_number>? ORDER BY event_number ASC LIMIT ?";
-    static final String SQL_COUNT_EVENTS_FROM_EVENT_NUMBER = "SELECT COUNT(*) FROM event_log WHERE event_number>?";
+    static final String SQL_MAX_EVENT_NUMBER_FROM_EVENT_LOG = "SELECT MAX(event_number) from event_log";
 
     /*
      * Error Messages
@@ -256,18 +256,10 @@ public class EventJdbcRepository {
         }
     }
 
-    /**
-     * Returns a count of Events from the given event number (exclusive).
-     *
-     * @param eventNumber - return count of events greater than
-     * @return count of events
-     */
-    public long countEventsFrom(final long eventNumber) {
-
+    public long getMaximumEventNumber() {
         final DataSource dataSource = eventStoreDataSourceProvider.getDefaultDataSource();
 
-        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_COUNT_EVENTS_FROM_EVENT_NUMBER)) {
-            preparedStatementWrapper.setLong(1, eventNumber);
+        try (final PreparedStatementWrapper preparedStatementWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_MAX_EVENT_NUMBER_FROM_EVENT_LOG)) {
 
             final ResultSet resultSet = preparedStatementWrapper.executeQuery();
 
@@ -275,12 +267,12 @@ public class EventJdbcRepository {
                 return resultSet.getLong(1);
             }
 
-        } catch (final SQLException e) {
-            logger.error(format("Failed to read events from event_log from event number : '%s'", eventNumber), e);
-            throw new JdbcRepositoryException(format("Failed to read events from event_log from event number : '%s'", eventNumber), e);
-        }
+            throw new JdbcRepositoryException("Failed to find maximum value of event_number in event_log");
 
-        return NO_EXISTING_VERSION;
+        } catch (final SQLException e) {
+            logger.error("Failed to find maximum value of event_number in event_log", e);
+            throw new JdbcRepositoryException("Failed to find maximum value of event_number in event_log", e);
+        }
     }
 
     /**

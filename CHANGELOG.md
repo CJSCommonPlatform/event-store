@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.6] - 2019-10-30
+### Changed
+- Improved the event_log query to determine if the renumber of events is complete. 
+Changed to use select MAX rather than count(*)
+
 ## [2.2.5] - 2019-10-29
 ### Changed
 - Removed asynchronous bean to run catchup queue and replaced with ManagedExecutor

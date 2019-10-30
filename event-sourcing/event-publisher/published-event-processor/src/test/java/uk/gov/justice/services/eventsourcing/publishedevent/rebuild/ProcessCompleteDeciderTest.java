@@ -29,8 +29,8 @@ public class ProcessCompleteDeciderTest {
 
         final BatchProcessDetails batchProcessDetails = mock(BatchProcessDetails.class);
 
-        when(batchProcessDetails.getCurrentEventNumber()).thenReturn(new AtomicLong(0L));
-        when(eventJdbcRepository.countEventsFrom(1L)).thenReturn(1L);
+        when(batchProcessDetails.getCurrentEventNumber()).thenReturn(new AtomicLong(23L));
+        when(eventJdbcRepository.getMaximumEventNumber()).thenReturn(24L);
 
         final boolean processingComplete = processCompleteDecider.isProcessingComplete(batchProcessDetails);
 
@@ -42,8 +42,21 @@ public class ProcessCompleteDeciderTest {
 
         final BatchProcessDetails batchProcessDetails = mock(BatchProcessDetails.class);
 
-        when(batchProcessDetails.getCurrentEventNumber()).thenReturn(new AtomicLong(0L));
-        when(eventJdbcRepository.countEventsFrom(1L)).thenReturn(0L);
+        when(batchProcessDetails.getCurrentEventNumber()).thenReturn(new AtomicLong(23L));
+        when(eventJdbcRepository.getMaximumEventNumber()).thenReturn(23L);
+
+        final boolean processingComplete = processCompleteDecider.isProcessingComplete(batchProcessDetails);
+
+        assertThat(processingComplete, is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfLessThanNoMoreEventsToProcess() {
+
+        final BatchProcessDetails batchProcessDetails = mock(BatchProcessDetails.class);
+
+        when(batchProcessDetails.getCurrentEventNumber()).thenReturn(new AtomicLong(23L));
+        when(eventJdbcRepository.getMaximumEventNumber()).thenReturn(22L);
 
         final boolean processingComplete = processCompleteDecider.isProcessingComplete(batchProcessDetails);
 

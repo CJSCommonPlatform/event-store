@@ -270,16 +270,18 @@ public class EventJdbcRepositoryIT {
     }
 
     @Test
-    public void shouldReturnCountOfEventsFromEventNumber() throws Exception {
+    public void shouldReturnMaximumEventNumber() throws Exception {
 
-        final long initialNumberOfEvents = jdbcRepository.countEventsFrom(0L);
+        new SequenceSetter().setSequenceTo(1, "event_sequence_seq", dataSource);
+
+        final long initialNumberOfEvents = jdbcRepository.getMaximumEventNumber();
         assertThat(initialNumberOfEvents, is(0L));
 
         jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(3L).build());
         jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(4L).build());
         jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(7L).build());
 
-        final long finalNumberOfEvents = jdbcRepository.countEventsFrom(0L);
+        final long finalNumberOfEvents = jdbcRepository.getMaximumEventNumber();
         assertThat(finalNumberOfEvents, is(3L));
     }
 

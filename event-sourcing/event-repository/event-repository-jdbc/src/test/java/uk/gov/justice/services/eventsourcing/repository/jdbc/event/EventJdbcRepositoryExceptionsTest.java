@@ -8,12 +8,12 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_COUNT_EVENTS_FROM_EVENT_NUMBER;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_ALL_ORDERED_BY_EVENT_NUMBER;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_BY_STREAM_ID_AND_POSITION_BY_PAGE;
 import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_FIND_FROM_EVENT_NUMBER_WITH_PAGE;
+import static uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository.SQL_MAX_EVENT_NUMBER_FROM_EVENT_LOG;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
@@ -212,20 +212,19 @@ public class EventJdbcRepositoryExceptionsTest {
     @Test
     public void shouldLogAndThrowExceptionIfSqlExceptionIsThrownInCountEventsFrom() throws Exception {
 
-        final long eventNumber = 2L;
         final SQLException sqlException = new SQLException();
 
         final DataSource dataSource = mock(DataSource.class);
 
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
-        when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_COUNT_EVENTS_FROM_EVENT_NUMBER)).thenThrow(sqlException);
+        when(preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_MAX_EVENT_NUMBER_FROM_EVENT_LOG)).thenThrow(sqlException);
 
         try {
-            eventJdbcRepository.countEventsFrom(eventNumber);
+            eventJdbcRepository.getMaximumEventNumber();
             fail();
         } catch (final JdbcRepositoryException e) {
-            assertThat(e.getMessage(), is("Failed to read events from event_log from event number : '2'"));
-            verify(logger).error("Failed to read events from event_log from event number : '2'", sqlException);
+            assertThat(e.getMessage(), is("Failed to find maximum value of event_number in event_log"));
+            verify(logger).error("Failed to find maximum value of event_number in event_log", sqlException);
         }
     }
 }

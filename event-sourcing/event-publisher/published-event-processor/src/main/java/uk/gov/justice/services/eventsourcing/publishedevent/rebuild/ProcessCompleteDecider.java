@@ -12,8 +12,9 @@ public class ProcessCompleteDecider {
     public boolean isProcessingComplete(final BatchProcessDetails batchProcessDetails) {
 
         final long currentEventNumber = batchProcessDetails.getCurrentEventNumber().get();
-        final long numberOfEvents = eventJdbcRepository.countEventsFrom(currentEventNumber + 1L);
 
-        return numberOfEvents <= 0L;
+        final long maximumEventNumber = eventJdbcRepository.getMaximumEventNumber();
+
+        return currentEventNumber >= maximumEventNumber;
     }
 }

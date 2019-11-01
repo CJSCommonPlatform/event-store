@@ -1,7 +1,6 @@
 package uk.gov.justice.services.subscription;
 
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
-import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
 import javax.sql.DataSource;
 

@@ -101,7 +101,7 @@ public class AddRemoveTriggerCommandHandler {
             ));
         } catch (final Exception e) {
             final String message = format("Remove trigger from event log table process failed: %s: %s", e.getClass().getSimpleName(), e.getMessage());
-            logger.error(message,e);
+            logger.error(message, e);
             systemCommandStateChangedEventFirer.fire(new SystemCommandStateChangedEvent(
                     commandId,
                     removeTriggerCommand,

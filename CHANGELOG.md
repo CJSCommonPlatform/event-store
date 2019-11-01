@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.2.7] - 2019-12-04
+### Added
+- New command 'ValidatePublishedEventsCommand' and handler for validating all events in 
+event_log against their schemas
+### Changed
+- Updated framework to 6.2.5
+- Updated Json Schema Catalog to 1.7.6
+
 ## [2.2.6] - 2019-10-30
 ### Changed
 - Improved the event_log query to determine if the renumber of events is complete. 

@@ -35,7 +35,7 @@ public class CatchupStateManagerTest {
 
         catchupStateManager.addCatchupInProgress(indexCatchupInProgress, new IndexerCatchupCommand());
 
-         assertThat(catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand).isEmpty(), is(true));
+        assertThat(catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand).isEmpty(), is(true));
 
         final ZonedDateTime startedAt = new UtcClock().now();
 

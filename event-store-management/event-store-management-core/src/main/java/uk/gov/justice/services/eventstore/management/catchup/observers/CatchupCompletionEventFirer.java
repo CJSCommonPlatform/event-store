@@ -5,8 +5,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLE
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
-import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
@@ -61,13 +61,13 @@ public class CatchupCompletionEventFirer {
     public void failVerification(
             final UUID commandId,
             final CatchupCommand catchupCommand,
-            final VerificationCommandResult verificationCommandResult) {
+            final CommandResult commandResult) {
 
         final String message = format(
                 "%s run successfully but failed verification: %s",
                 catchupCommand.getName(),
-                verificationCommandResult.getMessage());
-        
+                commandResult.getMessage());
+
         logger.error(message);
 
         systemCommandStateChangedEventFirer.fire(new SystemCommandStateChangedEvent(

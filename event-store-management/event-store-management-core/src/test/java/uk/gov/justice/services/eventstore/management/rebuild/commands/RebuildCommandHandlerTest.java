@@ -134,4 +134,5 @@ public class RebuildCommandHandlerTest {
         assertThat(endEvent.getSystemCommand(), is(rebuildCommand));
         assertThat(endEvent.getStatusChangedAt(), is(rebuildCompletedAt));
         assertThat(endEvent.getMessage(), is("Rebuild failed: NullPointerException: Ooops"));
-    }}
+    }
+}

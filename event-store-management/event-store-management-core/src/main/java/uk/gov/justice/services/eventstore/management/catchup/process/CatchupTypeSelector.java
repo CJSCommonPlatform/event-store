@@ -12,6 +12,6 @@ public class CatchupTypeSelector {
     }
 
     public boolean isIndexerCatchup(final String componentName, final CatchupCommand catchupCommand) {
-        return componentName.contains(EVENT_INDEXER) && (! catchupCommand.isEventCatchup());
+        return componentName.contains(EVENT_INDEXER) && (!catchupCommand.isEventCatchup());
     }
 }

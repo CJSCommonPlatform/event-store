@@ -6,13 +6,9 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
-import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
-import uk.gov.justice.services.eventstore.management.validation.process.CatchupVerificationProcess;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 

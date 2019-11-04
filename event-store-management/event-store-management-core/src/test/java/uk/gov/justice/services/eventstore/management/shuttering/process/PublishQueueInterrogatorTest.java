@@ -24,7 +24,7 @@ public class PublishQueueInterrogatorTest {
 
     @Mock
     private MultiIteratingPollerFactory multiIteratingPollerFactory;
-    
+
     @InjectMocks
     private PublishQueueInterrogator publishQueueInterrogator;
 

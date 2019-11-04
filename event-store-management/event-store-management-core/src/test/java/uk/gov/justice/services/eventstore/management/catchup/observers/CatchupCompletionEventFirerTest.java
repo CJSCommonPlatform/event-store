@@ -12,8 +12,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLE
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
-import uk.gov.justice.services.eventstore.management.validation.commands.VerificationCommandResult;
 import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
@@ -108,14 +108,14 @@ public class CatchupCompletionEventFirerTest {
         final CatchupCommand catchupCommand = new EventCatchupCommand();
         final String errorMessage = "verification failed with 23 errors";
 
-        final VerificationCommandResult verificationCommandResult = mock(VerificationCommandResult.class);
+        final CommandResult commandResult = mock(CommandResult.class);
 
         final ZonedDateTime completedAt = ZonedDateTime.of(2016, 10, 10, 23, 23, 23, 0, UTC);
 
         when(clock.now()).thenReturn(completedAt);
-        when(verificationCommandResult.getMessage()).thenReturn(errorMessage);
+        when(commandResult.getMessage()).thenReturn(errorMessage);
 
-        catchupCompletionEventFirer.failVerification(commandId, catchupCommand, verificationCommandResult);
+        catchupCompletionEventFirer.failVerification(commandId, catchupCommand, commandResult);
 
         verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
 

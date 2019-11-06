@@ -34,31 +34,31 @@ public class ProcessedEventTrackingService {
     public void trackProcessedEvent(final JsonEnvelope event, final String componentName) {
 
         final Metadata metadata = event.metadata();
-        final UUID id = metadata.id();
+        final UUID eventId = metadata.id();
         final Long previousEventNumber = metadata
                 .previousEventNumber()
-                .orElseThrow(() -> new ProcessedEventTrackingException(format("Missing previous event number for event with id '%s'", id)));
+                .orElseThrow(() -> new ProcessedEventTrackingException(format("Missing previous event number for event with id '%s'", eventId)));
         final Long eventNumber = metadata
                 .eventNumber()
-                .orElseThrow(() -> new ProcessedEventTrackingException(format("Missing event number for event with id '%s'", id)));
+                .orElseThrow(() -> new ProcessedEventTrackingException(format("Missing event number for event with id '%s'", eventId)));
 
         final String source = eventSourceNameCalculator.getSource(event);
 
-        final ProcessedEventTrackItem processedEventTrackItem = new ProcessedEventTrackItem(
-                previousEventNumber,
+        final ProcessedEvent processedEvent = new ProcessedEvent(
+                eventId, previousEventNumber,
                 eventNumber,
                 source,
                 componentName
         );
 
-        processedEventTrackingRepository.save(processedEventTrackItem);
+        processedEventTrackingRepository.save(processedEvent);
     }
 
     public Stream<MissingEventRange> getAllMissingEvents(final String eventSourceName, final String componentName) {
 
         final EventNumberAccumulator eventNumberAccumulator = new EventNumberAccumulator();
 
-        final Optional<ProcessedEventTrackItem> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(eventSourceName, componentName);
+        final Optional<ProcessedEvent> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(eventSourceName, componentName);
 
         if (latestProcessedEvent.isPresent()) {
             notSeenEventsRange(latestProcessedEvent.get().getPreviousEventNumber(), eventNumberAccumulator);
@@ -66,7 +66,7 @@ public class ProcessedEventTrackingService {
             notSeenEventsRange(1L, eventNumberAccumulator);
         }
 
-        try (final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(eventSourceName, componentName)) {
+        try (final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(eventSourceName, componentName)) {
             allProcessedEvents
                     .forEach(processedEventTrackItem -> findMissingRange(processedEventTrackItem, eventNumberAccumulator));
         }
@@ -83,7 +83,7 @@ public class ProcessedEventTrackingService {
     public Long getLatestProcessedEventNumber(final String source, final String componentName) {
 
         return processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)
-                .map(ProcessedEventTrackItem::getEventNumber)
+                .map(ProcessedEvent::getEventNumber)
                 .orElse(FIRST_POSSIBLE_EVENT_NUMBER);
     }
 
@@ -98,10 +98,10 @@ public class ProcessedEventTrackingService {
         eventNumberAccumulator.set(currentPreviousEventNumber, currentEventNumber);
     }
 
-    private void findMissingRange(final ProcessedEventTrackItem processedEventTrackItem, final EventNumberAccumulator eventNumberAccumulator) {
+    private void findMissingRange(final ProcessedEvent processedEvent, final EventNumberAccumulator eventNumberAccumulator) {
 
-        final long currentEventNumber = processedEventTrackItem.getEventNumber();
-        final long currentPreviousEventNumber = processedEventTrackItem.getPreviousEventNumber();
+        final long currentEventNumber = processedEvent.getEventNumber();
+        final long currentPreviousEventNumber = processedEvent.getPreviousEventNumber();
 
         if (eventNumberAccumulator.isInitialised() && eventNumberAccumulator.getLastPreviousEventNumber() != currentEventNumber) {
             eventNumberAccumulator.addRangeFrom(currentEventNumber);

@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -20,18 +21,18 @@ import javax.inject.Inject;
 public class ProcessedEventTrackingRepository {
 
     private static final String INSERT_SQL =
-            "INSERT INTO processed_event (event_number, previous_event_number, source, component) " +
-                    "VALUES (?, ?, ?, ?)";
+            "INSERT INTO processed_event (event_id, event_number, previous_event_number, source, component) " +
+                    "VALUES (?, ?, ?, ?, ?)";
 
     private static final String SELECT_MAX_SQL =
-            "SELECT event_number, previous_event_number, source, component " +
+            "SELECT event_id, event_number, previous_event_number, source, component " +
                     "FROM processed_event " +
                     "WHERE source = ? " +
                     "AND component = ? " +
                     "ORDER BY event_number DESC LIMIT 1";
 
     private static final String SELECT_ALL_DESCENDING_ORDER_SQL =
-            "SELECT event_number, previous_event_number " +
+            "SELECT event_id, event_number, previous_event_number " +
                     "FROM processed_event " +
                     "WHERE source = ? " +
                     "AND component = ? " +
@@ -46,16 +47,17 @@ public class ProcessedEventTrackingRepository {
     @Inject
     private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
 
-    public void save(final ProcessedEventTrackItem processedEventTrackItem) {
+    public void save(final ProcessedEvent processedEvent) {
 
         try (
                 final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
                 final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
-            preparedStatement.setLong(1, processedEventTrackItem.getEventNumber());
-            preparedStatement.setLong(2, processedEventTrackItem.getPreviousEventNumber());
-            preparedStatement.setString(3, processedEventTrackItem.getSource());
-            preparedStatement.setString(4, processedEventTrackItem.getComponentName());
+            preparedStatement.setObject(1, processedEvent.getEventId());
+            preparedStatement.setLong(2, processedEvent.getEventNumber());
+            preparedStatement.setLong(3, processedEvent.getPreviousEventNumber());
+            preparedStatement.setString(4, processedEvent.getSource());
+            preparedStatement.setString(5, processedEvent.getComponentName());
 
             preparedStatement.executeUpdate();
 
@@ -64,7 +66,7 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
-    public Stream<ProcessedEventTrackItem> getAllProcessedEventsDescendingOrder(final String source, final String componentName) {
+    public Stream<ProcessedEvent> getAllProcessedEventsDescendingOrder(final String source, final String componentName) {
 
         try {
             final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
@@ -76,9 +78,10 @@ public class ProcessedEventTrackingRepository {
             return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
 
                 try {
+                    final UUID eventId = (UUID) resultSet.getObject("event_id");
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
-                    return new ProcessedEventTrackItem(previousEventNumber, eventNumber, source, componentName);
+                    return new ProcessedEvent(eventId, previousEventNumber, eventNumber, source, componentName);
                 } catch (final SQLException e) {
                     throw new ProcessedEventTrackingException("Failed to get row from processed_event table", e);
                 }
@@ -89,7 +92,7 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
-    public Optional<ProcessedEventTrackItem> getLatestProcessedEvent(final String source, final String componentName) {
+    public Optional<ProcessedEvent> getLatestProcessedEvent(final String source, final String componentName) {
 
         try (
                 final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
@@ -100,10 +103,11 @@ public class ProcessedEventTrackingRepository {
 
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
+                    final UUID eventId = (UUID) resultSet.getObject("event_id");
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
 
-                    return of(new ProcessedEventTrackItem(previousEventNumber, eventNumber, source, componentName));
+                    return of(new ProcessedEvent(eventId, previousEventNumber, eventNumber, source, componentName));
                 }
 
                 return empty();

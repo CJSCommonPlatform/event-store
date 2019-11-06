@@ -1,5 +1,6 @@
 package uk.gov.justice.services.subscription;
 
+import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,7 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessedEventTrackingRepositoryIT {
@@ -63,26 +63,26 @@ public class ProcessedEventTrackingRepositoryIT {
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
 
-        final ProcessedEventTrackItem processedEventTrackItem_1 = new ProcessedEventTrackItem(0, 1, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_2 = new ProcessedEventTrackItem(1, 2, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_3 = new ProcessedEventTrackItem(2, 3, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_4 = new ProcessedEventTrackItem(3, 4, source, componentName);
+        final ProcessedEvent processedEvent_1 = new ProcessedEvent(randomUUID(), 0, 1, source, componentName);
+        final ProcessedEvent processedEvent_2 = new ProcessedEvent(randomUUID(), 1, 2, source, componentName);
+        final ProcessedEvent processedEvent_3 = new ProcessedEvent(randomUUID(), 2, 3, source, componentName);
+        final ProcessedEvent processedEvent_4 = new ProcessedEvent(randomUUID(), 3, 4, source, componentName);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_1);
-        processedEventTrackingRepository.save(processedEventTrackItem_2);
-        processedEventTrackingRepository.save(processedEventTrackItem_3);
-        processedEventTrackingRepository.save(processedEventTrackItem_4);
+        processedEventTrackingRepository.save(processedEvent_1);
+        processedEventTrackingRepository.save(processedEvent_2);
+        processedEventTrackingRepository.save(processedEvent_3);
+        processedEventTrackingRepository.save(processedEvent_4);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
+        final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
-        final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
+        final List<ProcessedEvent> processedEvents = allProcessedEvents.collect(toList());
 
-        assertThat(processedEventTrackItems.size(), is(4));
+        assertThat(processedEvents.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
+        assertThat(processedEvents.get(0), is(processedEvent_4));
+        assertThat(processedEvents.get(1), is(processedEvent_3));
+        assertThat(processedEvents.get(2), is(processedEvent_2));
+        assertThat(processedEvents.get(3), is(processedEvent_1));
     }
 
     @Test
@@ -91,26 +91,26 @@ public class ProcessedEventTrackingRepositoryIT {
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
 
-        final ProcessedEventTrackItem processedEventTrackItem_1 = new ProcessedEventTrackItem(0, 1, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_2 = new ProcessedEventTrackItem(1, 2, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_3 = new ProcessedEventTrackItem(2, 3, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_4 = new ProcessedEventTrackItem(3, 4, source, componentName);
+        final ProcessedEvent processedEvent_1 = new ProcessedEvent(randomUUID(), 0, 1, source, componentName);
+        final ProcessedEvent processedEvent_2 = new ProcessedEvent(randomUUID(), 1, 2, source, componentName);
+        final ProcessedEvent processedEvent_3 = new ProcessedEvent(randomUUID(), 2, 3, source, componentName);
+        final ProcessedEvent processedEvent_4 = new ProcessedEvent(randomUUID(), 3, 4, source, componentName);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_2);
-        processedEventTrackingRepository.save(processedEventTrackItem_4);
-        processedEventTrackingRepository.save(processedEventTrackItem_1);
-        processedEventTrackingRepository.save(processedEventTrackItem_3);
+        processedEventTrackingRepository.save(processedEvent_2);
+        processedEventTrackingRepository.save(processedEvent_4);
+        processedEventTrackingRepository.save(processedEvent_1);
+        processedEventTrackingRepository.save(processedEvent_3);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
+        final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
-        final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
+        final List<ProcessedEvent> processedEvents = allProcessedEvents.collect(toList());
 
-        assertThat(processedEventTrackItems.size(), is(4));
+        assertThat(processedEvents.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
+        assertThat(processedEvents.get(0), is(processedEvent_4));
+        assertThat(processedEvents.get(1), is(processedEvent_3));
+        assertThat(processedEvents.get(2), is(processedEvent_2));
+        assertThat(processedEvents.get(3), is(processedEvent_1));
     }
 
     @Test
@@ -120,37 +120,37 @@ public class ProcessedEventTrackingRepositoryIT {
         final String otherSource = "another-context";
         final String componentName = "EVENT_LISTENER";
 
-        final ProcessedEventTrackItem processedEventTrackItem_1 = new ProcessedEventTrackItem(0, 1, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_2 = new ProcessedEventTrackItem(1, 2, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_3 = new ProcessedEventTrackItem(2, 3, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_4 = new ProcessedEventTrackItem(3, 4, source, componentName);
+        final ProcessedEvent processedEvent_1 = new ProcessedEvent(randomUUID(), 0, 1, source, componentName);
+        final ProcessedEvent processedEvent_2 = new ProcessedEvent(randomUUID(), 1, 2, source, componentName);
+        final ProcessedEvent processedEvent_3 = new ProcessedEvent(randomUUID(), 2, 3, source, componentName);
+        final ProcessedEvent processedEvent_4 = new ProcessedEvent(randomUUID(), 3, 4, source, componentName);
 
-        final ProcessedEventTrackItem processedEventTrackItem_5 = new ProcessedEventTrackItem(0, 1, otherSource, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_6 = new ProcessedEventTrackItem(1, 2, otherSource, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_7 = new ProcessedEventTrackItem(2, 3, otherSource, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_8 = new ProcessedEventTrackItem(3, 4, otherSource, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_9 = new ProcessedEventTrackItem(5, 6, otherSource, componentName);
+        final ProcessedEvent processedEvent_5 = new ProcessedEvent(randomUUID(), 0, 1, otherSource, componentName);
+        final ProcessedEvent processedEvent_6 = new ProcessedEvent(randomUUID(), 1, 2, otherSource, componentName);
+        final ProcessedEvent processedEvent_7 = new ProcessedEvent(randomUUID(), 2, 3, otherSource, componentName);
+        final ProcessedEvent processedEvent_8 = new ProcessedEvent(randomUUID(), 3, 4, otherSource, componentName);
+        final ProcessedEvent processedEvent_9 = new ProcessedEvent(randomUUID(), 5, 6, otherSource, componentName);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_2);
-        processedEventTrackingRepository.save(processedEventTrackItem_4);
-        processedEventTrackingRepository.save(processedEventTrackItem_1);
-        processedEventTrackingRepository.save(processedEventTrackItem_6);
-        processedEventTrackingRepository.save(processedEventTrackItem_7);
-        processedEventTrackingRepository.save(processedEventTrackItem_5);
-        processedEventTrackingRepository.save(processedEventTrackItem_8);
-        processedEventTrackingRepository.save(processedEventTrackItem_3);
-        processedEventTrackingRepository.save(processedEventTrackItem_9);
+        processedEventTrackingRepository.save(processedEvent_2);
+        processedEventTrackingRepository.save(processedEvent_4);
+        processedEventTrackingRepository.save(processedEvent_1);
+        processedEventTrackingRepository.save(processedEvent_6);
+        processedEventTrackingRepository.save(processedEvent_7);
+        processedEventTrackingRepository.save(processedEvent_5);
+        processedEventTrackingRepository.save(processedEvent_8);
+        processedEventTrackingRepository.save(processedEvent_3);
+        processedEventTrackingRepository.save(processedEvent_9);
 
-        final Stream<ProcessedEventTrackItem> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
+        final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName);
 
-        final List<ProcessedEventTrackItem> processedEventTrackItems = allProcessedEvents.collect(toList());
+        final List<ProcessedEvent> processedEvents = allProcessedEvents.collect(toList());
 
-        assertThat(processedEventTrackItems.size(), is(4));
+        assertThat(processedEvents.size(), is(4));
 
-        assertThat(processedEventTrackItems.get(0), is(processedEventTrackItem_4));
-        assertThat(processedEventTrackItems.get(1), is(processedEventTrackItem_3));
-        assertThat(processedEventTrackItems.get(2), is(processedEventTrackItem_2));
-        assertThat(processedEventTrackItems.get(3), is(processedEventTrackItem_1));
+        assertThat(processedEvents.get(0), is(processedEvent_4));
+        assertThat(processedEvents.get(1), is(processedEvent_3));
+        assertThat(processedEvents.get(2), is(processedEvent_2));
+        assertThat(processedEvents.get(3), is(processedEvent_1));
     }
 
     @Test
@@ -159,27 +159,27 @@ public class ProcessedEventTrackingRepositoryIT {
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
 
-        final ProcessedEventTrackItem processedEventTrackItem_1 = new ProcessedEventTrackItem(0, 1, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_2 = new ProcessedEventTrackItem(1, 2, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_3 = new ProcessedEventTrackItem(2, 3, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_4 = new ProcessedEventTrackItem(3, 4, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_5 = new ProcessedEventTrackItem(99, 100, "a-different-context", componentName);
+        final ProcessedEvent processedEvent_1 = new ProcessedEvent(randomUUID(), 0, 1, source, componentName);
+        final ProcessedEvent processedEvent_2 = new ProcessedEvent(randomUUID(), 1, 2, source, componentName);
+        final ProcessedEvent processedEvent_3 = new ProcessedEvent(randomUUID(), 2, 3, source, componentName);
+        final ProcessedEvent processedEvent_4 = new ProcessedEvent(randomUUID(), 3, 4, source, componentName);
+        final ProcessedEvent processedEvent_5 = new ProcessedEvent(randomUUID(), 99, 100, "a-different-context", componentName);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_2);
-        processedEventTrackingRepository.save(processedEventTrackItem_5);
-        processedEventTrackingRepository.save(processedEventTrackItem_4);
-        processedEventTrackingRepository.save(processedEventTrackItem_1);
-        processedEventTrackingRepository.save(processedEventTrackItem_3);
+        processedEventTrackingRepository.save(processedEvent_2);
+        processedEventTrackingRepository.save(processedEvent_5);
+        processedEventTrackingRepository.save(processedEvent_4);
+        processedEventTrackingRepository.save(processedEvent_1);
+        processedEventTrackingRepository.save(processedEvent_3);
 
-        final Optional<ProcessedEventTrackItem> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(source, componentName);
+        final Optional<ProcessedEvent> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(source, componentName);
 
         if (latestProcessedEvent.isPresent()) {
 
-            final ProcessedEventTrackItem processedEventTrackItem = latestProcessedEvent.get();
+            final ProcessedEvent processedEvent = latestProcessedEvent.get();
 
-            assertThat(processedEventTrackItem.getEventNumber(), is(4L));
-            assertThat(processedEventTrackItem.getPreviousEventNumber(), is(3L));
-            assertThat(processedEventTrackItem.getSource(), is(source));
+            assertThat(processedEvent.getEventNumber(), is(4L));
+            assertThat(processedEvent.getPreviousEventNumber(), is(3L));
+            assertThat(processedEvent.getSource(), is(source));
 
         } else {
             fail();

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.subscription;
 
+import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -23,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessedEventTrackingServiceIT {
@@ -75,22 +75,22 @@ public class ProcessedEventTrackingServiceIT {
 
     private void insertEventsWithSomeMissing(final String source, final String componentName) {
 
-        final ProcessedEventTrackItem processedEventTrackItem_1 = new ProcessedEventTrackItem(0, 1, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_2 = new ProcessedEventTrackItem(1, 2, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_3 = new ProcessedEventTrackItem(2, 3, source, componentName);
+        final ProcessedEvent processedEvent_1 = new ProcessedEvent(randomUUID(), 0, 1, source, componentName);
+        final ProcessedEvent processedEvent_2 = new ProcessedEvent(randomUUID(), 1, 2, source, componentName);
+        final ProcessedEvent processedEvent_3 = new ProcessedEvent(randomUUID(), 2, 3, source, componentName);
 
-        final ProcessedEventTrackItem processedEventTrackItem_5 = new ProcessedEventTrackItem(4, 5, source, componentName);
-        final ProcessedEventTrackItem processedEventTrackItem_6 = new ProcessedEventTrackItem(5, 6, source, componentName);
+        final ProcessedEvent processedEvent_5 = new ProcessedEvent(randomUUID(), 4, 5, source, componentName);
+        final ProcessedEvent processedEvent_6 = new ProcessedEvent(randomUUID(), 5, 6, source, componentName);
 
-        final ProcessedEventTrackItem processedEventTrackItem_10 = new ProcessedEventTrackItem(9, 10, source, componentName);
+        final ProcessedEvent processedEvent_10 = new ProcessedEvent(randomUUID(), 9, 10, source, componentName);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_1);
-        processedEventTrackingRepository.save(processedEventTrackItem_2);
-        processedEventTrackingRepository.save(processedEventTrackItem_3);
+        processedEventTrackingRepository.save(processedEvent_1);
+        processedEventTrackingRepository.save(processedEvent_2);
+        processedEventTrackingRepository.save(processedEvent_3);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_5);
-        processedEventTrackingRepository.save(processedEventTrackItem_6);
+        processedEventTrackingRepository.save(processedEvent_5);
+        processedEventTrackingRepository.save(processedEvent_6);
 
-        processedEventTrackingRepository.save(processedEventTrackItem_10);
+        processedEventTrackingRepository.save(processedEvent_10);
     }
 }

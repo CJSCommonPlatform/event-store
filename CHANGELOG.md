@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added event_id to the processed_event table to aid debugging of publishing
 
 ## [2.2.7] - 2019-12-04
 ### Added

@@ -13,6 +13,7 @@ import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventT
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.ActiveEventStreamIdProvider;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventConverter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
+import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.DummySystemCommandStore;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.EventInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamIdGenerator;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamStatusInserter;
@@ -101,7 +102,8 @@ public class RebuildPerformanceIT {
             ObjectMapperProducer.class,
             LoggerProducer.class,
             DefaultJsonEnvelopeProvider.class,
-            DefaultEnvelopeProvider.class
+            DefaultEnvelopeProvider.class,
+            DummySystemCommandStore.class
     })
     @Default
     public WebApp war() {

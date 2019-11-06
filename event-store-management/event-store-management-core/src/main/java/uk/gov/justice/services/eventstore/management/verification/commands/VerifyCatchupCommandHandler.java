@@ -1,14 +1,14 @@
 package uk.gov.justice.services.eventstore.management.verification.commands;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand.VERIFY_CATCHUP;
+import static uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand.VERIFY_CATCHUP;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
+import uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.CatchupVerificationProcess;
-import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;

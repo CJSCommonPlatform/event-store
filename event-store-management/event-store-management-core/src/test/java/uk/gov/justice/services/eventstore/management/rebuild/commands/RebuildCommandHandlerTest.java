@@ -14,7 +14,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
-import uk.gov.justice.services.jmx.api.command.RebuildCommand;
+import uk.gov.justice.services.eventstore.management.commands.RebuildCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

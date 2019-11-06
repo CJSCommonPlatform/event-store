@@ -1,14 +1,14 @@
 package uk.gov.justice.services.eventstore.management.validation.commands;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.jmx.api.command.ValidatePublishedEventsCommand.VALIDATE_EVENTS;
+import static uk.gov.justice.services.eventstore.management.commands.ValidatePublishedEventsCommand.VALIDATE_EVENTS;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
+import uk.gov.justice.services.eventstore.management.commands.ValidatePublishedEventsCommand;
 import uk.gov.justice.services.eventstore.management.validation.process.EventValidationProcess;
-import uk.gov.justice.services.jmx.api.command.ValidatePublishedEventsCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;

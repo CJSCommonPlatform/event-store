@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

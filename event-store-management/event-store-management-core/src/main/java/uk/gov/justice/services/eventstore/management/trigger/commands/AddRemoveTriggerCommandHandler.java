@@ -1,16 +1,16 @@
 package uk.gov.justice.services.eventstore.management.trigger.commands;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.jmx.api.command.AddTriggerCommand.ADD_TRIGGER;
-import static uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand.REMOVE_TRIGGER;
+import static uk.gov.justice.services.eventstore.management.commands.AddTriggerCommand.ADD_TRIGGER;
+import static uk.gov.justice.services.eventstore.management.commands.RemoveTriggerCommand.REMOVE_TRIGGER;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.commands.AddTriggerCommand;
+import uk.gov.justice.services.eventstore.management.commands.RemoveTriggerCommand;
 import uk.gov.justice.services.eventstore.management.trigger.process.EventLogTriggerManipulator;
-import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
-import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;

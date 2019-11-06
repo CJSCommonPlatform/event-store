@@ -6,8 +6,8 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 

@@ -12,8 +12,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
+import uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.CatchupVerificationProcess;
-import uk.gov.justice.services.jmx.api.command.VerifyCatchupCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

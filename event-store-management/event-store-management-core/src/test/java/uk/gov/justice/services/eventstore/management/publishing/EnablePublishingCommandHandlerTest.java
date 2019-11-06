@@ -3,8 +3,8 @@ package uk.gov.justice.services.eventstore.management.publishing;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 
-import uk.gov.justice.services.jmx.api.command.DisablePublishingCommand;
-import uk.gov.justice.services.jmx.api.command.EnablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
 
 import java.util.UUID;
 

@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventstore.management.catchup.observers;
 
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.util.List;
 import java.util.UUID;

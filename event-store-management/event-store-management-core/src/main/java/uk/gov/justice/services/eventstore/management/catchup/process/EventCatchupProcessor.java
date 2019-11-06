@@ -7,9 +7,9 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.UUID;

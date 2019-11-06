@@ -17,6 +17,11 @@
             <artifactId>jmx-api</artifactId>
             <version>${framework.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>event-store-management-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -2,14 +2,14 @@ package uk.gov.justice.services.eventstore.management.rebuild.commands;
 
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static uk.gov.justice.services.jmx.api.command.RebuildCommand.REBUILD;
+import static uk.gov.justice.services.eventstore.management.commands.RebuildCommand.REBUILD;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
-import uk.gov.justice.services.jmx.api.command.RebuildCommand;
+import uk.gov.justice.services.eventstore.management.commands.RebuildCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;

@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 
 import java.util.UUID;
 

@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 public class CatchupTypeSelector {
 

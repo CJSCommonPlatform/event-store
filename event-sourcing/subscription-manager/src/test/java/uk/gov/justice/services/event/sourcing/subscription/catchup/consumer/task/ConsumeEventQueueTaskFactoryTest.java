@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 
 import java.util.Queue;
 import java.util.UUID;

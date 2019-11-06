@@ -22,12 +22,12 @@ import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchu
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupStateManager;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupCompletedForSubscriptionEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupProcessingOfEventFailedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedForSubscriptionEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.Duration;

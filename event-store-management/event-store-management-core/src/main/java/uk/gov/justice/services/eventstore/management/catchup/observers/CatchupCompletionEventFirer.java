@@ -7,7 +7,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

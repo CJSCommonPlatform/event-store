@@ -1,10 +1,10 @@
 package uk.gov.justice.services.eventstore.management.publishing;
 
-import static uk.gov.justice.services.jmx.api.command.EnablePublishingCommand.ENABLE_PUBLISHING;
+import static uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand.ENABLE_PUBLISHING;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PrePublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
-import uk.gov.justice.services.jmx.api.command.PublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.PublishingCommand;
 
 import javax.inject.Inject;
 

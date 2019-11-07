@@ -4,7 +4,7 @@ import static javax.ejb.TransactionManagementType.CONTAINER;
 import static javax.transaction.Transactional.TxType.NEVER;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.util.Queue;
 import java.util.UUID;

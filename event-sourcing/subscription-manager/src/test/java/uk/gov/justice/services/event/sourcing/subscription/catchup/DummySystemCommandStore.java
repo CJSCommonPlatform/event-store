@@ -14,11 +14,6 @@ import javax.faces.bean.ApplicationScoped;
 public class DummySystemCommandStore implements SystemCommandStore {
 
     @Override
-    public boolean isSupported(final SystemCommand systemCommand) {
-        return false;
-    }
-
-    @Override
     public SystemCommandHandlerProxy findCommandProxy(final SystemCommand systemCommand) {
         throw new UnsupportedOperationException();
     }

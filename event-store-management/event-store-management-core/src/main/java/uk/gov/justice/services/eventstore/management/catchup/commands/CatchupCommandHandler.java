@@ -1,13 +1,13 @@
 package uk.gov.justice.services.eventstore.management.catchup.commands;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.jmx.api.command.EventCatchupCommand.CATCHUP;
-import static uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand.INDEXER_CATCHUP;
+import static uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand.CATCHUP;
+import static uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand.INDEXER_CATCHUP;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 
 import java.time.ZonedDateTime;

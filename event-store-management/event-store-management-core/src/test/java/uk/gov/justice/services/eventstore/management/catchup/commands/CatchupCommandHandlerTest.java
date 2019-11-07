@@ -7,9 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
-import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

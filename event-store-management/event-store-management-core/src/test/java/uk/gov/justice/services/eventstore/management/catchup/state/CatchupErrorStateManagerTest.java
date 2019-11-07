@@ -5,8 +5,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
-import uk.gov.justice.services.jmx.api.command.IndexerCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 
 import java.util.List;
 

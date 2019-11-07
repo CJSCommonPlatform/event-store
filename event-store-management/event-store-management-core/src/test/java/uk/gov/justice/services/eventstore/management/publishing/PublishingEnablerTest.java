@@ -4,8 +4,8 @@ import static org.mockito.Mockito.inOrder;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.PrePublisherTimerConfig;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.PublisherTimerConfig;
-import uk.gov.justice.services.jmx.api.command.DisablePublishingCommand;
-import uk.gov.justice.services.jmx.api.command.EnablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -11,9 +11,9 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.commands.AddTriggerCommand;
+import uk.gov.justice.services.eventstore.management.commands.RemoveTriggerCommand;
 import uk.gov.justice.services.eventstore.management.trigger.process.EventLogTriggerManipulator;
-import uk.gov.justice.services.jmx.api.command.AddTriggerCommand;
-import uk.gov.justice.services.jmx.api.command.RemoveTriggerCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

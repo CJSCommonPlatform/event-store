@@ -1,10 +1,10 @@
 package uk.gov.justice.services.eventstore.management.publishing;
 
-import static uk.gov.justice.services.jmx.api.command.DisablePublishingCommand.DISABLE_PUBLISHING;
-import static uk.gov.justice.services.jmx.api.command.EnablePublishingCommand.ENABLE_PUBLISHING;
+import static uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand.DISABLE_PUBLISHING;
+import static uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand.ENABLE_PUBLISHING;
 
-import uk.gov.justice.services.jmx.api.command.DisablePublishingCommand;
-import uk.gov.justice.services.jmx.api.command.EnablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
+import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 

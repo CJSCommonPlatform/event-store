@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.util.ArrayList;
 import java.util.List;

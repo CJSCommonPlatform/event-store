@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupErrorStateManager;
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 
 import java.util.List;
 import java.util.UUID;

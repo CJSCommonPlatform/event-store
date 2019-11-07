@@ -4,7 +4,7 @@ import static java.util.UUID.randomUUID;
 
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.jmx.api.command.EventCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 
 import java.util.UUID;
 import java.util.stream.Stream;

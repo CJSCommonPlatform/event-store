@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
-import uk.gov.justice.services.jmx.api.command.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
 import java.util.Objects;

@@ -37,8 +37,13 @@ public class SingleEventValidator {
 
         final Schema schema = schemaProvider.getForEvent(eventName);
 
+        logger.error(format("Validating event with id '%s'", publishedEvent.getId()));
+        logger.error(format("Payload '%s'", payload));
+
         try {
             schema.validate(jsonObject);
+            logger.error("event validated successfully");
+
         } catch (final ValidationException e) {
             final String message = format(
                     "Event '%s' with id '%s' failed to validate against schema: %s",

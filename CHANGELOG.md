@@ -8,7 +8,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [2.3.1] - 2019-12-07
 ### Fixed
-- removed rogue loggin of payload during event validation
+- removed rogue logging of payload during event validation
 
 ## [2.3.0] - 2019-12-07
 ### Added

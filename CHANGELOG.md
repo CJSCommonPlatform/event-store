@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+
+## [2.3.1] - 2019-12-07
+### Fixed
+- removed rogue loggin of payload during event validation
+
 ## [2.3.0] - 2019-12-07
 ### Added
 - Added event_id to the processed_event table to aid debugging of publishing

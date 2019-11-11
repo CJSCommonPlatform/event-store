@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- The database trigger for publishing on the event_log table is now added on application 
+startup and removed on application shut down 
 
 
 ## [2.3.1] - 2019-12-07

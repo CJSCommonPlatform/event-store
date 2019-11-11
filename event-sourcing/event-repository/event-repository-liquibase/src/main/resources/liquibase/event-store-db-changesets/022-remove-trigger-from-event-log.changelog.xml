@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="event-store-022" author="TechPod"
+               logicalFilePath="022-remove-trigger-from-event-log.changelog.xml">
+
+        <sql>
+            DROP TRIGGER update_pre_publish_queue on event_log CASCADE;
+        </sql>
+
+
+        <rollback>
+            <sql>
+                CREATE TRIGGER update_pre_publish_queue
+                AFTER INSERT ON event_log
+                FOR EACH ROW EXECUTE PROCEDURE update_pre_publish_queue();
+            </sql>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

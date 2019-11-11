@@ -3,8 +3,7 @@ package uk.gov.justice.services.eventsourcing.util.sql.triggers;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import javax.sql.DataSource;
 
@@ -26,7 +25,6 @@ public class DatabaseTriggerManipulatorFactoryTest {
 
         final DatabaseTriggerManipulator databaseTriggerManipulator = databaseTriggerManipulatorFactory.databaseTriggerManipulator(dataSource);
 
-        assertThat(ReflectionUtil.getValueOfField(databaseTriggerManipulator, "dataSource", DataSource.class), is(dataSource));
-
+        assertThat(getValueOfField(databaseTriggerManipulator, "dataSource", DataSource.class), is(dataSource));
     }
 }

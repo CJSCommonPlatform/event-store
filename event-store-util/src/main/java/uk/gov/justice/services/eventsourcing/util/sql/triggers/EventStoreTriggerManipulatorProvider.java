@@ -1,8 +1,6 @@
-package uk.gov.justice.services.eventstore.management.trigger.process;
+package uk.gov.justice.services.eventsourcing.util.sql.triggers;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulator;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulatorFactory;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;

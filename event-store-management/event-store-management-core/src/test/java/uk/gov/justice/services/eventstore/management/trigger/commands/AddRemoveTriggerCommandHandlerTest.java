@@ -13,7 +13,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.AddTriggerCommand;
 import uk.gov.justice.services.eventstore.management.commands.RemoveTriggerCommand;
-import uk.gov.justice.services.eventstore.management.trigger.process.EventLogTriggerManipulator;
+import uk.gov.justice.services.eventsourcing.util.sql.triggers.EventLogTriggerManipulator;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

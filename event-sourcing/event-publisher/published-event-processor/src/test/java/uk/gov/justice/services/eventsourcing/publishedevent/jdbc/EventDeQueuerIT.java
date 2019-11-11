@@ -10,7 +10,9 @@ import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
+import uk.gov.justice.services.eventsourcing.util.sql.triggers.EventLogTriggerManipulator;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.eventlog.EventLogTriggerManipulatorFactory;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
@@ -20,6 +22,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +33,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EventDeQueuerIT {
 
-    private final DataSource dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
-    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(dataSource);
+    private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
+    private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
     private final Clock clock = new UtcClock();
+    private final EventLogTriggerManipulator eventLogTriggerManipulator = new EventLogTriggerManipulatorFactory()
+            .create(eventStoreDataSource);
+
 
     @Mock
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
@@ -42,7 +48,13 @@ public class EventDeQueuerIT {
 
     @Before
     public void initDatabase() throws Exception {
-        new EventStoreInitializer().initializeEventStore(dataSource);
+        new EventStoreInitializer().initializeEventStore(eventStoreDataSource);
+        eventLogTriggerManipulator.addTriggerToEventLogTable();
+    }
+
+    @After
+    public void dropTrigger() {
+        eventLogTriggerManipulator.removeTriggerFromEventLogTable();
     }
 
     @Test
@@ -50,7 +62,7 @@ public class EventDeQueuerIT {
 
         final String tableName = "pre_publish_queue";
 
-        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
@@ -74,7 +86,7 @@ public class EventDeQueuerIT {
 
         final String tableName = "publish_queue";
 
-        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
 
         assertThat(eventDeQueuer.popNextEventId(tableName).isPresent(), is(false));
 
@@ -100,7 +112,7 @@ public class EventDeQueuerIT {
 
         final String tableName = "publish_queue";
 
-        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(eventStoreDataSource);
 
         final Event event_1 = eventBuilder().withName("example.first-event").withPositionInStream(1L).build();
         final Event event_2 = eventBuilder().withName("example.second-event").withPositionInStream(2L).build();
@@ -116,7 +128,7 @@ public class EventDeQueuerIT {
     }
 
     private void insertInPublishQueue(final Event... events) throws SQLException {
-        try(final Connection connection = dataSource.getConnection()) {
+        try(final Connection connection = eventStoreDataSource.getConnection()) {
 
             final String sql = "INSERT into publish_queue (event_log_id, date_queued) VALUES (?, ?)";
             try(final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

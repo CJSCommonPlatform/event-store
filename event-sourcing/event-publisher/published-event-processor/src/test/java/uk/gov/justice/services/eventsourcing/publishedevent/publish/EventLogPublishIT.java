@@ -14,8 +14,10 @@ import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilde
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.util.sql.triggers.EventLogTriggerManipulator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.eventlog.EventLogTriggerManipulatorFactory;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
@@ -27,6 +29,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,10 +39,18 @@ public class EventLogPublishIT {
     private final EventStoreDataAccess eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
 
     private final UtcClock utcClock = new UtcClock();
+    private final EventLogTriggerManipulator eventLogTriggerManipulator = new EventLogTriggerManipulatorFactory()
+            .create(eventStoreDataSource);
 
     @Before
     public void initDatabase() throws Exception {
         new EventStoreInitializer().initializeEventStore(eventStoreDataSource);
+        eventLogTriggerManipulator.addTriggerToEventLogTable();
+    }
+
+    @After
+    public void dropTrigger() {
+       eventLogTriggerManipulator.removeTriggerFromEventLogTable();
     }
 
     @Test

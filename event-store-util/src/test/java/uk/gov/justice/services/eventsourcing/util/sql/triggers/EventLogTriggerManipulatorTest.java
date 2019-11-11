@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.trigger.process;
+package uk.gov.justice.services.eventsourcing.util.sql.triggers;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -7,9 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulator;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.TriggerData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -40,6 +40,7 @@ import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerCanceler;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerConfigFactory;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
+import uk.gov.justice.services.eventsourcing.util.sql.triggers.EventLogTriggerManipulator;
 import uk.gov.justice.services.framework.utilities.exceptions.StackTraceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
@@ -57,6 +58,7 @@ import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
+import uk.gov.justice.services.test.utils.eventlog.EventLogTriggerManipulatorFactory;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -104,12 +106,16 @@ public class EventPublishIT {
     private final Clock clock = new UtcClock();
 
     private EventStoreDataAccess eventStoreDataAccess;
+    private EventLogTriggerManipulatorFactory eventLogTriggerManipulatorFactory = new EventLogTriggerManipulatorFactory();
 
     @Before
     public void initializeDatabase() throws Exception {
         final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         eventStoreInitializer.initializeEventStore(eventStoreDataSource);
         eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
+
+        final EventLogTriggerManipulator eventLogTriggerManipulator = eventLogTriggerManipulatorFactory.create(eventStoreDataSource);
+        eventLogTriggerManipulator.addTriggerToEventLogTable();
     }
 
     @Module

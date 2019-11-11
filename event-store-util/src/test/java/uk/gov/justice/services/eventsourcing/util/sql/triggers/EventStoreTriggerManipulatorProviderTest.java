@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.trigger.process;
+package uk.gov.justice.services.eventsourcing.util.sql.triggers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -6,8 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulator;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.DatabaseTriggerManipulatorFactory;
 
 import javax.sql.DataSource;
 

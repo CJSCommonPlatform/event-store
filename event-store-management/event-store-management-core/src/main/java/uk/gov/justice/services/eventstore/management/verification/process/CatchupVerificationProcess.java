@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventstore.management.verification.process;
 
 import uk.gov.justice.services.eventstore.management.CommandResult;
+import uk.gov.justice.services.eventstore.management.commands.VerificationCommand;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,9 +22,9 @@ public class CatchupVerificationProcess {
     @Inject
     private CommandResultGenerator commandResultGenerator;
 
-    public CommandResult runVerification(final UUID commandId) {
+    public CommandResult runVerification(final UUID commandId, final VerificationCommand verificationCommand) {
 
-        final List<VerificationResult> verificationResults = verificationRunner.runVerifiers();
+        final List<VerificationResult> verificationResults = verificationRunner.runVerifiers(verificationCommand);
 
         final List<VerificationResult> successResults = verificationResultFilter.findSuccesses(verificationResults);
         final List<VerificationResult> warningResults = verificationResultFilter.findWarnings(verificationResults);

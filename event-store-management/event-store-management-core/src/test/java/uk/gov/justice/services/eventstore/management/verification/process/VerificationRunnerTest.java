@@ -7,6 +7,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.eventstore.management.commands.VerificationCommand;
+
 import java.util.List;
 
 import org.junit.Test;
@@ -27,6 +29,8 @@ public class VerificationRunnerTest {
     @Test
     public void shouldFindAndRunVerifiers() throws Exception {
 
+        final VerificationCommand verificationCommand = mock(VerificationCommand.class);
+
         final Verifier verifier_1 = mock(Verifier.class);
         final Verifier verifier_2 = mock(Verifier.class);
         final Verifier verifier_3 = mock(Verifier.class);
@@ -36,13 +40,13 @@ public class VerificationRunnerTest {
         final VerificationResult verificationResult_2 = mock(VerificationResult.class);
         final VerificationResult verificationResult_3 = mock(VerificationResult.class);
 
-        when(verifierProvider.getVerifiers()).thenReturn(asList(verifier_1, verifier_2, verifier_3));
+        when(verifierProvider.getVerifiers(verificationCommand)).thenReturn(asList(verifier_1, verifier_2, verifier_3));
 
         when(verifier_1.verify()).thenReturn(asList(verificationResult_1_a, verificationResult_1_b));
         when(verifier_2.verify()).thenReturn(singletonList(verificationResult_2));
         when(verifier_3.verify()).thenReturn(singletonList(verificationResult_3));
 
-        final List<VerificationResult> verificationResults = verificationRunner.runVerifiers();
+        final List<VerificationResult> verificationResults = verificationRunner.runVerifiers(verificationCommand);
 
         assertThat(verificationResults.size(), is(4));
 

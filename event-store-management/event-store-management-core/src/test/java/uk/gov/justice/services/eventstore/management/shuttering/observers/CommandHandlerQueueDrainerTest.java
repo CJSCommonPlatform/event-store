@@ -11,8 +11,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
-import uk.gov.justice.services.management.shuttering.api.ShutteringResult;
-import uk.gov.justice.services.management.shuttering.commands.ApplicationShutteringCommand;
+import uk.gov.justice.services.management.suspension.api.SuspensionResult;
+import uk.gov.justice.services.management.suspension.commands.SuspensionCommand;
 
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CommandHandlerQueueDrainedShutteringExecutorTest {
+public class CommandHandlerQueueDrainerTest {
 
     @Mock
     private CommandHandlerQueueInterrogator commandHandlerQueueInterrogator;
@@ -38,13 +38,13 @@ public class CommandHandlerQueueDrainedShutteringExecutorTest {
     private Logger logger;
 
     @InjectMocks
-    private CommandHandlerQueueDrainedShutteringExecutor commandHandlerQueueDrainedShutteringExecutor;
+    private CommandHandlerQueueDrainer commandHandlerQueueDrainer;
 
     @Test
-    public void shouldShutterButNotUnshutter() throws Exception {
+    public void shouldSuspendButNotUnsuspend() throws Exception {
 
-        assertThat(commandHandlerQueueDrainedShutteringExecutor.shouldShutter(), is(true));
-        assertThat(commandHandlerQueueDrainedShutteringExecutor.shouldUnshutter(), is(false));
+        assertThat(commandHandlerQueueDrainer.shouldSuspend(), is(true));
+        assertThat(commandHandlerQueueDrainer.shouldUnsuspend(), is(false));
     }
 
     @Test
@@ -52,19 +52,19 @@ public class CommandHandlerQueueDrainedShutteringExecutorTest {
 
         final UUID commandId = UUID.randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
-        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
+        final SuspensionCommand suspensionCommand = mock(SuspensionCommand.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(true);
 
 
-        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
+        final SuspensionResult suspensionResult = commandHandlerQueueDrainer.suspend(commandId, suspensionCommand);
 
-        assertThat(shutteringResult.getCommandId(), is(commandId));
-        assertThat(shutteringResult.getCommandState(), is(COMMAND_COMPLETE));
-        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
-        assertThat(shutteringResult.getShutteringExecutorName(), is("CommandHandlerQueueDrainedShutteringExecutor"));
-        assertThat(shutteringResult.getMessage(), is("Command Handler Queue drained successfully"));
+        assertThat(suspensionResult.getCommandId(), is(commandId));
+        assertThat(suspensionResult.getCommandState(), is(COMMAND_COMPLETE));
+        assertThat(suspensionResult.getSystemCommand(), is(suspensionCommand));
+        assertThat(suspensionResult.getSuspendableName(), is("CommandHandlerQueueDrainer"));
+        assertThat(suspensionResult.getMessage(), is("Command Handler Queue drained successfully"));
 
         final InOrder inOrder = inOrder(
                 logger,
@@ -81,20 +81,20 @@ public class CommandHandlerQueueDrainedShutteringExecutorTest {
 
         final UUID commandId = UUID.randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
-        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
+        final SuspensionCommand applicationShutteringCommand = mock(SuspensionCommand.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(commandHandlerQueueInterrogator.pollUntilEmptyHandlerQueue()).thenReturn(false);
         when(stopWatch.getTime()).thenReturn(12345L);
 
-        final ShutteringResult shutteringResult = commandHandlerQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
+        final SuspensionResult suspensionResult = commandHandlerQueueDrainer.suspend(commandId, applicationShutteringCommand);
 
-        assertThat(shutteringResult.getCommandId(), is(commandId));
-        assertThat(shutteringResult.getCommandState(), is(COMMAND_FAILED));
-        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
-        assertThat(shutteringResult.getShutteringExecutorName(), is("CommandHandlerQueueDrainedShutteringExecutor"));
-        assertThat(shutteringResult.getMessage(), is("Failed to drain command handler queue in 12345 milliseconds"));
-        assertThat(shutteringResult.getException(), is(empty()));
+        assertThat(suspensionResult.getCommandId(), is(commandId));
+        assertThat(suspensionResult.getCommandState(), is(COMMAND_FAILED));
+        assertThat(suspensionResult.getSystemCommand(), is(applicationShutteringCommand));
+        assertThat(suspensionResult.getSuspendableName(), is("CommandHandlerQueueDrainer"));
+        assertThat(suspensionResult.getMessage(), is("Failed to drain command handler queue in 12345 milliseconds"));
+        assertThat(suspensionResult.getException(), is(empty()));
 
         final InOrder inOrder = inOrder(
                 logger,

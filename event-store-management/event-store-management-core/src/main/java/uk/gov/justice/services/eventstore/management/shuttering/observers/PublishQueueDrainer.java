@@ -1,14 +1,14 @@
 package uk.gov.justice.services.eventstore.management.shuttering.observers;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.management.shuttering.api.ShutteringResult.shutteringFailed;
-import static uk.gov.justice.services.management.shuttering.api.ShutteringResult.shutteringSucceeded;
+import static uk.gov.justice.services.management.suspension.api.SuspensionResult.suspensionFailed;
+import static uk.gov.justice.services.management.suspension.api.SuspensionResult.suspensionSucceeded;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
-import uk.gov.justice.services.management.shuttering.api.ShutteringExecutor;
-import uk.gov.justice.services.management.shuttering.api.ShutteringResult;
-import uk.gov.justice.services.management.shuttering.commands.ApplicationShutteringCommand;
+import uk.gov.justice.services.management.suspension.api.Suspendable;
+import uk.gov.justice.services.management.suspension.api.SuspensionResult;
+import uk.gov.justice.services.management.suspension.commands.SuspensionCommand;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor {
+public class PublishQueueDrainer implements Suspendable {
 
     @Inject
     private PublishQueueInterrogator publishQueueInterrogator;
@@ -29,12 +29,12 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
     private Logger logger;
 
     @Override
-    public boolean shouldShutter() {
+    public boolean shouldSuspend() {
         return true;
     }
 
     @Override
-    public ShutteringResult shutter(final UUID commandId, final ApplicationShutteringCommand applicationShutteringCommand) {
+    public SuspensionResult suspend(final UUID commandId, final SuspensionCommand suspensionCommand) {
 
         logger.info("Waiting for Publish Queue to empty");
         final StopWatch stopWatch = stopWatchFactory.createStartedStopWatch();
@@ -46,11 +46,11 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
                 final String message = "Publish Queue drained successfully";
                 logger.info(message);
 
-                return shutteringSucceeded(
+                return suspensionSucceeded(
                         getName(),
                         commandId,
                         message,
-                        applicationShutteringCommand
+                        suspensionCommand
                 );
             }
 
@@ -60,11 +60,11 @@ public class PublishQueueDrainedShutteringExecutor implements ShutteringExecutor
 
             logger.error(message);
 
-            return shutteringFailed(
+            return suspensionFailed(
                     getName(),
                     commandId,
                     message,
-                    applicationShutteringCommand
+                    suspensionCommand
             );
 
         } finally {

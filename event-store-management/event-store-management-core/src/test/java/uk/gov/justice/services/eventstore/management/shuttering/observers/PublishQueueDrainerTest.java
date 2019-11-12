@@ -12,8 +12,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
 import uk.gov.justice.services.eventstore.management.shuttering.process.PublishQueueInterrogator;
-import uk.gov.justice.services.management.shuttering.api.ShutteringResult;
-import uk.gov.justice.services.management.shuttering.commands.ApplicationShutteringCommand;
+import uk.gov.justice.services.management.suspension.api.SuspensionResult;
+import uk.gov.justice.services.management.suspension.commands.SuspensionCommand;
 
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishQueueDrainedShutteringExecutorTest {
+public class PublishQueueDrainerTest {
 
     @Mock
     private PublishQueueInterrogator publishQueueInterrogator;
@@ -39,32 +39,32 @@ public class PublishQueueDrainedShutteringExecutorTest {
     private Logger logger;
 
     @InjectMocks
-    private PublishQueueDrainedShutteringExecutor publishQueueDrainedShutteringExecutor;
+    private PublishQueueDrainer publishQueueDrainer;
 
     @Test
-    public void shouldShutterButNotUnshutter() throws Exception {
+    public void shouldSuspendButNotUnsuspend() throws Exception {
 
-        assertThat(publishQueueDrainedShutteringExecutor.shouldShutter(), is(true));
-        assertThat(publishQueueDrainedShutteringExecutor.shouldUnshutter(), is(false));
+        assertThat(publishQueueDrainer.shouldSuspend(), is(true));
+        assertThat(publishQueueDrainer.shouldUnsuspend(), is(false));
     }
 
     @Test
     public void shouldWaitForPublishQueueToEmptyAndReturnSuccess() throws Exception {
 
         final UUID commandId = randomUUID();
-        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
+        final SuspensionCommand suspensionCommand = mock(SuspensionCommand.class);
         final StopWatch stopWatch = mock(StopWatch.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(publishQueueInterrogator.pollUntilPublishQueueEmpty()).thenReturn(true);
 
-        final ShutteringResult shutteringResult = publishQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
+        final SuspensionResult suspensionResult = publishQueueDrainer.suspend(commandId, suspensionCommand);
 
-        assertThat(shutteringResult.getCommandId(), is(commandId));
-        assertThat(shutteringResult.getCommandState(), is(COMMAND_COMPLETE));
-        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
-        assertThat(shutteringResult.getShutteringExecutorName(), is("PublishQueueDrainedShutteringExecutor"));
-        assertThat(shutteringResult.getMessage(), is("Publish Queue drained successfully"));
+        assertThat(suspensionResult.getCommandId(), is(commandId));
+        assertThat(suspensionResult.getCommandState(), is(COMMAND_COMPLETE));
+        assertThat(suspensionResult.getSystemCommand(), is(suspensionCommand));
+        assertThat(suspensionResult.getSuspendableName(), is("PublishQueueDrainer"));
+        assertThat(suspensionResult.getMessage(), is("Publish Queue drained successfully"));
 
         final InOrder inOrder = inOrder(logger, publishQueueInterrogator);
 
@@ -79,20 +79,20 @@ public class PublishQueueDrainedShutteringExecutorTest {
     public void shouldReturnFailureIfThePublishQueueFailsToDrainInTime() throws Exception {
 
         final UUID commandId = randomUUID();
-        final ApplicationShutteringCommand applicationShutteringCommand = mock(ApplicationShutteringCommand.class);
+        final SuspensionCommand applicationShutteringCommand = mock(SuspensionCommand.class);
         final StopWatch stopWatch = mock(StopWatch.class);
 
         when(stopWatchFactory.createStartedStopWatch()).thenReturn(stopWatch);
         when(publishQueueInterrogator.pollUntilPublishQueueEmpty()).thenReturn(false);
         when(stopWatch.getTime()).thenReturn(1234L);
 
-        final ShutteringResult shutteringResult = publishQueueDrainedShutteringExecutor.shutter(commandId, applicationShutteringCommand);
+        final SuspensionResult suspensionResult = publishQueueDrainer.suspend(commandId, applicationShutteringCommand);
 
-        assertThat(shutteringResult.getCommandId(), is(commandId));
-        assertThat(shutteringResult.getCommandState(), is(COMMAND_FAILED));
-        assertThat(shutteringResult.getSystemCommand(), is(applicationShutteringCommand));
-        assertThat(shutteringResult.getShutteringExecutorName(), is("PublishQueueDrainedShutteringExecutor"));
-        assertThat(shutteringResult.getMessage(), is("PublishQueue failed to drain after 1234 milliseconds"));
+        assertThat(suspensionResult.getCommandId(), is(commandId));
+        assertThat(suspensionResult.getCommandState(), is(COMMAND_FAILED));
+        assertThat(suspensionResult.getSystemCommand(), is(applicationShutteringCommand));
+        assertThat(suspensionResult.getSuspendableName(), is("PublishQueueDrainer"));
+        assertThat(suspensionResult.getMessage(), is("PublishQueue failed to drain after 1234 milliseconds"));
 
         final InOrder inOrder = inOrder(stopWatch, logger);
 

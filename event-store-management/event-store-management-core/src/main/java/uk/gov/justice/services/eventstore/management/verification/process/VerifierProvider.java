@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventstore.management.verification.process;
 
 import static java.util.Arrays.asList;
 
+import uk.gov.justice.services.eventstore.management.commands.VerificationCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.ProcessedEventCountVerifier;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.ProcessedEventLinkVerifier;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.PublishedEventCountVerifier;
@@ -32,7 +33,24 @@ public class VerifierProvider {
     @Inject
     private StreamBufferEmptyVerifier streamBufferEmptyVerifier;
 
-    public List<Verifier> getVerifiers() {
+    public List<Verifier> getVerifiers(final VerificationCommand verificationCommand) {
+
+        if (verificationCommand.isCatchupVerification()) {
+            return getCatchupVerifiers();
+        }
+
+        return getRebuildVerifiers();
+    }
+
+    private List<Verifier> getRebuildVerifiers() {
+        return asList(
+                publishedEventCountVerifier,
+                publishedEventLinkVerifier,
+                allEventsInStreamsVerifier
+        );
+    }
+
+    private List<Verifier> getCatchupVerifiers() {
         return asList(
                 streamBufferEmptyVerifier,
                 publishedEventCountVerifier,

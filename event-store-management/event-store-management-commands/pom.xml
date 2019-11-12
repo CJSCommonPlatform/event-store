@@ -17,6 +17,13 @@
             <artifactId>jmx-api</artifactId>
             <version>${framework.version}</version>
         </dependency>
+
+        <!-- Test Dependencies-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

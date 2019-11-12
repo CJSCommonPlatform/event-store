@@ -4,23 +4,30 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.4.0] - 2019-11-13
+### Added
+ New SystemCommand VERIFY_REBUILD to verify the results of of the rebuild 
+    - Verifies that the number of active events in event_log matches the number of events in published_event
+    - Verifies that each event_number in published_event correctly links to an existing previous_event 
+    - Verifies that each active stream has at least one event 
 ### Changed
 - SHUTTER command renamed to SUSPEND
 - UNSHUTTER command renamed to UNSUSPEND
 - The database trigger for publishing on the event_log table is now added on application 
-startup and removed on application shut down 
+startup and removed on application shut down
+- Updated to framework 6.4.0 
 
-## [2.3.1] - 2019-12-07
+## [2.3.1] - 2019-11-07
 ### Fixed
 - removed rogue logging of payload during event validation
 
-## [2.3.0] - 2019-12-07
+## [2.3.0] - 2019-11-07
 ### Added
 - Added event_id to the processed_event table to aid debugging of publishing
 ### Changed
 - Event-Store SystemCommands moved into this project to break the dependency on framework
 
-## [2.2.7] - 2019-12-04
+## [2.2.7] - 2019-11-04
 ### Added
 - New command 'ValidatePublishedEventsCommand' and handler for validating all events in 
 event_log against their schemas

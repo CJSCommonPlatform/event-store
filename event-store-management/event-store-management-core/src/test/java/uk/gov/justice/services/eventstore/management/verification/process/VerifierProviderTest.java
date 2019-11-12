@@ -3,6 +3,8 @@ package uk.gov.justice.services.eventstore.management.verification.process;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand;
+import uk.gov.justice.services.eventstore.management.commands.VerifyRebuildCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.ProcessedEventCountVerifier;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.ProcessedEventLinkVerifier;
 import uk.gov.justice.services.eventstore.management.verification.process.verifiers.PublishedEventCountVerifier;
@@ -42,9 +44,9 @@ public class VerifierProviderTest {
     private VerifierProvider verifierProvider;
 
     @Test
-    public void shouldGetTheListOfAllVerifiersInTheCorrectOrder() throws Exception {
+    public void shouldGetTheListOfAllCatchupVerifiersInTheCorrectOrder() throws Exception {
 
-        final List<Verifier> verifiers = verifierProvider.getVerifiers();
+        final List<Verifier> verifiers = verifierProvider.getVerifiers(new VerifyCatchupCommand());
 
         assertThat(verifiers.size(), is(6));
 
@@ -54,5 +56,17 @@ public class VerifierProviderTest {
         assertThat(verifiers.get(3), is(publishedEventLinkVerifier));
         assertThat(verifiers.get(4), is(processedEventLinkVerifier));
         assertThat(verifiers.get(5), is(allEventsInStreamsVerifier));
+    }
+
+    @Test
+    public void shouldGetTheListOfAllRebuildVerifiersInTheCorrectOrder() throws Exception {
+
+        final List<Verifier> verifiers = verifierProvider.getVerifiers(new VerifyRebuildCommand());
+
+        assertThat(verifiers.size(), is(3));
+
+        assertThat(verifiers.get(0), is(publishedEventCountVerifier));
+        assertThat(verifiers.get(1), is(publishedEventLinkVerifier));
+        assertThat(verifiers.get(2), is(allEventsInStreamsVerifier));
     }
 }

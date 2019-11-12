@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventstore.management.CommandResult;
+import uk.gov.justice.services.eventstore.management.commands.VerificationCommand;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,7 @@ public class CatchupVerificationProcessTest {
     public void shouldRunTheVariousVerificationProcessesAndLogTheResults() throws Exception {
 
         final UUID commandId = randomUUID();
+        final VerificationCommand verificationCommand = mock(VerificationCommand.class);
 
         final List<VerificationResult> verificationResults = singletonList(mock(VerificationResult.class));
         final List<VerificationResult> successResults = singletonList(mock(VerificationResult.class));
@@ -49,7 +51,7 @@ public class CatchupVerificationProcessTest {
 
         final CommandResult commandResult = mock(CommandResult.class);
 
-        when(verificationRunner.runVerifiers()).thenReturn(verificationResults);
+        when(verificationRunner.runVerifiers(verificationCommand)).thenReturn(verificationResults);
         when(verificationResultFilter.findSuccesses(verificationResults)).thenReturn(successResults);
         when(verificationResultFilter.findWarnings(verificationResults)).thenReturn(warningResults);
         when(verificationResultFilter.findErrors(verificationResults)).thenReturn(errorResults);
@@ -60,7 +62,7 @@ public class CatchupVerificationProcessTest {
                 warningResults,
                 errorResults)).thenReturn(commandResult);
 
-        assertThat(catchupVerificationProcess.runVerification(commandId), is(commandResult));
+        assertThat(catchupVerificationProcess.runVerification(commandId, verificationCommand), is(commandResult));
 
         verify(verificationResultsLogger).logResults(
                 successResults,

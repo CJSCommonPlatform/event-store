@@ -7,7 +7,6 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -21,51 +20,48 @@ import org.slf4j.Logger;
 
 public class BatchPublishedEventProcessor {
 
-    private static final int PAGE_SIZE = 1_000;
+    private static final int PAGE_SIZE = 10_000;
 
     @Inject
     private EventJdbcRepository eventJdbcRepository;
 
     @Inject
-    private PublishedEventInserter publishedEventInserter;
+    private BatchProcessingDetailsCalculator batchProcessingDetailsCalculator;
 
     @Inject
-    private BatchProcessingDetailsCalculator batchProcessingDetailsCalculator;
+    private PublishedEventsRebuilder publishedEventsRebuilder;
 
     @Inject
     private Logger logger;
 
     @Transactional(REQUIRED)
     public BatchProcessDetails processNextBatchOfEvents(
-            final BatchProcessDetails batchProcessDetails,
+            final BatchProcessDetails currentBatchProcessDetails,
             final Set<UUID> activeStreamIds) {
 
-        final AtomicLong currentEventNumber = batchProcessDetails.getCurrentEventNumber();
-        final AtomicLong previousEventNumber = batchProcessDetails.getPreviousEventNumber();
+        final AtomicLong currentEventNumber = currentBatchProcessDetails.getCurrentEventNumber();
+        final AtomicLong previousEventNumber = currentBatchProcessDetails.getPreviousEventNumber();
 
-        final List<PublishedEvent> publishedEvents = new ArrayList<>();
-        try (final Stream<Event> eventStream = eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), PAGE_SIZE)) {
+        try (final Stream<Event> eventStream = eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), PAGE_SIZE);) {
 
-            eventStream
-                    .peek(event -> currentEventNumber.set(event.getEventNumber().get()))
-                    .forEach(event -> publishedEventInserter
-                            .convertAndSave(event, previousEventNumber, activeStreamIds)
-                            .ifPresent(publishedEvents::add));
+            final List<PublishedEvent> publishedEvents = publishedEventsRebuilder.rebuild(
+                    eventStream,
+                    previousEventNumber, currentEventNumber,
+                    activeStreamIds);
 
+            final BatchProcessDetails nextBatchProcessDetails = batchProcessingDetailsCalculator.calculateNextBatchProcessDetails(
+                    currentBatchProcessDetails,
+                    currentEventNumber,
+                    previousEventNumber,
+                    publishedEvents);
+
+            if (nextBatchProcessDetails.getProcessedInBatchCount() > 0) {
+                logger.info(format("Inserted %d PublishedEvents", nextBatchProcessDetails.getProcessCount()));
+            } else {
+                logger.info("Skipping inactive events...");
+            }
+
+            return nextBatchProcessDetails;
         }
-
-        final BatchProcessDetails currentBatchProcessDetails = batchProcessingDetailsCalculator.calculateNextBatchProcessDetails(
-                batchProcessDetails,
-                currentEventNumber,
-                previousEventNumber,
-                publishedEvents);
-
-        if (currentBatchProcessDetails.getProcessedInBatchCount() > 0) {
-            logger.info(format("Inserted %d PublishedEvents", currentBatchProcessDetails.getProcessCount()));
-        } else {
-            logger.info("Skipping inactive events...");
-        }
-
-        return currentBatchProcessDetails;
     }
 }

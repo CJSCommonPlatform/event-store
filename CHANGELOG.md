@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Now batch inserting PublishedEvents on rebuild to speed up the command
+
 ## [2.4.0] - 2019-11-13
 ### Added
  New SystemCommand VERIFY_REBUILD to verify the results of of the rebuild 

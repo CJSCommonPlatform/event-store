@@ -5,6 +5,10 @@ import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.INSERT_INTO_PUBLISHED_EVENT_SQL;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.SELECT_FROM_PUBLISHED_EVENT_QUERY;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.TRUNCATE_PREPUBLISH_QUEUE;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.TRUNCATE_PUBLISHED_EVENT;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MissingEventNumberException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -21,23 +25,10 @@ import javax.sql.DataSource;
 
 public class PublishedEventQueries {
 
-    private static final String TRUNCATE_LINKED_EVENT = "TRUNCATE published_event";
-    private static final String TRUNCATE_PREPUBLISH_QUEUE = "TRUNCATE pre_publish_queue";
-
-    private static final String INSERT_INTO_LINKED_EVENT_SQL = "INSERT into published_event (" +
-            "id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number) " +
-            "VALUES " +
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    private static final String SELECT_FROM_LINKED_EVENT_QUERY =
-            "SELECT stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number " +
-                    "FROM published_event " +
-                    "WHERE id = ?";
-
     public void truncate(final DataSource dataSource) throws SQLException {
 
         try (final Connection connection = dataSource.getConnection()) {
-            try (final PreparedStatement preparedStatement = connection.prepareStatement(TRUNCATE_LINKED_EVENT)) {
+            try (final PreparedStatement preparedStatement = connection.prepareStatement(TRUNCATE_PUBLISHED_EVENT)) {
                 preparedStatement.executeUpdate();
             }
             try (final PreparedStatement preparedStatement = connection.prepareStatement(TRUNCATE_PREPUBLISH_QUEUE)) {
@@ -49,7 +40,7 @@ public class PublishedEventQueries {
     public void insertPublishedEvent(final PublishedEvent publishedEvent, final DataSource dataSource) throws SQLException {
 
         try (final Connection connection = dataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_LINKED_EVENT_SQL)) {
+             final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_PUBLISHED_EVENT_SQL)) {
             preparedStatement.setObject(1, publishedEvent.getId());
             preparedStatement.setObject(2, publishedEvent.getStreamId());
             preparedStatement.setLong(3, publishedEvent.getPositionInStream());
@@ -68,7 +59,7 @@ public class PublishedEventQueries {
 
 
         try (final Connection connection = dataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_LINKED_EVENT_QUERY)) {
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_PUBLISHED_EVENT_QUERY)) {
 
             preparedStatement.setObject(1, id);
 

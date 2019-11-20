@@ -97,6 +97,7 @@ public class PublishedEventsRebuilderTest {
         inOrder.verify(batchedPublishedEventInserter).addToBatch(publishedEvent_2);
         inOrder.verify(batchedPublishedEventInserter).addToBatch(publishedEvent_3);
         inOrder.verify(batchedPublishedEventInserter).insertBatch();
+        inOrder.verify(batchedPublishedEventInserter).close();
     }
 
     @Test
@@ -149,5 +150,6 @@ public class PublishedEventsRebuilderTest {
         inOrder.verify(batchedPublishedEventInserter).addToBatch(publishedEvent_1);
         inOrder.verify(batchedPublishedEventInserter).addToBatch(publishedEvent_3);
         inOrder.verify(batchedPublishedEventInserter).insertBatch();
+        inOrder.verify(batchedPublishedEventInserter).close();
     }
 }

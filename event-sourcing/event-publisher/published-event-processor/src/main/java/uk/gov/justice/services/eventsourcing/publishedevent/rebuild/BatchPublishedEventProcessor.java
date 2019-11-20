@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 
 public class BatchPublishedEventProcessor {
 
-    private static final int PAGE_SIZE = 10_000;
+    private static final int PAGE_SIZE = 1_000;
 
     @Inject
     private EventJdbcRepository eventJdbcRepository;

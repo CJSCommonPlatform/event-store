@@ -66,7 +66,7 @@ public class BatchPublishedEventProcessorTest {
 
         when(currentBatchProcessDetails.getCurrentEventNumber()).thenReturn(currentEventNumber);
         when(currentBatchProcessDetails.getPreviousEventNumber()).thenReturn(previousEventNumber);
-        when(eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), 10_000)).thenReturn(eventStream);
+        when(eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), 1_000)).thenReturn(eventStream);
 
         when(publishedEventsRebuilder.rebuild(
                 eventStream,
@@ -109,7 +109,7 @@ public class BatchPublishedEventProcessorTest {
 
         when(currentBatchProcessDetails.getCurrentEventNumber()).thenReturn(currentEventNumber);
         when(currentBatchProcessDetails.getPreviousEventNumber()).thenReturn(previousEventNumber);
-        when(eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), 10_000)).thenReturn(eventStream);
+        when(eventJdbcRepository.findAllFromEventNumberUptoPageSize(currentEventNumber.get(), 1_000)).thenReturn(eventStream);
 
         when(publishedEventsRebuilder.rebuild(
                 eventStream,

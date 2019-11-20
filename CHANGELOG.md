@@ -4,8 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.1] - 2019-11-20
 ### Changed
 - Now batch inserting PublishedEvents on rebuild to speed up the command
+- Changed batch size on PublishedEvent rebuild to 1,000 per batch
 
 ## [2.4.0] - 2019-11-13
 ### Added

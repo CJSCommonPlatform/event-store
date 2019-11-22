@@ -72,6 +72,8 @@ public class EventCatchupProcessor {
 
         }).sum();
 
+        logger.info(format("%d active PublishedEvents queued for publishing", totalEventsProcessed));
+        logger.info("Waiting for publishing consumer completion...");
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         final CatchupCompletedForSubscriptionEvent event = new CatchupCompletedForSubscriptionEvent(

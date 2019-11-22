@@ -131,6 +131,8 @@ public class EventCatchupProcessorTest {
 
         verify(logger).info("Finding all missing events for event source 'event source', component 'EVENT_LISTENER");
         verify(logger).info("CATCHUP for Event Number: " + (eventNumberFrom + 1L));
+        verify(logger).info("3 active PublishedEvents queued for publishing");
+        verify(logger).info("Waiting for publishing consumer completion...");
     }
 
     @Test

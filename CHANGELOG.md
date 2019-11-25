@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.2] - 2019-11-25
 ### Added
 - Catchup Log message to show that all active events are now waiting to be consumed
 

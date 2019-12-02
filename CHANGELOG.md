@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- MDC logging of the service context for publishing timer beans
 
 ## [2.4.2] - 2019-11-25
 ### Added

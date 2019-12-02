@@ -47,6 +47,7 @@ import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
@@ -56,6 +57,7 @@ import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
+import uk.gov.justice.services.test.utils.context.TestServiceContextNameProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
 import uk.gov.justice.services.test.utils.eventlog.EventLogTriggerManipulatorFactory;
@@ -184,7 +186,10 @@ public class EventPublishIT {
             DefaultEnvelopeProvider.class,
 
             AsynchronousPublisher.class,
-            AsynchronousPrePublisher.class
+            AsynchronousPrePublisher.class,
+
+            MdcLoggerInterceptor.class,
+            TestServiceContextNameProvider.class
     })
     public WebApp war() {
         return new WebApp()

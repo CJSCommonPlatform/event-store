@@ -4,8 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Changed
-- Event log trigger is now added/removed by a container event rather than using a startup bean
+### Fixed
+- Verification completion log message now correctly logs if verification of Catchup or of Rebuild
 
 ## [2.4.2] - 2019-11-25
 ### Added

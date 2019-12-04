@@ -58,6 +58,7 @@ public class CatchupVerificationProcessTest {
 
         when(commandResultGenerator.createCommandResult(
                 commandId,
+                verificationCommand,
                 successResults,
                 warningResults,
                 errorResults)).thenReturn(commandResult);

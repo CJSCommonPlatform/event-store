@@ -38,6 +38,7 @@ public class CatchupVerificationProcess {
 
         return commandResultGenerator.createCommandResult(
                 commandId,
+                verificationCommand,
                 successResults,
                 warningResults,
                 errorResults

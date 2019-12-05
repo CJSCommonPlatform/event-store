@@ -1,5 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
+import static java.lang.Thread.currentThread;
+
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueTaskManager;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -25,6 +27,9 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     private static final Object EXCLUSIVE_LOCK = new Object();
 
     private final ConcurrentHashMap<UUID, Queue<PublishedEvent>> allEventStreams = new ConcurrentHashMap<>();
+
+    @Inject
+    private EventsInProcessCounterProvider eventsInProcessCounterProvider;
 
     @Inject
     private EventStreamsInProgressList eventStreamsInProgressList;
@@ -61,12 +66,26 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
 
         final Queue<PublishedEvent> events = allEventStreams.computeIfAbsent(streamId, id -> new ConcurrentLinkedQueue<>());
 
+        final EventsInProcessCounter eventsInProcessCounter = eventsInProcessCounterProvider.getInstance();
+
         synchronized (EXCLUSIVE_LOCK) {
+
+            while (eventsInProcessCounter.maxNumberOfEventsInProcess()) {
+                try {
+                    EXCLUSIVE_LOCK.wait();
+                } catch (final InterruptedException e) {
+                    currentThread().interrupt();
+                    break;
+                }
+            }
+
             events.offer(publishedEvent);
 
             if (notInProgress(events)) {
                 createAndSubmitTaskFor(events, subscriptionName, catchupCommand, commandId);
             }
+
+            eventsInProcessCounter.incrementEventsInProcessCount();
         }
 
         return 1;
@@ -97,6 +116,17 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     @Override
     public void waitForCompletion() {
         eventStreamsInProgressList.blockUntilEmpty();
+    }
+
+    @Override
+    public void decrementEventsInProcessCount() {
+
+        final EventsInProcessCounter eventsInProcessCounter = eventsInProcessCounterProvider.getInstance();
+
+        synchronized (EXCLUSIVE_LOCK) {
+             eventsInProcessCounter.decrementEventsInProcessCount();
+             EXCLUSIVE_LOCK.notify();
+         }
     }
 
     private boolean notInProgress(final Queue<PublishedEvent> eventStream) {

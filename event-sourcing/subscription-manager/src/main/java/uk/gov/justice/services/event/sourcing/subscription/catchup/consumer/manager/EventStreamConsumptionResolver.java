@@ -16,4 +16,6 @@ public interface EventStreamConsumptionResolver {
      * @return true if all events are consumed, false if there are still events remaining in the queue.
      */
     boolean isEventConsumptionComplete(final FinishedProcessingMessage finishedProcessingMessage);
+
+    void decrementEventsInProcessCount();
 }

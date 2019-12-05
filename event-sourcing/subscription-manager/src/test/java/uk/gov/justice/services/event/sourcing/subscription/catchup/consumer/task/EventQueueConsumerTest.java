@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,10 +61,12 @@ public class EventQueueConsumerTest {
 
         eventQueueConsumer.consumeEventQueue(commandId, eventQueue, subscriptionName, catchupCommand);
 
-        final InOrder inOrder = inOrder(transactionalEventProcessor);
+        final InOrder inOrder = inOrder(transactionalEventProcessor, eventStreamConsumptionResolver);
 
         inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_1, subscriptionName);
+        inOrder.verify(eventStreamConsumptionResolver).decrementEventsInProcessCount();
         inOrder.verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
+        inOrder.verify(eventStreamConsumptionResolver).decrementEventsInProcessCount();
     }
 
     @Test
@@ -99,5 +102,7 @@ public class EventQueueConsumerTest {
                 catchupCommand,
                 commandId
         );
+
+        verify(eventStreamConsumptionResolver, times(2)).decrementEventsInProcessCount();
     }
 }

@@ -29,13 +29,16 @@ public class EventQueueConsumer {
             final Queue<PublishedEvent> events,
             final String subscriptionName,
             final CatchupCommand catchupCommand) {
-        while (!events.isEmpty()) {
-            final PublishedEvent publishedEvent = events.poll();
 
+        while (!events.isEmpty()) {
+
+            final PublishedEvent publishedEvent = events.poll();
             try {
                 transactionalEventProcessor.processWithEventBuffer(publishedEvent, subscriptionName);
             } catch (final RuntimeException e) {
                 eventProcessingFailedHandler.handle(e, publishedEvent, subscriptionName, catchupCommand, commandId);
+            } finally {
+                eventStreamConsumptionResolver.decrementEventsInProcessCount();
             }
         }
 

@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Backpressure added to the event processing queues during catchup
 ### Fixed
 - Verification completion log message now correctly logs if verification of Catchup or of Rebuild
 

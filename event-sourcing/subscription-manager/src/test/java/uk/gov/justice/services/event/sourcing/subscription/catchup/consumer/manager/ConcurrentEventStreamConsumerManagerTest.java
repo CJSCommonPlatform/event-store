@@ -32,6 +32,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ConcurrentEventStreamConsumerManagerTest {
 
     @Mock
+    private EventsInProcessCounterProvider eventsInProcessCounterProvider;
+
+    @Mock
     private ConsumeEventQueueTaskManager consumeEventQueueTaskManager;
 
     @Mock
@@ -56,7 +59,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
+        final EventsInProcessCounter eventsInProcessCounter = mock(EventsInProcessCounter.class);
 
+        when(eventsInProcessCounterProvider.getInstance()).thenReturn(eventsInProcessCounter);
+        when(eventsInProcessCounter.maxNumberOfEventsInProcess()).thenReturn(false);
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
         when(publishedEvent.getStreamId()).thenReturn(streamId);
 
@@ -68,6 +74,7 @@ public class ConcurrentEventStreamConsumerManagerTest {
         assertThat(events.size(), is(1));
         assertThat(events.poll(), is(publishedEvent));
 
+        verify(eventsInProcessCounter).incrementEventsInProcessCount();
     }
 
     @Test
@@ -81,6 +88,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
         final CatchupCommand catchupCommand = new EventCatchupCommand();
 
+        final EventsInProcessCounter eventsInProcessCounter = mock(EventsInProcessCounter.class);
+
+        when(eventsInProcessCounterProvider.getInstance()).thenReturn(eventsInProcessCounter);
+        when(eventsInProcessCounter.maxNumberOfEventsInProcess()).thenReturn(false);
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
         when(publishedEvent_1.getStreamId()).thenReturn(streamId);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId);
@@ -94,6 +105,8 @@ public class ConcurrentEventStreamConsumerManagerTest {
         assertThat(eventsStream.size(), is(2));
         assertThat(eventsStream.poll(), is(publishedEvent_1));
         assertThat(eventsStream.poll(), is(publishedEvent_2));
+
+        verify(eventsInProcessCounter, times(2)).incrementEventsInProcessCount();
     }
 
     @Test
@@ -108,6 +121,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
+        final EventsInProcessCounter eventsInProcessCounter = mock(EventsInProcessCounter.class);
+
+        when(eventsInProcessCounterProvider.getInstance()).thenReturn(eventsInProcessCounter);
+        when(eventsInProcessCounter.maxNumberOfEventsInProcess()).thenReturn(false);
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
         when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
@@ -126,6 +143,8 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final Queue<PublishedEvent> eventsStream_2 = allValues.get(1);
         assertThat(eventsStream_2.size(), is(1));
         assertThat(eventsStream_2.poll(), is(publishedEvent_2));
+
+        verify(eventsInProcessCounter, times(2)).incrementEventsInProcessCount();
     }
 
     @Test
@@ -140,6 +159,10 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final PublishedEvent publishedEvent_2 = mock(PublishedEvent.class);
         final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
 
+        final EventsInProcessCounter eventsInProcessCounter = mock(EventsInProcessCounter.class);
+
+        when(eventsInProcessCounterProvider.getInstance()).thenReturn(eventsInProcessCounter);
+        when(eventsInProcessCounter.maxNumberOfEventsInProcess()).thenReturn(false);
         when(eventQueueConsumerFactory.create(concurrentEventStreamConsumerManager)).thenReturn(eventQueueConsumer);
         when(publishedEvent_1.getStreamId()).thenReturn(streamId_1);
         when(publishedEvent_2.getStreamId()).thenReturn(streamId_2);
@@ -160,6 +183,8 @@ public class ConcurrentEventStreamConsumerManagerTest {
         final Queue<PublishedEvent> eventsStream_2 = eventQueueCaptor.getValue();
         assertThat(eventsStream_2.size(), is(1));
         assertThat(eventsStream_2.poll(), is(publishedEvent_2));
+
+        verify(eventsInProcessCounter, times(2)).incrementEventsInProcessCount();
     }
 
     @Test
@@ -168,5 +193,17 @@ public class ConcurrentEventStreamConsumerManagerTest {
         concurrentEventStreamConsumerManager.waitForCompletion();
 
         verify(eventStreamsInProgressList).blockUntilEmpty();
+    }
+
+    @Test
+    public void shouldDecrementTheEventsInProcessCount() throws Exception {
+
+        final EventsInProcessCounter eventsInProcessCounter = mock(EventsInProcessCounter.class);
+
+        when(eventsInProcessCounterProvider.getInstance()).thenReturn(eventsInProcessCounter);
+
+        concurrentEventStreamConsumerManager.decrementEventsInProcessCount();
+
+        verify(eventsInProcessCounter).decrementEventsInProcessCount();
     }
 }

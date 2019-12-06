@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.3] - 2019-12-06
 ### Changed
 - Backpressure added to the event processing queues during catchup
 ### Fixed

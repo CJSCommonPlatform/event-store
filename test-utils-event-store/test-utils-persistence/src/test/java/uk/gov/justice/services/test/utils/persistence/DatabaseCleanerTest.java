@@ -36,8 +36,8 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement_2 = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + table_1)).thenReturn(preparedStatement_1);
-        when(connection.prepareStatement("DELETE FROM " + table_2)).thenReturn(preparedStatement_2);
+        when(connection.prepareStatement("TRUNCATE " + table_1 + " CASCADE")).thenReturn(preparedStatement_1);
+        when(connection.prepareStatement("TRUNCATE " + table_2 + " CASCADE")).thenReturn(preparedStatement_2);
 
         databaseCleaner.cleanViewStoreTables(contextName, table_1, table_2);
 
@@ -58,11 +58,11 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getEventStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + "event_log")).thenReturn(preparedStatement);
-        when(connection.prepareStatement("DELETE FROM " + "event_stream")).thenReturn(preparedStatement);
-        when(connection.prepareStatement("DELETE FROM " + "pre_publish_queue")).thenReturn(preparedStatement);
-        when(connection.prepareStatement("DELETE FROM " + "publish_queue")).thenReturn(preparedStatement);
-        when(connection.prepareStatement("DELETE FROM " + "published_event")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + "event_log" + " CASCADE")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + "event_stream" + " CASCADE")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + "pre_publish_queue" + " CASCADE")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + "publish_queue" + " CASCADE")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + "published_event" + " CASCADE")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanEventStoreTables(contextName);
 
@@ -80,13 +80,14 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getSystemConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + "stored_command")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE stored_command CASCADE")).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE event_error_log CASCADE")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanSystemTables(contextName);
 
-        verify(preparedStatement, times(1)).executeUpdate();
+        verify(preparedStatement, times(2)).executeUpdate();
         verify(connection).close();
-        verify(preparedStatement, times(1)).close();
+        verify(preparedStatement, times(2)).close();
     }
 
     @Test
@@ -99,7 +100,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanStreamBufferTable(contextName);
 
@@ -118,7 +119,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanStreamStatusTable(contextName);
 
@@ -137,7 +138,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
 
         databaseCleaner.cleanProcessedEventTable(contextName);
 
@@ -157,7 +158,7 @@ public class DatabaseCleanerTest {
         final Connection connection = mock(Connection.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenThrow(sqlException);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenThrow(sqlException);
 
         try {
             databaseCleaner.cleanStreamBufferTable(contextName);
@@ -181,7 +182,7 @@ public class DatabaseCleanerTest {
         final Connection connection = mock(Connection.class);
 
         when(testJdbcConnectionProvider.getEventStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenThrow(sqlException);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenThrow(sqlException);
 
         try {
             databaseCleaner.cleanEventLogTable(contextName);
@@ -206,7 +207,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getViewStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
         doThrow(sqlException).when(preparedStatement).close();
 
         try {
@@ -231,7 +232,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getSystemConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
         doThrow(sqlException).when(preparedStatement).close();
 
         try {
@@ -256,7 +257,7 @@ public class DatabaseCleanerTest {
         final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
         when(testJdbcConnectionProvider.getEventStoreConnection(contextName)).thenReturn(connection);
-        when(connection.prepareStatement("DELETE FROM " + tableName)).thenReturn(preparedStatement);
+        when(connection.prepareStatement("TRUNCATE " + tableName + " CASCADE")).thenReturn(preparedStatement);
         doThrow(sqlException).when(preparedStatement).close();
 
         try {

@@ -35,7 +35,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class DatabaseCleaner {
 
-    private static final String SQL_PATTERN = "DELETE FROM %s";
+    private static final String SQL_PATTERN = "TRUNCATE %s CASCADE";
 
     private final TestJdbcConnectionProvider testJdbcConnectionProvider;
 
@@ -89,7 +89,7 @@ public class DatabaseCleaner {
             cleanTable("pre_publish_queue", connection);
             cleanTable("published_event", connection);
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new DataAccessException("Failed to commit or close database connection", e);
         }
     }
@@ -130,7 +130,8 @@ public class DatabaseCleaner {
 
         try (final Connection connection = testJdbcConnectionProvider.getSystemConnection(contextName)) {
             cleanTable("stored_command", connection);
-        } catch (SQLException e) {
+            cleanTable("event_error_log", connection);
+        } catch (final SQLException e) {
             throw new DataAccessException("Failed to commit or close database connection", e);
         }
     }
@@ -147,10 +148,10 @@ public class DatabaseCleaner {
     public void cleanViewStoreTables(final String contextName, final List<String> tableNames) {
 
         try (final Connection connection = testJdbcConnectionProvider.getViewStoreConnection(contextName)) {
-            for (String tableName : tableNames) {
+            for (final String tableName : tableNames) {
                 cleanTable(tableName, connection);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new DataAccessException("Failed to commit or close database connection", e);
         }
     }
@@ -160,7 +161,7 @@ public class DatabaseCleaner {
         final String sql = format(SQL_PATTERN, tableName);
         try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new DataAccessException("Failed to delete content from table " + tableName, e);
         }
     }

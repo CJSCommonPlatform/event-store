@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.5.0-M1] - 2019-12-17
+### Changed
+- Updated framework to 6.5.0-M5
+- Updated framework-api to 4.2.1
+- Database cleaner updated to handle the latest system database tables
 
 ## [2.4.3] - 2019-12-06
 ### Changed

@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added mechanism to also drop/add trigger to event_log table on SUSPEND/UNSUSPEND commands
 
 ## [2.4.3] - 2019-12-06
 ### Changed

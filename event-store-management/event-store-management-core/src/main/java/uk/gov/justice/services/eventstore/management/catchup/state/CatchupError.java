@@ -7,31 +7,24 @@ import java.util.UUID;
 
 public class CatchupError {
 
-    private final UUID eventId;
-    private final String metadata;
+    private final String message;
     private final String subscriptionName;
     private final CatchupCommand catchupCommand;
     private final Throwable exception;
 
     public CatchupError(
-            final UUID eventId,
-            final String metadata,
+            final String message,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final Throwable exception) {
-        this.eventId = eventId;
-        this.metadata = metadata;
+        this.message = message;
         this.subscriptionName = subscriptionName;
         this.catchupCommand = catchupCommand;
         this.exception = exception;
     }
 
-    public UUID getEventId() {
-        return eventId;
-    }
-
-    public String getMetadata() {
-        return metadata;
+    public String getMessage() {
+        return message;
     }
 
     public String getSubscriptionName() {
@@ -51,8 +44,7 @@ public class CatchupError {
         if (this == o) return true;
         if (!(o instanceof CatchupError)) return false;
         final CatchupError that = (CatchupError) o;
-        return Objects.equals(eventId, that.eventId) &&
-                Objects.equals(metadata, that.metadata) &&
+        return Objects.equals(message, that.message) &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
                 Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(exception, that.exception);
@@ -60,14 +52,13 @@ public class CatchupError {
 
     @Override
     public int hashCode() {
-        return Objects.hash(eventId, metadata, subscriptionName, catchupCommand, exception);
+        return Objects.hash(message, subscriptionName, catchupCommand, exception);
     }
 
     @Override
     public String toString() {
         return "CatchupError{" +
-                "eventId=" + eventId +
-                ", metadata='" + metadata + '\'' +
+                "message=" + message +
                 ", subscriptionName='" + subscriptionName + '\'' +
                 ", catchupCommand=" + catchupCommand +
                 ", exception=" + exception +

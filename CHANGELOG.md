@@ -6,6 +6,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
 ### Added
 - Added mechanism to also drop/add trigger to event_log table on SUSPEND/UNSUSPEND commands
+### Fixed
+- Fixed potential problem of a transaction failing during catchup causing catchup to never complete
 
 ## [2.4.3] - 2019-12-06
 ### Changed

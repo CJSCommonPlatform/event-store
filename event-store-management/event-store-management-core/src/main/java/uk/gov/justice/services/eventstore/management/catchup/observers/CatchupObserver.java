@@ -120,8 +120,7 @@ public class CatchupObserver {
         final CatchupCommand catchupCommand = catchupProcessingOfEventFailedEvent.getCatchupCommand();
 
         final CatchupError catchupError = new CatchupError(
-                catchupProcessingOfEventFailedEvent.getEventId(),
-                catchupProcessingOfEventFailedEvent.getMetadata(),
+                catchupProcessingOfEventFailedEvent.getMessage(),
                 catchupProcessingOfEventFailedEvent.getSubscriptionName(),
                 catchupCommand,
                 catchupProcessingOfEventFailedEvent.getException()

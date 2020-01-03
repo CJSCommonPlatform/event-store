@@ -31,17 +31,15 @@ public class ConsumeEventQueueTaskTest {
         final ConsumeEventQueueTask consumeEventQueueTask = new ConsumeEventQueueTask(
                 consumeEventQueueBean,
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId
         );
-        
+
         consumeEventQueueTask.run();
 
         verify(consumeEventQueueBean).consume(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

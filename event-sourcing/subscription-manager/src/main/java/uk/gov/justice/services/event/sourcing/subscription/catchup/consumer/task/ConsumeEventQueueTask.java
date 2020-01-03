@@ -10,7 +10,6 @@ public class ConsumeEventQueueTask implements Runnable {
 
     private final ConsumeEventQueueBean consumeEventQueueBean;
     private final Queue<PublishedEvent> events;
-    private final EventQueueConsumer eventQueueConsumer;
     private final String subscriptionName;
     private final CatchupCommand catchupCommand;
     private final UUID commandId;
@@ -18,13 +17,11 @@ public class ConsumeEventQueueTask implements Runnable {
     public ConsumeEventQueueTask(
             final ConsumeEventQueueBean consumeEventQueueBean,
             final Queue<PublishedEvent> events,
-            final EventQueueConsumer eventQueueConsumer,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final UUID commandId) {
         this.consumeEventQueueBean = consumeEventQueueBean;
         this.events = events;
-        this.eventQueueConsumer = eventQueueConsumer;
         this.subscriptionName = subscriptionName;
         this.catchupCommand = catchupCommand;
         this.commandId = commandId;
@@ -35,7 +32,6 @@ public class ConsumeEventQueueTask implements Runnable {
 
         consumeEventQueueBean.consume(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

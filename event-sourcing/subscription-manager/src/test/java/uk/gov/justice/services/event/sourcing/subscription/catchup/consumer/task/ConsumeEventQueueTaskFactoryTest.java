@@ -34,14 +34,12 @@ public class ConsumeEventQueueTaskFactoryTest {
     public void shouldCreateConsumeEventQueueTask() throws Exception {
 
         final Queue<PublishedEvent> events = mock(Queue.class);
-        final EventQueueConsumer eventQueueConsumer = mock(EventQueueConsumer.class);
         final String subscriptionName = "subscription name";
         final CatchupCommand catchupCommand = new EventCatchupCommand();
         final UUID commandId = randomUUID();
 
         final ConsumeEventQueueTask consumeEventQueueTask = consumeEventQueueTaskFactory.createConsumeEventQueueTask(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId
@@ -49,7 +47,6 @@ public class ConsumeEventQueueTaskFactoryTest {
 
         assertThat(getValueOfField(consumeEventQueueTask, "consumeEventQueueBean", ConsumeEventQueueBean.class), is(consumeEventQueueBean));
         assertThat(getValueOfField(consumeEventQueueTask, "events", Queue.class), is(events));
-        assertThat(getValueOfField(consumeEventQueueTask, "eventQueueConsumer", EventQueueConsumer.class), is(eventQueueConsumer));
         assertThat(getValueOfField(consumeEventQueueTask, "subscriptionName", String.class), is(subscriptionName));
         assertThat(getValueOfField(consumeEventQueueTask, "catchupCommand", CatchupCommand.class), is(catchupCommand));
         assertThat(getValueOfField(consumeEventQueueTask, "commandId", UUID.class), is(commandId));

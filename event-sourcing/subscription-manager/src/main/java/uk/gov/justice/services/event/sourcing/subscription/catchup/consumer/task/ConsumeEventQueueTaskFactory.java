@@ -15,7 +15,6 @@ public class ConsumeEventQueueTaskFactory {
 
     public ConsumeEventQueueTask createConsumeEventQueueTask(
             final Queue<PublishedEvent> events,
-            final EventQueueConsumer eventQueueConsumer,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final UUID commandId) {
@@ -23,7 +22,6 @@ public class ConsumeEventQueueTaskFactory {
         return new ConsumeEventQueueTask(
                 consumeEventQueueBean,
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

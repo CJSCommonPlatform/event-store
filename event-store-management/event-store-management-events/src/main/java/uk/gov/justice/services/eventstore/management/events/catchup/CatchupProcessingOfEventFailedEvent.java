@@ -8,22 +8,19 @@ import java.util.UUID;
 public class CatchupProcessingOfEventFailedEvent {
 
     private final UUID commandId;
-    private final UUID eventId;
-    private final String metadata;
+    private final String message;
     private final Throwable exception;
     private final CatchupCommand catchupCommand;
     private final String subscriptionName;
 
     public CatchupProcessingOfEventFailedEvent(
             final UUID commandId,
-            final UUID eventId,
-            final String metadata,
+            final String message,
             final Throwable exception,
             final CatchupCommand catchupCommand,
             final String subscriptionName) {
         this.commandId = commandId;
-        this.eventId = eventId;
-        this.metadata = metadata;
+        this.message = message;
         this.exception = exception;
         this.catchupCommand = catchupCommand;
         this.subscriptionName = subscriptionName;
@@ -33,12 +30,8 @@ public class CatchupProcessingOfEventFailedEvent {
         return commandId;
     }
 
-    public UUID getEventId() {
-        return eventId;
-    }
-
-    public String getMetadata() {
-        return metadata;
+    public String getMessage() {
+        return message;
     }
 
     public Throwable getException() {
@@ -59,8 +52,7 @@ public class CatchupProcessingOfEventFailedEvent {
         if (!(o instanceof CatchupProcessingOfEventFailedEvent)) return false;
         final CatchupProcessingOfEventFailedEvent that = (CatchupProcessingOfEventFailedEvent) o;
         return Objects.equals(commandId, that.commandId) &&
-                Objects.equals(eventId, that.eventId) &&
-                Objects.equals(metadata, that.metadata) &&
+                Objects.equals(message, that.message) &&
                 Objects.equals(exception, that.exception) &&
                 Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(subscriptionName, that.subscriptionName);
@@ -68,15 +60,14 @@ public class CatchupProcessingOfEventFailedEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, eventId, metadata, exception, catchupCommand, subscriptionName);
+        return Objects.hash(commandId, message, exception, catchupCommand, subscriptionName);
     }
 
     @Override
     public String toString() {
         return "CatchupProcessingOfEventFailedEvent{" +
                 "commandId=" + commandId +
-                ", eventId=" + eventId +
-                ", metadata='" + metadata + '\'' +
+                ", message=" + message +
                 ", exception=" + exception +
                 ", catchupCommand=" + catchupCommand +
                 ", subscriptionName='" + subscriptionName + '\'' +

@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.4.45] - 2020-01-06
+### Removed
+- Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 
+many strange ejb database errors
+
 ## [2.4.4] - 2020-01-06
 ### Added
 - Added mechanism to also drop/add trigger to event_log table on SUSPEND/UNSUSPEND commands

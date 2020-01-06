@@ -18,4 +18,6 @@ public interface EventStreamConsumptionResolver {
     boolean isEventConsumptionComplete(final FinishedProcessingMessage finishedProcessingMessage);
 
     void decrementEventsInProcessCount();
+
+    void decrementEventsInProcessCountBy(final int count);
 }

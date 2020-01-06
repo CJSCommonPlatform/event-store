@@ -95,7 +95,7 @@ public class EventQueueConsumerTest {
 
         verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
 
-        verify(eventProcessingFailedHandler).handle(
+        verify(eventProcessingFailedHandler).handleEventFailure(
                 nullPointerException,
                 event_1,
                 subscriptionName,

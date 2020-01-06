@@ -244,16 +244,14 @@ public class CatchupObserverTest {
     public void shouldHandleCatchupProcessingOfEventFailed() throws Exception {
 
         final UUID commandId = randomUUID();
-        final UUID eventId = randomUUID();
-        final String metadata = "{some: metadata}";
+        final String message = "oh gosh";
         final NullPointerException exception = new NullPointerException("Ooops");
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
         final String subscriptionName = "subscriptionName";
 
         final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = new CatchupProcessingOfEventFailedEvent(
                 commandId,
-                eventId,
-                metadata,
+                message,
                 exception,
                 eventCatchupCommand,
                 subscriptionName
@@ -265,9 +263,8 @@ public class CatchupObserverTest {
 
         final CatchupError catchupError = catchupErrorCaptor.getValue();
 
-        assertThat(catchupError.getEventId(), is(eventId));
+        assertThat(catchupError.getMessage(), is(message));
         assertThat(catchupError.getException(), is(exception));
-        assertThat(catchupError.getMetadata(), is(metadata));
         assertThat(catchupError.getCatchupCommand(), is(eventCatchupCommand));
         assertThat(catchupError.getSubscriptionName(), is(subscriptionName));
     }

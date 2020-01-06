@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
@@ -15,7 +16,6 @@ public class ConsumeEventQueueTaskFactory {
 
     public ConsumeEventQueueTask createConsumeEventQueueTask(
             final Queue<PublishedEvent> events,
-            final EventQueueConsumer eventQueueConsumer,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final UUID commandId) {
@@ -23,7 +23,6 @@ public class ConsumeEventQueueTaskFactory {
         return new ConsumeEventQueueTask(
                 consumeEventQueueBean,
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

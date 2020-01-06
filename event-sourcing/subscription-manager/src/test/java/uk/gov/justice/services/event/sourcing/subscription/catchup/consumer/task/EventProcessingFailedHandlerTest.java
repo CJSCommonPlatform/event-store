@@ -1,5 +1,6 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
+import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -41,35 +42,71 @@ public class EventProcessingFailedHandlerTest {
     private ArgumentCaptor<CatchupProcessingOfEventFailedEvent> catchupProcessingOfEventFailedEventCaptor;
 
     @Test
-    public void shouldLogExceptionAndFireFailureEvent() throws Exception {
+    public void shouldLogExceptionAndFireFailureEventOnEventFailure() throws Exception {
 
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
         final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
-        final String metadata = "{some: metadata}";
-        final UUID eventId = randomUUID();
+        final String eventName = "events.some-event";
+        final UUID eventId = fromString("1c68536e-1fdf-4891-9c74-85661a9c0f9e");
+        final UUID streamId = fromString("b1834ed9-e084-41c7-ae7f-74f1227cc829");
         final CatchupCommand catchupCommand = new EventCatchupCommand();
 
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
+        when(publishedEvent.getName()).thenReturn(eventName);
         when(publishedEvent.getId()).thenReturn(eventId);
-        when(publishedEvent.getMetadata()).thenReturn(metadata);
+        when(publishedEvent.getStreamId()).thenReturn(streamId);
 
-        eventProcessingFailedHandler.handle(
+        eventProcessingFailedHandler.handleEventFailure(
                 nullPointerException,
                 publishedEvent,
                 subscriptionName,
                 catchupCommand,
                 commandId);
 
-        verify(logger).error("Failed to process publishedEvent with metadata: {some: metadata}", nullPointerException);
+        verify(logger).error("Failed to process publishedEvent: name: 'events.some-event', id: '1c68536e-1fdf-4891-9c74-85661a9c0f9e', streamId: 'b1834ed9-e084-41c7-ae7f-74f1227cc829'", nullPointerException);
 
         verify(catchupProcessingOfEventFailedEventFirer).fire(catchupProcessingOfEventFailedEventCaptor.capture());
 
         final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = catchupProcessingOfEventFailedEventCaptor.getValue();
 
-        assertThat(catchupProcessingOfEventFailedEvent.getEventId(), is(eventId));
-        assertThat(catchupProcessingOfEventFailedEvent.getMetadata(), is(metadata));
+        assertThat(catchupProcessingOfEventFailedEvent.getMessage(), is("Failed to process publishedEvent: name: 'events.some-event', id: '1c68536e-1fdf-4891-9c74-85661a9c0f9e', streamId: 'b1834ed9-e084-41c7-ae7f-74f1227cc829': NullPointerException: Ooops"));
+        assertThat(catchupProcessingOfEventFailedEvent.getCatchupCommand(), is(catchupCommand));
+        assertThat(catchupProcessingOfEventFailedEvent.getException(), is(nullPointerException));
+        assertThat(catchupProcessingOfEventFailedEvent.getSubscriptionName(), is(subscriptionName));
+    }
+
+    @Test
+    public void shouldLogExceptionAndFireFailureEventOnStreamFailure() throws Exception {
+
+        final NullPointerException nullPointerException = new NullPointerException("Ooops");
+        final UUID commandId = randomUUID();
+        final String subscriptionName = "subscriptionName";
+        final String eventName = "events.some-event";
+        final UUID eventId = fromString("1c68536e-1fdf-4891-9c74-85661a9c0f9e");
+        final UUID streamId = fromString("b1834ed9-e084-41c7-ae7f-74f1227cc829");
+        final CatchupCommand catchupCommand = new EventCatchupCommand();
+
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
+
+        when(publishedEvent.getName()).thenReturn(eventName);
+        when(publishedEvent.getId()).thenReturn(eventId);
+        when(publishedEvent.getStreamId()).thenReturn(streamId);
+
+        eventProcessingFailedHandler.handleStreamFailure(
+                nullPointerException,
+                subscriptionName,
+                catchupCommand,
+                commandId);
+
+        verify(logger).error("Failed to consume stream of events. Aborting...", nullPointerException);
+
+        verify(catchupProcessingOfEventFailedEventFirer).fire(catchupProcessingOfEventFailedEventCaptor.capture());
+
+        final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = catchupProcessingOfEventFailedEventCaptor.getValue();
+
+        assertThat(catchupProcessingOfEventFailedEvent.getMessage(), is("Failed to consume stream of events. Aborting...: NullPointerException: Ooops"));
         assertThat(catchupProcessingOfEventFailedEvent.getCatchupCommand(), is(catchupCommand));
         assertThat(catchupProcessingOfEventFailedEvent.getException(), is(nullPointerException));
         assertThat(catchupProcessingOfEventFailedEvent.getSubscriptionName(), is(subscriptionName));

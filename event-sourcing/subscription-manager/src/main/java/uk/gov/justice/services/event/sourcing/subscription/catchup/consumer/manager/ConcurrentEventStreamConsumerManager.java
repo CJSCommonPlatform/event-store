@@ -13,15 +13,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * A concurrent implementation of EventStreamConsumerManager and EventStreamConsumerListener.
- *
+ * <p>
  * This uses the ManagedExecutorService for concurrency and Queues events according to the Stream
  * Id.
- *
+ * <p>
  * When the add method is called
  */
+@Singleton
 public class ConcurrentEventStreamConsumerManager implements EventStreamConsumerManager, EventStreamConsumptionResolver {
 
     private static final Object EXCLUSIVE_LOCK = new Object();
@@ -37,17 +39,14 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
     @Inject
     private ConsumeEventQueueTaskManager consumeEventQueueTaskManager;
 
-    @Inject
-    private EventQueueConsumerFactory eventQueueConsumerFactory;
-
     /**
      * A ConcurrentLinkedQueue is created for each Stream Id and added to a ConcurrentHashMap.  An
      * event is added to the Queue for a Stream Id.
-     *
+     * <p>
      * If the Queue is not currently being processed a new ConsumeEventQueueTask is created and
      * submitted to the ManagedExecutorService.  The Queue is then added to the
      * eventStreamsInProgress Queue.
-     *
+     * <p>
      * If the Queue is currently being processed no further action is taken, as the event will be
      * processed by the current ConsumeEventQueueTask.
      *
@@ -124,9 +123,19 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
         final EventsInProcessCounter eventsInProcessCounter = eventsInProcessCounterProvider.getInstance();
 
         synchronized (EXCLUSIVE_LOCK) {
-             eventsInProcessCounter.decrementEventsInProcessCount();
-             EXCLUSIVE_LOCK.notify();
-         }
+            eventsInProcessCounter.decrementEventsInProcessCount();
+            EXCLUSIVE_LOCK.notify();
+        }
+    }
+
+    @Override
+    public void decrementEventsInProcessCountBy(final int count) {
+        final EventsInProcessCounter eventsInProcessCounter = eventsInProcessCounterProvider.getInstance();
+
+        synchronized (EXCLUSIVE_LOCK) {
+            eventsInProcessCounter.decrementEventsInProcessCountBy(count);
+            EXCLUSIVE_LOCK.notify();
+        }
     }
 
     private boolean notInProgress(final Queue<PublishedEvent> eventStream) {
@@ -141,10 +150,8 @@ public class ConcurrentEventStreamConsumerManager implements EventStreamConsumer
 
         eventStreamsInProgressList.add(eventStream);
 
-        final EventQueueConsumer eventQueueConsumer = eventQueueConsumerFactory.create(this);
         consumeEventQueueTaskManager.consume(
                 eventStream,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId);

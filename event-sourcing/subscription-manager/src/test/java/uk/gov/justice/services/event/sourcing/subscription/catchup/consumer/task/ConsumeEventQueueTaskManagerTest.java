@@ -45,7 +45,6 @@ public class ConsumeEventQueueTaskManagerTest {
 
         when(consumeEventQueueTaskFactory.createConsumeEventQueueTask(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId
@@ -53,7 +52,6 @@ public class ConsumeEventQueueTaskManagerTest {
 
         consumeEventQueueTaskManager.consume(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

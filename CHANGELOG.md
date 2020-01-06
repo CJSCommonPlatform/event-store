@@ -10,6 +10,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Updated framework-api to 4.2.1
 - Database cleaner updated to handle the latest system database tables
 
+## [2.4.4] - 2020-01-06
+### Added
+- Added mechanism to also drop/add trigger to event_log table on SUSPEND/UNSUSPEND commands
+
 ## [2.4.3] - 2019-12-06
 ### Changed
 - Backpressure added to the event processing queues during catchup

@@ -1,6 +1,5 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task;
 
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamConsumptionResolver;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 

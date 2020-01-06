@@ -3,7 +3,6 @@ package uk.gov.justice.services.eventstore.management.catchup.state;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class CatchupError {
 

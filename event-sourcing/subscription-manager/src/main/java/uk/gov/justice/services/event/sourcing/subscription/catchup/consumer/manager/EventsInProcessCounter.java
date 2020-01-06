@@ -19,6 +19,10 @@ public class EventsInProcessCounter {
         eventInProcessCount.decrementAndGet();
     }
 
+    public synchronized void decrementEventsInProcessCountBy(final int count) {
+        eventInProcessCount.addAndGet(count * -1);
+    }
+
     public synchronized boolean maxNumberOfEventsInProcess() {
         return eventInProcessCount.get() >= maxTotalEventsInProcess;
     }

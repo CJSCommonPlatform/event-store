@@ -47,7 +47,7 @@ public class EventQueueConsumerTest {
 
         final UUID commandId = randomUUID();
         final CatchupCommand catchupCommand = new EventCatchupCommand();
-        
+
         final PublishedEvent event_1 = mock(PublishedEvent.class);
         final PublishedEvent event_2 = mock(PublishedEvent.class);
 
@@ -95,7 +95,7 @@ public class EventQueueConsumerTest {
 
         verify(transactionalEventProcessor).processWithEventBuffer(event_2, subscriptionName);
 
-        verify(eventProcessingFailedHandler).handle(
+        verify(eventProcessingFailedHandler).handleEventFailure(
                 nullPointerException,
                 event_1,
                 subscriptionName,

@@ -10,16 +10,19 @@ public class CatchupStartedForSubscriptionEvent {
 
     private final UUID commandId;
     private final String subscriptionName;
+    private final String componentName;
     private final CatchupCommand catchupCommand;
     private final ZonedDateTime catchupStartedAt;
 
     public CatchupStartedForSubscriptionEvent(
             final UUID commandId,
             final String subscriptionName,
+            final String componentName,
             final CatchupCommand catchupCommand,
             final ZonedDateTime catchupStartedAt) {
         this.commandId = commandId;
         this.subscriptionName = subscriptionName;
+        this.componentName = componentName;
         this.catchupCommand = catchupCommand;
         this.catchupStartedAt = catchupStartedAt;
     }
@@ -30,6 +33,10 @@ public class CatchupStartedForSubscriptionEvent {
 
     public String getSubscriptionName() {
         return subscriptionName;
+    }
+
+    public String getComponentName() {
+        return componentName;
     }
 
     public CatchupCommand getCatchupCommand() {
@@ -47,13 +54,14 @@ public class CatchupStartedForSubscriptionEvent {
         final CatchupStartedForSubscriptionEvent that = (CatchupStartedForSubscriptionEvent) o;
         return Objects.equals(commandId, that.commandId) &&
                 Objects.equals(subscriptionName, that.subscriptionName) &&
+                Objects.equals(componentName, that.componentName) &&
                 Objects.equals(catchupCommand, that.catchupCommand) &&
                 Objects.equals(catchupStartedAt, that.catchupStartedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, subscriptionName, catchupCommand, catchupStartedAt);
+        return Objects.hash(commandId, subscriptionName, componentName, catchupCommand, catchupStartedAt);
     }
 
     @Override
@@ -61,6 +69,7 @@ public class CatchupStartedForSubscriptionEvent {
         return "CatchupStartedForSubscriptionEvent{" +
                 "commandId=" + commandId +
                 ", subscriptionName='" + subscriptionName + '\'' +
+                ", componentName='" + componentName + '\'' +
                 ", catchupCommand=" + catchupCommand +
                 ", catchupStartedAt=" + catchupStartedAt +
                 '}';

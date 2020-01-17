@@ -54,6 +54,7 @@ public class EventCatchupProcessor {
         catchupStartedForSubscriptionEventFirer.fire(new CatchupStartedForSubscriptionEvent(
                 commandId,
                 subscriptionName,
+                componentName,
                 catchupCommand,
                 clock.now()));
 

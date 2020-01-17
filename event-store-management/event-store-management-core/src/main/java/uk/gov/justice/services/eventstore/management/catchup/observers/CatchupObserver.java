@@ -5,6 +5,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDurationCalculator;
+import uk.gov.justice.services.eventstore.management.catchup.process.CatchupFor;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
@@ -84,10 +85,15 @@ public class CatchupObserver {
     public void onCatchupStartedForSubscription(@Observes final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent) {
 
         final String subscriptionName = catchupStartedForSubscriptionEvent.getSubscriptionName();
+        final String componentName = catchupStartedForSubscriptionEvent.getComponentName();
         final ZonedDateTime catchupStartedAt = catchupStartedForSubscriptionEvent.getCatchupStartedAt();
         final CatchupCommand catchupCommand = catchupStartedForSubscriptionEvent.getCatchupCommand();
 
-        catchupStateManager.addCatchupInProgress(new CatchupInProgress(subscriptionName, catchupStartedAt), catchupCommand);
+        final CatchupInProgress catchupInProgress = new CatchupInProgress(
+                new CatchupFor(subscriptionName, componentName),
+                catchupStartedAt);
+
+        catchupStateManager.addCatchupInProgress(catchupInProgress, catchupCommand);
 
         logger.info(format("%s for subscription '%s' started at %s", catchupCommand.getName(), subscriptionName, catchupStartedAt));
     }
@@ -95,21 +101,24 @@ public class CatchupObserver {
     public void onCatchupCompleteForSubscription(@Observes final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent) {
         final UUID commandId = catchupCompletedForSubscriptionEvent.getCommandId();
         final String subscriptionName = catchupCompletedForSubscriptionEvent.getSubscriptionName();
+        final String componentName = catchupCompletedForSubscriptionEvent.getComponentName();
 
         final ZonedDateTime catchupCompletedAt = catchupCompletedForSubscriptionEvent.getCatchupCompletedAt();
         final int totalNumberOfEvents = catchupCompletedForSubscriptionEvent.getTotalNumberOfEvents();
         final CatchupCommand catchupCommand = catchupCompletedForSubscriptionEvent.getCatchupCommand();
 
-        logger.info(format("%s for subscription '%s' completed at %s", catchupCommand.getName(), subscriptionName, catchupCompletedAt));
-        logger.info(format("%s for subscription '%s' caught up %d events", catchupCommand.getName(), subscriptionName, totalNumberOfEvents));
+        final CatchupFor catchupFor = new CatchupFor(subscriptionName, componentName);
 
-        final CatchupInProgress catchupInProgress = catchupStateManager.removeCatchupInProgress(subscriptionName, catchupCommand);
+        logger.info(format("%s for '%s' '%s' completed at %s", catchupCommand.getName(),  componentName, subscriptionName, catchupCompletedAt));
+        logger.info(format("%s for '%s' '%s' caught up %d events", catchupCommand.getName(),  componentName, subscriptionName, totalNumberOfEvents));
+
+        final CatchupInProgress catchupInProgress = catchupStateManager.removeCatchupInProgress(catchupFor, catchupCommand);
 
         final Duration catchupDuration = catchupDurationCalculator.calculate(
                 catchupInProgress.getStartedAt(),
                 catchupCompletedForSubscriptionEvent.getCatchupCompletedAt());
 
-        logger.info(format("%s for subscription '%s' took %d milliseconds", catchupCommand.getName(), subscriptionName, catchupDuration.toMillis()));
+        logger.info(format("%s for '%s' '%s' took %d milliseconds", catchupCommand.getName(), componentName, subscriptionName, catchupDuration.toMillis()));
 
         if (catchupStateManager.noCatchupsInProgress(catchupCommand)) {
             catchupProcessCompleter.handleCatchupComplete(commandId, catchupCommand);

@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
+import uk.gov.justice.services.eventstore.management.catchup.process.CatchupFor;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
@@ -13,23 +14,24 @@ import javax.inject.Singleton;
 @Singleton
 public class CatchupStateManager {
 
-    private final Map<String, CatchupInProgress> eventCatchupsInProgress = new ConcurrentHashMap<>();
-    private final Map<String, CatchupInProgress> indexCatchupsInProgress = new ConcurrentHashMap<>();
+    private final Map<CatchupFor, CatchupInProgress> eventCatchupsInProgress = new ConcurrentHashMap<>();
+    private final Map<CatchupFor, CatchupInProgress> indexCatchupsInProgress = new ConcurrentHashMap<>();
 
     public void clear(final CatchupCommand catchupCommand) {
         getCache(catchupCommand).clear();
     }
 
     public void addCatchupInProgress(final CatchupInProgress catchupInProgress, final CatchupCommand catchupCommand) {
-        getCache(catchupCommand).put(catchupInProgress.getSubscriptionName(), catchupInProgress);
+
+        getCache(catchupCommand).put(catchupInProgress.getCatchupFor(), catchupInProgress);
     }
 
-    public CatchupInProgress removeCatchupInProgress(final String subscriptionName, final CatchupCommand catchupCommand) {
-        return getCache(catchupCommand).remove(subscriptionName);
+    public CatchupInProgress removeCatchupInProgress(final CatchupFor catchupFor, final CatchupCommand catchupCommand) {
+        return getCache(catchupCommand).remove(catchupFor);
     }
 
-    public boolean isCatchupInProgress(final String subscriptionName, final CatchupCommand catchupCommand) {
-        return getCache(catchupCommand).containsKey(subscriptionName);
+    public boolean isCatchupInProgress(final CatchupFor catchupFor, final CatchupCommand catchupCommand) {
+        return getCache(catchupCommand).containsKey(catchupFor);
     }
 
     public List<CatchupInProgress> getAllCatchupsInProgress(final CatchupCommand catchupCommand) {
@@ -40,7 +42,7 @@ public class CatchupStateManager {
         return getCache(catchupType).isEmpty();
     }
 
-    private Map<String, CatchupInProgress> getCache(final CatchupCommand catchupCommand) {
+    private Map<CatchupFor, CatchupInProgress> getCache(final CatchupCommand catchupCommand) {
         if (catchupCommand.isEventCatchup()) {
             return eventCatchupsInProgress;
         }

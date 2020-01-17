@@ -17,6 +17,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupDurationCalculator;
+import uk.gov.justice.services.eventstore.management.catchup.process.CatchupFor;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
 import uk.gov.justice.services.eventstore.management.catchup.process.EventCatchupRunner;
 import uk.gov.justice.services.eventstore.management.catchup.state.CatchupError;
@@ -135,11 +136,14 @@ public class CatchupObserverTest {
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
         final UUID commandId = randomUUID();
         final String subscriptionName = "mySubscription";
+        final String componentName = "EVENT_LISTENER";
         final ZonedDateTime catchupStartedAt = of(2019, 2, 23, 17, 12, 23, 0, UTC);
+        final CatchupFor catchupFor = new CatchupFor(subscriptionName, componentName);
 
         final CatchupStartedForSubscriptionEvent catchupStartedForSubscriptionEvent = new CatchupStartedForSubscriptionEvent(
                 commandId,
                 subscriptionName,
+                componentName,
                 eventCatchupCommand,
                 catchupStartedAt);
         catchupObserver.onCatchupStartedForSubscription(catchupStartedForSubscriptionEvent);
@@ -149,7 +153,7 @@ public class CatchupObserverTest {
 
         final CatchupInProgress catchupInProgress = catchupInProgressCaptor.getValue();
 
-        assertThat(catchupInProgress.getSubscriptionName(), is(subscriptionName));
+        assertThat(catchupInProgress.getCatchupFor(), is(catchupFor));
         assertThat(catchupInProgress.getStartedAt(), is(catchupStartedAt));
 
         assertThat(catchupCommandCaptor.getValue(), is(eventCatchupCommand));
@@ -168,6 +172,11 @@ public class CatchupObserverTest {
         final int totalNumberOfEvents = 23;
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
+        final CatchupFor catchupFor = new CatchupFor(
+                subscriptionName,
+                componentName
+        );
+
         final Duration catchupDuration = Duration.of(23, SECONDS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
@@ -183,16 +192,16 @@ public class CatchupObserverTest {
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
         when(catchupInProgress.getStartedAt()).thenReturn(catchupStartedAt);
-        when(catchupStateManager.removeCatchupInProgress(subscriptionName, eventCatchupCommand)).thenReturn(catchupInProgress);
+        when(catchupStateManager.removeCatchupInProgress(catchupFor, eventCatchupCommand)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(catchupStartedAt, catchupCompletedAt)).thenReturn(catchupDuration);
 
         when(catchupStateManager.noCatchupsInProgress(eventCatchupCommand)).thenReturn(false);
 
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
-        verify(logger).info("CATCHUP for subscription 'mySubscription' completed at 2019-02-23T17:12:23Z");
-        verify(logger).info("CATCHUP for subscription 'mySubscription' caught up 23 events");
-        verify(logger).info("CATCHUP for subscription 'mySubscription' took 23000 milliseconds");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' completed at 2019-02-23T17:12:23Z");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' caught up 23 events");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' took 23000 milliseconds");
 
         verifyZeroInteractions(catchupProcessCompleter);
     }
@@ -209,6 +218,11 @@ public class CatchupObserverTest {
         final int totalNumberOfEvents = 23;
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
+        final CatchupFor catchupFor = new CatchupFor(
+                subscriptionName,
+                componentName
+        );
+
         final Duration catchupDuration = Duration.of(2_000, MILLIS);
 
         final CatchupCompletedForSubscriptionEvent catchupCompletedForSubscriptionEvent = new CatchupCompletedForSubscriptionEvent(
@@ -224,7 +238,7 @@ public class CatchupObserverTest {
         final CatchupInProgress catchupInProgress = mock(CatchupInProgress.class);
 
         when(catchupInProgress.getStartedAt()).thenReturn(catchupStartedAt);
-        when(catchupStateManager.removeCatchupInProgress(subscriptionName, eventCatchupCommand)).thenReturn(catchupInProgress);
+        when(catchupStateManager.removeCatchupInProgress(catchupFor, eventCatchupCommand)).thenReturn(catchupInProgress);
         when(catchupDurationCalculator.calculate(
                 catchupStartedAt,
                 catchupCompletedAt)).thenReturn(catchupDuration);
@@ -233,9 +247,9 @@ public class CatchupObserverTest {
 
         catchupObserver.onCatchupCompleteForSubscription(catchupCompletedForSubscriptionEvent);
 
-        verify(logger).info("CATCHUP for subscription 'mySubscription' completed at 2019-02-23T17:12:23Z");
-        verify(logger).info("CATCHUP for subscription 'mySubscription' caught up 23 events");
-        verify(logger).info("CATCHUP for subscription 'mySubscription' took 2000 milliseconds");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' completed at 2019-02-23T17:12:23Z");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' caught up 23 events");
+        verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' took 2000 milliseconds");
 
         verify(catchupProcessCompleter).handleCatchupComplete(commandId, eventCatchupCommand);
     }

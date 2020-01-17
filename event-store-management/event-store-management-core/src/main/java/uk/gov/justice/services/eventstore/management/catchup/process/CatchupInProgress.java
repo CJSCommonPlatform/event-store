@@ -5,16 +5,16 @@ import java.util.Objects;
 
 public class CatchupInProgress {
 
-    private final String subscriptionName;
+    private final CatchupFor catchupFor;
     private final ZonedDateTime startedAt;
 
-    public CatchupInProgress(final String subscriptionName, final ZonedDateTime startedAt) {
-        this.subscriptionName = subscriptionName;
+    public CatchupInProgress(final CatchupFor catchupFor, final ZonedDateTime startedAt) {
+        this.catchupFor = catchupFor;
         this.startedAt = startedAt;
     }
 
-    public String getSubscriptionName() {
-        return subscriptionName;
+    public CatchupFor getCatchupFor() {
+        return catchupFor;
     }
 
     public ZonedDateTime getStartedAt() {
@@ -26,19 +26,19 @@ public class CatchupInProgress {
         if (this == o) return true;
         if (!(o instanceof CatchupInProgress)) return false;
         final CatchupInProgress that = (CatchupInProgress) o;
-        return Objects.equals(subscriptionName, that.subscriptionName) &&
+        return Objects.equals(catchupFor, that.catchupFor) &&
                 Objects.equals(startedAt, that.startedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subscriptionName, startedAt);
+        return Objects.hash(catchupFor, startedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupInProgress{" +
-                "subscriptionName='" + subscriptionName + '\'' +
+                "catchupFor=" + catchupFor +
                 ", startedAt=" + startedAt +
                 '}';
     }

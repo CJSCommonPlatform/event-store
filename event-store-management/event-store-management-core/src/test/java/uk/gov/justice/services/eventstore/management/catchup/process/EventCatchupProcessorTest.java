@@ -112,6 +112,7 @@ public class EventCatchupProcessorTest {
         inOrder.verify(catchupStartedForSubscriptionEventFirer).fire(new CatchupStartedForSubscriptionEvent(
                 commandId,
                 subscriptionName,
+                componentName,
                 catchupCommand,
                 catchupStartedAt));
 

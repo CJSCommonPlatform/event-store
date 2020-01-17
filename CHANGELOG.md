@@ -8,6 +8,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### Fixed
 - Fixed catchup error where catchup was marked as complete after all subscriptions rather than all components
 
+### Added
+- Added event source name to catchup logger output
+
 ## [2.4.5] - 2020-01-06
 ### Removed
 - Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 

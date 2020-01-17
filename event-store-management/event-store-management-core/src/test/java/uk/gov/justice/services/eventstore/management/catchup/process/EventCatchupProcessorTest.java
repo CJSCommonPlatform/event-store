@@ -66,7 +66,7 @@ public class EventCatchupProcessorTest {
 
         final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
-        final String eventSourceName = "event source";
+        final String eventSourceName = "example.event.source";
         final String componentName = "EVENT_LISTENER";
         final long eventNumberFrom = 999L;
 
@@ -130,8 +130,8 @@ public class EventCatchupProcessorTest {
                 catchupCompetedAt,
                 events.size()));
 
-        verify(logger).info("Finding all missing events for event source 'event source', component 'EVENT_LISTENER");
-        verify(logger).info("CATCHUP for Event Number: " + (eventNumberFrom + 1L));
+        verify(logger).info("Finding all missing events for event source 'example.event.source', component 'EVENT_LISTENER");
+        verify(logger).info("CATCHUP with Event Source: example.event.source for Event Number: " + (eventNumberFrom + 1L));
         verify(logger).info("3 active PublishedEvents queued for publishing");
         verify(logger).info("Waiting for publishing consumer completion...");
     }

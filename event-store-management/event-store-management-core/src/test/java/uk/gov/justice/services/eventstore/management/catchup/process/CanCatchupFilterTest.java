@@ -2,9 +2,11 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
+import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +15,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RunCatchupForComponentSelectorTest {
+public class CanCatchupFilterTest {
 
     @Mock
     private CatchupTypeSelector catchupTypeSelector;
 
     @InjectMocks
-    private RunCatchupForComponentSelector runCatchupForComponentSelector;
+    private CanCatchupFilter canCatchupFilter;
 
     @Test
     public void shouldRunIfRunningEventCatchupAndTheComponentIsEventListener() throws Exception {
@@ -27,10 +29,13 @@ public class RunCatchupForComponentSelectorTest {
         final String componentName = "EVENT_LISTENER";
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
 
+        final SubscriptionsDescriptor subscriptionsDescriptor = mock(SubscriptionsDescriptor.class);
+
+        when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
         when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(true);
         when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
+        final boolean shouldRun = canCatchupFilter.canCatchup(subscriptionsDescriptor, eventCatchupCommand);
 
         assertThat(shouldRun, is(true));
     }
@@ -40,11 +45,13 @@ public class RunCatchupForComponentSelectorTest {
 
         final String componentName = "EVENT_INDEXER";
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
+        final SubscriptionsDescriptor subscriptionsDescriptor = mock(SubscriptionsDescriptor.class);
 
+        when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
         when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(true);
         when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
+        final boolean shouldRun = canCatchupFilter.canCatchup(subscriptionsDescriptor, eventCatchupCommand);
 
         assertThat(shouldRun, is(true));
     }
@@ -54,11 +61,13 @@ public class RunCatchupForComponentSelectorTest {
 
         final String componentName = "EVENT_PROCESSOR";
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
+        final SubscriptionsDescriptor subscriptionsDescriptor = mock(SubscriptionsDescriptor.class);
 
+        when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
         when(catchupTypeSelector.isEventCatchup(componentName, eventCatchupCommand)).thenReturn(false);
         when(catchupTypeSelector.isIndexerCatchup(componentName, eventCatchupCommand)).thenReturn(false);
 
-        final boolean shouldRun = runCatchupForComponentSelector.shouldRunForThisComponentAndType(componentName, eventCatchupCommand);
+        final boolean shouldRun = canCatchupFilter.canCatchup(subscriptionsDescriptor, eventCatchupCommand);
 
         assertThat(shouldRun, is(false));
     }

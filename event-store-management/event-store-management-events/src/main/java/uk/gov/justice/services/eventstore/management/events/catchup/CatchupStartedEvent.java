@@ -3,27 +3,25 @@ package uk.gov.justice.services.eventstore.management.events.catchup;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class CatchupStartedForSubscriptionEvent {
+public class CatchupStartedEvent {
 
     private final UUID commandId;
-    private final String subscriptionName;
-    private final String componentName;
     private final CatchupCommand catchupCommand;
+    private final List<SubscriptionCatchupDetails> subscriptionCatchupDefinition;
     private final ZonedDateTime catchupStartedAt;
 
-    public CatchupStartedForSubscriptionEvent(
+    public CatchupStartedEvent(
             final UUID commandId,
-            final String subscriptionName,
-            final String componentName,
             final CatchupCommand catchupCommand,
+            final List<SubscriptionCatchupDetails> subscriptionCatchupDefinition,
             final ZonedDateTime catchupStartedAt) {
         this.commandId = commandId;
-        this.subscriptionName = subscriptionName;
-        this.componentName = componentName;
         this.catchupCommand = catchupCommand;
+        this.subscriptionCatchupDefinition = subscriptionCatchupDefinition;
         this.catchupStartedAt = catchupStartedAt;
     }
 
@@ -31,16 +29,12 @@ public class CatchupStartedForSubscriptionEvent {
         return commandId;
     }
 
-    public String getSubscriptionName() {
-        return subscriptionName;
-    }
-
-    public String getComponentName() {
-        return componentName;
-    }
-
     public CatchupCommand getCatchupCommand() {
         return catchupCommand;
+    }
+
+    public List<SubscriptionCatchupDetails> getSubscriptionCatchupDefinition() {
+        return subscriptionCatchupDefinition;
     }
 
     public ZonedDateTime getCatchupStartedAt() {
@@ -50,27 +44,25 @@ public class CatchupStartedForSubscriptionEvent {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof CatchupStartedForSubscriptionEvent)) return false;
-        final CatchupStartedForSubscriptionEvent that = (CatchupStartedForSubscriptionEvent) o;
+        if (!(o instanceof CatchupStartedEvent)) return false;
+        final CatchupStartedEvent that = (CatchupStartedEvent) o;
         return Objects.equals(commandId, that.commandId) &&
-                Objects.equals(subscriptionName, that.subscriptionName) &&
-                Objects.equals(componentName, that.componentName) &&
                 Objects.equals(catchupCommand, that.catchupCommand) &&
+                Objects.equals(subscriptionCatchupDefinition, that.subscriptionCatchupDefinition) &&
                 Objects.equals(catchupStartedAt, that.catchupStartedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, subscriptionName, componentName, catchupCommand, catchupStartedAt);
+        return Objects.hash(commandId, catchupCommand, subscriptionCatchupDefinition, catchupStartedAt);
     }
 
     @Override
     public String toString() {
-        return "CatchupStartedForSubscriptionEvent{" +
+        return "CatchupStartedEvent{" +
                 "commandId=" + commandId +
-                ", subscriptionName='" + subscriptionName + '\'' +
-                ", componentName='" + componentName + '\'' +
                 ", catchupCommand=" + catchupCommand +
+                ", subscriptionCatchupDefinition=" + subscriptionCatchupDefinition +
                 ", catchupStartedAt=" + catchupStartedAt +
                 '}';
     }

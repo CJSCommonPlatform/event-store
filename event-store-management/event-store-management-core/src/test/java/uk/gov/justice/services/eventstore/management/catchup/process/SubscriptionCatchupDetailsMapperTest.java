@@ -16,10 +16,14 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriptionCatchupDetailsMapperTest {
+
+    @Spy
+    private PriorityComparatorProvider priorityComparatorProvider = new PriorityComparatorProvider();
 
     @InjectMocks
     private SubscriptionCatchupDetailsMapper subscriptionCatchupDetailsMapper;
@@ -37,8 +41,11 @@ public class SubscriptionCatchupDetailsMapperTest {
         final Subscription subscription_1 = mock(Subscription.class);
         final Subscription subscription_2 = mock(Subscription.class);
 
+        when(subscription_1.getPrioritisation()).thenReturn(100);
+        when(subscription_2.getPrioritisation()).thenReturn(200);
+        
         when(subscriptionsDescriptor.getServiceComponent()).thenReturn(componentName);
-        when(subscriptionsDescriptor.getSubscriptions()).thenReturn(asList(subscription_1, subscription_2));
+        when(subscriptionsDescriptor.getSubscriptions()).thenReturn(asList(subscription_2, subscription_1));
         when(subscription_1.getName()).thenReturn(subscriptionName_1);
         when(subscription_1.getEventSourceName()).thenReturn(eventSourceName_1);
         when(subscription_2.getName()).thenReturn(subscriptionName_2);

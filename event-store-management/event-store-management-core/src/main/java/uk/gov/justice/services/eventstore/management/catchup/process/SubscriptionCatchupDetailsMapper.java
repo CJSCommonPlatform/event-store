@@ -5,7 +5,12 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 public class SubscriptionCatchupDetailsMapper {
+
+    @Inject
+    private PriorityComparatorProvider priorityComparatorProvider;
 
     public Stream<SubscriptionCatchupDetails> toSubscriptionCatchupDetails(final SubscriptionsDescriptor subscriptionsDescriptor) {
 
@@ -13,6 +18,7 @@ public class SubscriptionCatchupDetailsMapper {
 
         return subscriptionsDescriptor.getSubscriptions()
                 .stream()
+                .sorted(priorityComparatorProvider.getSubscriptionComparator())
                 .map(subscription ->
                         new SubscriptionCatchupDetails(
                                 subscription.getName(),

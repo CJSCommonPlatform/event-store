@@ -36,7 +36,8 @@ public class EventCatchupRunner {
                 clock.now()
         ));
 
-        subscriptionCatchupDefinitions.forEach(catchupFor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
+        subscriptionCatchupDefinitions
+                .forEach(catchupFor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
                 catchupFor,
                 commandId,
                 catchupCommand));

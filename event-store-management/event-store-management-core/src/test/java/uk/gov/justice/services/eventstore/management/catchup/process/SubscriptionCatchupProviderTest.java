@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,6 +30,9 @@ public class SubscriptionCatchupProviderTest {
 
     @Mock
     private CanCatchupFilter canCatchupFilter;
+
+    @Spy
+    private PriorityComparatorProvider priorityComparatorProvider = new PriorityComparatorProvider();
 
     @Mock
     private SubscriptionCatchupDetailsMapper subscriptionCatchupDetailsMapper;
@@ -45,15 +49,19 @@ public class SubscriptionCatchupProviderTest {
         final SubscriptionsDescriptor subscriptionsDescriptor_2 = mock(SubscriptionsDescriptor.class);
         final SubscriptionsDescriptor subscriptionsDescriptor_3 = mock(SubscriptionsDescriptor.class);
 
+        when(subscriptionsDescriptor_1.getPrioritisation()).thenReturn(20);
+        when(subscriptionsDescriptor_2.getPrioritisation()).thenReturn(40);
+        when(subscriptionsDescriptor_3.getPrioritisation()).thenReturn(60);
+
         final SubscriptionCatchupDetails subscriptionCatchupDetails_1_1 = mock(SubscriptionCatchupDetails.class);
         final SubscriptionCatchupDetails subscriptionCatchupDetails_1_2 = mock(SubscriptionCatchupDetails.class);
         final SubscriptionCatchupDetails subscriptionCatchupDetails_3_1 = mock(SubscriptionCatchupDetails.class);
         final SubscriptionCatchupDetails subscriptionCatchupDetails_3_2 = mock(SubscriptionCatchupDetails.class);
 
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(asList(
+                subscriptionsDescriptor_3,
                 subscriptionsDescriptor_1,
-                subscriptionsDescriptor_2,
-                subscriptionsDescriptor_3
+                subscriptionsDescriptor_2
         ));
         when(canCatchupFilter.canCatchup(subscriptionsDescriptor_1, catchupCommand)).thenReturn(true);
         when(canCatchupFilter.canCatchup(subscriptionsDescriptor_2, catchupCommand)).thenReturn(false);

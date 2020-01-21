@@ -16,6 +16,9 @@ public class SubscriptionCatchupProvider {
     private SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry;
 
     @Inject
+    private PriorityComparatorProvider priorityComparatorProvider;
+
+    @Inject
     private CanCatchupFilter canCatchupFilter;
 
     @Inject
@@ -27,6 +30,7 @@ public class SubscriptionCatchupProvider {
                 .getAll()
                 .stream()
                 .filter(subscriptionsDescriptor -> canCatchupFilter.canCatchup(subscriptionsDescriptor, catchupCommand))
+                .sorted(priorityComparatorProvider.getSubscriptionDescriptorComparator())
                 .flatMap(subscriptionCatchupDetailsMapper::toSubscriptionCatchupDetails)
                 .collect(toList());
     }

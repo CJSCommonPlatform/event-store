@@ -11,6 +11,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Database cleaner updated to handle the latest system database tables
 
 
+## [2.4.6] - 2020-01-21
+### Added
+- Catchup for multiple components now run in order of component and subscription priority
+- Added event source name to catchup logger output
 ### Fixed
 - Fixed catchup error where catchup was marked as complete after all subscriptions rather than all components
 

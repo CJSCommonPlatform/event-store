@@ -1,11 +1,10 @@
-package uk.gov.justice.services.eventstore.management.shuttering.observers;
+package uk.gov.justice.services.eventstore.management.extension.suspension;
 
 import static java.lang.String.format;
 import static uk.gov.justice.services.management.suspension.api.SuspensionResult.suspensionFailed;
 import static uk.gov.justice.services.management.suspension.api.SuspensionResult.suspensionSucceeded;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
 import uk.gov.justice.services.management.suspension.api.Suspendable;
 import uk.gov.justice.services.management.suspension.api.SuspensionResult;
 import uk.gov.justice.services.management.suspension.commands.SuspensionCommand;

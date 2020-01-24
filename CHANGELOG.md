@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.4.7] - 2020-01-24
+### Changed
+- Event store now works with multiple event sources
+- Event store now compatible with contexts that do not have a command pillar
+- Extracted all command pillar SystemCommands into their own module
 
 ## [2.4.6] - 2020-01-21
 ### Added

@@ -1,6 +1,7 @@
-package uk.gov.justice.services.eventstore.management.shuttering.observers;
+package uk.gov.justice.services.eventstore.management.extension.suspension;
 
 import static java.util.Optional.empty;
+import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.inOrder;
@@ -10,7 +11,6 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLE
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventstore.management.shuttering.process.CommandHandlerQueueInterrogator;
 import uk.gov.justice.services.management.suspension.api.SuspensionResult;
 import uk.gov.justice.services.management.suspension.commands.SuspensionCommand;
 
@@ -50,7 +50,7 @@ public class CommandHandlerQueueDrainerTest {
     @Test
     public void shouldWaitForCommandHandlerQueueToDrainAndReturnSuccess() throws Exception {
 
-        final UUID commandId = UUID.randomUUID();
+        final UUID commandId = randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
         final SuspensionCommand suspensionCommand = mock(SuspensionCommand.class);
 
@@ -79,7 +79,7 @@ public class CommandHandlerQueueDrainerTest {
     @Test
     public void shouldReturnFailureIfQueueDoesNotDrainInTime() throws Exception {
 
-        final UUID commandId = UUID.randomUUID();
+        final UUID commandId = randomUUID();
         final StopWatch stopWatch = mock(StopWatch.class);
         final SuspensionCommand applicationShutteringCommand = mock(SuspensionCommand.class);
 

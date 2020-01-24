@@ -56,11 +56,6 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-publisher-timer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-tracking-service</artifactId>
             <version>${project.version}</version>
         </dependency>

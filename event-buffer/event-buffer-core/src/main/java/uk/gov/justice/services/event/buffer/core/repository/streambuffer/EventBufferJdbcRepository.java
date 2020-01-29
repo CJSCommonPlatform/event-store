@@ -19,10 +19,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+
 @ApplicationScoped
 public class EventBufferJdbcRepository {
 
-    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
     private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
@@ -41,16 +43,21 @@ public class EventBufferJdbcRepository {
     @Inject
     private ViewStoreJdbcDataSourceProvider dataSourceProvider;
 
+    @Inject
+    private Logger logger;
+
     private DataSource dataSource;
 
     public EventBufferJdbcRepository() {}
 
     public EventBufferJdbcRepository(final JdbcResultSetStreamer jdbcResultSetStreamer,
                                      final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
-                                     final DataSource dataSource) {
+                                     final DataSource dataSource,
+                                     final Logger logger) {
         this.jdbcResultSetStreamer = jdbcResultSetStreamer;
         this.dataSource = dataSource;
         this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
+        this.logger = logger;
     }
 
 
@@ -67,7 +74,11 @@ public class EventBufferJdbcRepository {
             ps.setString(3, bufferedEvent.getEvent());
             ps.setString(4, bufferedEvent.getSource());
             ps.setString(5, bufferedEvent.getComponent());
-            ps.executeUpdate();
+            final int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated == 0){
+                logger.warn("Event already present in event buffer. Ignoring");
+            }
+
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while storing event in the buffer: %s", bufferedEvent), e);
         }

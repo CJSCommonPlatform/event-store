@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.8] - 2020-01-29
+### Changed
+- Inserts into the event-buffer no longer fails if there is a conflict; it just logs a warning
+
 ## [2.4.7] - 2020-01-24
 ### Changed
 - Event store now works with multiple event sources

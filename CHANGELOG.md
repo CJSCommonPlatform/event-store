@@ -10,7 +10,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Updated framework-api to 4.2.1
 - Database cleaner updated to handle the latest system database tables
 
-
+## [2.4.8] - 2020-01-29
+### Changed
+- Inserts into the event-buffer no longer fails if there is a conflict; it just logs a warning
 
 ## [2.4.7] - 2020-01-24
 ### Changed

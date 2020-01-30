@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.shuttering.process;
+package uk.gov.justice.services.eventstore.management.extension.suspension;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

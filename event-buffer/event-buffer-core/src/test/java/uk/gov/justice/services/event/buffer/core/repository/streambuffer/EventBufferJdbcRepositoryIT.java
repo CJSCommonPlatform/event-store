@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
@@ -20,6 +21,7 @@ import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 public class EventBufferJdbcRepositoryIT {
 
@@ -32,7 +34,8 @@ public class EventBufferJdbcRepositoryIT {
         eventBufferJdbcRepository = new EventBufferJdbcRepository(
                 new JdbcResultSetStreamer(),
                 new PreparedStatementWrapperFactory(),
-                dataSource);
+                dataSource,
+                mock(Logger.class));
 
         new DatabaseCleaner().cleanViewStoreTables("framework", "stream_buffer", "stream_status");
     }

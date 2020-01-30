@@ -1,16 +1,18 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 
 import javax.inject.Inject;
 
-public class RunCatchupForComponentSelector {
+public class CanCatchupFilter {
 
     @Inject
     private CatchupTypeSelector catchupTypeSelector;
 
-    public boolean shouldRunForThisComponentAndType(final String componentName, final CatchupCommand catchupCommand) {
+    public boolean canCatchup(final SubscriptionsDescriptor subscriptionsDescriptor, final CatchupCommand catchupCommand) {
 
+        final String componentName = subscriptionsDescriptor.getServiceComponent();
         final boolean eventCatchup = catchupTypeSelector.isEventCatchup(componentName, catchupCommand);
         final boolean indexerCatchup = catchupTypeSelector.isIndexerCatchup(componentName, catchupCommand);
 

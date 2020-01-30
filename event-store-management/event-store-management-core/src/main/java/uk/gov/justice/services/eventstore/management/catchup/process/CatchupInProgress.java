@@ -1,20 +1,22 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
+import uk.gov.justice.services.eventstore.management.events.catchup.SubscriptionCatchupDetails;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class CatchupInProgress {
 
-    private final String subscriptionName;
+    private final SubscriptionCatchupDetails subscriptionCatchupDetails;
     private final ZonedDateTime startedAt;
 
-    public CatchupInProgress(final String subscriptionName, final ZonedDateTime startedAt) {
-        this.subscriptionName = subscriptionName;
+    public CatchupInProgress(final SubscriptionCatchupDetails subscriptionCatchupDetails, final ZonedDateTime startedAt) {
+        this.subscriptionCatchupDetails = subscriptionCatchupDetails;
         this.startedAt = startedAt;
     }
 
-    public String getSubscriptionName() {
-        return subscriptionName;
+    public SubscriptionCatchupDetails getSubscriptionCatchupDetails() {
+        return subscriptionCatchupDetails;
     }
 
     public ZonedDateTime getStartedAt() {
@@ -26,19 +28,19 @@ public class CatchupInProgress {
         if (this == o) return true;
         if (!(o instanceof CatchupInProgress)) return false;
         final CatchupInProgress that = (CatchupInProgress) o;
-        return Objects.equals(subscriptionName, that.subscriptionName) &&
+        return Objects.equals(subscriptionCatchupDetails, that.subscriptionCatchupDetails) &&
                 Objects.equals(startedAt, that.startedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subscriptionName, startedAt);
+        return Objects.hash(subscriptionCatchupDetails, startedAt);
     }
 
     @Override
     public String toString() {
         return "CatchupInProgress{" +
-                "subscriptionName='" + subscriptionName + '\'' +
+                "catchupFor=" + subscriptionCatchupDetails +
                 ", startedAt=" + startedAt +
                 '}';
     }

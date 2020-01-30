@@ -16,6 +16,7 @@
         <module>event-store-management-core</module>
         <module>event-store-management-events</module>
         <module>event-store-management-commands</module>
+        <module>event-store-management-command-handler-extension</module>
     </modules>
 
 </project>

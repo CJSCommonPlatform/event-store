@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
+import uk.gov.justice.services.eventstore.management.events.catchup.SubscriptionCatchupDetails;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -10,17 +10,17 @@ public class CatchupSubscriptionContext {
 
     private final UUID commandId;
     private final String componentName;
-    private final Subscription subscription;
+    private final SubscriptionCatchupDetails subscriptionCatchupDefinition;
     private final CatchupCommand catchupCommand;
 
     public CatchupSubscriptionContext(
             final UUID commandId,
             final String componentName,
-            final Subscription subscription,
+            final SubscriptionCatchupDetails subscriptionCatchupDefinition,
             final CatchupCommand catchupCommand) {
         this.commandId = commandId;
         this.componentName = componentName;
-        this.subscription = subscription;
+        this.subscriptionCatchupDefinition = subscriptionCatchupDefinition;
         this.catchupCommand = catchupCommand;
     }
 
@@ -32,8 +32,8 @@ public class CatchupSubscriptionContext {
         return componentName;
     }
 
-    public Subscription getSubscription() {
-        return subscription;
+    public SubscriptionCatchupDetails getSubscriptionCatchupDefinition() {
+        return subscriptionCatchupDefinition;
     }
 
     public CatchupCommand getCatchupCommand() {
@@ -47,13 +47,13 @@ public class CatchupSubscriptionContext {
         final CatchupSubscriptionContext that = (CatchupSubscriptionContext) o;
         return Objects.equals(commandId, that.commandId) &&
                 Objects.equals(componentName, that.componentName) &&
-                Objects.equals(subscription, that.subscription) &&
+                Objects.equals(subscriptionCatchupDefinition, that.subscriptionCatchupDefinition) &&
                 Objects.equals(catchupCommand, that.catchupCommand);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commandId, componentName, subscription, catchupCommand);
+        return Objects.hash(commandId, componentName, subscriptionCatchupDefinition, catchupCommand);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class CatchupSubscriptionContext {
         return "CatchupSubscriptionContext{" +
                 "commandId=" + commandId +
                 ", componentName='" + componentName + '\'' +
-                ", subscription=" + subscription +
+                ", catchupFor=" + subscriptionCatchupDefinition +
                 ", catchupCommand=" + catchupCommand +
                 '}';
     }

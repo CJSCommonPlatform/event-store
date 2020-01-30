@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventstore.management.shuttering.process;
+package uk.gov.justice.services.eventstore.management.extension.suspension;
 
 import uk.gov.justice.services.common.polling.MultiIteratingPoller;
 import uk.gov.justice.services.common.polling.MultiIteratingPollerFactory;

@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.5.0-M2] - 2020-02-11
+### Changed
+- Cherry pick changes from 2.4.6 and 2.4.7
+
 ## [2.5.0-M1] - 2019-12-17
 ### Changed
 - Updated framework to 6.5.0-M5

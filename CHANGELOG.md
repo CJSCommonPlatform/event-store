@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.5.0-M3] - 2020-02-11
+### Removed
+- Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 
+many strange ejb database errors
+
 ## [2.5.0-M2] - 2020-02-11
 ### Changed
 - Cherry pick changes from 2.4.6 and 2.4.7

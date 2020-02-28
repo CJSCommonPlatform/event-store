@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventProcessingFailedHandler;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupStartedEvent;
 import uk.gov.justice.services.eventstore.management.events.catchup.SubscriptionCatchupDetails;
@@ -25,6 +26,9 @@ public class EventCatchupRunner {
     @Inject
     private UtcClock clock;
 
+    @Inject
+    private EventProcessingFailedHandler eventProcessingFailedHandler;
+
     public void runEventCatchup(final UUID commandId, final CatchupCommand catchupCommand) {
 
         final List<SubscriptionCatchupDetails> subscriptionCatchupDefinitions = subscriptionCatchupProvider.getBySubscription(catchupCommand);
@@ -37,9 +41,19 @@ public class EventCatchupRunner {
         ));
 
         subscriptionCatchupDefinitions
-                .forEach(catchupFor -> eventCatchupByComponentRunner.runEventCatchupForComponent(
-                catchupFor,
-                commandId,
-                catchupCommand));
+                .forEach(subscriptionCatchupDetails ->
+                        catchupSubscription(subscriptionCatchupDetails, commandId, catchupCommand));
+    }
+
+    private void catchupSubscription(final SubscriptionCatchupDetails subscriptionCatchupDetails, final UUID commandId, final CatchupCommand catchupCommand) {
+
+        try {
+            eventCatchupByComponentRunner.runEventCatchupForComponent(
+                    subscriptionCatchupDetails,
+                    commandId,
+                    catchupCommand);
+        } catch (final Exception e) {
+            eventProcessingFailedHandler.handleSubscriptionFailure(e, subscriptionCatchupDetails.getSubscriptionName(), commandId, catchupCommand);
+        }
     }
 }

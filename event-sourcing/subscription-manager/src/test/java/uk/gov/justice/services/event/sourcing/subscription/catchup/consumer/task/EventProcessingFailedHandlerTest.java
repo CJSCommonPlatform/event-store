@@ -111,4 +111,39 @@ public class EventProcessingFailedHandlerTest {
         assertThat(catchupProcessingOfEventFailedEvent.getException(), is(nullPointerException));
         assertThat(catchupProcessingOfEventFailedEvent.getSubscriptionName(), is(subscriptionName));
     }
+
+    @Test
+    public void shouldLogExceptionAndFireFailureEventOnSubscriptionFailure() throws Exception {
+
+        final NullPointerException nullPointerException = new NullPointerException("Ooops");
+        final UUID commandId = randomUUID();
+        final String subscriptionName = "subscriptionName";
+        final String eventName = "events.some-event";
+        final UUID eventId = fromString("1c68536e-1fdf-4891-9c74-85661a9c0f9e");
+        final UUID streamId = fromString("b1834ed9-e084-41c7-ae7f-74f1227cc829");
+        final CatchupCommand catchupCommand = new EventCatchupCommand();
+
+        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
+
+        when(publishedEvent.getName()).thenReturn(eventName);
+        when(publishedEvent.getId()).thenReturn(eventId);
+        when(publishedEvent.getStreamId()).thenReturn(streamId);
+
+        eventProcessingFailedHandler.handleSubscriptionFailure(
+                nullPointerException,
+                subscriptionName,
+                commandId, catchupCommand
+        );
+
+        verify(logger).error("Failed to subscribe to 'subscriptionName'. Aborting...", nullPointerException);
+
+        verify(catchupProcessingOfEventFailedEventFirer).fire(catchupProcessingOfEventFailedEventCaptor.capture());
+
+        final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = catchupProcessingOfEventFailedEventCaptor.getValue();
+
+        assertThat(catchupProcessingOfEventFailedEvent.getMessage(), is("Failed to subscribe to 'subscriptionName'. Aborting...: NullPointerException: Ooops"));
+        assertThat(catchupProcessingOfEventFailedEvent.getCatchupCommand(), is(catchupCommand));
+        assertThat(catchupProcessingOfEventFailedEvent.getException(), is(nullPointerException));
+        assertThat(catchupProcessingOfEventFailedEvent.getSubscriptionName(), is(subscriptionName));
+    }
 }

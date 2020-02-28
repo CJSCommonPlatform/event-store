@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Fail cleanly if exception occurs while accessing subscription event source
+
 ## [2.5.0-M3] - 2020-02-11
 ### Removed
 - Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 

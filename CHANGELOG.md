@@ -5,6 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [2.4.9] - 2020-03-04
 ### Changed
 - Fail cleanly if exception occurs while accessing subscription event source
 

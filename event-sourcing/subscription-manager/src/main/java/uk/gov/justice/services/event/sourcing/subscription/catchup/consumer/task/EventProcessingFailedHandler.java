@@ -49,6 +49,17 @@ public class EventProcessingFailedHandler {
         handleFailure(catchupCommand, commandId, logMessage, subscriptionName, exception);
     }
 
+    public void handleSubscriptionFailure(
+            final Exception exception,
+            final String subscriptionName,
+            final UUID commandId,
+            final CatchupCommand catchupCommand) {
+
+        final String logMessage = String.format("Failed to subscribe to '%s'. Aborting...", subscriptionName);
+
+        handleFailure(catchupCommand, commandId, logMessage, subscriptionName, exception);
+    }
+
     private void handleFailure(final CatchupCommand catchupCommand, final UUID commandId, final String logMessage, final String subscriptionName, final Exception exception) {
         logger.error(
                 logMessage,

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="subscription-repository-006" author="TechPod"
+               logicalFilePath="006-add-indexes-to-processed_event-table.changelog.xml">
+        
+        <createIndex tableName="processed_event" indexName="idx_processed_event_event_number">
+            <column name="event_number"/>
+        </createIndex>
+        <createIndex tableName="processed_event" indexName="idx_processed_event_source">
+            <column name="source"/>
+        </createIndex>
+        <createIndex tableName="processed_event" indexName="idx_processed_event_component">
+            <column name="component"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="processed_event" indexName="idx_processed_event_event_number"/>
+            <dropIndex tableName="processed_event" indexName="idx_processed_event_source"/>
+            <dropIndex tableName="processed_event" indexName="idx_processed_event_component"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

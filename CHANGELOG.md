@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added indexes to processed_event table
 
 ## [2.4.9] - 2020-03-04
 ### Changed

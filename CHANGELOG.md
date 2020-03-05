@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added indexes to processed_event table
 
 ### Changed
 - Fail cleanly if exception occurs while accessing subscription event source

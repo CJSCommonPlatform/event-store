@@ -4,8 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.10] - 2020-04-09
 ### Added
 - Added indexes to processed_event table
+
+### Changed
+- microservice-framework -> 6.4.1
 
 ## [2.4.9] - 2020-03-04
 ### Changed

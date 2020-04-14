@@ -7,10 +7,7 @@ import javax.sql.DataSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
 /**
- * Implementation of JdbcDataSourceProvider that allows the DataSource to be set, rather
- * than needing to get the DataSource using JNDI.
- *
- * For use in integration tests
+ * @deprecated Moved to test-utils-framework-persistence in the framework
  */
 @Deprecated
 public class TestJdbcDataSourceProvider {

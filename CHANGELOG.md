@@ -4,7 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
 ### Added
+- Added a test DataSource for the file-service database
 - Added indexes to processed_event table
 
 ### Changed

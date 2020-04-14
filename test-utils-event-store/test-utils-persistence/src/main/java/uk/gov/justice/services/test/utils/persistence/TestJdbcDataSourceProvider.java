@@ -6,6 +6,13 @@ import javax.sql.DataSource;
 
 import org.postgresql.ds.PGSimpleDataSource;
 
+/**
+ * Implementation of JdbcDataSourceProvider that allows the DataSource to be set, rather
+ * than needing to get the DataSource using JNDI.
+ *
+ * For use in integration tests
+ */
+@Deprecated
 public class TestJdbcDataSourceProvider {
 
     private static final int PORT = 5432;
@@ -29,6 +36,10 @@ public class TestJdbcDataSourceProvider {
         final String databaseName = contextName + "system";
 
         return getDataSource(contextName, databaseName);
+    }
+
+    public DataSource getFileServiceDataSource() {
+        return getDataSource("fileservice", "fileservice");
     }
 
     public DataSource getFileStoreDataSource(final String contextName) {

@@ -4,8 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [2.4.11] - 2020-04-14
+## [2.4.12] - 2020-04-23
+### Changed
+- Update framework to 6.4.2
 
+## [2.4.11] - 2020-04-14
 ### Added
 - Added a test DataSource for the file-service database
 

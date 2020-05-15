@@ -4,6 +4,56 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [2.4.13] - 2020-04-23
+### Changed
+- Update framework to 6.4.2
+
+## [2.4.12] - 2020-04-23
+### Failed Release
+- Github issues
+
+## [2.4.11] - 2020-04-14
+### Added
+- Added a test DataSource for the file-service database
+
+## [2.4.10] - 2020-04-09
+### Added
+- Added indexes to processed_event table
+
+### Changed
+- microservice-framework -> 6.4.1
+
+## [2.4.9] - 2020-03-04
+### Changed
+- Fail cleanly if exception occurs while accessing subscription event source
+
+## [2.4.8] - 2020-01-29
+### Changed
+- Inserts into the event-buffer no longer fails if there is a conflict; it just logs a warning
+
+## [2.4.7] - 2020-01-24
+### Changed
+- Event store now works with multiple event sources
+- Event store now compatible with contexts that do not have a command pillar
+- Extracted all command pillar SystemCommands into their own module
+
+## [2.4.6] - 2020-01-21
+### Added
+- Catchup for multiple components now run in order of component and subscription priority
+- Added event source name to catchup logger output
+### Fixed
+- Fixed catchup error where catchup was marked as complete after all subscriptions rather than all components
+
+## [2.4.5] - 2020-01-06
+### Removed
+- Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 
+many strange ejb database errors
+
+## [2.4.4] - 2020-01-06
+### Added
+- Added mechanism to also drop/add trigger to event_log table on SUSPEND/UNSUSPEND commands
+### Fixed
+- Fixed potential problem of a transaction failing during catchup causing catchup to never complete
 
 ## [2.4.3] - 2019-12-06
 ### Changed

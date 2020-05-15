@@ -8,13 +8,13 @@ import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.DummyEventQueueProcessingConfig;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.ConcurrentEventStreamConsumerManager;
-import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventQueueConsumerFactory;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventStreamsInProgressList;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager.EventsInProcessCounterProvider;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueBean;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueTaskFactory;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.ConsumeEventQueueTaskManager;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventProcessingFailedHandler;
+import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.task.EventQueueConsumer;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.DummyTransactionalEventProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.util.TestCatchupBean;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
@@ -53,7 +53,6 @@ public class EventStreamCatchupIT {
             DummyTransactionalEventProcessor.class,
             EventStreamsInProgressList.class,
             ConsumeEventQueueBean.class,
-            EventQueueConsumerFactory.class,
             LoggerProducer.class,
             DummySystemCommandStore.class,
             ConcurrentEventStreamConsumerManager.class,
@@ -61,7 +60,8 @@ public class EventStreamCatchupIT {
             ConsumeEventQueueTaskManager.class,
             ConsumeEventQueueTaskFactory.class,
             EventsInProcessCounterProvider.class,
-            DummyEventQueueProcessingConfig.class
+            DummyEventQueueProcessingConfig.class,
+            EventQueueConsumer.class
     })
     public WebApp war() {
         return new WebApp()

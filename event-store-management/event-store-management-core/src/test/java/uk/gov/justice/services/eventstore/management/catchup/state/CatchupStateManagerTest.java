@@ -1,19 +1,18 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
-import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
-import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
+import uk.gov.justice.services.eventstore.management.events.catchup.SubscriptionCatchupDetails;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,102 +25,73 @@ public class CatchupStateManagerTest {
     private CatchupStateManager catchupStateManager;
 
     @Test
-    public void shouldMaintainACacheOfAllEventCatchupsInProgress() throws Exception {
+    public void shouldMaintainACacheOfAllCatchupsInProgress() throws Exception {
 
-        final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(true));
 
-        final CatchupInProgress indexCatchupInProgress = mock(CatchupInProgress.class);
-        when(indexCatchupInProgress.getSubscriptionName()).thenReturn("different_catchup");
+        final SubscriptionCatchupDetails subscriptionCatchupDetails_1 = mock(SubscriptionCatchupDetails.class);
+        final SubscriptionCatchupDetails subscriptionCatchupDetails_2 = mock(SubscriptionCatchupDetails.class);
 
-        catchupStateManager.addCatchupInProgress(indexCatchupInProgress, new IndexerCatchupCommand());
+        final List<SubscriptionCatchupDetails> subscriptionCatchupDetailsList = asList(
+                subscriptionCatchupDetails_1,
+                subscriptionCatchupDetails_2
+        );
 
-        assertThat(catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand).isEmpty(), is(true));
+        final ZonedDateTime catchupStartedAt = new UtcClock().now();
 
-        final ZonedDateTime startedAt = new UtcClock().now();
+        catchupStateManager.newCatchupInProgress(subscriptionCatchupDetailsList, catchupStartedAt);
 
-        final CatchupInProgress catchupInProgress_1 = new CatchupInProgress("subscription_1", startedAt);
-        final CatchupInProgress catchupInProgress_2 = new CatchupInProgress("subscription_2", startedAt.plusMinutes(1));
-        final CatchupInProgress catchupInProgress_3 = new CatchupInProgress("subscription_3", startedAt.plusMinutes(2));
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails_1), is(true));
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails_2), is(true));
 
-        catchupStateManager.addCatchupInProgress(catchupInProgress_1, eventCatchupCommand);
-        catchupStateManager.addCatchupInProgress(catchupInProgress_2, eventCatchupCommand);
-        catchupStateManager.addCatchupInProgress(catchupInProgress_3, eventCatchupCommand);
-
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_1.getSubscriptionName(), eventCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_2.getSubscriptionName(), eventCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_3.getSubscriptionName(), eventCatchupCommand), is(true));
-
-        final List<CatchupInProgress> allCatchupsInProgress = catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand);
-
-        assertThat(allCatchupsInProgress.size(), is(3));
-        assertThat(allCatchupsInProgress, CoreMatchers.hasItems(catchupInProgress_1, catchupInProgress_2, catchupInProgress_3));
-
-        final CatchupInProgress removedCatchupInProgress = catchupStateManager.removeCatchupInProgress(catchupInProgress_2.getSubscriptionName(), eventCatchupCommand);
-
-        assertThat(removedCatchupInProgress, is(catchupInProgress_2));
-
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_1.getSubscriptionName(), eventCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_2.getSubscriptionName(), eventCatchupCommand), is(false));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_3.getSubscriptionName(), eventCatchupCommand), is(true));
-
-        final List<CatchupInProgress> currentCatchupsInProgress = catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand);
-
-        assertThat(currentCatchupsInProgress.size(), is(2));
-        assertThat(currentCatchupsInProgress, CoreMatchers.hasItems(catchupInProgress_1, catchupInProgress_3));
-
-        catchupStateManager.clear(eventCatchupCommand);
-
-        assertThat(catchupStateManager.noCatchupsInProgress(eventCatchupCommand), is(true));
-        assertThat(catchupStateManager.getAllCatchupsInProgress(eventCatchupCommand).isEmpty(), is(true));
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(false));
     }
 
     @Test
-    public void shouldMaintainACacheOfAllIndexCatchupsInProgress() throws Exception {
+    public void shouldRemoveCatchupsInProgress() throws Exception {
 
-        final IndexerCatchupCommand indexerCatchupCommand = new IndexerCatchupCommand();
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(true));
 
-        final CatchupInProgress eventCatchupInProgress = mock(CatchupInProgress.class);
-        when(eventCatchupInProgress.getSubscriptionName()).thenReturn("different_catchup");
+        final SubscriptionCatchupDetails subscriptionCatchupDetails = mock(SubscriptionCatchupDetails.class);
 
-        catchupStateManager.addCatchupInProgress(eventCatchupInProgress, new EventCatchupCommand());
+        final List<SubscriptionCatchupDetails> subscriptionCatchupDetailsList = singletonList(subscriptionCatchupDetails);
 
-        assertThat(catchupStateManager.getAllCatchupsInProgress(indexerCatchupCommand).isEmpty(), is(true));
+        final ZonedDateTime catchupStartedAt = new UtcClock().now();
 
-        final ZonedDateTime startedAt = new UtcClock().now();
+        catchupStateManager.newCatchupInProgress(subscriptionCatchupDetailsList, catchupStartedAt);
 
-        final CatchupInProgress catchupInProgress_1 = new CatchupInProgress("subscription_1", startedAt);
-        final CatchupInProgress catchupInProgress_2 = new CatchupInProgress("subscription_2", startedAt.plusMinutes(1));
-        final CatchupInProgress catchupInProgress_3 = new CatchupInProgress("subscription_3", startedAt.plusMinutes(2));
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails), is(true));
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(false));
 
-        catchupStateManager.addCatchupInProgress(catchupInProgress_1, indexerCatchupCommand);
-        catchupStateManager.addCatchupInProgress(catchupInProgress_2, indexerCatchupCommand);
-        catchupStateManager.addCatchupInProgress(catchupInProgress_3, indexerCatchupCommand);
+        final CatchupInProgress catchupInProgress = catchupStateManager.removeCatchupInProgress(subscriptionCatchupDetails);
 
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_1.getSubscriptionName(), indexerCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_2.getSubscriptionName(), indexerCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_3.getSubscriptionName(), indexerCatchupCommand), is(true));
+        assertThat(catchupInProgress.getSubscriptionCatchupDetails(), is(subscriptionCatchupDetails));
+        assertThat(catchupInProgress.getStartedAt(), is(catchupStartedAt));
 
-        final List<CatchupInProgress> allCatchupsInProgress = catchupStateManager.getAllCatchupsInProgress(indexerCatchupCommand);
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails), is(false));
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(true));
+    }
 
-        assertThat(allCatchupsInProgress.size(), is(3));
-        assertThat(allCatchupsInProgress, CoreMatchers.hasItems(catchupInProgress_1, catchupInProgress_2, catchupInProgress_3));
+    @Test
+    public void shouldClearCatchups() throws Exception {
 
-        final CatchupInProgress removedCatchupInProgress = catchupStateManager.removeCatchupInProgress(catchupInProgress_2.getSubscriptionName(), indexerCatchupCommand);
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(true));
 
-        assertThat(removedCatchupInProgress, is(catchupInProgress_2));
+        final SubscriptionCatchupDetails subscriptionCatchupDetails = mock(SubscriptionCatchupDetails.class);
 
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_1.getSubscriptionName(), indexerCatchupCommand), is(true));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_2.getSubscriptionName(), indexerCatchupCommand), is(false));
-        assertThat(catchupStateManager.isCatchupInProgress(catchupInProgress_3.getSubscriptionName(), indexerCatchupCommand), is(true));
+        final List<SubscriptionCatchupDetails> subscriptionCatchupDetailsList = singletonList(subscriptionCatchupDetails);
 
-        final List<CatchupInProgress> currentCatchupsInProgress = catchupStateManager.getAllCatchupsInProgress(indexerCatchupCommand);
+        final ZonedDateTime catchupStartedAt = new UtcClock().now();
 
-        assertThat(currentCatchupsInProgress.size(), is(2));
-        assertThat(currentCatchupsInProgress, CoreMatchers.hasItems(catchupInProgress_1, catchupInProgress_3));
+        catchupStateManager.newCatchupInProgress(subscriptionCatchupDetailsList, catchupStartedAt);
 
-        catchupStateManager.clear(indexerCatchupCommand);
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails), is(true));
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(false));
 
-        assertThat(catchupStateManager.noCatchupsInProgress(indexerCatchupCommand), is(true));
-        assertThat(catchupStateManager.getAllCatchupsInProgress(indexerCatchupCommand).isEmpty(), is(true));
+        catchupStateManager.clear();
+
+        assertThat(catchupStateManager.isCatchupInProgress(subscriptionCatchupDetails), is(false));
+        assertThat(catchupStateManager.noCatchupsInProgress(), is(true));
+
     }
 }

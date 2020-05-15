@@ -20,7 +20,6 @@ public class ConsumeEventQueueTaskManager {
 
     public void consume(
             final Queue<PublishedEvent> events,
-            final EventQueueConsumer eventQueueConsumer,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final UUID commandId) {
@@ -28,7 +27,6 @@ public class ConsumeEventQueueTaskManager {
 
         final ConsumeEventQueueTask consumeEventQueueTask = consumeEventQueueTaskFactory.createConsumeEventQueueTask(
                 events,
-                eventQueueConsumer,
                 subscriptionName,
                 catchupCommand,
                 commandId

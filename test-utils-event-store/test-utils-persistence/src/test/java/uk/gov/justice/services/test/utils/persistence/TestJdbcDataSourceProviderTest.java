@@ -14,81 +14,55 @@ import org.junit.Test;
 
 public class TestJdbcDataSourceProviderTest {
 
-    private final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
+    private TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
 
     @Test
-    public void shouldGetDataSourceToTheEventStoreDatabase() throws Exception {
+    public void shouldGetADataSourceToTheViewStore() throws Exception {
 
-        final String query = "SELECT current_database();";
+        final DataSource dataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
 
-        final DataSource eventStoreDataSource = testJdbcDataSourceProvider.getEventStoreDataSource("framework");
-
-        try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(query);
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            if (resultSet.next()) {
-                assertThat(resultSet.getString(1), is("frameworkeventstore"));
-            } else {
-                fail();
-            }
+        try(final Connection connection = dataSource.getConnection()) {
+            assertThat(connection.isClosed(), is(false));
         }
     }
 
     @Test
-    public void shouldGetDataSourceToTheViewStoreDatabase() throws Exception {
+    public void shouldGetADataSourceToTheEventStore() throws Exception {
 
-        final String query = "SELECT current_database();";
+        final DataSource dataSource = testJdbcDataSourceProvider.getEventStoreDataSource("framework");
 
-        final DataSource eventStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
-
-        try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(query);
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            if (resultSet.next()) {
-                assertThat(resultSet.getString(1), is("frameworkviewstore"));
-            } else {
-                fail();
-            }
+        try(final Connection connection = dataSource.getConnection()) {
+            assertThat(connection.isClosed(), is(false));
         }
     }
 
     @Test
-    public void shouldGetDataSourceToTheSystemDatabase() throws Exception {
+    public void shouldGetADataSourceToSystem() throws Exception {
 
-        final String query = "SELECT current_database();";
+        final DataSource dataSource = testJdbcDataSourceProvider.getSystemDataSource("framework");
 
-        final DataSource eventStoreDataSource = testJdbcDataSourceProvider.getSystemDataSource("framework");
-
-        try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(query);
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            if (resultSet.next()) {
-                assertThat(resultSet.getString(1), is("frameworksystem"));
-            } else {
-                fail();
-            }
+        try(final Connection connection = dataSource.getConnection()) {
+            assertThat(connection.isClosed(), is(false));
         }
     }
 
     @Test
-    public void shouldGetDataSourceToTheFileStoreDatabase() throws Exception {
+    public void shouldGetADataSourceToFileStore() throws Exception {
 
-        final String query = "SELECT current_database();";
+        final DataSource dataSource = testJdbcDataSourceProvider.getFileStoreDataSource("framework");
 
-        final DataSource eventStoreDataSource = testJdbcDataSourceProvider.getFileStoreDataSource("framework");
+        try(final Connection connection = dataSource.getConnection()) {
+            assertThat(connection.isClosed(), is(false));
+        }
+    }
 
-        try (final Connection connection = eventStoreDataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(query);
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+    @Test
+    public void shouldGetDataSourceToFileService() throws Exception {
 
-            if (resultSet.next()) {
-                assertThat(resultSet.getString(1), is("frameworkfilestore"));
-            } else {
-                fail();
-            }
+        final DataSource dataSource = testJdbcDataSourceProvider.getFileServiceDataSource();
+
+        try(final Connection connection = dataSource.getConnection()) {
+            assertThat(connection.isClosed(), is(false));
         }
     }
 }

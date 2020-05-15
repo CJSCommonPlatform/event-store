@@ -21,22 +21,55 @@ public class EventProcessingFailedHandler {
     @Inject
     private Logger logger;
 
-    public void handle(
-            final RuntimeException exception,
+    public void handleEventFailure(
+            final Exception exception,
             final PublishedEvent publishedEvent,
             final String subscriptionName,
             final CatchupCommand catchupCommand,
             final UUID commandId) {
 
-        final String logMessage = format("Failed to process publishedEvent with metadata: %s", publishedEvent.getMetadata());
+        final String logMessage = format(
+                "Failed to process publishedEvent: name: '%s', id: '%s', streamId: '%s'",
+                publishedEvent.getName(),
+                publishedEvent.getId(),
+                publishedEvent.getStreamId()
+        );
+
+        handleFailure(catchupCommand, commandId, logMessage, subscriptionName, exception);
+    }
+
+    public void handleStreamFailure(
+            final Exception exception,
+            final String subscriptionName,
+            final CatchupCommand catchupCommand,
+            final UUID commandId) {
+
+        final String logMessage = "Failed to consume stream of events. Aborting...";
+
+        handleFailure(catchupCommand, commandId, logMessage, subscriptionName, exception);
+    }
+
+    public void handleSubscriptionFailure(
+            final Exception exception,
+            final String subscriptionName,
+            final UUID commandId,
+            final CatchupCommand catchupCommand) {
+
+        final String logMessage = String.format("Failed to subscribe to '%s'. Aborting...", subscriptionName);
+
+        handleFailure(catchupCommand, commandId, logMessage, subscriptionName, exception);
+    }
+
+    private void handleFailure(final CatchupCommand catchupCommand, final UUID commandId, final String logMessage, final String subscriptionName, final Exception exception) {
         logger.error(
                 logMessage,
                 exception);
 
+        final String errorMessage = format("%s: %s: %s", logMessage, exception.getClass().getSimpleName(), exception.getMessage());
+
         final CatchupProcessingOfEventFailedEvent catchupProcessingOfEventFailedEvent = new CatchupProcessingOfEventFailedEvent(
                 commandId,
-                publishedEvent.getId(),
-                publishedEvent.getMetadata(),
+                errorMessage,
                 exception,
                 catchupCommand,
                 subscriptionName

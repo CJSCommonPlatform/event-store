@@ -1,9 +1,9 @@
 package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import uk.gov.justice.services.eventstore.management.catchup.process.CatchupInProgress;
-import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
+import uk.gov.justice.services.eventstore.management.events.catchup.SubscriptionCatchupDetails;
 
-import java.util.ArrayList;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,38 +13,33 @@ import javax.inject.Singleton;
 @Singleton
 public class CatchupStateManager {
 
-    private final Map<String, CatchupInProgress> eventCatchupsInProgress = new ConcurrentHashMap<>();
-    private final Map<String, CatchupInProgress> indexCatchupsInProgress = new ConcurrentHashMap<>();
+    private final Map<SubscriptionCatchupDetails, CatchupInProgress> catchupsInProgress = new ConcurrentHashMap<>();
 
-    public void clear(final CatchupCommand catchupCommand) {
-        getCache(catchupCommand).clear();
+    public void clear() {
+        catchupsInProgress.clear();
     }
 
-    public void addCatchupInProgress(final CatchupInProgress catchupInProgress, final CatchupCommand catchupCommand) {
-        getCache(catchupCommand).put(catchupInProgress.getSubscriptionName(), catchupInProgress);
+    public void newCatchupInProgress(
+            final List<SubscriptionCatchupDetails> subscriptionCatchupDetailsList,
+            final ZonedDateTime catchupStartedAt) {
+
+        subscriptionCatchupDetailsList.forEach(subscriptionCatchupDetails ->
+            catchupsInProgress.put(
+                    subscriptionCatchupDetails,
+                    new CatchupInProgress(subscriptionCatchupDetails, catchupStartedAt))
+        );
     }
 
-    public CatchupInProgress removeCatchupInProgress(final String subscriptionName, final CatchupCommand catchupCommand) {
-        return getCache(catchupCommand).remove(subscriptionName);
+    public CatchupInProgress removeCatchupInProgress(final SubscriptionCatchupDetails subscriptionCatchupDefinition) {
+        return catchupsInProgress.remove(subscriptionCatchupDefinition);
     }
 
-    public boolean isCatchupInProgress(final String subscriptionName, final CatchupCommand catchupCommand) {
-        return getCache(catchupCommand).containsKey(subscriptionName);
+    public boolean isCatchupInProgress(final SubscriptionCatchupDetails subscriptionCatchupDefinition) {
+        return catchupsInProgress.containsKey(subscriptionCatchupDefinition);
     }
 
-    public List<CatchupInProgress> getAllCatchupsInProgress(final CatchupCommand catchupCommand) {
-        return new ArrayList<>(getCache(catchupCommand).values());
+    public boolean noCatchupsInProgress() {
+        return catchupsInProgress.isEmpty();
     }
 
-    public boolean noCatchupsInProgress(final CatchupCommand catchupType) {
-        return getCache(catchupType).isEmpty();
-    }
-
-    private Map<String, CatchupInProgress> getCache(final CatchupCommand catchupCommand) {
-        if (catchupCommand.isEventCatchup()) {
-            return eventCatchupsInProgress;
-        }
-
-        return indexCatchupsInProgress;
-    }
 }

@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
@@ -29,11 +30,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventBufferJdbcRepositoryTest {
     private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
-    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
     @Spy
@@ -57,6 +59,9 @@ public class EventBufferJdbcRepositoryTest {
     @Mock
     private JdbcResultSetStreamer jdbcResultSetStreamer;
 
+    @Mock
+    private Logger logger;
+
     @InjectMocks
     private EventBufferJdbcRepository eventBufferJdbcRepository;
 
@@ -72,8 +77,8 @@ public class EventBufferJdbcRepositoryTest {
     public void shouldInsertEvent() throws SQLException {
         final String source = "source";
 
-        when(connection.prepareStatement(INSERT))
-                .thenReturn(preparedStatement);
+        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
 
         final UUID streamId = randomUUID();
         final long position = 1l;
@@ -85,6 +90,28 @@ public class EventBufferJdbcRepositoryTest {
         verify(preparedStatement).setString(4, source);
         verify(preparedStatement).setString(5, EVENT_LISTENER);
         verify(preparedStatement).executeUpdate();
+        verifyZeroInteractions(logger);
+    }
+
+    @Test
+    public void shouldWarnIfInsertDoesNothing() throws SQLException {
+        final String source = "source";
+
+
+        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(0);
+
+        final UUID streamId = randomUUID();
+        final long position = 1l;
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
+
+        verify(preparedStatement).setObject(1, streamId);
+        verify(preparedStatement).setLong(2, position);
+        verify(preparedStatement).setString(3, "eventVersion_2");
+        verify(preparedStatement).setString(4, source);
+        verify(preparedStatement).setString(5, EVENT_LISTENER);
+        verify(preparedStatement).executeUpdate();
+        verify(logger).warn("Event already present in event buffer. Ignoring");
     }
 
     @Test(expected = JdbcRepositoryException.class)

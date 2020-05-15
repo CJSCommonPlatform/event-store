@@ -9,20 +9,18 @@ import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import java.util.Queue;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 public class EventQueueConsumer {
 
-    private final TransactionalEventProcessor transactionalEventProcessor;
-    private final EventStreamConsumptionResolver eventStreamConsumptionResolver;
-    private final EventProcessingFailedHandler eventProcessingFailedHandler;
+    @Inject
+    private TransactionalEventProcessor transactionalEventProcessor;
 
-    public EventQueueConsumer(
-            final TransactionalEventProcessor transactionalEventProcessor,
-            final EventStreamConsumptionResolver eventStreamConsumptionResolver,
-            final EventProcessingFailedHandler eventProcessingFailedHandler) {
-        this.transactionalEventProcessor = transactionalEventProcessor;
-        this.eventStreamConsumptionResolver = eventStreamConsumptionResolver;
-        this.eventProcessingFailedHandler = eventProcessingFailedHandler;
-    }
+    @Inject
+    private EventStreamConsumptionResolver eventStreamConsumptionResolver;
+
+    @Inject
+    private EventProcessingFailedHandler eventProcessingFailedHandler;
 
     public boolean consumeEventQueue(
             final UUID commandId,
@@ -35,8 +33,8 @@ public class EventQueueConsumer {
             final PublishedEvent publishedEvent = events.poll();
             try {
                 transactionalEventProcessor.processWithEventBuffer(publishedEvent, subscriptionName);
-            } catch (final RuntimeException e) {
-                eventProcessingFailedHandler.handle(e, publishedEvent, subscriptionName, catchupCommand, commandId);
+            } catch (final Exception e) {
+                eventProcessingFailedHandler.handleEventFailure(e, publishedEvent, subscriptionName, catchupCommand, commandId);
             } finally {
                 eventStreamConsumptionResolver.decrementEventsInProcessCount();
             }

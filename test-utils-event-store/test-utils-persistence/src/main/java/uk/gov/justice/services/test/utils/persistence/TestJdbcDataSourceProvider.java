@@ -6,6 +6,10 @@ import javax.sql.DataSource;
 
 import org.postgresql.ds.PGSimpleDataSource;
 
+/**
+ * @deprecated Moved to test-utils-framework-persistence in the framework
+ */
+@Deprecated
 public class TestJdbcDataSourceProvider {
 
     private static final int PORT = 5432;
@@ -29,6 +33,10 @@ public class TestJdbcDataSourceProvider {
         final String databaseName = contextName + "system";
 
         return getDataSource(contextName, databaseName);
+    }
+
+    public DataSource getFileServiceDataSource() {
+        return getDataSource("fileservice", "fileservice");
     }
 
     public DataSource getFileStoreDataSource(final String contextName) {

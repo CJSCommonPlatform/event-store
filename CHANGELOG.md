@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [7.0.0] - 2020-05-18
+### Changed
+- Bumped version to 7.0.0 to match other framework libraries
+- Updated framework to 7.0.1
+
 ## [2.4.13] - 2020-04-23
 ### Changed
 - Update framework to 6.4.2

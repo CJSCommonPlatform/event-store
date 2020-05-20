@@ -38,19 +38,11 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <common-bom.version>2.5.0</common-bom.version>
-        <framework.version>7.0.1</framework.version>
+        <framework.version>7.0.3</framework.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>uk.gov.justice</groupId>
-                <artifactId>maven-common-bom</artifactId>
-                <version>${common-bom.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
             <dependency>
                 <groupId>uk.gov.justice.services</groupId>
                 <artifactId>framework-bom</artifactId>

@@ -108,7 +108,6 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>event-subscription-test-utils</artifactId>
-            <version>${framework.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.0.1] - 2020-05-22
+### Removed
+- jboss-ejb3-ext-api from dependency-management
+
 ## [7.0.0] - 2020-05-22
 ### Changed
 - Changed dependencies on only depend on framework 7.0.3

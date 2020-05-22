@@ -50,11 +50,6 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            <dependency>
-                <groupId>org.jboss.ejb3</groupId>
-                <artifactId>jboss-ejb3-ext-api</artifactId>
-                <version>${jboss-ejb3-ext-api.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

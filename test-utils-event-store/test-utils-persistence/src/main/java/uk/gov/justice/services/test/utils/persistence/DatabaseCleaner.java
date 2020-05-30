@@ -35,7 +35,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class DatabaseCleaner {
 
-    private static final String SQL_PATTERN = "DELETE FROM %s";
+    private static final String SQL_PATTERN = "TRUNCATE TABLE %s CASCADE";
 
     private final TestJdbcConnectionProvider testJdbcConnectionProvider;
 

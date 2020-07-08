@@ -11,13 +11,13 @@ cache:
 services:
 - postgresql
 before_script:
-  - psql -c 'create database frameworkeventstore;' -U postgres
-  - psql -c 'create database frameworkviewstore;' -U postgres
-  - psql -c 'create database frameworkfilestore;' -U postgres
-  - psql -c 'create database frameworksystem;' -U postgres
-  - psql -c 'create database fileservice;' -U postgres
-  - psql -c "CREATE USER framework WITH PASSWORD 'framework';" -U postgres
-  - psql -c "CREATE USER fileservice WITH PASSWORD 'fileservice';" -U postgres
+- psql -c 'create database frameworkeventstore;' -U postgres
+- psql -c 'create database frameworkviewstore;' -U postgres
+- psql -c 'create database frameworkfilestore;' -U postgres
+- psql -c 'create database frameworksystem;' -U postgres
+- psql -c 'create database fileservice;' -U postgres
+- psql -c "CREATE USER framework WITH PASSWORD 'framework';" -U postgres
+- psql -c "CREATE USER fileservice WITH PASSWORD 'fileservice';" -U postgres
 addons:
   postgresql: '9.5'
   sonarcloud:
@@ -36,5 +36,5 @@ notifications:
 env:
   global:
   - PGPORT=5432
-  - secure: QMdzKRf/D2kMnXliJnieE6ojWmJVu+vaRUuHpw49/83KA08AjZh+27T7oUJIuYw1d44PQITNOeXQbHi80dhHj9dhVUJr0zsIHwXWKSzZARF44dqSJ9avl4Ov4pfgy2Y2iCAszLaErU+8WLcpf8pvWUpzEyhdIlrpx+yaIpPsek6vpDTatuyIQd8VpZ6VDPS/okhCXMBxgUWT76sSAUNLvBZjC2kLgCEI8zAJyrjl8RElFkOI6hMQe7GA6otYdkows93efgaQYziRrAVsfIQW2xnhcprAPDwNabqLGLqf73C9vBBBTCeIxU8dq+M4pNlXtuaI9hy6kbqevGoTeEnyOW3h94ZaEq0RkXtpAToobDKFSoO2yB9AHQFwsO4z0xoS8jPkoD1q/j1oxkXy9x6akbuD0HrQTwfNk5gI9/CmlBEL+X4nwRiBY/VmnIMjRstRIyUp9qBVaA7FthjGuocSl8Umx64VvuLDY7yR3o/Hd71HsHdv79xp66VYcX5f2jPcUVhcAZw9esOs0HDc8znGLeLb/HDy+hDz2RF4NcIZ+7rMUctlCjpaRKneCJHXADTr8hk+eFblBqHKGCy0ZP5b4I3+QXtrfFqGqI4GIXfRIAo6sg1fuBosC4FvmIgrRYVFwLASG0jPGPerqlMtPTHHo70TJY5qk52K/dxiu+tlcfM=
-  - secure: X3nZxSFJWqSf7QqjUYarnpVGQKi+Owbc2gLhWsLb4EEYHGXPt5gGjNMbOk2YT8knwlraZDjUdgirA4CUg+6s/iS10nuzIRy6EFy2CbNoUBvo27QLquJEimVLdbuWhzgMJmrYAwAPFn3X5TV9/WK3no3vMSrllM/kiaiI6qo7oySFBVBpGCHuO15Qn2ZyLwe3ChHdGD1hbBvuEYZRaZpEh55Mv2lIs61fUqSP6KMu6r/z1YD8Az9S3krBWb0iq2HKGb7dn2kgIvz4+qjei4PHbj0eG4yFHzuFU1o3knlzQSGv79j9++0VX+/AYdkY4bldZ/IkdFJnWV1vdUIeC/a79Jo1o7ISXLG5Jwoq/aoOEADpoGMMCrKd3X23sMjJIj1th4vl53J6OOCy5PP12XqKDYhu/jia4BSP/AHRECxTb/af1MQf8E2BE9FWu01S1oMsqiJlQvsUpP6HsjzMj4y7kVYO2gTVH73nnXmINbWeJnrRNwRIOIVaa3pf/rX3L/fPr6TmJUWtnfDHadbfLa35HRANRb0+L/Dmth2WS8SIaClOOy/TkPNOs+UZgdINmUsKrerba/RR+kZ1F5XMnwu9xcBgem7sG1cQL1fHzhtOn2x8VLbxQZqEr/XBHVVQbGzVFMnbxZ+7sNYnaIqhC6RpJPE0Jf5h8bJz0GpMpGAZZ6k=
+  - secure: JxixTy4AbobObx4GiIBOOlX0PYJt1b4zHbaLT1pEAh0h240R2EQOXBbb655oWzPI4Rhl28PAChifWi+8xiq7K07kXOz8kbyH2Z/i+5VkYFg9KrCFtSRPzgpoqLeSUS4ITyB8rGuSl0/1EZedT2b1jJ5RE4l7uRJ9yRubiupHUJRroPPjbNInk3hMyWtn6ITCLhf+8tU4C0y47LfHYKdQvB9lABZhJCa2iu9oWs3cWQfgtQ7aHoeySv5nL+qitgl6Y2rEQLCTKr1UMDgEP84zrcB/wvFzQ8ezNj7G5BbfZazabd8SIXp9eKfZj/1GZsPBCgSDGjedHsK1UsL92iltLS6janQc1HY6OyRQkEcgqYtYonW3fZjpot0S4EKFVI1144/ZifueoCTryRcK3oBLTQYQvRREyNJMDQoEdv99j4CCBIECVhv/WRSjgtFEsxPj442tkUblmHjk/CTiPd4D2x+roEQdx1AqCt9vd1vVkWgrtgsjSIaXZCcEQMQTv6M1Z8dcZQzOkFx6wM9UnySLvK5jcCJBv5OWlUPzdzzic3IVjmBBYHZAa1HDfsTEdQltneWY20A5PJBZNzE8dy959QKRkUH+YBDQcJ3HzM+kstI8o2xrZkcRPK0kP6pZD3tkWyFMDKJpeYtPgOYqEk9komzr9B73fhX3bR+ppGMUUbg=
+  - secure: hTr5zSivQwKd3+BmbT2lrGjhgzYagc/nYW17vDE08ViDrCsxkIiZ4q0XWxhZcPcZjeuWmwJ9f1wAscsadFZvLu9n7lBaY2ULjD+fadPyyCW7Ux6yBCT5ShGoQeWnMpksx2jzHpnD6J0faKzQJgiawy9VXTD9n+Y/3eZxuL8auAp4ay3l/KZVqMCxGanQ9ioVAGD9/e5xW+ywBv7fdEIjJ7zYBQhU8TYt6hPwYpIBUCAGvBxuH6BZbhG+IKOEbh1Y7QHUZb6n02Q9KsE2nHZzKq2ub8MGMYSD2IPyqcTmXnBFz7fq5WLXiUkKmzat97l4eEliO4WGzhP4iXhHfmrMyjMgUumJ29uPwTYXIzyww/4A8cW8agWCMScV6aD8D8VI3srQUPBy7XRRRen6OD6jwTwJT/4mqCbDBuuZx3Ie7S09QvWecHhfy7AR9jURJoUPyVQd04KBzlP0sX8TovxGLaLi+zBBU8QGIzbdWYegnucHuBp9ATeOQMzQu33Iu8yMKtfLELQwG17AH5Aksi5qyopGVZcHx4B5/BAB4qeZ8ybCeq4PWh1UKw7KvTSIcKTMtg1fJA05ipmhDjH1uASDIJaiHSy8tWk6uIlZ+2I2+8Esa0Th6wKRRKe1A1PLNs/s9KSrFDkujCy/19fTXB6Kc5M/j2xMC+Y7SOKvLmlIV/A=

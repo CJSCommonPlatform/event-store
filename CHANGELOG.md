@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.0.5] - 2020-07-08
+### Changed
+- Update framework to 7.0.7
+- Updated travis.yaml security setting for bintray to use the new cjs user
+
 ## [7.0.4] - 2020-06-03
 ### Changed
 - Update framework to 7.0.6

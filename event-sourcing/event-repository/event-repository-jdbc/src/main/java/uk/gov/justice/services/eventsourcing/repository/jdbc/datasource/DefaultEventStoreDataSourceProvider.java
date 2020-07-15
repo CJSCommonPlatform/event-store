@@ -5,11 +5,11 @@ import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.subscription.domain.eventsource.EventSourceDefinition;
 import uk.gov.justice.subscription.registry.EventSourceDefinitionRegistry;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-@ApplicationScoped
+@Singleton
 public class DefaultEventStoreDataSourceProvider implements EventStoreDataSourceProvider {
 
     private DataSource dataSource;

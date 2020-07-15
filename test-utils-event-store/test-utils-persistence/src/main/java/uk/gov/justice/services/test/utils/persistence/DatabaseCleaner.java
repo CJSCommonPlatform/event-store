@@ -95,6 +95,25 @@ public class DatabaseCleaner {
     }
 
     /**
+     * Deletes all the data from the specified Event-Store tables
+     *
+     * @param contextName the name of the context to clean the tables from
+     */
+    public void cleanEventStoreTables(final String contextName, final String tableName, final String... additionalTableNames) {
+        try (final Connection connection = testJdbcConnectionProvider.getEventStoreConnection(contextName)) {
+
+            cleanTable(tableName, connection);
+
+            for(String additionalTable: additionalTableNames) {
+                cleanTable(additionalTable, connection);
+            }
+
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to commit or close database connection", e);
+        }
+    }
+
+    /**
      * Deprecated from 3.2.0, please use {@link #cleanEventStoreTables(String)} to clean all tables
      * belonging to the event-store.
      *

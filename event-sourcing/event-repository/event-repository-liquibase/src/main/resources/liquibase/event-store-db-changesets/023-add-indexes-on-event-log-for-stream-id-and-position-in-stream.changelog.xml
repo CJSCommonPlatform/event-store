@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="event-store-023" author="TechPod"
+               logicalFilePath="023-add-indexes-on-event-log-for-stream-id-and-position-in-stream.changelog.xml">
+
+        <createIndex indexName="event_log_stream_id_idx"
+                     tableName="event_log">
+            <column name="stream_id" type="uuid"/>
+        </createIndex>
+        <createIndex indexName="event_log_position_in_stream_idx"
+                     tableName="event_log">
+            <column name="position_in_stream" type="bigint"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="event_log_stream_id_idx" tableName="event_log"/>
+            <dropIndex indexName="event_log_position_in_stream_idx" tableName="event_log"/>
+        </rollback>
+
+    </changeSet>
+</databaseChangeLog>

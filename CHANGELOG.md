@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [7.0.6] - 2020-24-08
 ### Added
 - indexes added to stream_id and position_in_stream in event_log table 
 ### Changed
@@ -12,6 +14,7 @@ so the caching of the DataSource works properly
 - Test util class DatabaseCleaner has an additional method 
 'cleanEventStoreTables(...)' for truncating specified tables 
 in the event-store
+- Update framework to 7.0.8
 
 ## [7.0.5] - 2020-07-08
 ### Changed

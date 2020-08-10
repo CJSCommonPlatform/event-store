@@ -4,8 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [7.0.7-M1] - 2020-08-10
+### Changed
+- Updated framework to 7.0.9-M1
 
-## [7.0.6] - 2020-24-08
+## [7.0.6] - 2020-07-24
 ### Added
 - indexes added to stream_id and position_in_stream in event_log table 
 ### Changed

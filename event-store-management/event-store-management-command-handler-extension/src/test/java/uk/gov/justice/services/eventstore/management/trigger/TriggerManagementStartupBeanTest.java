@@ -26,12 +26,4 @@ public class TriggerManagementStartupBeanTest {
 
         verify(eventLogTriggerManipulator).addTriggerToEventLogTable();
     }
-
-    @Test
-    public void shouldRemoveTriggerOnShutdown() throws Exception {
-
-        triggerManagementStartupBean.dropPublishingTriggerOnShutdown();
-
-        verify(eventLogTriggerManipulator).removeTriggerFromEventLogTable();
-    }
 }

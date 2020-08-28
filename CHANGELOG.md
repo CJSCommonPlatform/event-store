@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [7.0.9] - 2020-08-28
 ### Changed
 - Changed the removal of the event_log trigger to be called by a 
 ServletContextListener to fix call happening after database 

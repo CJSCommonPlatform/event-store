@@ -5,11 +5,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.0.10] - 2020-09-10
+### Changed
+- Update framework-libraries to 7.0.11
+
 ## [7.0.9] - 2020-08-28
 ### Changed
 - Changed the removal of the event_log trigger to be called by a 
 ServletContextListener to fix call happening after database 
 connections destroyed
+
 
 ## [7.0.8] - 2020-08-14
 ### Changed

@@ -23,8 +23,7 @@ import static uk.gov.justice.services.eventsourcing.source.api.util.TestSystemUs
 import uk.gov.justice.services.cdi.InitialContextProducer;
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
-import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
-import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
+import uk.gov.justice.services.common.converter.JsonObjectConvertersProducer;
 import uk.gov.justice.services.common.converter.ObjectToJsonValueConverter;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
@@ -207,8 +206,6 @@ public class EventsPageIT {
             TraceLogger.class,
             DefaultTraceLogger.class,
             DefaultEnvelopeConverter.class,
-            JsonObjectToObjectConverter.class,
-            ObjectToJsonObjectConverter.class,
             JdbcBasedEventRepository.class,
 
             EventSourceProducer.class,
@@ -235,7 +232,8 @@ public class EventsPageIT {
             EventStreamManager.class,
 
             JndiAppNameProvider.class,
-            DefaultJsonEnvelopeProvider.class
+            DefaultJsonEnvelopeProvider.class,
+            JsonObjectConvertersProducer.class
     })
     public WebApp war() {
         return new WebApp()

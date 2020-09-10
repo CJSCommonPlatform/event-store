@@ -27,7 +27,7 @@ import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
 import uk.gov.justice.services.common.configuration.ServiceContextNameProvider;
 import uk.gov.justice.services.common.configuration.ValueProducer;
-import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
+import uk.gov.justice.services.common.converter.JsonObjectConvertersProducer;
 import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.ObjectToJsonValueConverter;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
@@ -164,7 +164,6 @@ public class SnapshotAwareAggregateServiceIT {
             DefaultEnvelopeConverter.class,
             StringToJsonObjectConverter.class,
             DefaultJsonObjectEnvelopeConverter.class,
-            JsonObjectToObjectConverter.class,
             ObjectMapperProducer.class,
 
             JmsEventPublisher.class,
@@ -209,7 +208,8 @@ public class SnapshotAwareAggregateServiceIT {
             EventStreamManager.class,
 
             JndiAppNameProvider.class,
-            DefaultJsonEnvelopeProvider.class
+            DefaultJsonEnvelopeProvider.class,
+            JsonObjectConvertersProducer.class
     })
 
     public WebApp war() {

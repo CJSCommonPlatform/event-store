@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.1.0] - 2020-09-23
+### Changed
+- Updated parent maven-framework-parent-pom to version 2.0.0
+- Updated framework to version 7.1.0
+- Moved to new Cloudsmith.io repository for hosting maven artifacts
+- Updated encrypted properties in travis.yaml to point to cloudsmith
+
+
 ## [7.0.10] - 2020-09-10
 ### Changed
 - Update framework-libraries to 7.0.11

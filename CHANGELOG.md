@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.1.1] - 2020-09-25
+### Changed
+- Updated framework-libraries to version 7.1.1
+
 ## [7.1.0] - 2020-09-23
 ### Changed
 - Updated parent maven-framework-parent-pom to version 2.0.0

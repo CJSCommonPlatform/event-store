@@ -11,6 +11,8 @@ import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
+import uk.gov.justice.services.common.configuration.ContextNameProvider;
+import uk.gov.justice.services.common.configuration.JndiBasedServiceContextNameProvider;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.common.util.Clock;
@@ -184,7 +186,10 @@ public class EventPublishIT {
             DefaultEnvelopeProvider.class,
 
             AsynchronousPublisher.class,
-            AsynchronousPrePublisher.class
+            AsynchronousPrePublisher.class,
+
+            ContextNameProvider.class,
+            JndiBasedServiceContextNameProvider.class
     })
     public WebApp war() {
         return new WebApp()

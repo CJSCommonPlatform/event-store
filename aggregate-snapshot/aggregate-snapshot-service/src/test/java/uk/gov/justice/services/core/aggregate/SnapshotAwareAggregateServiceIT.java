@@ -24,6 +24,7 @@ import uk.gov.justice.domain.snapshot.ObjectInputStreamStrategy;
 import uk.gov.justice.services.cdi.InitialContextProducer;
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
+import uk.gov.justice.services.common.configuration.ContextNameProvider;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
 import uk.gov.justice.services.common.configuration.ServiceContextNameProvider;
 import uk.gov.justice.services.common.configuration.ValueProducer;
@@ -209,7 +210,8 @@ public class SnapshotAwareAggregateServiceIT {
 
             JndiAppNameProvider.class,
             DefaultJsonEnvelopeProvider.class,
-            JsonObjectConvertersProducer.class
+            JsonObjectConvertersProducer.class,
+            ContextNameProvider.class
     })
 
     public WebApp war() {

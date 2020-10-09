@@ -15,13 +15,13 @@ import org.slf4j.Logger;
 public class JmsEventPublisher implements EventPublisher {
 
     @Inject
-    JmsEnvelopeSender jmsEnvelopeSender;
+    private JmsEnvelopeSender jmsEnvelopeSender;
 
     @Inject
-    Logger logger;
+    private Logger logger;
 
     @Inject
-    EventDestinationResolver eventDestinationResolver;
+    private EventDestinationResolver eventDestinationResolver;
 
     @Override
     public void publish(final JsonEnvelope envelope) {

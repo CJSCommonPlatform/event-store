@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.1.2] - 2020-10-09
+### Changed
+- The context name is now used for creating JMS destination name if the event
+ is an administration event
+
 ## [7.1.1] - 2020-09-25
 ### Changed
 - Updated framework-libraries to version 7.1.1

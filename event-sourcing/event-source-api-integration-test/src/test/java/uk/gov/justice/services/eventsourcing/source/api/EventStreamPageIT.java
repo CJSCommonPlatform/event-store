@@ -19,7 +19,9 @@ import static uk.gov.justice.services.eventsourcing.source.api.util.TestSystemUs
 
 import uk.gov.justice.services.cdi.InitialContextProducer;
 import uk.gov.justice.services.cdi.QualifierAnnotationExtractor;
+import uk.gov.justice.services.common.configuration.ContextNameProvider;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
+import uk.gov.justice.services.common.configuration.JndiBasedServiceContextNameProvider;
 import uk.gov.justice.services.common.converter.JsonObjectConvertersProducer;
 import uk.gov.justice.services.common.converter.ObjectToJsonValueConverter;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
@@ -226,7 +228,10 @@ public class EventStreamPageIT {
 
             JndiAppNameProvider.class,
             DefaultJsonEnvelopeProvider.class,
-            JsonObjectConvertersProducer.class
+            JsonObjectConvertersProducer.class,
+
+            ContextNameProvider.class,
+            JndiBasedServiceContextNameProvider.class
     })
 
     public WebApp war() {

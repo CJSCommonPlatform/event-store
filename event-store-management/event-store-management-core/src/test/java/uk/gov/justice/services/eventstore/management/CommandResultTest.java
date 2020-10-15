@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventstore.management;
 
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.eventstore.management.CommandResult.failure;
 import static uk.gov.justice.services.eventstore.management.CommandResult.success;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;

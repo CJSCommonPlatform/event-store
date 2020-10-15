@@ -1,7 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 

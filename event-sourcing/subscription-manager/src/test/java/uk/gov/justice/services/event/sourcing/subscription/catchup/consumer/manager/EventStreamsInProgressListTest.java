@@ -1,7 +1,7 @@
 package uk.gov.justice.services.event.sourcing.subscription.catchup.consumer.manager;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;

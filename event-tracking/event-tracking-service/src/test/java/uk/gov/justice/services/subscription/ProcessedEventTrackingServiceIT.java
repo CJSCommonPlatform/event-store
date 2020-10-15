@@ -3,7 +3,7 @@ package uk.gov.justice.services.subscription;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 

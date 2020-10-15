@@ -2,7 +2,7 @@ package uk.gov.justice.services.test.utils.events;
 
 import static java.util.UUID.fromString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.common.util.UtcClock;

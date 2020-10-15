@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.util.sql.triggers;
 
 import static java.util.Optional.empty;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 

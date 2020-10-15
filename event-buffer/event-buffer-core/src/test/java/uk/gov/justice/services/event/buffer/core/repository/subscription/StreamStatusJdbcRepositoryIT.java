@@ -2,9 +2,9 @@ package uk.gov.justice.services.event.buffer.core.repository.subscription;
 
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;

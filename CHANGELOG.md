@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.1.3] - 2020-10-15
+### Changed
+- Security updates to apache.tika, commons.beanutils, commons.guava and junit in common-bom
+- Updated common-bom to 7.1.1
+
 ## [7.1.2] - 2020-10-09
 ### Changed
 - The context name is now used for creating JMS destination name if the event

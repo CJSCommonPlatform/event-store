@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 

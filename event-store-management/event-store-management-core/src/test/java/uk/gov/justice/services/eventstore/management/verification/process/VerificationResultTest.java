@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventstore.management.verification.process;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.eventstore.management.verification.process.VerificationResult.VerificationResultType.ERROR;
 import static uk.gov.justice.services.eventstore.management.verification.process.VerificationResult.VerificationResultType.SUCCESS;
 import static uk.gov.justice.services.eventstore.management.verification.process.VerificationResult.VerificationResultType.WARNING;

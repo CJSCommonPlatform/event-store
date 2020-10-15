@@ -2,11 +2,11 @@ package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;

@@ -2,7 +2,7 @@ package uk.gov.justice.services.test.utils.events;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 

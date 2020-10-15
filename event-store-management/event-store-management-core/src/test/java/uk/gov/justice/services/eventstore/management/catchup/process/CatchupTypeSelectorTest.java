@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;

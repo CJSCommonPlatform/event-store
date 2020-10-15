@@ -1,9 +1,9 @@
 package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 
 import static java.util.UUID.randomUUID;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.UUID;
 

@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.source.api.service.core;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.FIRST;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.HEAD;

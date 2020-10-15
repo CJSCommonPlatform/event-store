@@ -1,8 +1,8 @@
 package uk.gov.justice.services.components.command.handler.interceptors;
 
 import static java.lang.System.currentTimeMillis;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.interceptor.InterceptorContext.interceptorContextWithInput;

@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventstore.management.catchup.state;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;

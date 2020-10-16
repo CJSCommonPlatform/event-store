@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.1.4] - 2020-10-16
+### Changed
+- Updated framework-libraries to version 7.1.5
+    - Builders of generated pojos now have a `withValuesFrom(...)` method 
+to allow the builder to be initialised with the values of another pojo instance  
+
 ## [7.1.3] - 2020-10-15
 ### Changed
 - Security updates to apache.tika, commons.beanutils, commons.guava and junit in common-bom

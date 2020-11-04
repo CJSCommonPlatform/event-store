@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
+import uk.gov.justice.services.ejb.timer.TimerServiceManager;
 
 import javax.ejb.TimerService;
 

@@ -1,6 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publishing;
 
-import uk.gov.justice.services.eventsourcing.util.jee.timer.TimerServiceManager;
+import uk.gov.justice.services.ejb.timer.TimerServiceManager;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;

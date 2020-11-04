@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [7.2.0-M3] - 2020-11-04
+## [7.2.0-M4] - 2020-11-04
 ### Changed
 - Moved timer bean utilities to framework-libraries
 - Updated framework to version 7.2.0-M4

@@ -16,9 +16,8 @@
             <artifactId>javaee-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.event-store</groupId>
-            <artifactId>event-store-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>uk.gov.justice.utils</groupId>
+            <artifactId>utilities-core</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
@@ -46,10 +45,6 @@
             <groupId>org.apache.tomee</groupId>
             <artifactId>openejb-server</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.justice.utils</groupId>
-            <artifactId>utilities-core</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>

@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [7.2.1] - 2020-11-18
+### Changed
+- Updated framework to version 7.2.1
+
 ## [7.2.0] - 2020-11-16
 ### Added
 - Added support for FeatureControl toggling by annotating service component

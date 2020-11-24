@@ -1,7 +1,9 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,9 +11,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,14 +23,16 @@ import org.slf4j.Logger;
 public class EventInsertionStrategyProducerTest {
 
     private static final int INSERTED = 1;
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+
     @Mock
     private Event event;
+
     @Mock
     private PreparedStatementWrapper preparedStatement;
+
     @Mock
     private Logger logger;
+
     @InjectMocks
     private EventInsertionStrategyProducer strategyProducer;
 
@@ -72,9 +74,10 @@ public class EventInsertionStrategyProducerTest {
     public void shouldThrowExceptionIfClassDoesNotExist() {
         strategyProducer.strategyClass = "uk.gov.justice.services.eventsourcing.repository.jdbc.SomeUnknowClazzz";
 
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Could not instantiate event log insertion strategy");
+        final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () ->
+                strategyProducer.eventLogInsertionStrategy()
+        );
 
-        strategyProducer.eventLogInsertionStrategy();
+        assertThat(illegalArgumentException.getMessage(), is("Could not instantiate event log insertion strategy."));
     }
 }

@@ -9,7 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.rules.ExpectedException.none;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -31,9 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -88,9 +86,6 @@ public class EventStreamManagerTest {
 
     @Captor
     private ArgumentCaptor<Long> versionCaptor;
-
-    @Rule
-    public ExpectedException expectedException = none();
 
     @Test
     public void shouldAppendToStream() throws Exception {
@@ -360,10 +355,10 @@ public class EventStreamManagerTest {
         doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(event, STREAM_ID, currentVersionAfterException1 + 1, EVENT_SOURCE_NAME);
         doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(event, STREAM_ID, currentVersionAfterException2 + 1, EVENT_SOURCE_NAME);
 
-        expectedException.expect(OptimisticLockingRetryException.class);
 
-        eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event));
-
+        assertThrows(OptimisticLockingRetryException.class, () ->
+                eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event))
+        );
     }
 
     @Test

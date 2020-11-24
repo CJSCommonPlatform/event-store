@@ -3,6 +3,7 @@ package uk.gov.justice.services.components.command.handler.interceptors;
 import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.interceptor.InterceptorContext.interceptorContextWithInput;
@@ -16,9 +17,7 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -27,9 +26,6 @@ import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RetryInterceptorTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private Logger logger;
@@ -72,10 +68,11 @@ public class RetryInterceptorTest {
         retryInterceptor.waitTime = "500";
         retryInterceptor.immediateRetries = "0";
 
-        expectedException.expect(OptimisticLockingRetryFailedException.class);
-        expectedException.expectMessage("Retry count of 1 exceeded for command " + envelope.metadata().asJsonObject());
+        final OptimisticLockingRetryFailedException optimisticLockingRetryFailedException = assertThrows(OptimisticLockingRetryFailedException.class, () ->
+                retryInterceptor.process(currentContext, interceptorChain)
+        );
 
-        retryInterceptor.process(currentContext, interceptorChain);
+        assertThat(optimisticLockingRetryFailedException.getMessage(), is("Retry count of 1 exceeded for command " + envelope.metadata().asJsonObject()));
     }
 
     @Test

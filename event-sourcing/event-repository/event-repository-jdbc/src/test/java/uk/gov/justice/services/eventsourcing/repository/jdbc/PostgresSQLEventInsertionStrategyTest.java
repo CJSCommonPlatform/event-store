@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.repository.jdbc;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
@@ -15,9 +16,7 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,9 +35,6 @@ public class PostgresSQLEventInsertionStrategyTest {
     private static final String METADATA = "metadata";
     private static final String PAYLOAD = "payload";
     final ZonedDateTime createdAt = new UtcClock().now();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private Event event;
@@ -83,13 +79,14 @@ public class PostgresSQLEventInsertionStrategyTest {
         when(preparedStatement.executeUpdate()).thenReturn(CONFLICT_OCCURRED);
         when(event.getCreatedAt()).thenReturn(createdAt);
 
-        expectedException.expect(OptimisticLockingRetryException.class);
-        expectedException.expectMessage("Locking Exception while storing sequence 1 of stream");
 
-        strategy.insert(preparedStatement, event);
+        final OptimisticLockingRetryException optimisticLockingRetryException = assertThrows(OptimisticLockingRetryException.class, () ->
+                strategy.insert(preparedStatement, event)
+        );
 
+        assertThat(optimisticLockingRetryException.getMessage(), is("Locking Exception while storing sequence 1 of stream " + STREAM_ID));
         verify(preparedStatement).setObject(1, ID);
-        verify(preparedStatement).setObject(2, SEQUENCE_ID);
+        verify(preparedStatement).setObject(2, STREAM_ID);
         verify(preparedStatement).setLong(3, SEQUENCE_ID);
         verify(preparedStatement).setString(4, NAME);
         verify(preparedStatement).setString(5, METADATA);

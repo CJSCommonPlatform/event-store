@@ -7,12 +7,12 @@
     <parent>
         <groupId>uk.gov.justice</groupId>
         <artifactId>maven-framework-parent-pom</artifactId>
-        <version>2.0.0</version>
+        <version>8.0.0-M2</version>
     </parent>
 
     <groupId>uk.gov.justice.event-store</groupId>
     <artifactId>event-store</artifactId>
-    <version>7.2.3-SNAPSHOT</version>
+    <version>8.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Event Store</name>
@@ -38,7 +38,8 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>7.2.2</framework.version>
+        <framework.version>8.0.0-M1</framework.version>
+        <xbean-asm7-shaded.version>4.11</xbean-asm7-shaded.version>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,14 @@
                 <version>${framework.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <!-- TODO - move to common bom -->
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-asm7-shaded</artifactId>
+                <version>${xbean-asm7-shaded.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

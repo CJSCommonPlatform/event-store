@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.time.ZoneOffset.UTC;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,6 +10,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
+import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.util.Clock;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidStreamIdException;
@@ -68,7 +70,7 @@ public class EventConverterTest {
         assertThat(event.getName(), equalTo(NAME));
         assertThat(event.getStreamId(), equalTo(STREAM_ID));
         assertThat(event.getPositionInStream(), equalTo(SEQUENCE_ID));
-        assertThat(event.getCreatedAt(), is(clock.now()));
+        assertThat(ZonedDateTimes.toString(event.getCreatedAt()), is(ZonedDateTimes.toString(clock.now())));
         assertEquals(METADATA_JSON, event.getMetadata(), false);
         assertEquals(envelope.payloadAsJsonObject().toString(), event.getPayload(), false);
     }
@@ -96,7 +98,7 @@ public class EventConverterTest {
     @Test
     public void shouldConvertToAndFromJsonEnvelope() throws Exception {
 
-        final ZonedDateTime createdAt = new UtcClock().now();
+        final ZonedDateTime createdAt = ZonedDateTime.of(2020, 11, 28, 17, 30, 0, 0, UTC);
 
         final Metadata metadata = metadataBuilder()
                 .createdAt(createdAt)

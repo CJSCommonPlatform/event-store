@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Upgrade to Java 11 and OpenJDK
+
 
 ## [7.2.2] - 2020-11-18
 ### Changed

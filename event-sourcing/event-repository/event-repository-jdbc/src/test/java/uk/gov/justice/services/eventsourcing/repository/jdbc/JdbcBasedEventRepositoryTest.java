@@ -35,7 +35,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -154,7 +153,6 @@ public class JdbcBasedEventRepositoryTest {
         jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null, 10);
     }
 
-    @Ignore("TODO: find out why this is failing and fix")
     @Test
     public void shouldGetStreamOfStreams() throws Exception {
         final UUID streamId1 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb251e");
@@ -188,7 +186,6 @@ public class JdbcBasedEventRepositoryTest {
         assertThat(listOfStreams.get(2).findFirst().get(), is(envelope3));
     }
 
-    @Ignore("TODO: find out why this is failing and fix")
     @Test
     public void shouldGetActiveStreamOfStreams() throws Exception {
         final UUID streamId1 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb251e");
@@ -258,7 +255,6 @@ public class JdbcBasedEventRepositoryTest {
         assertThat(streamIds.get(2), is(streamId3));
     }
 
-    @Ignore("TODO: find out why this is failing and fix")
     @Test
     public void shouldCloseAllStreamsOnCloseOfStreamOfStreams() throws Exception {
         final UUID streamId1 = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb251e");
@@ -286,15 +282,19 @@ public class JdbcBasedEventRepositoryTest {
         when(eventConverter.envelopeOf(event2)).thenReturn(envelope2);
         when(eventConverter.envelopeOf(event3)).thenReturn(envelope3);
 
-        final Stream<Stream<JsonEnvelope>> streamOfStreams = jdbcBasedEventRepository.getStreamOfAllEventStreams();
-        streamOfStreams.collect(toList());
+        final Stream<Stream<JsonEnvelope>> streamOfAllEventStreams = jdbcBasedEventRepository
+                .getStreamOfAllEventStreams();
 
-        streamOfStreams.close();
+        final List<Stream<JsonEnvelope>> streams = streamOfAllEventStreams.collect(toList());
+
+        assertThat(streams.size(), is(3));
+
+        streamOfAllEventStreams.close();
 
         assertThat(streamCloseSpy1.streamClosed(), is(true));
-        assertThat(streamCloseSpy4.streamClosed(), is(true));
         assertThat(streamCloseSpy2.streamClosed(), is(true));
         assertThat(streamCloseSpy3.streamClosed(), is(true));
+        assertThat(streamCloseSpy4.streamClosed(), is(true));
     }
 
     @Test

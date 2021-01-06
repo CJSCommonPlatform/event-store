@@ -12,8 +12,11 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.StoreEven
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -126,12 +129,16 @@ public class JdbcBasedEventRepository implements EventRepository {
     }
 
     private Stream<Stream<JsonEnvelope>> getStreams(final Stream<UUID> streamIds) {
+
+        final List<Stream> eventStreams = new ArrayList<>();
+
         return streamIds
                 .map(id -> {
                     final Stream<Event> eventStream = eventJdbcRepository.findByStreamIdOrderByPositionAsc(id);
-                    streamIds.onClose(eventStream::close);
+                    eventStreams.add(eventStream);
                     return eventStream.map(eventConverter::envelopeOf);
-                });
+                })
+                .onClose(() -> eventStreams.forEach(BaseStream::close));
     }
 
     @Override

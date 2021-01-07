@@ -38,8 +38,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>8.0.0-M1</framework.version>
-        <xbean-asm7-shaded.version>4.11</xbean-asm7-shaded.version>
+        <framework.version>8.0.0-M3</framework.version>
     </properties>
 
     <dependencyManagement>
@@ -50,14 +49,6 @@
                 <version>${framework.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-
-            <!-- TODO - move to common bom -->
-            <dependency>
-                <groupId>org.apache.xbean</groupId>
-                <artifactId>xbean-asm7-shaded</artifactId>
-                <version>${xbean-asm7-shaded.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

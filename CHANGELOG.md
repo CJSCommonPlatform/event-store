@@ -4,9 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [8.0.0-M1] - 2021-01-07
 ### Changed
 - Upgrade to Java 11 and OpenJDK
-
+- Update framework to version 8.0.0-M3
 
 ## [7.2.2] - 2020-11-18
 ### Changed

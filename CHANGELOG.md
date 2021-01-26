@@ -4,10 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [8.0.0-M1] - 2021-01-07
+## [11.0.0-M1] - 2021-01-26
 ### Changed
-- Upgrade to Java 11 and OpenJDK
-- Update framework to version 8.0.0-M3
+- Bumped version to 11 to match new framework version
+- Update framework-parent-pom to 11.0.0-M1
+- Update framework to 11.0.0-M1
 
 ## [7.2.2] - 2020-11-18
 ### Changed
@@ -28,7 +29,7 @@ handler methods with @FeatureControl
 ## [7.1.4] - 2020-10-16
 ### Changed
 - Updated framework-libraries to version 7.1.5
-    - Builders of generated pojos now have a `withValuesFrom(...)` method 
+- Builders of generated pojos now have a `withValuesFrom(...)` method 
 to allow the builder to be initialised with the values of another pojo instance  
 
 ## [7.1.3] - 2020-10-15

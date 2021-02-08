@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [11.0.0-M2] - 2021-02-08
+### Changed
+- Update to JEE 8
+- Update framework to 11.0.0-M2
+
 ## [11.0.0-M1] - 2021-01-26
 ### Changed
 - Bumped version to 11 to match new framework version

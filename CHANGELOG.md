@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [7.2.2] - 2021-03-30
+## [7.2.3] - 2021-03-30
 ### Changed
 - Updated framework to version 7.2.23
 

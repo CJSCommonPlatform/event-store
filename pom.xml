@@ -7,7 +7,7 @@
     <parent>
         <groupId>uk.gov.justice</groupId>
         <artifactId>maven-framework-parent-pom</artifactId>
-        <version>11.0.0-M2</version>
+        <version>11.0.0-M3</version>
     </parent>
 
     <groupId>uk.gov.justice.event-store</groupId>
@@ -38,7 +38,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>11.0.0-M2</framework.version>
+        <framework.version>11.0.0-M3</framework.version>
     </properties>
 
     <dependencyManagement>

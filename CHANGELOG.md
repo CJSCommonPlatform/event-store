@@ -4,7 +4,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [11.0.0-M67] - 2021-07-08
+## [11.0.0-M7] - 2021-07-08
 ### Changed
 - Removed dependency on liquibase jars from test-utils-persistence
 

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 public class DefaultEventQueueProcessingConfig implements EventQueueProcessingConfig {
 
     @Inject
-    @GlobalValue(key = "catchup.event.processing.max.total.events.in.process", defaultValue = "100000")
+    @GlobalValue(key = "catchup.event.processing.max.total.events.in.process", defaultValue = "1000")
     private String maxTotalEventsInProcess;
 
     @Override

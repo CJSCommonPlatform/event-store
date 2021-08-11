@@ -38,7 +38,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>7.2.24-nft-SNAPSHOT</framework.version>
+        <framework.version>7.2.23</framework.version>
     </properties>
 
     <dependencyManagement>

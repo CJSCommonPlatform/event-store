@@ -4,7 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-
+## [7.2.4] - 2021-07-12
+### Changed
+- DD-14203: Fixing out of memory error during catchup
 ## [7.2.3] - 2021-03-30
 ### Changed
 - Updated framework to version 7.2.23

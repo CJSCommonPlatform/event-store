@@ -57,7 +57,12 @@ public class MultipleDataSourcePublishedEventRepository {
             final PreparedStatementWrapper psWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_ALL_SINCE);
 
             psWrapper.setLong(1, eventNumber);
-
+            /*
+            Do not load the whole DB ... use fetch-size.
+             Ideally, this fix should have been in jdbcResultSetStreamer.streamOf().
+             But its too invasive!
+             */
+            psWrapper.setFetchSize();
             return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find events since event_number %d", eventNumber), e);
@@ -78,7 +83,12 @@ public class MultipleDataSourcePublishedEventRepository {
 
             psWrapper.setLong(1, fromEventNumber);
             psWrapper.setLong(2, toEventNumber);
-
+            /*
+            Do not load the whole DB ... use fetch-size.
+             Ideally, this fix should have been in jdbcResultSetStreamer.streamOf().
+             But its too invasive!
+             */
+            psWrapper.setFetchSize();
             return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find events from event_number %d to %d", fromEventNumber, toEventNumber), e);

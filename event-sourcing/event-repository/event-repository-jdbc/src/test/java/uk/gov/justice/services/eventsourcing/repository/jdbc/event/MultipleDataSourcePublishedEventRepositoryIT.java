@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -63,8 +64,10 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         insertPublishedEvent(event_4, connection);
         insertPublishedEvent(event_5, connection);
 
-        final List<PublishedEvent> publishedEvents = multipleDataSourcePublishedEventRepository.findEventsSince(3)
-                .collect(toList());
+        List<PublishedEvent> publishedEvents;
+        try (Stream<PublishedEvent> publishedEventStream = multipleDataSourcePublishedEventRepository.findEventsSince(3)) {
+            publishedEvents = publishedEventStream.collect(toList());
+        }
 
         assertThat(publishedEvents.size(), is(2));
 
@@ -89,8 +92,11 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         insertPublishedEvent(event_4, connection);
         insertPublishedEvent(event_5, connection);
 
-        final List<PublishedEvent> publishedEvents = multipleDataSourcePublishedEventRepository.findEventRange(1, 4)
-                .collect(toList());
+        List<PublishedEvent> publishedEvents;
+
+        try (Stream<PublishedEvent> publishedEventStream = multipleDataSourcePublishedEventRepository.findEventRange(1, 4)) {
+            publishedEvents = publishedEventStream.collect(toList());
+        }
 
         assertThat(publishedEvents.size(), is(3));
 

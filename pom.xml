@@ -38,7 +38,8 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>7.2.23</framework.version>
+        <framework.version>7.2.24-nft-SNAPSHOT</framework.version>
+        <liquibase.version>3.5.3</liquibase.version>
     </properties>
 
     <dependencyManagement>

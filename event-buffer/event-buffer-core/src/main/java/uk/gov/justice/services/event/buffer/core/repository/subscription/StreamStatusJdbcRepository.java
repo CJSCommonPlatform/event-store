@@ -134,11 +134,11 @@ public class StreamStatusJdbcRepository {
     }
 
     private Optional<Subscription> subscriptionFrom(final PreparedStatementWrapper ps) throws SQLException {
-        final ResultSet resultSet = ps.executeQuery();
-        return resultSet.next()
-                ? Optional.of(entityFrom(resultSet))
-                : Optional.empty();
-
+        try (final ResultSet resultSet = ps.executeQuery()) {
+            return resultSet.next()
+                    ? Optional.of(entityFrom(resultSet))
+                    : Optional.empty();
+        }
     }
 
     protected Subscription entityFrom(final ResultSet rs) throws SQLException {

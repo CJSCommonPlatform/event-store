@@ -48,19 +48,21 @@ public class EventCatchupProcessor {
         final CatchupCommand catchupCommand = catchupSubscriptionContext.getCatchupCommand();
 
         logger.info(format("Finding all missing events for event source '%s', component '%s", eventSourceName, componentName));
-        final Stream<PublishedEvent> events = missingEventStreamer.getMissingEvents(eventSourceName, componentName);
+        int totalEventsProcessed;
+        try (final Stream<PublishedEvent> events = missingEventStreamer.getMissingEvents(eventSourceName, componentName)) {
 
-        final int totalEventsProcessed = events.mapToInt(event -> {
+            totalEventsProcessed = events.mapToInt(event -> {
 
-            final Long eventNumber = event.getEventNumber().orElseThrow(() -> new MissingEventNumberException(format("PublishedEvent with id '%s' is missing its event number", event.getId())));
+                final Long eventNumber = event.getEventNumber().orElseThrow(() -> new MissingEventNumberException(format("PublishedEvent with id '%s' is missing its event number", event.getId())));
 
-            if (eventNumber % 1000L == 0) {
-                logger.info(format("%s with Event Source: %s for Event Number: %d", catchupCommand.getName(), eventSourceName, eventNumber));
-            }
+                if (eventNumber % 1000L == 0) {
+                    logger.info(format("%s with Event Source: %s for Event Number: %d", catchupCommand.getName(), eventSourceName, eventNumber));
+                }
 
-            return concurrentEventStreamConsumerManager.add(event, subscriptionName, catchupCommand, commandId);
+                return concurrentEventStreamConsumerManager.add(event, subscriptionName, catchupCommand, commandId);
 
-        }).sum();
+            }).sum();
+        }
 
         logger.info(format("%d active PublishedEvents queued for publishing", totalEventsProcessed));
         logger.info("Waiting for publishing consumer completion...");

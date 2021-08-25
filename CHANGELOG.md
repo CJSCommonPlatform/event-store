@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.0.2] - 2021-10-06
+### Changed
+- Removed the trigger from the event_log table and all related classes and commands
+- Updated JdbcBasedEventRepository to insert eventIs into the pre_publish_queue table directly
+
 ## [8.0.1] - 2021-10-05
 ### Changed
 - Re-release of pom to fix corrupt file in artifactory. No other changes

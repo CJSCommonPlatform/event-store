@@ -8,12 +8,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PRE_PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 
 import java.util.UUID;
 
@@ -27,7 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class PrePublishProcessorTest {
 
     @Mock
-    private EventDeQueuer eventDeQueuer;
+    private PrePublishQueueRepository prePublishQueueRepository;
 
     @Mock
     private EventPrePublisher eventPrePublisher;
@@ -44,7 +43,7 @@ public class PrePublishProcessorTest {
         final UUID eventId = UUID.randomUUID();
         final Event event = mock(Event.class);
 
-        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(prePublishQueueRepository.popNextEventId()).thenReturn(of(eventId));
         when(eventJdbcRepository.findById(eventId)).thenReturn(of(event));
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(true));
@@ -55,7 +54,7 @@ public class PrePublishProcessorTest {
     @Test
     public void shouldDoNothingIfNoEventIsAvailableForPublishing() throws Exception {
 
-        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(empty());
+        when(prePublishQueueRepository.popNextEventId()).thenReturn(empty());
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(false));
 
@@ -67,7 +66,7 @@ public class PrePublishProcessorTest {
 
         final UUID eventId = UUID.randomUUID();
 
-        when(eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(prePublishQueueRepository.popNextEventId()).thenReturn(of(eventId));
         when(eventJdbcRepository.findById(eventId)).thenReturn(empty());
 
         try {

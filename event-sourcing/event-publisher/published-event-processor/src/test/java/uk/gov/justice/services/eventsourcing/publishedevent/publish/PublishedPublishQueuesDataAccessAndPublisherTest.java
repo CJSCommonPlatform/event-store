@@ -9,14 +9,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
@@ -28,10 +27,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishedEventDeQueuerAndPublisherTest {
+public class PublishedPublishQueuesDataAccessAndPublisherTest {
 
     @Mock
-    private EventDeQueuer eventDeQueuer;
+    private PublishQueueRepository publishQueueRepository;
 
     @Mock
     private EventPublisher eventPublisher;
@@ -54,7 +53,7 @@ public class PublishedEventDeQueuerAndPublisherTest {
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
         final JsonEnvelope jsonEnvelope = mock(JsonEnvelope.class);
 
-        when(eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(publishQueueRepository.popNextEventId()).thenReturn(of(eventId));
 
         when(publishedEventRepository.getPublishedEvent(eventId)).thenReturn(of(publishedEvent));
         when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
@@ -68,7 +67,7 @@ public class PublishedEventDeQueuerAndPublisherTest {
     @Test
     public void shouldNotPublishIfNoPublishedEventsAreFoundOnQueue() throws Exception {
 
-        when(eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME)).thenReturn(empty());
+        when(publishQueueRepository.popNextEventId()).thenReturn(empty());
 
         assertThat(publishedEventDeQueuerAndPublisher.deQueueAndPublish(), is(false));
 
@@ -81,7 +80,7 @@ public class PublishedEventDeQueuerAndPublisherTest {
 
         final UUID eventId = UUID.randomUUID();
 
-        when(eventDeQueuer.popNextEventId(PUBLISH_TABLE_NAME)).thenReturn(of(eventId));
+        when(publishQueueRepository.popNextEventId()).thenReturn(of(eventId));
         when(publishedEventRepository.getPublishedEvent(eventId)).thenReturn(empty());
 
         try {

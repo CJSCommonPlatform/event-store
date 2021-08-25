@@ -2,12 +2,11 @@ package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
 import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
-import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer.PRE_PUBLISH_TABLE_NAME;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,10 +17,10 @@ import javax.transaction.Transactional;
 public class PrePublishProcessor {
 
     @Inject
-    EventDeQueuer eventDeQueuer;
+    private PrePublishQueueRepository prePublishQueueRepository;
 
     @Inject
-    EventPrePublisher eventPrePublisher;
+    private EventPrePublisher eventPrePublisher;
 
     @Inject
     private EventJdbcRepository eventJdbcRepository;
@@ -29,7 +28,7 @@ public class PrePublishProcessor {
     @Transactional(REQUIRES_NEW)
     public boolean prePublishNextEvent() {
 
-        final Optional<UUID> eventId = eventDeQueuer.popNextEventId(PRE_PUBLISH_TABLE_NAME);
+        final Optional<UUID> eventId = prePublishQueueRepository.popNextEventId();
 
         if (eventId.isPresent()) {
             final Optional<Event> event = eventJdbcRepository.findById(eventId.get());

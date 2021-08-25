@@ -1,9 +1,9 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.DatabaseTableTruncator;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.SQLException;

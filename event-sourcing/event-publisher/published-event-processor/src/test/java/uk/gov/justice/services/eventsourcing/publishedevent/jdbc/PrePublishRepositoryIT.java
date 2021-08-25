@@ -100,16 +100,14 @@ public class PrePublishRepositoryIT {
 
 
             try (final Connection connection = eventStoreDataSource.getConnection();
-                 final PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, event_log_id, date_queued FROM publish_queue")) {
+                 final PreparedStatement preparedStatement = connection.prepareStatement("SELECT event_log_id, date_queued FROM publish_queue")) {
 
                 final ResultSet resultSet = preparedStatement.executeQuery();
 
                 assertThat(resultSet.next(), is(true));
-                final long id = resultSet.getLong("id");
                 final UUID eventLogId = (UUID) resultSet.getObject("event_log_id");
                 final ZonedDateTime dateQueued = fromSqlTimestamp(resultSet.getTimestamp("date_queued"));
 
-                assertThat(id, is(1L));
                 assertThat(eventLogId, is(eventId));
                 assertThat(dateQueued, is(now));
 

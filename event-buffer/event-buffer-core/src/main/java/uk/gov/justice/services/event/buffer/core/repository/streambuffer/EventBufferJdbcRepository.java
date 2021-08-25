@@ -60,12 +60,10 @@ public class EventBufferJdbcRepository {
         this.logger = logger;
     }
 
-
     @PostConstruct
     private void initialiseDataSource() {
         dataSource = dataSourceProvider.getDataSource();
     }
-
 
     public void insert(final EventBufferEvent bufferedEvent) {
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT)) {

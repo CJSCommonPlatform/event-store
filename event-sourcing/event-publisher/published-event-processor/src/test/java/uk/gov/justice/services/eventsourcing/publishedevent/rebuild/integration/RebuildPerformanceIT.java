@@ -19,6 +19,9 @@ import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.integration.helpers.StreamStatusInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.renumber.EventNumberRenumberer;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategyProducer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
@@ -105,7 +108,10 @@ public class RebuildPerformanceIT {
             DefaultJsonEnvelopeProvider.class,
             DefaultEnvelopeProvider.class,
             DummySystemCommandStore.class,
-            Closer.class
+            Closer.class,
+            PublishQueuesDataAccess.class,
+            PrePublishQueueRepository.class,
+            PublishQueueRepository.class
     })
     @Default
     public WebApp war() {

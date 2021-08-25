@@ -5,7 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.polling.MultiIteratingPollerFactory;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
 import uk.gov.justice.services.test.utils.common.polling.DummyMultiIteratingPoller;
 
 import org.junit.Test;
@@ -17,10 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PublishQueueInterrogatorTest {
 
-    private static final String PUBLISH_QUEUE_TABLE_NAME = "publish_queue";
-
     @Mock
-    private EventDeQueuer eventDeQueuer;
+    private PublishQueueRepository publishQueueRepository;
 
     @Mock
     private MultiIteratingPollerFactory multiIteratingPollerFactory;
@@ -32,7 +30,7 @@ public class PublishQueueInterrogatorTest {
     public void shouldPollPublishQueueUntilItIsEmpty() throws Exception {
 
         when(multiIteratingPollerFactory.create(3, 500L, 3, 500L)).thenReturn(new DummyMultiIteratingPoller());
-        when(eventDeQueuer.getSizeOfQueue(PUBLISH_QUEUE_TABLE_NAME)).thenReturn(0);
+        when(publishQueueRepository.getSizeOfQueue()).thenReturn(0);
 
         assertThat(publishQueueInterrogator.pollUntilPublishQueueEmpty(), is(true));
     }

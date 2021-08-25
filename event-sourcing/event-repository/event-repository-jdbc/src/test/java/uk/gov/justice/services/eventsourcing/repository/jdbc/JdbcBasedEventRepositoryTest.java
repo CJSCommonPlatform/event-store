@@ -72,6 +72,12 @@ public class JdbcBasedEventRepositoryTest {
     @Mock
     private EventStream eventStream;
 
+    @Mock
+    private PrePublishQueueRepository prePublishQueueRepository;
+
+    @Mock
+    private UtcClock clock;
+
     @InjectMocks
     private JdbcBasedEventRepository jdbcBasedEventRepository;
 
@@ -306,6 +312,7 @@ public class JdbcBasedEventRepositoryTest {
         jdbcBasedEventRepository.storeEvent(envelope);
 
         verify(eventJdbcRepository).insert(event);
+        verify(prePublishQueueRepository).addToQueue(event.getId(), clock.now());
         verify(logger).trace("Storing event {} into stream {} at position {}", name, STREAM_ID, POSITION);
     }
 

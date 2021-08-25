@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventstore.management.shuttering.process;
 
 import uk.gov.justice.services.common.polling.MultiIteratingPoller;
 import uk.gov.justice.services.common.polling.MultiIteratingPollerFactory;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
 
 import javax.inject.Inject;
 
@@ -14,7 +14,7 @@ public class PublishQueueInterrogator {
     private static final long WAIT_TIME_BETWEEN_ITERATIONS_MILLIS = 500L;
 
     @Inject
-    private EventDeQueuer eventDeQueuer;
+    private PublishQueueRepository publishQueueRepository;
 
     @Inject
     private MultiIteratingPollerFactory multiIteratingPollerFactory;
@@ -27,6 +27,6 @@ public class PublishQueueInterrogator {
                 NUMBER_OF_POLLING_ITERATIONS,
                 WAIT_TIME_BETWEEN_ITERATIONS_MILLIS);
 
-        return multiIteratingPoller.pollUntilTrue(() -> eventDeQueuer.getSizeOfQueue("publish_queue") == 0);
+        return multiIteratingPoller.pollUntilTrue(() -> publishQueueRepository.getSizeOfQueue() == 0);
     }
 }

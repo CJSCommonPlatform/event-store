@@ -2,8 +2,8 @@ package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static java.lang.String.format;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.SQLException;

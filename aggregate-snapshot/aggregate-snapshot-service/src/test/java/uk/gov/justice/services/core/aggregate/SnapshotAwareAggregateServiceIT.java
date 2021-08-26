@@ -44,6 +44,9 @@ import uk.gov.justice.services.eventsourcing.publisher.jms.JmsEventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
@@ -211,7 +214,10 @@ public class SnapshotAwareAggregateServiceIT {
             JndiAppNameProvider.class,
             DefaultJsonEnvelopeProvider.class,
             JsonObjectConvertersProducer.class,
-            ContextNameProvider.class
+            ContextNameProvider.class,
+            PublishQueuesDataAccess.class,
+            PrePublishQueueRepository.class,
+            PublishQueueRepository.class
     })
 
     public WebApp war() {

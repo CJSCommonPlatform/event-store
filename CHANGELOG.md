@@ -4,6 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [11.0.0-M8] - 2021-08-26
+### Changed
+- Removed the trigger from the event_log table and all related classes and commands
+- Updated JdbcBasedEventRepository to insert eventIs into the pre_publish_queue table directly
+
 ## [11.0.0-M7] - 2021-07-08
 ### Changed
 - Removed dependency on liquibase jars from test-utils-persistence

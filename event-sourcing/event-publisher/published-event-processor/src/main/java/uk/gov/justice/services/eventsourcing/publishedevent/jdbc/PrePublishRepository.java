@@ -2,7 +2,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
-import uk.gov.justice.services.eventsourcing.publishedevent.PublishedEventException;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.PublishedEventException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

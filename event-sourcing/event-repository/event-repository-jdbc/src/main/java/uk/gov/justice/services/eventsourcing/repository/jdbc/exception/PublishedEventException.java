@@ -1,4 +1,4 @@
-package uk.gov.justice.services.eventsourcing.publishedevent;
+package uk.gov.justice.services.eventsourcing.repository.jdbc.exception;
 
 public class PublishedEventException extends RuntimeException {
 

@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
-import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
+import static uk.gov.justice.services.messaging.spi.DefaultJsonMetadata.metadataBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.common.configuration.ContextNameProvider;
@@ -21,13 +21,11 @@ import uk.gov.justice.services.ejb.timer.TimerCanceler;
 import uk.gov.justice.services.ejb.timer.TimerConfigFactory;
 import uk.gov.justice.services.ejb.timer.TimerServiceManager;
 import uk.gov.justice.services.eventsource.DefaultEventDestinationResolver;
-import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.EventDeQueuer;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PrePublishRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventQueries;
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummyEventPublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.DummySystemCommandStore;
-import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestEventStreamInserter;
 import uk.gov.justice.services.eventsourcing.publishedevent.prepublish.helpers.TestGlobalValueProducer;
 import uk.gov.justice.services.eventsourcing.publishedevent.publish.PublishedEventDeQueuerAndPublisher;
 import uk.gov.justice.services.eventsourcing.publishedevent.publishing.AsynchronousPublisher;
@@ -36,13 +34,16 @@ import uk.gov.justice.services.eventsourcing.publishedevent.publishing.Publisher
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventDestinationResolver;
 import uk.gov.justice.services.eventsourcing.publisher.jms.EventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategyProducer;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PostgresSQLEventLogInsertionStrategy;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.eventsourcing.util.jee.timer.StopWatchFactory;
-import uk.gov.justice.services.eventsourcing.util.sql.triggers.EventLogTriggerManipulator;
 import uk.gov.justice.services.framework.utilities.exceptions.StackTraceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
@@ -59,8 +60,8 @@ import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.core.eventsource.EventStoreInitializer;
+import uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
-import uk.gov.justice.services.test.utils.eventlog.EventLogTriggerManipulatorFactory;
 import uk.gov.justice.services.test.utils.events.EventStoreDataAccess;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -102,28 +103,26 @@ public class EventPublishIT {
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
-    private final TestEventStreamInserter testEventStreamInserter = new TestEventStreamInserter();
+    @Inject
+    private JdbcBasedEventRepository jdbcBasedEventRepository;
+
     private final Poller poller = new Poller(10, 3_000L);
     private final EventStoreInitializer eventStoreInitializer = new EventStoreInitializer();
     private final Clock clock = new UtcClock();
 
     private EventStoreDataAccess eventStoreDataAccess;
-    private EventLogTriggerManipulatorFactory eventLogTriggerManipulatorFactory = new EventLogTriggerManipulatorFactory();
 
     @Before
     public void initializeDatabase() throws Exception {
         final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         eventStoreInitializer.initializeEventStore(eventStoreDataSource);
         eventStoreDataAccess = new EventStoreDataAccess(eventStoreDataSource);
-
-        final EventLogTriggerManipulator eventLogTriggerManipulator = eventLogTriggerManipulatorFactory.create(eventStoreDataSource);
-        eventLogTriggerManipulator.addTriggerToEventLogTable();
     }
 
     @Module
     @Classes(cdi = true, value = {
             PublishedEventDeQueuerAndPublisher.class,
-            EventDeQueuer.class,
+            PublishQueuesDataAccess.class,
             EventPublisher.class,
             DummyEventPublisher.class,
             EventConverter.class,
@@ -189,7 +188,11 @@ public class EventPublishIT {
             AsynchronousPrePublisher.class,
 
             ContextNameProvider.class,
-            JndiBasedServiceContextNameProvider.class
+            JndiBasedServiceContextNameProvider.class,
+            JdbcBasedEventRepository.class,
+            EventStreamJdbcRepository.class,
+            PrePublishQueueRepository.class,
+            PublishQueueRepository.class
     })
     public WebApp war() {
         return new WebApp()
@@ -208,16 +211,46 @@ public class EventPublishIT {
     @SuppressWarnings("deprecation")
     @Test
     public void shouldPublishEventsInTheEventLogTable() throws Exception {
+
         final UUID streamId = randomUUID();
-        final Event event_1 = eventBuilder().withStreamId(streamId).withName("event_1").withEventNumber(1L).withPositionInStream(1L).build();
-        final Event event_2 = eventBuilder().withStreamId(streamId).withName("event_2").withEventNumber(2L).withPositionInStream(2L).build();
-        final Event event_3 = eventBuilder().withStreamId(streamId).withName("event_3").withEventNumber(3L).withPositionInStream(3L).build();
 
-        eventStoreDataAccess.insertIntoEventLog(event_1);
-        eventStoreDataAccess.insertIntoEventLog(event_2);
-        eventStoreDataAccess.insertIntoEventLog(event_3);
+        final JsonEnvelope jsonEnvelope_1 = JsonEnvelopeBuilder.envelope()
+                .with(metadataBuilder()
+                        .withName("event_1")
+                        .withId(randomUUID())
+                        .withStreamId(streamId)
+                        .withSource("source")
+                        .createdAt(clock.now())
+                        .withPosition(1L))
+                .withPayloadOf("event 1", "someProperty")
+                .build();
 
-        testEventStreamInserter.insertIntoEventStream(streamId, 1, true, clock.now());
+        final JsonEnvelope jsonEnvelope_2 = JsonEnvelopeBuilder.envelope()
+                .with(metadataBuilder()
+                        .withName("event_2")
+                        .withId(randomUUID())
+                        .withStreamId(streamId)
+                        .withSource("source")
+                        .createdAt(clock.now())
+                        .withPosition(2L))
+                .withPayloadOf("event 2", "someProperty")
+                .build();
+
+        final JsonEnvelope jsonEnvelope_3 = JsonEnvelopeBuilder.envelope()
+                .with(metadataBuilder()
+                        .withName("event_3")
+                        .withId(randomUUID())
+                        .withStreamId(streamId)
+                        .withSource("source")
+                        .createdAt(clock.now())
+                        .withPosition(3L))
+                .withPayloadOf("event 3", "someProperty")
+                .build();
+
+
+        jdbcBasedEventRepository.storeEvent(jsonEnvelope_1);
+        jdbcBasedEventRepository.storeEvent(jsonEnvelope_2);
+        jdbcBasedEventRepository.storeEvent(jsonEnvelope_3);
 
         final Optional<List<JsonEnvelope>> jsonEnvelopeOptional = poller.pollUntilFound(() -> {
             final List<JsonEnvelope> jsonEnvelopes = dummyEventPublisher.getJsonEnvelopes();

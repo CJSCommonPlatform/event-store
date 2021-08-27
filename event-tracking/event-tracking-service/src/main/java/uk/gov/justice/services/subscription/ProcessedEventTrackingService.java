@@ -1,6 +1,5 @@
 package uk.gov.justice.services.subscription;
 
-import static java.lang.Long.MAX_VALUE;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
 import static java.util.stream.Collectors.joining;
@@ -10,7 +9,8 @@ import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalcu
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import java.util.Optional;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -27,6 +27,12 @@ public class ProcessedEventTrackingService {
 
     @Inject
     private EventSourceNameCalculator eventSourceNameCalculator;
+
+    @Inject
+    private MissingEventRangeFinder missingEventRangeFinder;
+
+    @Inject
+    private EventRangeNormalizer eventRangeNormalizer;
 
     @Inject
     private Logger logger;
@@ -54,30 +60,14 @@ public class ProcessedEventTrackingService {
         processedEventTrackingRepository.save(processedEvent);
     }
 
-    public Stream<MissingEventRange> getAllMissingEvents(final String eventSourceName, final String componentName) {
+    public Stream<MissingEventRange> getAllMissingEvents(final String eventSourceName, final String componentName, final Long highestPublishedEventNumber) {
 
-        final EventNumberAccumulator eventNumberAccumulator = new EventNumberAccumulator();
+        final LinkedList<MissingEventRange> missingEventRanges = missingEventRangeFinder.getRangesOfMissingEvents(eventSourceName, componentName, highestPublishedEventNumber);
+        final List<MissingEventRange> normalizedEventRanges = eventRangeNormalizer.normalize(missingEventRanges);
 
-        final Optional<ProcessedEvent> latestProcessedEvent = processedEventTrackingRepository.getLatestProcessedEvent(eventSourceName, componentName);
+        logger.info(createMessageMissingEventRanges(normalizedEventRanges));
 
-        if (latestProcessedEvent.isPresent()) {
-            notSeenEventsRange(latestProcessedEvent.get().getPreviousEventNumber(), eventNumberAccumulator);
-        } else {
-            notSeenEventsRange(1L, eventNumberAccumulator);
-        }
-
-        try (final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(eventSourceName, componentName)) {
-            allProcessedEvents
-                    .forEach(processedEventTrackItem -> findMissingRange(processedEventTrackItem, eventNumberAccumulator));
-        }
-
-        if (eventNumberAccumulator.isInitialised() && eventNumberAccumulator.getLastPreviousEventNumber() != FIRST_POSSIBLE_EVENT_NUMBER) {
-            eventNumberAccumulator.addRangeFrom(FIRST_POSSIBLE_EVENT_NUMBER);
-        }
-
-        logger.info(createMessageMissingEventRanges(eventNumberAccumulator));
-
-        return eventNumberAccumulator.getMissingEventRanges().stream();
+        return normalizedEventRanges.stream();
     }
 
     public Long getLatestProcessedEventNumber(final String source, final String componentName) {
@@ -86,36 +76,12 @@ public class ProcessedEventTrackingService {
                 .map(ProcessedEvent::getEventNumber)
                 .orElse(FIRST_POSSIBLE_EVENT_NUMBER);
     }
-
-    private void notSeenEventsRange(final long currentPreviousEventNumber, final EventNumberAccumulator eventNumberAccumulator) {
-
-        final long currentEventNumber = MAX_VALUE;
-
-        if (eventNumberAccumulator.isInitialised() && eventNumberAccumulator.getLastPreviousEventNumber() != currentEventNumber) {
-            eventNumberAccumulator.addRangeFrom(currentEventNumber);
-        }
-
-        eventNumberAccumulator.set(currentPreviousEventNumber, currentEventNumber);
-    }
-
-    private void findMissingRange(final ProcessedEvent processedEvent, final EventNumberAccumulator eventNumberAccumulator) {
-
-        final long currentEventNumber = processedEvent.getEventNumber();
-        final long currentPreviousEventNumber = processedEvent.getPreviousEventNumber();
-
-        if (eventNumberAccumulator.isInitialised() && eventNumberAccumulator.getLastPreviousEventNumber() != currentEventNumber) {
-            eventNumberAccumulator.addRangeFrom(currentEventNumber);
-        }
-
-        eventNumberAccumulator.set(currentPreviousEventNumber, currentEventNumber);
-    }
-
-    private String createMessageMissingEventRanges(final EventNumberAccumulator eventNumberAccumulator) {
+    
+    private String createMessageMissingEventRanges(final List<MissingEventRange> missingEventRanges) {
 
         return "Missing Event Ranges: [" +
                 lineSeparator() +
-                eventNumberAccumulator
-                        .getMissingEventRanges()
+                missingEventRanges
                         .stream()
                         .map(MissingEventRange::toString)
                         .collect(joining("," + lineSeparator())) +

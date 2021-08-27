@@ -1,13 +1,10 @@
 package uk.gov.justice.services.subscription;
 
-import static java.lang.Long.MAX_VALUE;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Stream.empty;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -17,17 +14,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
-import static uk.gov.justice.services.subscription.ProcessedEventBuilder.processedEventTrackItem;
 
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +39,12 @@ public class ProcessedEventTrackingServiceTest {
 
     @Mock
     private EventSourceNameCalculator eventSourceNameCalculator;
+
+    @Mock
+    private MissingEventRangeFinder missingEventRangeFinder;
+
+    @Mock
+    private EventRangeNormalizer eventRangeNormalizer;
 
     @Mock
     private Logger logger;
@@ -128,356 +129,31 @@ public class ProcessedEventTrackingServiceTest {
     }
 
     @Test
-    public void shouldGetTheListOfAllMissingEvents() throws Exception {
+    public void shouldGetTheRangesOfAllMissingEvents() throws Exception {
 
-        final String source = "example-context";
+        final String eventSourceName = "example-context";
         final String componentName = "EVENT_LISTENER";
+        final Long highestPublishedEventNumber = 10L;
 
-        final List<ProcessedEvent> processedEvents = asList(
-                processedEventTrackItem()
-                        .withEventNumber(7)
-                        .withPreviousEventNumber(6)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(3)
-                        .withPreviousEventNumber(2)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(2)
-                        .withPreviousEventNumber(1)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(1)
-                        .withPreviousEventNumber(0)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
+        final MissingEventRange missingEventRange_1 = new MissingEventRange(4L, 7L);
+        final MissingEventRange missingEventRange_2 = new MissingEventRange(8L, highestPublishedEventNumber);
 
-        final ProcessedEvent latestProcessedEvent = processedEventTrackItem()
-                .withEventNumber(7)
-                .withPreviousEventNumber(6)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
+        final LinkedList<MissingEventRange> missingEventRangeList = new LinkedList<>(asList(missingEventRange_1, missingEventRange_2));
 
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
+        when(missingEventRangeFinder.getRangesOfMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)).thenReturn(missingEventRangeList);
+        when(eventRangeNormalizer.normalize(missingEventRangeList)).thenReturn(missingEventRangeList);
 
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
+        final List<MissingEventRange> missingEventRanges = processedEventTrackingService
+                .getAllMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)
                 .collect(toList());
 
         assertThat(missingEventRanges.size(), is(2));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(4L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(7L));
-        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(8L));
-        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
+        assertThat(missingEventRanges.get(0), is(missingEventRange_1));
+        assertThat(missingEventRanges.get(1), is(missingEventRange_2));
 
         verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 4, missingEventTo (exclusive) = 7},\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 8, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldHandleMissingEventsFromZero() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        final List<ProcessedEvent> processedEvents = asList(
-                processedEventTrackItem()
-                        .withPreviousEventNumber(24)
-                        .withEventNumber(25)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withPreviousEventNumber(23)
-                        .withEventNumber(24)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withPreviousEventNumber(19)
-                        .withEventNumber(20)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
-
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
-
-        final ProcessedEvent processedEvent = processedEventTrackItem()
-                .withPreviousEventNumber(24)
-                .withEventNumber(25)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(processedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-
-        assertThat(missingEventRanges.size(), is(3));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(20L));
-        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(21L));
-        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(24L));
-        assertThat(missingEventRanges.get(2).getMissingEventFrom(), is(26L));
-        assertThat(missingEventRanges.get(2).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = 20},\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 21, missingEventTo (exclusive) = 24},\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 26, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldReturnRangeOfOneToMaxLongIfNoEventsFound() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(Optional.empty());
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(empty());
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-
-        assertThat(missingEventRanges.size(), is(1));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldReturnNoMissingEventsIfNoEventsAreActuallyMissing() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        final List<ProcessedEvent> processedEvents = asList(
-                processedEventTrackItem()
-                        .withEventNumber(4)
-                        .withPreviousEventNumber(3)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(3)
-                        .withPreviousEventNumber(2)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(2)
-                        .withPreviousEventNumber(1)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(1)
-                        .withPreviousEventNumber(0)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
-
-        final ProcessedEvent latestProcessedEvent = processedEventTrackItem()
-                .withEventNumber(4)
-                .withPreviousEventNumber(3)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
-
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-        assertThat(missingEventRanges.size(), is(1));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(5L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 5, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldReturnNoMissingEventsIfOnlyOneEventExists() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        final List<ProcessedEvent> processedEvents = singletonList(
-                processedEventTrackItem()
-                        .withEventNumber(1)
-                        .withPreviousEventNumber(0)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
-
-        final ProcessedEvent latestProcessedEvent = processedEventTrackItem()
-                .withEventNumber(1)
-                .withPreviousEventNumber(0)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
-
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-
-        assertThat(missingEventRanges.size(), is(1));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(2L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 2, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldHandleARangeOfMissingEventsOfJustOneMissingEvent() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        final List<ProcessedEvent> processedEvents = asList(
-                processedEventTrackItem()
-                        .withEventNumber(3)
-                        .withPreviousEventNumber(2)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build(),
-                processedEventTrackItem()
-                        .withEventNumber(1)
-                        .withPreviousEventNumber(0)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
-
-        final ProcessedEvent latestProcessedEvent = processedEventTrackItem()
-                .withEventNumber(3)
-                .withPreviousEventNumber(2)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
-
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-
-        assertThat(missingEventRanges.size(), is(2));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(2L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(3L));
-        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(4L));
-        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 2, missingEventTo (exclusive) = 3},\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 4, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
-                "]"
-        );
-    }
-
-    @Test
-    public void shouldReturnMissingEventIfPreviousEventNumberIsNotZero() throws Exception {
-
-        final String source = "example-context";
-        final String componentName = "EVENT_LISTENER";
-
-        final List<ProcessedEvent> processedEvents = singletonList(
-                processedEventTrackItem()
-                        .withEventNumber(2)
-                        .withPreviousEventNumber(1)
-                        .withSource(source)
-                        .withComponentName(componentName)
-                        .build()
-        );
-
-        final ProcessedEvent latestProcessedEvent = processedEventTrackItem()
-                .withEventNumber(2)
-                .withPreviousEventNumber(1)
-                .withSource(source)
-                .withComponentName(componentName)
-                .build();
-
-        final StreamCloseSpy streamCloseSpy = new StreamCloseSpy();
-        final Stream<ProcessedEvent> processedEventTrackItemStream = processedEvents.stream().onClose(streamCloseSpy);
-
-        when(processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)).thenReturn(of(latestProcessedEvent));
-        when(processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(source, componentName)).thenReturn(processedEventTrackItemStream);
-
-        final List<MissingEventRange> missingEventRanges = processedEventTrackingService.getAllMissingEvents(source, componentName)
-                .collect(toList());
-
-        assertThat(missingEventRanges.size(), is(2));
-
-        assertThat(missingEventRanges.get(0).getMissingEventFrom(), is(1L));
-        assertThat(missingEventRanges.get(0).getMissingEventTo(), is(2L));
-        assertThat(missingEventRanges.get(1).getMissingEventFrom(), is(3L));
-        assertThat(missingEventRanges.get(1).getMissingEventTo(), is(MAX_VALUE));
-
-        assertThat(streamCloseSpy.streamClosed(), is(true));
-
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 1, missingEventTo (exclusive) = 2},\n" +
-                "MissingEventRange{missingEventFrom (inclusive) = 3, missingEventTo (exclusive) = " + MAX_VALUE + "}\n" +
+                "MissingEventRange{from event_number: 4 (inclusive) to event_number: 7 (exclusive)},\n" +
+                "MissingEventRange{from event_number: 8 (inclusive) to event_number: 10 (exclusive)}\n" +
                 "]"
         );
     }

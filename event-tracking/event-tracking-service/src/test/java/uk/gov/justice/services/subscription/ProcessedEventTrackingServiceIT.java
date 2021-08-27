@@ -34,7 +34,11 @@ public class ProcessedEventTrackingServiceIT {
     private final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = new TestViewStoreJdbcDataSourceProvider(viewStoreDataSource);
     private final ProcessedEventTrackingRepository processedEventTrackingRepository = new ProcessedEventTrackingRepository();
     private final EventSourceNameCalculator eventSourceNameCalculator = new EventSourceNameCalculator();
+    private final MissingEventRangeFinder missingEventRangeFinder = new MissingEventRangeFinder();
+    private final EventRangeNormalizer eventRangeNormalizer = new EventRangeNormalizer();
     private final Logger logger = getLogger(ProcessedEventTrackingService.class);
+    private final PublishedEventReadConfiguration publishedEventReadConfiguration = new PublishedEventReadConfiguration();
+    private final RangeNormalizationCalculator rangeNormalizationCalculator = new RangeNormalizationCalculator();
 
     private final ProcessedEventTrackingService processedEventTrackingService = new ProcessedEventTrackingService();
 
@@ -46,8 +50,16 @@ public class ProcessedEventTrackingServiceIT {
         setField(processedEventTrackingRepository, "preparedStatementWrapperFactory", preparedStatementWrapperFactory);
         setField(processedEventTrackingRepository, "viewStoreJdbcDataSourceProvider", viewStoreJdbcDataSourceProvider);
 
+        setField(missingEventRangeFinder, "processedEventTrackingRepository", processedEventTrackingRepository);
+
+        setField(publishedEventReadConfiguration, "rangeNormalizationMaxSize", "1000");
+        setField(eventRangeNormalizer, "publishedEventReadConfiguration", publishedEventReadConfiguration);
+        setField(eventRangeNormalizer, "rangeNormalizationCalculator", rangeNormalizationCalculator);
+
         setField(processedEventTrackingService, "processedEventTrackingRepository", processedEventTrackingRepository);
         setField(processedEventTrackingService, "eventSourceNameCalculator", eventSourceNameCalculator);
+        setField(processedEventTrackingService, "missingEventRangeFinder", missingEventRangeFinder);
+        setField(processedEventTrackingService, "eventRangeNormalizer", eventRangeNormalizer);
         setField(processedEventTrackingService, "logger", logger);
 
         databaseCleaner.cleanProcessedEventTable("framework");
@@ -58,19 +70,21 @@ public class ProcessedEventTrackingServiceIT {
 
         final String source = "example-context";
         final String componentName = "EVENT_LISTENER";
+        final Long highestPublishedEventNumber = 23L;
+        final Long highestExclusiveEventNumber = highestPublishedEventNumber + 1;
 
         // insert events missing event 4 and events 7, 8 and 9
         insertEventsWithSomeMissing(source, componentName);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService
-                .getAllMissingEvents(source, componentName)
+                .getAllMissingEvents(source, componentName, highestPublishedEventNumber)
                 .collect(toList());
 
         assertThat(missingEventRanges.size(), is(3));
 
         assertThat(missingEventRanges.get(0), is(new MissingEventRange(4L, 5L)));
         assertThat(missingEventRanges.get(1), is(new MissingEventRange(7L, 10L)));
-        assertThat(missingEventRanges.get(2), is(new MissingEventRange(11L, 9223372036854775807L)));
+        assertThat(missingEventRanges.get(2), is(new MissingEventRange(11L, highestExclusiveEventNumber)));
     }
 
     private void insertEventsWithSomeMissing(final String source, final String componentName) {

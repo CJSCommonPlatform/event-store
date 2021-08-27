@@ -14,4 +14,11 @@ public interface PublishedEventStatements {
             "SELECT stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number " +
                     "FROM published_event " +
                     "WHERE id = ?";
+
+    String SELECT_LATEST_PUBLISHED_EVENT_QUERY =
+            "SELECT id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number " +
+                    "FROM published_event " +
+                    "ORDER BY event_number DESC " +
+                    "LIMIT 1"
+            ;
 }

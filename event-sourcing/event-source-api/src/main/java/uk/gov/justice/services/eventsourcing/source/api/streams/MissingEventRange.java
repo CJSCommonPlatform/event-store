@@ -1,5 +1,7 @@
 package uk.gov.justice.services.eventsourcing.source.api.streams;
 
+import static java.lang.String.format;
+
 import java.util.Objects;
 
 public class MissingEventRange {
@@ -36,9 +38,11 @@ public class MissingEventRange {
 
     @Override
     public String toString() {
-        return "MissingEventRange{" +
-                "missingEventFrom (inclusive) = " + missingEventFrom +
-                ", missingEventTo (exclusive) = " + missingEventTo +
-                '}';
+
+        return format(
+                "MissingEventRange{from event_number: %d (inclusive) to event_number: %d (exclusive)}",
+                missingEventFrom,
+                missingEventTo
+        );
     }
 }

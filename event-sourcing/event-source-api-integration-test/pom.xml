@@ -5,7 +5,7 @@
     <parent>
         <artifactId>event-sourcing</artifactId>
         <groupId>uk.gov.justice.event-store</groupId>
-        <version>7.2.4-DD14203</version>
+        <version>7.2.5-DD14203-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

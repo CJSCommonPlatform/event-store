@@ -2,6 +2,7 @@ package uk.gov.justice.services.subscription;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 public class ProcessedEventTrackingRepository {
 
@@ -47,6 +49,7 @@ public class ProcessedEventTrackingRepository {
     @Inject
     private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
 
+    @Transactional(REQUIRED)
     public void save(final ProcessedEvent processedEvent) {
 
         try (
@@ -66,6 +69,7 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
+    @Transactional(REQUIRED)
     public Stream<ProcessedEvent> getAllProcessedEventsDescendingOrder(final String source, final String componentName) {
 
         try {
@@ -92,6 +96,7 @@ public class ProcessedEventTrackingRepository {
         }
     }
 
+    @Transactional(REQUIRED)
     public Optional<ProcessedEvent> getLatestProcessedEvent(final String source, final String componentName) {
 
         try (

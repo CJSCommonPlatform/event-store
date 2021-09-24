@@ -7,6 +7,7 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTim
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.INSERT_INTO_PUBLISHED_EVENT_SQL;
 import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.SELECT_FROM_PUBLISHED_EVENT_QUERY;
+import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.SELECT_LATEST_PUBLISHED_EVENT_QUERY;
 import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.TRUNCATE_PREPUBLISH_QUEUE;
 import static uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventStatements.TRUNCATE_PUBLISHED_EVENT;
 
@@ -57,7 +58,6 @@ public class PublishedEventQueries {
 
     public Optional<PublishedEvent> getPublishedEvent(final UUID id, final DataSource dataSource) throws SQLException {
 
-
         try (final Connection connection = dataSource.getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_FROM_PUBLISHED_EVENT_QUERY)) {
 
@@ -66,6 +66,43 @@ public class PublishedEventQueries {
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
 
                 if (resultSet.next()) {
+                    final UUID streamId = fromString(resultSet.getString("stream_id"));
+                    final Long positionInStream = resultSet.getLong("position_in_stream");
+                    final String name = resultSet.getString("name");
+                    final String metadata = resultSet.getString("metadata");
+                    final String payload = resultSet.getString("payload");
+                    final ZonedDateTime createdAt = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
+                    final long eventNumber = resultSet.getLong("event_number");
+                    final long previousEventNumber = resultSet.getLong("previous_event_number");
+
+                    return of(new PublishedEvent(
+                            id,
+                            streamId,
+                            positionInStream,
+                            name,
+                            metadata,
+                            payload,
+                            createdAt,
+                            eventNumber,
+                            previousEventNumber)
+                    );
+                }
+            }
+        }
+
+        return empty();
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public Optional<PublishedEvent> getLatestPublishedEvent(final DataSource dataSource) throws SQLException {
+
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LATEST_PUBLISHED_EVENT_QUERY)) {
+
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    final UUID id = fromString(resultSet.getString("id"));
                     final UUID streamId = fromString(resultSet.getString("stream_id"));
                     final Long positionInStream = resultSet.getLong("position_in_stream");
                     final String name = resultSet.getString("name");

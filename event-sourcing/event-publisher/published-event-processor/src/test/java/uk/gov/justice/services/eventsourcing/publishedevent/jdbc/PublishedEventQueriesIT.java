@@ -27,7 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PublishedEventQueriesTest {
+public class PublishedEventQueriesIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
 
@@ -134,5 +134,46 @@ public class PublishedEventQueriesTest {
                 fail();
             }
         }
+    }
+
+    @Test
+    public void shouldLatestPublishedEvent() throws Exception {
+
+        final PublishedEvent publishedEvent_1 = publishedEventBuilder()
+                .withName("example.latest-published-event")
+                .withPositionInStream(1L)
+                .withEventNumber(1L)
+                .withPreviousEventNumber(0L)
+                .build();
+        final PublishedEvent publishedEvent_2 = publishedEventBuilder()
+                .withName("example.latest-published-event")
+                .withPositionInStream(2L)
+                .withEventNumber(2L)
+                .withPreviousEventNumber(1L)
+                .build();
+        final PublishedEvent publishedEvent_3 = publishedEventBuilder()
+                .withName("example.latest-published-event")
+                .withPositionInStream(3L)
+                .withEventNumber(3L)
+                .withPreviousEventNumber(2L)
+                .build();
+
+        publishedEventQueries.insertPublishedEvent(publishedEvent_1, eventStoreDataSource);
+        publishedEventQueries.insertPublishedEvent(publishedEvent_2, eventStoreDataSource);
+        publishedEventQueries.insertPublishedEvent(publishedEvent_3, eventStoreDataSource);
+
+        final Optional<PublishedEvent> publishedEventOptional = publishedEventQueries.getLatestPublishedEvent(eventStoreDataSource);
+
+        if (publishedEventOptional.isPresent()) {
+            assertThat(publishedEventOptional.get(), is(publishedEvent_3));
+        } else {
+            fail();
+        }
+    }
+
+    @Test
+    public void shouldReturnEmptyIfNoLatestPublishedEventFound() throws Exception {
+        assertThat(publishedEventQueries.getLatestPublishedEvent(eventStoreDataSource).isEmpty(), is(true));
+
     }
 }

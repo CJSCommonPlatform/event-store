@@ -173,7 +173,6 @@ public class PublishedEventQueriesIT {
 
     @Test
     public void shouldReturnEmptyIfNoLatestPublishedEventFound() throws Exception {
-        assertThat(publishedEventQueries.getLatestPublishedEvent(eventStoreDataSource).isEmpty(), is(true));
-
+        assertThat(publishedEventQueries.getLatestPublishedEvent(eventStoreDataSource).isPresent(), is(false));
     }
 }

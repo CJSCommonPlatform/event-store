@@ -5,10 +5,16 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.0.1] - 2021-10-05
+### Changed
+- Re-release of pom to fix corrupt file in artifactory. No other changes
+
 ## [8.0.0] - 2021-09-28
 ### Changed
 - Bumped the version to 8.0.0 to match the final release version of the Java 8 framework
 - Updated framework-libraries to version 8.0.0
+- Database reads in catchup now transactional to fix possible 
+  out of memory error with large datasets
 
 ## [7.2.3] - 2021-03-30
 ### Changed

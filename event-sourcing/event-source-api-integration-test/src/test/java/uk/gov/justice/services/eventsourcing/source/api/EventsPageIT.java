@@ -40,6 +40,9 @@ import uk.gov.justice.services.eventsourcing.publisher.jms.JmsEventPublisher;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.JdbcBasedEventRepository;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PostgresSQLEventLogInsertionStrategy;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.Event;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
@@ -238,7 +241,10 @@ public class EventsPageIT {
             JsonObjectConvertersProducer.class,
 
             ContextNameProvider.class,
-            JndiBasedServiceContextNameProvider.class
+            JndiBasedServiceContextNameProvider.class,
+            PublishQueuesDataAccess.class,
+            PrePublishQueueRepository.class,
+            PublishQueueRepository.class
     })
     public WebApp war() {
         return new WebApp()

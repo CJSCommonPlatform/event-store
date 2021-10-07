@@ -44,7 +44,6 @@ import uk.gov.justice.services.core.enveloper.Enveloper;
 import uk.gov.justice.services.core.extension.BeanInstantiater;
 import uk.gov.justice.services.core.extension.ServiceComponentScanner;
 import uk.gov.justice.services.core.featurecontrol.FeatureControlAnnotationFinder;
-import uk.gov.justice.services.core.handler.registry.HandlerRegistryCacheProducer;
 import uk.gov.justice.services.core.interceptor.InterceptorCache;
 import uk.gov.justice.services.core.interceptor.InterceptorChainEntry;
 import uk.gov.justice.services.core.interceptor.InterceptorChainEntryProvider;

@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [8.0.2] - 2021-10-06
+## [8.1.0] - 2021-10-07
 ### Changed
 - Removed the trigger from the event_log table and all related classes and commands
 - Updated JdbcBasedEventRepository to insert eventIs into the pre_publish_queue table directly

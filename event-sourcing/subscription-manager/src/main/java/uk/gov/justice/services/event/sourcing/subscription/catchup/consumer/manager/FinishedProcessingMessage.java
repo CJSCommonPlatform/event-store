@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Queue;
 
 /**
- * Message returned when a consumer finishes consuming a Queue<JsonEnvelope>.
+ * Message returned when a consumer finishes consuming a Queue&lt;JsonEnvelope&gt;.
  */
 public class FinishedProcessingMessage {
 

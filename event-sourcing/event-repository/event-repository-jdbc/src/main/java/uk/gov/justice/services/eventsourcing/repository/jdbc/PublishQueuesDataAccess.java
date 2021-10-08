@@ -54,11 +54,11 @@ public class PublishQueuesDataAccess {
 
     /**
      * Method that gets the next event to process by
-     * querying the pre_publish_queue table for id & event_log_id,
+     * querying the pre_publish_queue table for id and event_log_id,
      * deleting the entry from the publish queue using the id and
      * then gets the record from the event_log table using the event_log_id.
      *
-     * @return Optional<Event>
+     * @return A java.util.Optional of the event id
      */
     @Transactional(MANDATORY)
     public Optional<UUID> popNextEventId(final PublishQueueTableName publishQueueTableName) {

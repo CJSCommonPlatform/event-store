@@ -164,6 +164,8 @@ public class EventStreamManager {
      *
      * @param id - the id of the stream to clone
      * @return the id of the cloned stream
+     *
+     * @throws EventStreamException if the clone fails
      */
     @Transactional
     public UUID cloneAsAncestor(final UUID id) throws EventStreamException {
@@ -185,9 +187,11 @@ public class EventStreamManager {
     /**
      * Clears the stream, deleting all associated events from the event_log, it does not update the
      * event_stream.
+     *
+     * @param streamId The id of the stream to be cleared
      */
-    public void clear(final UUID id) {
-        eventRepository.clearEventsForStream(id);
+    public void clear(final UUID streamId) {
+        eventRepository.clearEventsForStream(streamId);
     }
 
     /**
@@ -204,6 +208,8 @@ public class EventStreamManager {
      * Get the position of the stream within the streams
      *
      * @return the latest position number for the provided steam.
+     *
+     * @param streamId The stream to query
      */
     public long getStreamPosition(final UUID streamId) {
         return eventRepository.getStreamPosition(streamId);

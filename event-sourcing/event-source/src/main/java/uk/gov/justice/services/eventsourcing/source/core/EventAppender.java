@@ -16,6 +16,9 @@ public interface EventAppender {
      * @param event    - the event to be appended
      * @param streamId - id of the stream the event will be part of
      * @param version  - version id of the event in the stream
+     * @param eventSourceName  - The name of the event source that raised the event
+     *
+     * @throws EventStreamException If the append fails
      */
     void append(final JsonEnvelope event, final UUID streamId, final long version, final String eventSourceName) throws EventStreamException;
 

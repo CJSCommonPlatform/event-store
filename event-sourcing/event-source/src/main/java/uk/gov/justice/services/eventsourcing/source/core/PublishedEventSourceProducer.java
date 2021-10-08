@@ -46,11 +46,12 @@ public class PublishedEventSourceProducer {
 
     /**
      * Support for Named PublishedEventSource injection points.  Annotate injection point with
-     * {@code
+     * <pre>
+     *   &#64;EventSourceName("name")
+     * </pre>
      *
-     * @param injectionPoint the injection point for the EventSource
-     * @return {@link PublishedEventSource}
-     * @EventSourceName("name")}
+     *  @param injectionPoint the injection point for the EventSource
+     *  @return {@link PublishedEventSource}
      */
     @Produces
     @EventSourceName

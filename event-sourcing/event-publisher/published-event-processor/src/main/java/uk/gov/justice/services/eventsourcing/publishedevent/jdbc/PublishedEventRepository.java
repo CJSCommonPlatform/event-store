@@ -24,7 +24,8 @@ public class PublishedEventRepository {
     /**
      * Method that gets an PublishedEvent from the published_event table by id.
      *
-     * @return Optional<Event>
+     * @param id The id of the PublishedEvent to retrieve 
+     * @return Optional containing the PublishedEvent
      */
     public Optional<PublishedEvent> getPublishedEvent(final UUID id) {
 

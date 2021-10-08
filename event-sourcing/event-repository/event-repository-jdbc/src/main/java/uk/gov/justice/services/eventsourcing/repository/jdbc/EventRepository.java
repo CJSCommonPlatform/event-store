@@ -126,7 +126,7 @@ public interface EventRepository {
 
     /**
      * Returns the stream position.
-     *
+     * @param streamId Id of the stream.
      * @return the latest stream position in the event streams.
      */
     long getStreamPosition(final UUID streamId);

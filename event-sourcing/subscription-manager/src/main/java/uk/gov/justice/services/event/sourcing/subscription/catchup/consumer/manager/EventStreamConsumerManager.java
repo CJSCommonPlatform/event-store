@@ -16,12 +16,18 @@ public interface EventStreamConsumerManager {
     /**
      * Add an JsonEnvelope publishedEvent to the EventStreamConsumerManager
      *
-     * @param publishedEvent - the JsonEnvelope to be consumed
+     * @param publishedEvent - the @See JsonEnvelope to be consumed
+     * @param subscriptionName - the name of the subscription that is catching up
+     * @param catchupCommand - the Catchup command name
+     * @param commandId - the id of the command that ran the catchup
      *
      * @return The number of events added to the stream. Note this is always one and is used
      *         to count the number of events consumed
      */
     int add(final PublishedEvent publishedEvent, final String subscriptionName, final CatchupCommand catchupCommand, final UUID commandId);
 
+    /**
+     * Blocking method that will {@code Thread.wait()}  until all events are published
+     */
     void waitForCompletion();
 }

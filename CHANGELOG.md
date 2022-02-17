@@ -5,6 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.1.1] - 2022-01-17
+### Changed
+### Changed
+- Updated framework-libraries to 8.0.2
+- Updated framework to 8.0.2
+- Updated common-bom to 8.0.4 to update log4j2 to 2.17.0
+
 ## [8.1.0] - 2021-10-07
 ### Changed
 - Removed the trigger from the event_log table and all related classes and commands

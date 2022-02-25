@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M9] - 2022-02-25
+### Changed
+- Update framework to allow
+    - Update log4j2 to 2.17.1 to fix critical security violation
+
 ## [11.0.0-M8] - 2021-08-26
 ### Changed
 - Removed the trigger from the event_log table and all related classes and commands

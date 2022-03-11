@@ -5,10 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [8.1.2] - 2022-03-02
+## [8.2.0] - 2022-03-11
 ### Changed
-- Updated framework-libraries to 8.0.3
-- Updated framework to 8.0.3
+- Updated framework-libraries to 8.0.4
+- Updated framework to 8.0.4
 
 ## [8.1.1] - 2022-01-17
 ### Changed

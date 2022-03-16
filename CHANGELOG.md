@@ -7,6 +7,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [11.0.0-M9] - 2022-02-25
 ### Changed
+- Update framework to 11.0.0-M8 to allow
+    - Update to log4j 2
+
+## [11.0.0-M9] - 2022-02-25
+### Changed
 - Update framework to allow
     - Update log4j2 to 2.17.1 to fix critical security violation
 

@@ -28,6 +28,7 @@
         <module>test-utils-event-store</module>
         <module>event-tracking</module>
         <module>event-store-management</module>
+        <module>healthchecks</module>
     </modules>
 
     <scm>
@@ -38,7 +39,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>11.0.0-M8</framework.version>
+        <framework.version>11.0.0-M10</framework.version>
     </properties>
 
     <dependencyManagement>

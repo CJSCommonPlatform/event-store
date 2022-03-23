@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M11] - 2022-03-23
+### Added
+- New healthcheck module
+- Healthchecks for viewstore, eventstore, jobstore and filestore 
+### Changed
+- Update framework to 11.0.0-M10 to allow
+    - New healthcheck mechanism
+
 ## [11.0.0-M10] - 2022-03-16
 ### Changed
 - Update framework to 11.0.0-M8 to allow

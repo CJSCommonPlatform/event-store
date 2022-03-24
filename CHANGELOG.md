@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M12] - 2022-03-24
+### Added
+- Added healthcheck modules into the event store bom
+
 ## [11.0.0-M11] - 2022-03-23
 ### Added
 - New healthcheck module

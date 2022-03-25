@@ -6,15 +6,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.healthcheck.healthchecks.EventStoreHealthcheck.EVENT_STORE_TABLE_NAMES;
 import static uk.gov.justice.services.healthcheck.healthchecks.FileStoreHealthcheck.FILE_STORE_TABLE_NAMES;
 
 import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.repository.DataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 import uk.gov.justice.services.healthcheck.database.TableChecker;
-
-import java.sql.SQLException;
 
 import javax.sql.DataSource;
 

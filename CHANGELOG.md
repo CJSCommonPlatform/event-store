@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M13] - 2022-03-25
+### Added
+- Added new healthcheck for the system database.
+### Changed
+- Update framework to 11.0.0-M11 
+
 ## [11.0.0-M12] - 2022-03-24
 ### Added
 - Added healthcheck modules into the event store bom

@@ -4,14 +4,12 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 

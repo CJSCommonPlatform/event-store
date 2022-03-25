@@ -13,9 +13,7 @@ import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 import uk.gov.justice.services.healthcheck.database.TableChecker;
 
 import java.sql.SQLException;
-import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.junit.Test;

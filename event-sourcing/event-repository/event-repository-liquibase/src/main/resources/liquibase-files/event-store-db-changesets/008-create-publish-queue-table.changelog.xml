@@ -9,7 +9,7 @@
 
         <createTable tableName="publish_queue">
             <column name="id" type="BIGSERIAL">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_publish_queue"/>
             </column>
             <column name="event_log_id" type="UUID">
                 <constraints nullable="false"/>

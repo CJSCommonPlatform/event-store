@@ -86,7 +86,7 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.version}</version>
                 <configuration>
-                    <changeLogFile>liquibase/event-buffer-changelog.xml</changeLogFile>
+                    <changeLogFile>liquibase-files/event-buffer-changelog.xml</changeLogFile>
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost:5432/frameworkviewstore</url>
                     <username>framework</username>

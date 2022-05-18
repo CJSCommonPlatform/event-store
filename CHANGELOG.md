@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M14] - 2022-05-19
+### Changed
+- Update liquibase to 4.10.0 
+
 ## [11.0.0-M13] - 2022-03-25
 ### Added
 - Added new healthcheck for the system database.

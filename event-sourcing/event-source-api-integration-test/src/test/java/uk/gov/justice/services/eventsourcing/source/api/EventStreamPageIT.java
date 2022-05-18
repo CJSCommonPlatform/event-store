@@ -122,7 +122,7 @@ import org.junit.runner.RunWith;
 @RunWith(ApplicationComposer.class)
 public class EventStreamPageIT {
 
-    private static final String LIQUIBASE_EVENT_STORE_CHANGELOG_XML = "liquibase/event-store-db-changelog.xml";
+    private static final String LIQUIBASE_EVENT_STORE_CHANGELOG_XML = "liquibase-files/event-store-db-changelog.xml";
     private static final String BASE_URI_PATTERN = "http://localhost:%d/event-source-api/rest";
     private static final String EVENT_STREAM_URL_PATH_PREFIX = "/event-source-api/rest/event-streams";
     private static final int PAGE_SIZE = 2;

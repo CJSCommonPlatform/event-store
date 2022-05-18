@@ -21,7 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DatabaseTableListerIT {
 
-    private static final String LIQUIBASE_EVENT_STORE_DB_CHANGELOG_XML = "liquibase/event-store-db-changelog.xml";
+    private static final String LIQUIBASE_EVENT_STORE_DB_CHANGELOG_XML = "liquibase-files/event-store-db-changelog.xml";
 
     private final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
 

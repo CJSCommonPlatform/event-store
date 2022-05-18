@@ -1,5 +1,6 @@
 package uk.gov.justice.services.test.utils.core.eventsource;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -12,12 +13,14 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 public class EventStoreInitializer {
 
     public void initializeEventStore(final DataSource eventStoreDataSource) throws LiquibaseException, SQLException {
-        final Liquibase liquibase = new Liquibase(
-                "liquibase/event-store-db-changelog.xml",
-                new ClassLoaderResourceAccessor(),
-                new JdbcConnection(eventStoreDataSource.getConnection()));
+        try(final Connection connection = eventStoreDataSource.getConnection()) {
+            final Liquibase liquibase = new Liquibase(
+                    "liquibase-files/event-store-db-changelog.xml",
+                    new ClassLoaderResourceAccessor(),
+                    new JdbcConnection(connection));
 
-        liquibase.dropAll();
-        liquibase.update("");
+            liquibase.dropAll();
+            liquibase.update("");
+        }
     }
 }

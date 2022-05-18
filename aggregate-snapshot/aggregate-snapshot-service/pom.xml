@@ -122,7 +122,7 @@
                     <execution>
                         <id>event-store-liquibase</id>
                         <configuration>
-                            <changeLogFile>liquibase/event-store-db-changelog.xml</changeLogFile>
+                            <changeLogFile>liquibase-files/event-store-db-changelog.xml</changeLogFile>
                         </configuration>
                         <phase>pre-integration-test</phase>
                         <goals>
@@ -133,7 +133,7 @@
                     <execution>
                         <id>snapshot-store-liquibase</id>
                         <configuration>
-                            <changeLogFile>liquibase/snapshot-store-db-changelog.xml</changeLogFile>
+                            <changeLogFile>liquibase-files/snapshot-store-db-changelog.xml</changeLogFile>
                         </configuration>
                         <phase>pre-integration-test</phase>
                         <goals>

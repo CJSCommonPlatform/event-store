@@ -19,7 +19,7 @@
         </createTable>
         <createTable tableName="stream_status">
             <column name="stream_id" type="uuid">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_stream_status"/>
             </column>
             <column name="version" type="BIGINT">
                 <constraints nullable="false"/>

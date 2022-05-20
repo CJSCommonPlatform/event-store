@@ -6,6 +6,7 @@
 
     <changeSet id="event-buffer-001" author="TechPod"
                logicalFilePath="001-initial-schema.changelog.xml">
+        <validCheckSum>8:d3d8866c1f82eb2851cc2d55c774d660</validCheckSum>
         <createTable tableName="stream_buffer">
             <column name="stream_id" type="uuid">
                 <constraints nullable="false"/>
@@ -19,7 +20,7 @@
         </createTable>
         <createTable tableName="stream_status">
             <column name="stream_id" type="uuid">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_stream_status"/>
             </column>
             <column name="version" type="BIGINT">
                 <constraints nullable="false"/>

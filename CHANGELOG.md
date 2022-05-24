@@ -6,7 +6,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [Unreleased]
              
 
-## [11.0.0-M16] - 2022-05-23
+## [11.0.0-M16] - 2022-05-24
 - Update maven-framework-parent-pom to 11.0.0-M6
 
 ## [11.0.0-M15] - 2022-05-20

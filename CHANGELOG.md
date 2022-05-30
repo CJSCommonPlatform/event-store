@@ -4,7 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-             
+
+## [11.0.0-M17] - 2022-05-30
+### Changed
+- Removed strict checking of liquibase.properties files
 
 ## [11.0.0-M16] - 2022-05-24
 - Update maven-framework-parent-pom to 11.0.0-M6

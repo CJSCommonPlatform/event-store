@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M19] - 2022-06-16
+### Changed
+- Moved healthcheck database table checker into microservices-framework
+
 ## [11.0.0-M18] - 2022-06-08
 ### Changed
 - Update framework.version to 11.0.0-M16

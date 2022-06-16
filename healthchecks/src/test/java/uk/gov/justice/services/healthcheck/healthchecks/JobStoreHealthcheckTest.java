@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.healthcheck.healthchecks.JobStoreHealthcheck.JOB_STORE_TABLE_NAMES;
 
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
-import uk.gov.justice.services.healthcheck.database.TableChecker;
+import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
 import uk.gov.moj.cpp.jobstore.persistence.JdbcJobStoreDataSourceProvider;
 
 import java.sql.SQLException;

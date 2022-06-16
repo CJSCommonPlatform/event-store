@@ -11,7 +11,7 @@ import static uk.gov.justice.services.healthcheck.healthchecks.FileStoreHealthch
 import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.repository.DataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
-import uk.gov.justice.services.healthcheck.database.TableChecker;
+import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
 
 import javax.sql.DataSource;
 

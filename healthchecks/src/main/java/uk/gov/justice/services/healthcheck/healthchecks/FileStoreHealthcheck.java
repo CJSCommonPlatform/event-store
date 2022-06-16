@@ -8,7 +8,7 @@ import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.repository.DataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.Healthcheck;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
-import uk.gov.justice.services.healthcheck.database.TableChecker;
+import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
 
 import java.sql.SQLException;
 import java.util.List;

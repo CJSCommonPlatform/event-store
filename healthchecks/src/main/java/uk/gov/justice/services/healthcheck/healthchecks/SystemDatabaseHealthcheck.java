@@ -6,7 +6,7 @@ import static uk.gov.justice.services.healthcheck.api.HealthcheckResult.failure;
 
 import uk.gov.justice.services.healthcheck.api.Healthcheck;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
-import uk.gov.justice.services.healthcheck.database.TableChecker;
+import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
 import uk.gov.justice.services.jdbc.persistence.SystemJdbcDataSourceProvider;
 
 import java.sql.SQLException;

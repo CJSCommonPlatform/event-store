@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M20] - 2022-08-12
+### Changed
+- Update common bom to 11.0.0-M15 in order to:
+    - Update artemis-jms-client to 2.10.1
+
 ## [11.0.0-M19] - 2022-06-16
 ### Changed
 - Moved healthcheck database table checker into microservices-framework

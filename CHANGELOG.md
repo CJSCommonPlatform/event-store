@@ -5,6 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M21] - 2022-08-31
+### Changed
+- Update framework to 11.0.0-M19 in order to:
+  - A default name of `jms.queue.DLQ` rather than the original name of `DLQ`
+  - A new constructor to pass the name in if you don't want the default name
+  - New builder `MessageConsumerClientBuilder` that allows ActiveMQ connection parameters to be specified
+
 ## [11.0.0-M20] - 2022-08-12
 ### Changed
 - Update common bom to 11.0.0-M15 in order to:

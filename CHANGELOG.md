@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M22] - 2022-09-05
+### Changed
+- Update framework to 11.0.0-M20:
+  - MessageProducerClient and MessageConsumerClient are now idempotent when start is called  
+
 ## [11.0.0-M21] - 2022-08-31
 ### Changed
 - Update framework to 11.0.0-M19 in order to:

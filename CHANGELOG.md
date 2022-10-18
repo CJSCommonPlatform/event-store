@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [11.0.0-M23] - 2022-10-18
+### Changed
+- Updated slf4j/log4j bridge jar from slf4j-log4j12 to slf4j-reload4j
+
 ## [11.0.0-M22] - 2022-09-05
 ### Changed
 - Update framework to 11.0.0-M20:

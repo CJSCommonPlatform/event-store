@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Add artemis healthcheck
+- Add artemis health check implementation which gets automatically registered by existing healthcheck mechanism
 
 ## [11.0.0-M24] - 2022-11-03
 ### Security

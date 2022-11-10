@@ -8,6 +8,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 import uk.gov.justice.services.messaging.jms.DestinationProvider;
 import uk.gov.justice.services.messaging.jms.exception.JmsEnvelopeSenderException;
 
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JmsDestinationsVerifierTest {
+
+    @Mock
+    private Logger logger;
 
     @Mock
     private DestinationNamesProvider destinationNamesProvider;
@@ -76,13 +80,17 @@ public class JmsDestinationsVerifierTest {
         given(destinationProvider.getDestination("queue-2")).willReturn(destination);
         given(session.createConsumer(destination)).willReturn(consumer);
 
+        boolean exceptionThrown = false;
         try{
             jmsDestinationsVerifier.verify(session);
         } catch (Exception e) {
+            exceptionThrown = true;
             assertTrue(e instanceof DestinationNotFoundException);
             var destinationNotFoundException = (DestinationNotFoundException)e;
             assertThat(destinationNotFoundException.getMessage(), CoreMatchers.is("Destination(s) queue-1, queue-3 not exist"));
-            assertThat(destinationNotFoundException.getCause(), CoreMatchers.is(cause));
+            verify(logger, times(2)).error(anyString(), any(Throwable.class));
         }
+
+        assertTrue(exceptionThrown);
     }
 }

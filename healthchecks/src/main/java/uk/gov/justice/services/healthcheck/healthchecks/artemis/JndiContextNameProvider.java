@@ -13,7 +13,7 @@ public class JndiContextNameProvider {
     }
 
     public String getContextName() {
-        String warFileName = this.appName;
+        final String warFileName = this.appName;
         return warFileName.contains("-") ? warFileName.substring(0, warFileName.indexOf(45)) : warFileName;
     }
 }

@@ -7,7 +7,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Session;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -68,14 +71,13 @@ public class ArtemisHealthcheckTest {
         var session = mock(Session.class);
         given(connectionFactory.createConnection()).willReturn(connection);
         given(connection.createSession()).willReturn(session);
-        var ex = new DestinationNotFoundException("ex message", new InvalidDestinationException("Ex message"));
+        var ex = new DestinationNotFoundException("ex message");
         doThrow(ex).when(jmsDestinationsVerifier).verify(session);
 
         var healthcheckResult = artemisHealthcheck.runHealthcheck();
 
         assertFalse(healthcheckResult.isPassed());
         assertThat(healthcheckResult.getErrorMessage().get(), is("Exception thrown while verifying destination(s): ex message"));
-        verify(logger).error("Healthcheck for artemis failed.", ex);
     }
 
     @Test

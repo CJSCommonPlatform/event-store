@@ -4,7 +4,9 @@ import uk.gov.justice.services.messaging.jms.DestinationProvider;
 
 import javax.inject.Inject;
 import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JmsDestinationsVerifier {
@@ -16,20 +18,28 @@ public class JmsDestinationsVerifier {
     private DestinationProvider destinationProvider;
 
     public void verify(Session session) throws DestinationNotFoundException {
-        List<String> destinationNames = destinationNamesProvider.getDestinationNames();
+        final var destinationNames = destinationNamesProvider.getDestinationNames();
 
-        try{
-            for (final String destinationName : destinationNames) {
+        final List<String> failedDestinationNames = new ArrayList<>();
+        Exception cause = null;
+        for (final String destinationName : destinationNames) {
+            try {
                 verifyThatDestinationExist(session, destinationName);
+            } catch (Exception e) {
+                failedDestinationNames.add(destinationName);
+                cause = e;
             }
-        } catch(Exception e) {
-            throw new DestinationNotFoundException(e);
+        }
+
+        if(failedDestinationNames.size() != 0) {
+            throw new DestinationNotFoundException(failedDestinationNames, cause);
         }
     }
 
-    private void verifyThatDestinationExist(Session session, String destinationName) throws JMSException {
+    private void verifyThatDestinationExist(final Session session, final String destinationName) throws JMSException {
         var destination = destinationProvider.getDestination(destinationName);
-        var consumer = session.createConsumer(destination);
-        consumer.close();
+
+        try (final MessageConsumer consumer = session.createConsumer(destination)) {
+        }
     }
 }

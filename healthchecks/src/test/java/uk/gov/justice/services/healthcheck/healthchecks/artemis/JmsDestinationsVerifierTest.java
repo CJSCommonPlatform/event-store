@@ -1,5 +1,6 @@
 package uk.gov.justice.services.healthcheck.healthchecks.artemis;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -60,5 +62,26 @@ public class JmsDestinationsVerifierTest {
         doThrow(new JmsEnvelopeSenderException("Ex message", new RuntimeException())).when(destinationProvider).getDestination("queue-1");
 
         jmsDestinationsVerifier.verify(session);
+    }
+
+    @Test
+    public void shouldContinueVerifyingNextDestinationWhenExceptionThrownByPreviousDestinationAndFinallyThrowException() throws Exception {
+        var session = mock(Session.class);
+        var destination = mock(Destination.class);
+        var consumer = mock(MessageConsumer.class);
+        var cause = new JmsEnvelopeSenderException("Ex message", new RuntimeException());
+        given(destinationNamesProvider.getDestinationNames()).willReturn(List.of("queue-1", "queue-2"));
+        doThrow(cause).when(destinationProvider).getDestination("queue-1");
+        given(destinationProvider.getDestination("queue-2")).willReturn(destination);
+        given(session.createConsumer(destination)).willReturn(consumer);
+
+        try{
+            jmsDestinationsVerifier.verify(session);
+        } catch (Exception e) {
+            assertTrue(e instanceof DestinationNotFoundException);
+            var destinationNotFoundException = (DestinationNotFoundException)e;
+            assertThat(destinationNotFoundException.formattedDestinationNames(), CoreMatchers.is("queue-1"));
+            assertThat(destinationNotFoundException.getCause(), CoreMatchers.is(cause));
+        }
     }
 }

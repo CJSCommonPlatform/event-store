@@ -56,7 +56,7 @@ public class JmsDestinationsVerifierTest {
     }
 
     @Test(expected = DestinationNotFoundException.class)
-    public void shouldThrowExceptionWhenInvalidDestinationException() throws Exception {
+    public void shouldThrowExceptionWhenDestinationNotExist() throws Exception {
         var session = mock(Session.class);
         given(destinationNamesProvider.getDestinationNames()).willReturn(List.of("queue-1"));
         doThrow(new JmsEnvelopeSenderException("Ex message", new RuntimeException())).when(destinationProvider).getDestination("queue-1");
@@ -70,8 +70,9 @@ public class JmsDestinationsVerifierTest {
         var destination = mock(Destination.class);
         var consumer = mock(MessageConsumer.class);
         var cause = new JmsEnvelopeSenderException("Ex message", new RuntimeException());
-        given(destinationNamesProvider.getDestinationNames()).willReturn(List.of("queue-1", "queue-2"));
+        given(destinationNamesProvider.getDestinationNames()).willReturn(List.of("queue-1", "queue-2", "queue-3"));
         doThrow(cause).when(destinationProvider).getDestination("queue-1");
+        doThrow(cause).when(destinationProvider).getDestination("queue-3");
         given(destinationProvider.getDestination("queue-2")).willReturn(destination);
         given(session.createConsumer(destination)).willReturn(consumer);
 
@@ -80,7 +81,7 @@ public class JmsDestinationsVerifierTest {
         } catch (Exception e) {
             assertTrue(e instanceof DestinationNotFoundException);
             var destinationNotFoundException = (DestinationNotFoundException)e;
-            assertThat(destinationNotFoundException.formattedDestinationNames(), CoreMatchers.is("queue-1"));
+            assertThat(destinationNotFoundException.getMessage(), CoreMatchers.is("Destination(s) queue-1, queue-3 not exist"));
             assertThat(destinationNotFoundException.getCause(), CoreMatchers.is(cause));
         }
     }

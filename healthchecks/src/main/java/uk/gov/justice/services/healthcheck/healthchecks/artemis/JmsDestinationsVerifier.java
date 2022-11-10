@@ -8,6 +8,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JmsDestinationsVerifier {
 
@@ -32,7 +33,8 @@ public class JmsDestinationsVerifier {
         }
 
         if(failedDestinationNames.size() != 0) {
-            throw new DestinationNotFoundException(failedDestinationNames, cause);
+            String failedDestinationNamesFormatted = failedDestinationNames.stream().collect(Collectors.joining(", "));
+            throw new DestinationNotFoundException(String.format("Destination(s) %s not exist", failedDestinationNamesFormatted), cause);
         }
     }
 

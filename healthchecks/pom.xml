@@ -44,7 +44,6 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>messaging-jms</artifactId>
-            <version>11.0.0-M18</version>
         </dependency>
 
         <!-- Test Dependencies -->

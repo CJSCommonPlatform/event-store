@@ -35,7 +35,7 @@ public class JmsDestinationsVerifier {
         }
 
         if(failedDestinationNames.size() != 0) {
-            String failedDestinationNamesFormatted = String.join(", ", failedDestinationNames);
+            final String failedDestinationNamesFormatted = String.join(", ", failedDestinationNames);
             throw new DestinationNotFoundException(String.format("Destination(s) %s not exist", failedDestinationNamesFormatted));
         }
     }

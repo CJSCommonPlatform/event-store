@@ -3,7 +3,10 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [11.0.0-M25] - 2022-11-10
+### Changed
+- Upgrade framework version to 11.0.0-M23 to access messaging-jms dependency through framework-bom
+- Add artemis health check implementation which gets automatically registered by existing healthcheck mechanism
 
 ## [11.0.0-M24] - 2022-11-03
 ### Security

@@ -38,10 +38,9 @@ public class ArtemisHealthcheck implements Healthcheck {
                     return HealthcheckResult.success();
                 }
             }
-        catch (DestinationNotFoundException e) {
-            this.logger.error("Healthcheck for artemis failed.", e);
+        catch (final DestinationNotFoundException e) {
             return HealthcheckResult.failure(String.format("Exception thrown while verifying destination(s): %s", e.getMessage()));
-        } catch (JMSException e) {
+        } catch (final JMSException e) {
             this.logger.error("Healthcheck for artemis failed.", e);
             return HealthcheckResult.failure(String.format("Exception thrown while accessing artemis broker. %s: %s", e.getClass().getName(), e.getMessage()));
         }

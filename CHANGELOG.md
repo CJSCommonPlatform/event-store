@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
+## [11.0.0-M27] - 2022-11-18
+### Changed
+- Update common bom to 11.0.0-M19 in order to:
+  - Update jackson libraries to 2.12.7
+
 ## [11.0.0-M26] - 2022-11-16
 ### Changed
 - Update common bom to 11.0.0-M18 in order to:

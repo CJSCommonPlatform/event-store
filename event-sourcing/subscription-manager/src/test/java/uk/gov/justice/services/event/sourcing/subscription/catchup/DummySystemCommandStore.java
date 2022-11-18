@@ -7,9 +7,7 @@ import uk.gov.justice.services.jmx.command.SystemCommandStore;
 import java.util.List;
 
 import javax.enterprise.inject.Default;
-import javax.faces.bean.ApplicationScoped;
 
-@ApplicationScoped
 @Default
 public class DummySystemCommandStore implements SystemCommandStore {
 

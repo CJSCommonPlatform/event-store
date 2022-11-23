@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
+## [11.0.0-M29] - 2022-11-23
+### Changed
+- Removed log4j-over-slf4j as it is now replaced by slf4j-reload4j
+
 ## [11.0.0-M28] - 2022-11-22
 ### Security
 - Update common bom to 11.0.0-M20 in order to:

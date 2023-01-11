@@ -10,6 +10,8 @@ import javax.jms.JMSException;
 
 public class ArtemisHealthcheck implements Healthcheck {
 
+    public static final String ARTEMIS_HEALTHCHECK_NAME = "artemis-healthcheck";
+
     @Inject
     private Logger logger;
 
@@ -21,7 +23,7 @@ public class ArtemisHealthcheck implements Healthcheck {
 
     @Override
     public String getHealthcheckName() {
-        return "artemis-healthcheck";
+        return ARTEMIS_HEALTHCHECK_NAME;
     }
 
     @Override

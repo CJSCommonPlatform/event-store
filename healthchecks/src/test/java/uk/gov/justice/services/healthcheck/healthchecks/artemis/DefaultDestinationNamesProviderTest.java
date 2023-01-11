@@ -7,17 +7,18 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DestinationNamesProviderTest {
+public class DefaultDestinationNamesProviderTest {
 
     @Mock
     private JndiContextNameProvider jndiContextNameProvider;
 
     @InjectMocks
-    private DestinationNamesProvider destinationNamesProvider;
+    private DefaultDestinationNamesProvider destinationNamesProvider;
 
     @Test
     public void shouldReturnContextSpecificCQRSDestinationNames() {
@@ -26,6 +27,13 @@ public class DestinationNamesProviderTest {
         assertThat(destinationNamesProvider.getDestinationNames(), hasItems("people.controller.command",
                 "people.handler.command",
                 "people.event"));
+    }
+
+    @Test
+    public void shouldReturnContextNae() {
+        given(jndiContextNameProvider.getContextName()).willReturn("people");
+
+        assertThat(destinationNamesProvider.getContextName(), is("people"));
 
     }
 }

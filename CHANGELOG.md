@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
+## [11.0.0-M31] - 2023-01-10
+### Changed
+- Provide constant for artemis healthcheck name
+- Provide capability to override destination names while performing artemis healthcheck
+- Update framework version to 11.0.0-M30
+
 ## [11.0.0-M30] - 2022-11-29
 ### Changed
 - Update framework version to 11.0.0-M29

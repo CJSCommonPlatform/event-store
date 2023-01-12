@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventStreamServiceTest {
@@ -49,13 +49,9 @@ public class EventStreamServiceTest {
         final EventStream eventStream_3 = mock(EventStream.class);
         final EventStream eventStream_4 = mock(EventStream.class);
 
-        when(eventStream_1.getId()).thenReturn(streamId_1);
-        when(eventStream_2.getId()).thenReturn(streamId_2);
         when(eventStream_3.getId()).thenReturn(streamId_3);
         when(eventStream_4.getId()).thenReturn(streamId_4);
 
-        when(eventStream_1.getPosition()).thenReturn(1L);
-        when(eventStream_2.getPosition()).thenReturn(2L);
         when(eventStream_3.getPosition()).thenReturn(3L);
         when(eventStream_4.getPosition()).thenReturn(4L);
 

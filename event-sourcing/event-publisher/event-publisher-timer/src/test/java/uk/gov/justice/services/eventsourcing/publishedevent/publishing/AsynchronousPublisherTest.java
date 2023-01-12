@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AsynchronousPublisherTest {
@@ -33,10 +33,8 @@ public class AsynchronousPublisherTest {
     @Test
     public void shouldRunPublishUntilAllEventsArePublished() throws Exception {
 
-        final long timerIntervalValue = 2000L;
         final long timerMaxRuntimeValue = 495L;
 
-        when(publisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
         when(publisherTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(mock(StopWatch.class));
         when(publishedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true, false);
@@ -53,7 +51,6 @@ public class AsynchronousPublisherTest {
         final long timerMaxRuntimeValue = 459L;
         final StopWatch stopWatch = mock(StopWatch.class);
 
-        when(publisherTimerConfig.getTimerIntervalMilliseconds()).thenReturn(timerIntervalValue);
         when(publisherTimerConfig.getTimerMaxRuntimeMilliseconds()).thenReturn(timerMaxRuntimeValue);
         when(stopWatchFactory.createStopWatch()).thenReturn(stopWatch);
         when(publishedEventDeQueuerAndPublisher.deQueueAndPublish()).thenReturn(true, true);

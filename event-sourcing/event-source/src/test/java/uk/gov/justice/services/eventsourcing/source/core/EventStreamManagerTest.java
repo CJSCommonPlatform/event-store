@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,7 +38,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -90,7 +90,6 @@ public class EventStreamManagerTest {
     @Test
     public void shouldAppendToStream() throws Exception {
 
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(INITIAL_VERSION);
         when(eventSourceNameProvider.getDefaultEventSourceName()).thenReturn(EVENT_SOURCE_NAME);
 
         final JsonEnvelope event = envelopeFrom(
@@ -173,7 +172,6 @@ public class EventStreamManagerTest {
 
     @Test(expected = VersionMismatchException.class)
     public void shouldThrowExceptionWhenEventsAreMissing() throws Exception {
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
         final JsonEnvelope event = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName("my-event"),
@@ -206,7 +204,6 @@ public class EventStreamManagerTest {
     @Test
     public void shouldReadStreamFromVersion() {
         when(eventRepository.getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION)).thenReturn(eventStream);
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
 
         final Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.readFrom(STREAM_ID, CURRENT_VERSION);
 
@@ -220,8 +217,6 @@ public class EventStreamManagerTest {
         final int pageSize = 1000;
 
         when(eventRepository.getEventsByStreamIdFromPosition(STREAM_ID, CURRENT_VERSION, pageSize)).thenReturn(eventStream);
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(CURRENT_VERSION);
-
         final Stream<JsonEnvelope> actualEnvelopeEventStream = eventStreamManager.readFrom(STREAM_ID, CURRENT_VERSION, pageSize);
 
         assertThat(actualEnvelopeEventStream, equalTo(eventStream));
@@ -400,7 +395,6 @@ public class EventStreamManagerTest {
 
         when(eventSourceNameProvider.getDefaultEventSourceName()).thenReturn(EVENT_SOURCE_NAME);
         when(eventRepository.getEventsByStreamId(STREAM_ID)).thenReturn(Stream.of(event));
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(0L);
         when(systemEventService.clonedEventFor(STREAM_ID)).thenReturn(systemEvent);
 
         final UUID clonedId = eventStreamManager.cloneAsAncestor(STREAM_ID);
@@ -428,7 +422,6 @@ public class EventStreamManagerTest {
         final JsonEnvelope systemEvent = buildEnvelope("system.events.cloned");
 
         when(eventRepository.getEventsByStreamId(STREAM_ID)).thenReturn(Stream.of(event1, event2));
-        when(eventRepository.getStreamPosition(STREAM_ID)).thenReturn(0L);
         when(systemEventService.clonedEventFor(STREAM_ID)).thenReturn(systemEvent);
         when(eventSourceNameProvider.getDefaultEventSourceName()).thenReturn(EVENT_SOURCE_NAME);
 

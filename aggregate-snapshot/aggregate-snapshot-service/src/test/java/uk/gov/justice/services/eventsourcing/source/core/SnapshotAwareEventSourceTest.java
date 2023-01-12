@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SnapshotAwareEventSourceTest {
@@ -82,7 +82,6 @@ public class SnapshotAwareEventSourceTest {
 
         final Stream<EventStreamMetadata> eventStreamMetadatas = Stream.of(new DefaultEventStreamMetadata(streamId, position, true, now()));
         when(eventRepository.getEventStreamsFromPosition(position)).thenReturn(eventStreamMetadatas);
-        when(eventStreamManager.getStreamPosition(streamId)).thenReturn(1l);
 
         final Stream<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreams = snapshotAwareEventSource.getStreamsFrom(position);
         List<uk.gov.justice.services.eventsourcing.source.core.EventStream> eventStreamList = eventStreams.collect(toList());

@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
 import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithDefaults;
@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SnapshotAwareEnvelopeEventStreamTest {
@@ -128,7 +128,7 @@ public class SnapshotAwareEnvelopeEventStreamTest {
 
         eventStream.append(Stream.of(envelope().build()), Tolerance.NON_CONSECUTIVE);
 
-        verifyZeroInteractions(snapshotService);
+        verifyNoInteractions(snapshotService);
 
     }
 

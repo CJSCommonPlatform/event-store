@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PrePublishQueueRepository;
@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PrePublishProcessorTest {
@@ -58,7 +58,7 @@ public class PrePublishProcessorTest {
 
         assertThat(prePublishProcessor.prePublishNextEvent(), is(false));
 
-        verifyZeroInteractions(eventPrePublisher);
+        verifyNoInteractions(eventPrePublisher);
     }
 
     @Test
@@ -75,6 +75,6 @@ public class PrePublishProcessorTest {
             assertThat(expected.getMessage(), is("Failed to find Event with id '" + eventId + "'"));
         }
 
-        verifyZeroInteractions(eventPrePublisher);
+        verifyNoInteractions(eventPrePublisher);
     }
 }

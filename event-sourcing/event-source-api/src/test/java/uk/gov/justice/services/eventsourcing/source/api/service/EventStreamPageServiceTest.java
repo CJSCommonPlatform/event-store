@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventStreamPageServiceTest {
@@ -358,7 +358,6 @@ public class EventStreamPageServiceTest {
                 create("event-streams/" + streamId));
 
         final List<EventStreamEntry> entries = emptyList();
-        when(service.eventStreams(sequence, backward, 2)).thenReturn(entries);
 
         final URL headURL = new URL(BASE_URL + EVENT_STREAM_PATH + "/HEAD/BACKWARD/2");
         when(urlLinkFactory.createHeadEventStreamsUrlLink(2, uriInfo)).thenReturn(headURL);

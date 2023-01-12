@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -136,9 +136,6 @@ public class UrlLinkFactoryTest {
         when(pathSegmentList.get(0)).thenReturn(eventStreamPathSegment);
         when(eventStreamPathSegment.getPath()).thenReturn(eventStreamPathSegmentValue);
 
-        when(pathSegmentList.get(1)).thenReturn(streamIdPathSegment);
-        when(streamIdPathSegment.getPath()).thenReturn(streamId.toString());
-
         when(uriBuilder.path(eventStreamPathSegmentValue)).thenReturn(uriBuilder);
         when(uriBuilder.path(streamId.toString())).thenReturn(uriBuilder);
         when(uriBuilder.path(HEAD)).thenReturn(uriBuilder);
@@ -176,11 +173,7 @@ public class UrlLinkFactoryTest {
         when(pathSegmentList.get(0)).thenReturn(eventStreamPathSegment);
         when(eventStreamPathSegment.getPath()).thenReturn(eventStreamPathSegmentValue);
 
-        when(pathSegmentList.get(1)).thenReturn(streamIdPathSegment);
-        when(streamIdPathSegment.getPath()).thenReturn(streamId.toString());
-
         when(uriBuilder.path(eventStreamPathSegmentValue)).thenReturn(uriBuilder);
-        when(uriBuilder.path(streamId.toString())).thenReturn(uriBuilder);
         when(uriBuilder.path(HEAD)).thenReturn(uriBuilder);
         when(uriBuilder.path("BACKWARD")).thenReturn(uriBuilder);
         when(uriBuilder.path("2")).thenReturn(uriBuilder);
@@ -213,11 +206,7 @@ public class UrlLinkFactoryTest {
         when(pathSegmentList.get(0)).thenReturn(eventStreamPathSegment);
         when(eventStreamPathSegment.getPath()).thenReturn(eventStreamPathSegmentValue);
 
-        when(pathSegmentList.get(1)).thenReturn(streamIdPathSegment);
-        when(streamIdPathSegment.getPath()).thenReturn(streamId.toString());
-
         when(uriBuilder.path(eventStreamPathSegmentValue)).thenReturn(uriBuilder);
-        when(uriBuilder.path(streamId.toString())).thenReturn(uriBuilder);
         when(uriBuilder.path(FIRST)).thenReturn(uriBuilder);
         when(uriBuilder.path("FORWARD")).thenReturn(uriBuilder);
         when(uriBuilder.path("2")).thenReturn(uriBuilder);

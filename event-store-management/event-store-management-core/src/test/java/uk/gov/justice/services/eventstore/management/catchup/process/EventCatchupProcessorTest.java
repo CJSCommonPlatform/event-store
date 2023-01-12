@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -159,10 +159,8 @@ public class EventCatchupProcessorTest {
 
         when(subscriptionCatchupDetails.getSubscriptionName()).thenReturn(subscriptionName);
         when(subscriptionCatchupDetails.getEventSourceName()).thenReturn(eventSourceName);
-        when(clock.now()).thenReturn(catchupCompletedAt);
         when(concurrentEventStreamConsumerManager.add(publishedEvent_1, subscriptionName, catchupCommand, commandId)).thenReturn(1);
         when(concurrentEventStreamConsumerManager.add(publishedEvent_2, subscriptionName, catchupCommand, commandId)).thenReturn(1);
-        when(concurrentEventStreamConsumerManager.add(publishedEvent_3, subscriptionName, catchupCommand, commandId)).thenReturn(1);
 
         try {
             eventCatchupProcessor.performEventCatchup(catchupSubscriptionContext);

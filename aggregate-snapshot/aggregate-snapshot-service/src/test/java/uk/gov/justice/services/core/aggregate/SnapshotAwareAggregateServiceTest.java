@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 /**
@@ -196,7 +196,6 @@ public class SnapshotAwareAggregateServiceTest {
 
         when(eventStream.getId()).thenReturn(STREAM_ID);
         when(snapshotService.getLatestVersionedAggregate(STREAM_ID, TestAggregate.class)).thenReturn(Optional.of(new VersionedAggregate<>(INITIAL_AGGREGATE_VERSION, new TestAggregate())));
-        when(jsonObjectToObjectConverter.convert(eventPayloadA, EventA.class)).thenReturn(eventA);
         when(eventStream.readFrom(NEXT_AGGREGATE_VERSION)).thenReturn(of(envelopeFrom(metadataWithRandomUUID("eventA"), eventPayloadA)));
 
         aggregateService.get(eventStream, TestAggregate.class);
@@ -206,12 +205,6 @@ public class SnapshotAwareAggregateServiceTest {
     public void shouldThrowExceptionForNonInstantiatableEvent() throws AggregateChangeDetectedException {
         defaultAggregateService.logger = logger;
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
-        final JsonObject eventPayloadA = mock(JsonObject.class);
-        final EventA eventA = mock(EventA.class);
-
-        when(snapshotService.getLatestVersionedAggregate(STREAM_ID, TestAggregate.class)).thenReturn(Optional.of(new VersionedAggregate<>(INITIAL_AGGREGATE_VERSION, new TestAggregate())));
-        when(jsonObjectToObjectConverter.convert(eventPayloadA, EventA.class)).thenReturn(eventA);
-        when(eventStream.readFrom(NEXT_AGGREGATE_VERSION)).thenReturn(of(envelopeFrom(metadataWithRandomUUID("eventA"), eventPayloadA)));
 
         registerEvent(EventA.class, "eventA");
 

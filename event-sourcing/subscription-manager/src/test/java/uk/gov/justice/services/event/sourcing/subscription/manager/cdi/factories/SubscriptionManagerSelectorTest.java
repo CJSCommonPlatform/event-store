@@ -3,7 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriptionManagerSelectorTest {
@@ -50,7 +50,7 @@ public class SubscriptionManagerSelectorTest {
 
         assertThat(subscriptionManagerSelector.selectFor(subscription), is(defaultSubscriptionManager));
 
-        verifyZeroInteractions(backwardsCompatibleSubscriptionManagerFactory);
+        verifyNoInteractions(backwardsCompatibleSubscriptionManagerFactory);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class SubscriptionManagerSelectorTest {
 
         assertThat(subscriptionManagerSelector.selectFor(subscription), is(defaultSubscriptionManager));
 
-        verifyZeroInteractions(backwardsCompatibleSubscriptionManagerFactory);
+        verifyNoInteractions(backwardsCompatibleSubscriptionManagerFactory);
     }
 
     @Test
@@ -91,6 +91,6 @@ public class SubscriptionManagerSelectorTest {
 
         assertThat(subscriptionManagerSelector.selectFor(subscription), is(backwardsCompatibleSubscriptionManager));
 
-        verifyZeroInteractions(defaultSubscriptionManagerFactory);
+        verifyNoInteractions(defaultSubscriptionManagerFactory);
     }
 }

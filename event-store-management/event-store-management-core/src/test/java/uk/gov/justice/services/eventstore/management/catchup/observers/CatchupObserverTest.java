@@ -8,11 +8,11 @@ import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
 
@@ -45,7 +45,7 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -195,7 +195,7 @@ public class CatchupObserverTest {
         verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' caught up 23 events");
         verify(logger).info("CATCHUP for 'EVENT_LISTENER' 'mySubscription' took 23000 milliseconds");
 
-        verifyZeroInteractions(catchupProcessCompleter);
+        verifyNoInteractions(catchupProcessCompleter);
     }
 
     @Test

@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -74,7 +74,6 @@ public class DefaultSnapshotServiceTest {
         final Optional<AggregateSnapshot<TestAggregate>> aggregateSnapshot = Optional.empty();
         final Long currentSnapshotVersion = 0l;
         final Long currentAggregateVersionId = 26l;
-        when(snapshotRepository.getLatestSnapshot(STREAM_ID, TestAggregate.class)).thenReturn(aggregateSnapshot);
         when(snapshotRepository.getLatestSnapshotVersion(STREAM_ID, TestAggregate.class)).thenReturn(currentSnapshotVersion);
         when(snapshotStrategy.shouldCreateSnapshot(currentAggregateVersionId, currentSnapshotVersion)).thenReturn(true);
 

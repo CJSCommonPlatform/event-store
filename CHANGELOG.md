@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
-## [11.0.0-M31] - 2023-01-16
+## [11.0.0-M32] - 2023-01-16
 ### Changed
 - Update common-bom in order to:
   - Update mockito version to 4.11.0

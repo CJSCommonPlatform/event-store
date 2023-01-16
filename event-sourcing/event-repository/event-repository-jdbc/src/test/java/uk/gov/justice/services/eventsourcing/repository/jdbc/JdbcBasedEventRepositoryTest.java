@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -283,11 +283,7 @@ public class JdbcBasedEventRepositoryTest {
         when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId1)).thenReturn(of(event1).onClose(streamCloseSpy2));
         when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId2)).thenReturn(of(event2).onClose(streamCloseSpy3));
         when(eventJdbcRepository.findByStreamIdOrderByPositionAsc(streamId3)).thenReturn(of(event3).onClose(streamCloseSpy4));
-
-        when(eventConverter.envelopeOf(event1)).thenReturn(envelope1);
-        when(eventConverter.envelopeOf(event2)).thenReturn(envelope2);
-        when(eventConverter.envelopeOf(event3)).thenReturn(envelope3);
-
+        
         final Stream<Stream<JsonEnvelope>> streamOfAllEventStreams = jdbcBasedEventRepository
                 .getStreamOfAllEventStreams();
 

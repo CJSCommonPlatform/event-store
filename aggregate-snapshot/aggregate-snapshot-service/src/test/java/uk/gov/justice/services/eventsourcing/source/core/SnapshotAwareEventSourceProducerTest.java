@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.subscription.domain.builders.EventSourceDefinitionBuilder.eventSourceDefinition;
 
@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SnapshotAwareEventSourceProducerTest {
@@ -47,7 +47,6 @@ public class SnapshotAwareEventSourceProducerTest {
         final EventSourceName eventSourceNameAnnotation = mock(EventSourceName.class);
         final JdbcBasedEventSource jdbcBasedEventSource = mock(JdbcBasedEventSource.class);
 
-        when(eventSourceNameAnnotation.value()).thenReturn("");
         when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
         when(snapshotAwareEventSourceFactory.create(eventSourceDefinition.getName())).thenReturn(jdbcBasedEventSource);
 
@@ -82,9 +81,7 @@ public class SnapshotAwareEventSourceProducerTest {
         final EventSourceName eventSourceNameAnnotation = mock(EventSourceName.class);
         final JdbcBasedEventSource jdbcBasedEventSource = mock(JdbcBasedEventSource.class);
 
-        when(eventSourceNameAnnotation.value()).thenReturn("");
         when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
-        when(snapshotAwareEventSourceFactory.create(eventSourceDefinition.getName())).thenReturn(jdbcBasedEventSource);
 
         try {
             snapshotAwareEventSourceProducer.eventSource();
@@ -93,6 +90,6 @@ public class SnapshotAwareEventSourceProducerTest {
             assertThat(expected.getMessage(), is("No DataSource specified for EventSource 'defaultEventSource' specified in event-sources.yaml"));
         }
 
-        verifyZeroInteractions(snapshotAwareEventSourceFactory);
+        verifyNoInteractions(snapshotAwareEventSourceFactory);
     }
 }

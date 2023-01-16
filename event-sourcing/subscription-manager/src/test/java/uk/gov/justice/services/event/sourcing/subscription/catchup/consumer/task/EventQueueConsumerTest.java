@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventQueueConsumerTest {
@@ -83,7 +83,6 @@ public class EventQueueConsumerTest {
         final Queue<PublishedEvent> eventQueue = new ConcurrentLinkedQueue<>();
 
         when(eventStreamConsumptionResolver.isEventConsumptionComplete(new FinishedProcessingMessage(eventQueue))).thenReturn(true);
-        when(event_2.getMetadata()).thenReturn(metadata);
 
         eventQueue.add(event_1);
         eventQueue.add(event_2);

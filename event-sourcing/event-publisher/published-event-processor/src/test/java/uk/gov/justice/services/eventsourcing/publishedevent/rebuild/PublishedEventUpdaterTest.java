@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 
@@ -48,7 +48,6 @@ public class PublishedEventUpdaterTest {
 
         when(activeEventStreamIdProvider.getActiveStreamIds()).thenReturn(activeStreamIds);
         when(batchProcessingDetailsCalculator.createFirstBatchProcessDetails()).thenReturn(startBatchProcessDetails);
-        when(processCompleteDecider.isProcessingComplete(startBatchProcessDetails)).thenReturn(false);
         when(batchPublishedEventProcessor.processNextBatchOfEvents(startBatchProcessDetails, activeStreamIds)).thenReturn(nextBatchProcessDetails);
         when(processCompleteDecider.isProcessingComplete(nextBatchProcessDetails)).thenReturn(false);
         when(batchPublishedEventProcessor.processNextBatchOfEvents(nextBatchProcessDetails, activeStreamIds)).thenReturn(finalBatchProcessDetails);

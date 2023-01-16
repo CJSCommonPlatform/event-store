@@ -1,7 +1,7 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.prepublish;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.ejb.timer.TimerServiceManager;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PrePublisherTimerBeanTest {
@@ -67,6 +67,6 @@ public class PrePublisherTimerBeanTest {
 
         prePublisherTimerBean.performPrePublish();
 
-        verifyZeroInteractions(asynchronousPrePublisher);
+        verifyNoInteractions(asynchronousPrePublisher);
     }
 }

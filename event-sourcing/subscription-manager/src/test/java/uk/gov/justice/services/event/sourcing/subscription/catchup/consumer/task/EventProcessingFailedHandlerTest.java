@@ -23,7 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -90,10 +90,6 @@ public class EventProcessingFailedHandlerTest {
 
         final PublishedEvent publishedEvent = mock(PublishedEvent.class);
 
-        when(publishedEvent.getName()).thenReturn(eventName);
-        when(publishedEvent.getId()).thenReturn(eventId);
-        when(publishedEvent.getStreamId()).thenReturn(streamId);
-
         eventProcessingFailedHandler.handleStreamFailure(
                 nullPointerException,
                 subscriptionName,
@@ -118,16 +114,8 @@ public class EventProcessingFailedHandlerTest {
         final NullPointerException nullPointerException = new NullPointerException("Ooops");
         final UUID commandId = randomUUID();
         final String subscriptionName = "subscriptionName";
-        final String eventName = "events.some-event";
-        final UUID eventId = fromString("1c68536e-1fdf-4891-9c74-85661a9c0f9e");
         final UUID streamId = fromString("b1834ed9-e084-41c7-ae7f-74f1227cc829");
         final CatchupCommand catchupCommand = new EventCatchupCommand();
-
-        final PublishedEvent publishedEvent = mock(PublishedEvent.class);
-
-        when(publishedEvent.getName()).thenReturn(eventName);
-        when(publishedEvent.getId()).thenReturn(eventId);
-        when(publishedEvent.getStreamId()).thenReturn(streamId);
 
         eventProcessingFailedHandler.handleSubscriptionFailure(
                 nullPointerException,

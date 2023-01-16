@@ -10,7 +10,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -119,7 +119,7 @@ public class ConsecutiveEventBufferServiceTest {
         assertThat(bufferService.currentOrderedEventsWith(event_3, EVENT_LISTENER), is(empty()));
         assertThat(bufferService.currentOrderedEventsWith(event_4, EVENT_LISTENER), is(empty()));
 
-        verifyZeroInteractions(streamBufferRepository);
+        verifyNoInteractions(streamBufferRepository);
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository);
         
@@ -204,7 +204,6 @@ public class ConsecutiveEventBufferServiceTest {
 
         when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(subscription));
-        when(subscription.getPosition()).thenReturn(4L);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(new Subscription(streamId, 4L, source, EVENT_LISTENER)));
 
         when(jsonObjectEnvelopeConverter.asJsonString(incomingEvent)).thenReturn("someStringRepresentation");
@@ -295,7 +294,6 @@ public class ConsecutiveEventBufferServiceTest {
         );
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
-        when(jsonObjectEnvelopeConverter.asEnvelope("someEventContent4")).thenReturn(bufferedEvent4);
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
         returnedEvents.close();

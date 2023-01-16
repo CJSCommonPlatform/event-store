@@ -4,7 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -70,7 +70,6 @@ public class EventBufferJdbcRepositoryTest {
     @Before
     public void initDatabase() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.getMetaData()).thenReturn(databaseMetaData);
     }
 
     @Test
@@ -90,7 +89,7 @@ public class EventBufferJdbcRepositoryTest {
         verify(preparedStatement).setString(4, source);
         verify(preparedStatement).setString(5, EVENT_LISTENER);
         verify(preparedStatement).executeUpdate();
-        verifyZeroInteractions(logger);
+        verifyNoInteractions(logger);
     }
 
     @Test
@@ -141,11 +140,8 @@ public class EventBufferJdbcRepositoryTest {
         when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT))
                 .thenReturn(preparedStatement);
 
-        when(jdbcResultSetStreamer.streamOf(preparedStatementWrapper, function))
-                .thenReturn(stream);
-
         final UUID streamId = randomUUID();
-        final long position = 1l;
+        final long position = 1L;
         eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
 
         eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component);

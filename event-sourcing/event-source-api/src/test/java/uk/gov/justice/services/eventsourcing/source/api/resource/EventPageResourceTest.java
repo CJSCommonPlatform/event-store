@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventPageResourceTest {
@@ -104,8 +104,6 @@ public class EventPageResourceTest {
 
         final Page<EventEntry> page = new Page<>(emptyList(), pagingLinksBuilder(fixedUrl, fixedUrl).build());
 
-        when(eventsPageService.pageEvents(UUID.fromString(streamId), HEAD, FORWARD, 10, uriInfo)).thenReturn(page);
-
         resource.events(streamId, HEAD, FORWARD.toString(), 10, uriInfo);
     }
 
@@ -119,8 +117,6 @@ public class EventPageResourceTest {
         final URL fixedUrl = new URL("http://localhost:8080/rest/fixed");
 
         final Page<EventEntry> page = new Page<>(emptyList(), pagingLinksBuilder(fixedUrl, fixedUrl).build());
-
-        when(eventsPageService.pageEvents(UUID.fromString(streamId), FIRST, BACKWARD, 10, uriInfo)).thenReturn(page);
 
         resource.events(streamId, FIRST, BACKWARD.toString(), 10, uriInfo);
     }

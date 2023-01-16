@@ -7,7 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.eventsourcing.publishedevent.jdbc.PublishedEventRepository;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublishedPublishQueuesDataAccessAndPublisherTest {
@@ -57,7 +57,6 @@ public class PublishedPublishQueuesDataAccessAndPublisherTest {
 
         when(publishedEventRepository.getPublishedEvent(eventId)).thenReturn(of(publishedEvent));
         when(eventConverter.envelopeOf(publishedEvent)).thenReturn(jsonEnvelope);
-        when(publishedEvent.getName()).thenReturn(eventName);
 
         assertThat(publishedEventDeQueuerAndPublisher.deQueueAndPublish(), is(true));
 
@@ -71,8 +70,8 @@ public class PublishedPublishQueuesDataAccessAndPublisherTest {
 
         assertThat(publishedEventDeQueuerAndPublisher.deQueueAndPublish(), is(false));
 
-        verifyZeroInteractions(eventConverter);
-        verifyZeroInteractions(eventPublisher);
+        verifyNoInteractions(eventConverter);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -90,7 +89,7 @@ public class PublishedPublishQueuesDataAccessAndPublisherTest {
             assertThat(expected.getMessage(), is("Failed to find PublishedEvent with id '" + eventId + "'"));
         }
 
-        verifyZeroInteractions(eventConverter);
-        verifyZeroInteractions(eventPublisher);
+        verifyNoInteractions(eventConverter);
+        verifyNoInteractions(eventPublisher);
     }
 }

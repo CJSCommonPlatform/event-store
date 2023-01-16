@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.subscription.domain.builders.EventSourceDefinitionBuilder.eventSourceDefinition;
 
@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublishedEventSourceProducerTest {
@@ -55,9 +55,6 @@ public class PublishedEventSourceProducerTest {
         final EventSourceName eventSourceNameAnnotation = mock(EventSourceName.class);
         final DefaultPublishedEventSource defaultPublishedEventSource = mock(DefaultPublishedEventSource.class);
 
-        when(qualifierAnnotationExtractor.getFrom(injectionPoint, EventSourceName.class)).thenReturn(eventSourceNameAnnotation);
-
-        when(eventSourceNameAnnotation.value()).thenReturn(EMPTY_STRING);
         when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
         when(jdbcPublishedEventSourceFactory.create(eventSourceDefinition.getLocation().getDataSource().get())).thenReturn(defaultPublishedEventSource);
 
@@ -122,7 +119,7 @@ public class PublishedEventSourceProducerTest {
             assertThat(expected.getMessage(), is("Failed to find EventSource named 'my-event-source' in event-sources.yaml"));
         }
 
-        verifyZeroInteractions(jdbcPublishedEventSourceFactory);
+        verifyNoInteractions(jdbcPublishedEventSourceFactory);
     }
 
     @Test
@@ -150,6 +147,6 @@ public class PublishedEventSourceProducerTest {
             assertThat(expected.getMessage(), is("No DataSource specified for EventSource 'my-data-source' specified in event-sources.yaml"));
         }
 
-        verifyZeroInteractions(jdbcPublishedEventSourceFactory);
+        verifyNoInteractions(jdbcPublishedEventSourceFactory);
     }
 }

@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,7 +83,6 @@ public class EventsServiceTest {
         final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
-        when(eventStream.getPosition()).thenReturn(2L);
         when(eventStream.readFrom(eventStream.size() - 1)).thenReturn(Stream.of(event1, event2));
 
         final List<EventEntry> entries = service.events(streamId, head(), BACKWARD, pageSize);
@@ -138,7 +137,6 @@ public class EventsServiceTest {
         final EventStream eventStream = mock(EventStream.class);
 
         when(eventSource.getStreamById(streamId)).thenReturn(eventStream);
-        when(eventStream.size()).thenReturn(2L);
         when(eventStream.readFrom(first().getPosition())).thenReturn(Stream.of(event1, event2));
 
         final List<EventEntry> eventEntries = service.events(streamId, first(), FORWARD, pageSize);

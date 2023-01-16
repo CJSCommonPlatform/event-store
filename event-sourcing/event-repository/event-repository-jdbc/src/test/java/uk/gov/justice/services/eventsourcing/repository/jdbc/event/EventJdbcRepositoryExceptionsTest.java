@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 
@@ -86,7 +86,6 @@ public class EventJdbcRepositoryExceptionsTest {
         final String statement = "STATEMENT";
         final DataSource dataSource = mock(DataSource.class);
 
-        when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(dataSource.getConnection()).thenThrow(sqlException);
 
@@ -108,7 +107,6 @@ public class EventJdbcRepositoryExceptionsTest {
         final String statement = "STATEMENT";
         final DataSource dataSource = mock(DataSource.class);
 
-        when(eventInsertionStrategy.insertStatement()).thenReturn(statement);
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
         when(preparedStatementWrapperFactory.preparedStatementWrapperOf(
                 dataSource,

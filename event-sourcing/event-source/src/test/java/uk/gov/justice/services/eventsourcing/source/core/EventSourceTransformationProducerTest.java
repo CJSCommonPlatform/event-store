@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventSourceTransformationProducerTest {
@@ -34,9 +34,6 @@ public class EventSourceTransformationProducerTest {
         final String eventSourceName = "eventSourceName";
         
         final EventSourceDefinition eventSourceDefinition = mock(EventSourceDefinition.class);
-
-        when(eventSourceDefinitionRegistry.getDefaultEventSourceDefinition()).thenReturn(eventSourceDefinition);
-        when(eventSourceDefinition.getName()).thenReturn(eventSourceName);
 
         final EventSourceTransformation eventSourceTransformation = eventSourceTransformationProducer.eventSourceTransformation();
 

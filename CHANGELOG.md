@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
                        
 ### Unreleased
 
+## [17.0.0-M1] - 2023-02-06
+### Changed
+- Update to Java 17
+
 ## [11.0.1] - 2023-02-01
 ### Removed
 - Removed unnecessary indexes from event_log table

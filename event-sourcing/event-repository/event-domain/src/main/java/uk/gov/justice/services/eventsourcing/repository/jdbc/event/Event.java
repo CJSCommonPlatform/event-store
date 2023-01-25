@@ -1,8 +1,10 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Optional.empty;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -113,7 +115,7 @@ public class Event {
                 Objects.equals(name, event.name) &&
                 Objects.equals(payload, event.payload) &&
                 Objects.equals(metadata, event.metadata) &&
-                Objects.equals(createdAt, event.createdAt);
+                Objects.equals(createdAt.truncatedTo(MILLIS), event.createdAt.truncatedTo(MILLIS));
     }
 
     @Override

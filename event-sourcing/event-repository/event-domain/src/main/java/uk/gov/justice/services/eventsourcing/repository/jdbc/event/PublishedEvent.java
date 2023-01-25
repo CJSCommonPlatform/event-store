@@ -1,8 +1,10 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Optional.of;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 

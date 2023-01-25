@@ -1,5 +1,6 @@
 package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,6 +16,7 @@ import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFac
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,8 +1,9 @@
 package uk.gov.justice.services.healthcheck.healthchecks.artemis;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 public class DefaultDestinationNamesProvider implements DestinationNamesProvider {
 

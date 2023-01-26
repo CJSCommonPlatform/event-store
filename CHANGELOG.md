@@ -3,162 +3,41 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
-## [11.0.0-M32] - 2023-01-16
+## [11.0.0] - 2023-01-26
 ### Changed
-- Update common-bom in order to:
-  - Update mockito version to 4.11.0
-  - Update slf4j version to 2.0.6
-  - Update hamcrest version to 2.2
-  - Update slf4j version to 2.0.6
-### Removed
-- Removed all old hamcrest libraries
-
-
-## [11.0.0-M31] - 2023-01-10
-### Changed
+- Updated to Java 11
+- Bumped version to 11 to match new framework version
+- Update to JEE 8
+- Updated JdbcBasedEventRepository to insert eventIs into the pre_publish_queue table directly
 - Provide constant for artemis healthcheck name
 - Provide capability to override destination names while performing artemis healthcheck
-- Update framework version to 11.0.0-M30
-
-## [11.0.0-M30] - 2022-11-29
-### Changed
-- Update framework version to 11.0.0-M29
-
-## [11.0.0-M29] - 2022-11-23
-### Changed
-- Removed log4j-over-slf4j as it is now replaced by slf4j-reload4j
-
-## [11.0.0-M28] - 2022-11-22
-### Security
-- Update common bom to 11.0.0-M20 in order to:
-  - Update hibernate version to 5.4.24.Final
-  - Update jackson.databind version to 2.12.7.1
-
-## [11.0.0-M27] - 2022-11-18
-### Changed
-- Update common bom to 11.0.0-M19 in order to:
-  - Update jackson libraries to 2.12.7
-
-## [11.0.0-M26] - 2022-11-16
-### Changed
-- Update common bom to 11.0.0-M18 in order to:
-  - Update jboss-logging version to 3.5.0.Final
-  
-## [11.0.0-M25] - 2022-11-10
-### Changed
-- Upgrade framework version to 11.0.0-M23 to access messaging-jms dependency through framework-bom
-- Add artemis health check implementation which gets automatically registered by existing healthcheck mechanism
-
-## [11.0.0-M24] - 2022-11-03
-### Security
-- Updates to various libraries to address security alerts:
-    - wildfly to version 26.1.2.Final
-    - artemis to version 2.20.0
-    - resteasy-client to version 4.7.7.Final
-
-## [11.0.0-M23] - 2022-10-18
-### Changed
+- Upgrade framework to access messaging-jms dependency through framework-bom
 - Updated slf4j/log4j bridge jar from slf4j-log4j12 to slf4j-reload4j
-
-## [11.0.0-M22] - 2022-09-05
-### Changed
-- Update framework to 11.0.0-M20:
-  - MessageProducerClient and MessageConsumerClient are now idempotent when start is called  
-
-## [11.0.0-M21] - 2022-08-31
-### Changed
-- Update framework to 11.0.0-M19 in order to:
-  - A default name of `jms.queue.DLQ` rather than the original name of `DLQ`
-  - A new constructor to pass the name in if you don't want the default name
-  - New builder `MessageConsumerClientBuilder` that allows ActiveMQ connection parameters to be specified
-
-## [11.0.0-M20] - 2022-08-12
-### Changed
-- Update common bom to 11.0.0-M15 in order to:
-    - Update artemis-jms-client to 2.10.1
-
-## [11.0.0-M19] - 2022-06-16
-### Changed
+- MessageProducerClient and MessageConsumerClient are now idempotent when start is called  
 - Moved healthcheck database table checker into microservices-framework
-
-## [11.0.0-M18] - 2022-06-08
-### Changed
-- Update framework.version to 11.0.0-M16
-
-## [11.0.0-M17] - 2022-05-30
-### Changed
-- Removed strict checking of liquibase.properties files
-
-## [11.0.0-M16] - 2022-05-24
-- Update maven-framework-parent-pom to 11.0.0-M6
-
-## [11.0.0-M15] - 2022-05-20
-### Changed
 - Update liquibase to 4.10.0 
-
-## [11.0.0-M13] - 2022-03-25
-### Added
-- Added new healthcheck for the system database.
-### Changed
-- Update framework to 11.0.0-M11 
-
-## [11.0.0-M12] - 2022-03-24
-### Added
-- Added healthcheck modules into the event store bom
-
-## [11.0.0-M11] - 2022-03-23
+                                     
 ### Added
 - New healthcheck module
 - Healthchecks for viewstore, eventstore, jobstore and filestore 
-### Changed
-- Update framework to 11.0.0-M10 to allow
-    - New healthcheck mechanism
+- Added new healthcheck for the system database.
+- Added healthcheck modules into the event store bom
+- Add artemis health check implementation which gets automatically registered by existing healthcheck mechanism
 
-## [11.0.0-M10] - 2022-03-16
-### Changed
-- Update framework to 11.0.0-M8 to allow
-    - Update to log4j 2
-
-## [11.0.0-M9] - 2022-02-25
-### Changed
-- Update framework to allow
-    - Update log4j2 to 2.17.1 to fix critical security violation
-
-## [11.0.0-M8] - 2021-08-26
-### Changed
+### Removed
+- Removed log4j-over-slf4j as it is now replaced by slf4j-reload4j
+- Removed all old hamcrest libraries
+- Removed strict checking of liquibase.properties files
 - Removed the trigger from the event_log table and all related classes and commands
-- Updated JdbcBasedEventRepository to insert eventIs into the pre_publish_queue table directly
-
-## [11.0.0-M7] - 2021-07-08
-### Changed
 - Removed dependency on liquibase jars from test-utils-persistence
 
-## [11.0.0-M6] - 2021-06-15
-### Changed
-- Update framework to 11.0.0-M6
-
-## [11.0.0-M5] - 2021-05-28
-### Changed
-- Update framework to 11.0.0-M5
-
-## [11.0.0-M4] - 2021-05-19
-### Changed
-- Update framework to 11.0.0-M4
-
-## [11.0.0-M3] - 2021-05-07
-### Changed
-- Update framework to 11.0.0-M3
-
-## [11.0.0-M2] - 2021-02-08
-### Changed
-- Update to JEE 8
-- Update framework to 11.0.0-M2
-
-## [11.0.0-M1] - 2021-01-26
-### Changed
-- Bumped version to 11 to match new framework version
-- Update framework-parent-pom to 11.0.0-M1
-- Update framework to 11.0.0-M1
+### Security
+  - Update hibernate version to 5.4.24.Final
+  - Update jackson.databind version to 2.12.7.1
+  - Update jackson libraries to 2.12.7
+  - Update wildfly to version 26.1.2.Final
+  - Update artemis to version 2.20.0
+  - Update resteasy-client to version 4.7.7.Final
 
 ## [7.2.2] - 2020-11-18
 ### Changed

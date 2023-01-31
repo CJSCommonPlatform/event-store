@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.2.2] - 2023-01-31
+### Removed
+- Removed unnecessary indexes from event_log table
+
 ## [8.2.1] - 2022-07-24
 ### Changed
 - Updated framework to 8.0.5 in order to

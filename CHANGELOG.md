@@ -4,9 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
                        
 ### Unreleased
-## [11.0.0] - 2023-01-31
+
+## [11.0.1] - 2023-02-01
 ### Removed
 - Removed unnecessary indexes from event_log table
+- Downgraded maven minimum version to 3.3.9 until the pipeline maven version is updated
 
 ## [11.0.0] - 2023-01-26
 ### Changed

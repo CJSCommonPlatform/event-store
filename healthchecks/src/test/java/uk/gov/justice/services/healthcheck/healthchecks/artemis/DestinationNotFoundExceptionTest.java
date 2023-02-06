@@ -1,9 +1,9 @@
 package uk.gov.justice.services.healthcheck.healthchecks.artemis;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DestinationNotFoundExceptionTest {
 

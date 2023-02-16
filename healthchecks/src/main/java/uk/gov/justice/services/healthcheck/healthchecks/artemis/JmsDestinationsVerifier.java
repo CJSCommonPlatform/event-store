@@ -1,14 +1,16 @@
 package uk.gov.justice.services.healthcheck.healthchecks.artemis;
 
-import org.slf4j.Logger;
 import uk.gov.justice.services.messaging.jms.DestinationProvider;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.slf4j.Logger;
 
 public class JmsDestinationsVerifier {
 

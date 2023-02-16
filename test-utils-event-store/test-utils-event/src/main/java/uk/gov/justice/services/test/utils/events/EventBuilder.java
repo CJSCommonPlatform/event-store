@@ -1,5 +1,6 @@
 package uk.gov.justice.services.test.utils.events;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
@@ -24,7 +25,7 @@ public class EventBuilder {
     private String name = "Test Name";
     private String metadataJSON;
     private String payloadJSON;
-    private ZonedDateTime timestamp = new UtcClock().now();
+    private ZonedDateTime timestamp = new UtcClock().now().truncatedTo(MILLIS);
     private Optional<Long> eventNumber = empty();
 
     private EventBuilder() {}

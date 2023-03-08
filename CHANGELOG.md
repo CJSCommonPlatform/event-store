@@ -5,6 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
                        
 ### Unreleased
 
+## [17.0.0-M3] - 2023-03-08
+### Changed
+- Update common-bom to 17.0.0-M3 in order to:
+    - Add byte-buddy 1.12.22 as a replacement for cglib
+    - Downgrade h2 to 1.4.196 as 2.x.x is too strict for our tests
+- Update framework-libraries to 17.0.0-M4 in order to:
+    - Change 'additionalProperties' Map in generated pojos to HashMap to allow serialization
+
 ## [17.0.0-M2] - 2023-02-16
 ### Changed
 - Update framework

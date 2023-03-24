@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
                        
 ### Unreleased
 
+## [17.0.0-M4] - 2023-03-24
+### Changed
+- Remove illegal-access argument (not valid for java 17) from sure fire plugin
+- Pojo generator fixed to handle null for additionalProperties
+
 ## [17.0.0-M3] - 2023-03-08
 ### Changed
 - Update common-bom to 17.0.0-M3 in order to:

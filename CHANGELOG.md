@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
                        
 ### Unreleased
 
+## [17.0.0-M5] - 2023-03-26
+### Changed
+- Remove illegal-access argument from surefire plugin from plugin management (through maven-parent-pom 17.0.0-M6)
+
 ## [17.0.0-M4] - 2023-03-24
 ### Changed
 - Remove illegal-access argument (not valid for java 17) from sure fire plugin

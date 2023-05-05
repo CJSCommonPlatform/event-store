@@ -3,32 +3,21 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
                        
-### Unreleased
+### [Unreleased]
 
-## [17.0.0-M5] - 2023-03-26
-### Changed
-- Remove illegal-access argument from surefire plugin from plugin management (through maven-parent-pom 17.0.0-M6)
-
-## [17.0.0-M4] - 2023-03-24
-### Changed
-- Remove illegal-access argument (not valid for java 17) from sure fire plugin
-- Pojo generator fixed to handle null for additionalProperties
-
-## [17.0.0-M3] - 2023-03-08
-### Changed
-- Update common-bom to 17.0.0-M3 in order to:
-    - Add byte-buddy 1.12.22 as a replacement for cglib
-    - Downgrade h2 to 1.4.196 as 2.x.x is too strict for our tests
-- Update framework-libraries to 17.0.0-M4 in order to:
-    - Change 'additionalProperties' Map in generated pojos to HashMap to allow serialization
-
-## [17.0.0-M2] - 2023-02-16
-### Changed
-- Update framework
-
-## [17.0.0-M1] - 2023-02-06
+## [17.0.0] - 2023-05-05
 ### Changed
 - Update to Java 17
+- Pojo generator fixed to handle null for additionalProperties
+- Update common-bom to 17.0.0 in order to:
+    - Add byte-buddy 1.12.22 as a replacement for cglib
+    - Downgrade h2 to 1.4.196 as 2.x.x is too strict for our tests
+- Update framework-libraries to 17.0.0 in order to:
+    - Change 'additionalProperties' Map in generated pojos to HashMap to allow serialization
+### Removed
+- Remove illegal-access argument from surefire plugin from plugin management (through maven-parent-pom 17.0.0-M6)
+- Remove illegal-access argument (not valid for java 17) from sure fire plugin
+
 
 ## [11.0.1] - 2023-02-01
 ### Removed

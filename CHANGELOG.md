@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.3.0] - 2023-05-17
+### Changed
+- Fetch of processed events from viewstore during catchup is now batched, to stop 
+  transaction timeout when there are millions of events
+
 ## [8.2.2] - 2023-01-31
 ### Removed
 - Removed unnecessary indexes from event_log table

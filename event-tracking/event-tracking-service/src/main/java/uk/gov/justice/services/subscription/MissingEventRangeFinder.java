@@ -1,6 +1,6 @@
 package uk.gov.justice.services.subscription;
 
-import static javax.transaction.Transactional.TxType.REQUIRED;
+import static javax.transaction.Transactional.TxType.NEVER;
 
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
@@ -18,7 +18,10 @@ public class MissingEventRangeFinder {
     @Inject
     private ProcessedEventTrackingRepository processedEventTrackingRepository;
 
-    @Transactional(REQUIRED)
+    @Inject
+    private ProcessedEventStreamer processedEventStreamer;
+
+    @Transactional(NEVER)
     public LinkedList<MissingEventRange> getRangesOfMissingEvents(
             final String eventSourceName,
             final String componentName,
@@ -34,8 +37,8 @@ public class MissingEventRangeFinder {
             notSeenEventsRange(1L, highestPublishedEventNumber, eventNumberAccumulator);
         }
 
-        try (final Stream<ProcessedEvent> allProcessedEvents = processedEventTrackingRepository.getAllProcessedEventsDescendingOrder(eventSourceName, componentName)) {
-            allProcessedEvents
+        try (final Stream<ProcessedEvent> allProcessedEventsStream = processedEventStreamer.getProcessedEventStream(eventSourceName, componentName)) {
+            allProcessedEventsStream
                     .forEach(processedEventTrackItem -> findMissingRange(processedEventTrackItem, eventNumberAccumulator));
         }
 

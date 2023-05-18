@@ -77,10 +77,14 @@ import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.subscription.EventRangeNormalizer;
 import uk.gov.justice.services.subscription.MissingEventRangeFinder;
+import uk.gov.justice.services.subscription.ProcessedEventStreamSpliteratorFactory;
+import uk.gov.justice.services.subscription.ProcessedEventStreamer;
+import uk.gov.justice.services.subscription.ProcessedEventStreamerConfiguration;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingRepository;
 import uk.gov.justice.services.subscription.ProcessedEventTrackingService;
 import uk.gov.justice.services.subscription.PublishedEventReadConfiguration;
 import uk.gov.justice.services.subscription.RangeNormalizationCalculator;
+import uk.gov.justice.services.subscription.SpliteratorStreamFactory;
 import uk.gov.justice.services.test.utils.common.envelope.TestEnvelopeRecorder;
 import uk.gov.justice.services.test.utils.common.validator.DummyJsonSchemaValidator;
 import uk.gov.justice.services.test.utils.core.handler.registry.TestHandlerRegistryCacheProducer;
@@ -232,7 +236,12 @@ public class SubscriptionEventInterceptorIT {
             MissingEventRangeFinder.class,
             EventRangeNormalizer.class,
             RangeNormalizationCalculator.class,
-            PublishedEventReadConfiguration.class
+            PublishedEventReadConfiguration.class,
+            
+            ProcessedEventStreamer.class,
+            SpliteratorStreamFactory.class,
+            ProcessedEventStreamerConfiguration.class,
+            ProcessedEventStreamSpliteratorFactory.class
     })
 
     public WebApp war() {

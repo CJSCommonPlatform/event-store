@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -107,36 +109,46 @@ public class ProcessedEventTrackingRepository {
     }
 
     @Transactional(REQUIRES_NEW)
-    public Stream<ProcessedEvent> getProcessedEventsLessThanEventNumberInDescendingOrder(
+    public List<ProcessedEvent> getProcessedEventsLessThanEventNumberInDescendingOrder(
             final Long fromEventNumber,
             final Long batchSize,
             final String source,
             final String componentName) {
 
-        try {
-            final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
-                    viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_LESS_THAN_EVENT_NUMBER_IN_DESCENDING_ORDER_SQL);
+        final ArrayList<ProcessedEvent> processedEvents = new ArrayList<>();
+
+        try(final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LESS_THAN_EVENT_NUMBER_IN_DESCENDING_ORDER_SQL)) {
 
             preparedStatement.setString(1, source);
             preparedStatement.setString(2, componentName);
             preparedStatement.setLong(3, fromEventNumber);
             preparedStatement.setLong(4, batchSize);
 
-            return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
-
-                try {
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
                     final UUID eventId = (UUID) resultSet.getObject("event_id");
                     final long eventNumber = resultSet.getLong("event_number");
                     final long previousEventNumber = resultSet.getLong("previous_event_number");
-                    return new ProcessedEvent(eventId, previousEventNumber, eventNumber, source, componentName);
-                } catch (final SQLException e) {
-                    throw new ProcessedEventTrackingException("Failed to get row from processed_event table", e);
+                    final ProcessedEvent processedEvent = new ProcessedEvent(
+                            eventId,
+                            previousEventNumber,
+                            eventNumber,
+                            source,
+                            componentName);
+
+                    processedEvents.add(processedEvent);
                 }
-            });
+
+            } catch (final SQLException e) {
+                throw new ProcessedEventTrackingException("Failed to get row from processed_event table", e);
+            }
 
         } catch (final SQLException e) {
             throw new ProcessedEventTrackingException("Failed to get processed events from processed_event table", e);
         }
+
+        return processedEvents;
     }
 
     @Transactional(REQUIRED)

@@ -13,6 +13,7 @@ import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -111,6 +112,55 @@ public class ProcessedEventTrackingRepositoryIT {
         assertThat(processedEvents.get(1), is(processedEvent_3));
         assertThat(processedEvents.get(2), is(processedEvent_2));
         assertThat(processedEvents.get(3), is(processedEvent_1));
+    }
+
+    @Test
+    public void shouldFetchProcessedEventsFromTheViewstoreInBatches() throws Exception {
+
+        final String source = "example-context";
+        final String componentName = "EVENT_LISTENER";
+        final Long batchSize = 5L;
+        final long numberOfEventsToCreate = 17L;
+
+        for (int i = 0; i < numberOfEventsToCreate; i++) {
+            final ProcessedEvent processedEvent = new ProcessedEvent(randomUUID(), i, i + 1, source, componentName);
+            processedEventTrackingRepository.save(processedEvent);
+        }
+
+        long fromEventNumber = Long.MAX_VALUE;
+
+        final List<ProcessedEvent> allProcessedEvents = new ArrayList<>();
+
+        while (fromEventNumber > 1) {
+            final List<ProcessedEvent> processedEvents = processedEventTrackingRepository.getProcessedEventsLessThanEventNumberInDescendingOrder(
+                            fromEventNumber,
+                            batchSize,
+                            source,
+                            componentName)
+                    .toList();
+
+
+            if (fromEventNumber > batchSize) {
+                assertThat((long) processedEvents.size(), is(batchSize));
+            } else {
+                assertThat((long) processedEvents.size(), is(fromEventNumber - 1));
+            }
+
+            final ProcessedEvent finalEvent = processedEvents.get(processedEvents.size() - 1);
+            fromEventNumber = finalEvent.getEventNumber();
+
+            allProcessedEvents.addAll(processedEvents);
+        }
+
+        assertThat((long) allProcessedEvents.size(), is(numberOfEventsToCreate));
+
+        long currentEventNumber = numberOfEventsToCreate;
+
+        for (final ProcessedEvent processedEvent : allProcessedEvents) {
+            assertThat(processedEvent.getEventNumber(), is(currentEventNumber));
+            assertThat(processedEvent.getPreviousEventNumber(), is(currentEventNumber - 1));
+            currentEventNumber--;
+        }
     }
 
     @Test

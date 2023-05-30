@@ -3,6 +3,7 @@ package uk.gov.justice.services.subscription;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static javax.transaction.Transactional.TxType.REQUIRED;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -39,6 +40,15 @@ public class ProcessedEventTrackingRepository {
                     "WHERE source = ? " +
                     "AND component = ? " +
                     "ORDER BY event_number DESC";
+
+    private static final String SELECT_LESS_THAN_EVENT_NUMBER_IN_DESCENDING_ORDER_SQL =
+            "SELECT event_id, event_number, previous_event_number " +
+                    "FROM processed_event " +
+                    "WHERE source = ? " +
+                    "AND component = ? " +
+                    "AND event_number < ? " +
+                    "ORDER BY event_number DESC " +
+                    "LIMIT ?";
 
     @Inject
     private JdbcResultSetStreamer jdbcResultSetStreamer;
@@ -78,6 +88,39 @@ public class ProcessedEventTrackingRepository {
 
             preparedStatement.setString(1, source);
             preparedStatement.setString(2, componentName);
+
+            return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
+
+                try {
+                    final UUID eventId = (UUID) resultSet.getObject("event_id");
+                    final long eventNumber = resultSet.getLong("event_number");
+                    final long previousEventNumber = resultSet.getLong("previous_event_number");
+                    return new ProcessedEvent(eventId, previousEventNumber, eventNumber, source, componentName);
+                } catch (final SQLException e) {
+                    throw new ProcessedEventTrackingException("Failed to get row from processed_event table", e);
+                }
+            });
+
+        } catch (final SQLException e) {
+            throw new ProcessedEventTrackingException("Failed to get processed events from processed_event table", e);
+        }
+    }
+
+    @Transactional(REQUIRES_NEW)
+    public Stream<ProcessedEvent> getProcessedEventsLessThanEventNumberInDescendingOrder(
+            final Long fromEventNumber,
+            final Long batchSize,
+            final String source,
+            final String componentName) {
+
+        try {
+            final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(
+                    viewStoreJdbcDataSourceProvider.getDataSource(), SELECT_LESS_THAN_EVENT_NUMBER_IN_DESCENDING_ORDER_SQL);
+
+            preparedStatement.setString(1, source);
+            preparedStatement.setString(2, componentName);
+            preparedStatement.setLong(3, fromEventNumber);
+            preparedStatement.setLong(4, batchSize);
 
             return jdbcResultSetStreamer.streamOf(preparedStatement, resultSet -> {
 

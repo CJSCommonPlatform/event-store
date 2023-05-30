@@ -1,9 +1,9 @@
 package uk.gov.justice.services.subscription;
 
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
@@ -39,8 +40,15 @@ public class ProcessedEventTrackingServiceIT {
     private final Logger logger = getLogger(ProcessedEventTrackingService.class);
     private final PublishedEventReadConfiguration publishedEventReadConfiguration = new PublishedEventReadConfiguration();
     private final RangeNormalizationCalculator rangeNormalizationCalculator = new RangeNormalizationCalculator();
+    private final SpliteratorStreamFactory spliteratorStreamFactory = new SpliteratorStreamFactory();
+    private final ProcessedEventStreamSpliteratorFactory processedEventStreamSpliteratorFactory = new ProcessedEventStreamSpliteratorFactory();
 
     private final ProcessedEventTrackingService processedEventTrackingService = new ProcessedEventTrackingService();
+
+    private final ProcessedEventStreamer processedEventStreamer = new ProcessedEventStreamer();
+
+    @Mock
+    private ProcessedEventStreamerConfiguration processedEventStreamerConfiguration;
 
     private final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
 
@@ -50,7 +58,14 @@ public class ProcessedEventTrackingServiceIT {
         setField(processedEventTrackingRepository, "preparedStatementWrapperFactory", preparedStatementWrapperFactory);
         setField(processedEventTrackingRepository, "viewStoreJdbcDataSourceProvider", viewStoreJdbcDataSourceProvider);
 
+        setField(processedEventStreamer, "processedEventStreamSpliteratorFactory", processedEventStreamSpliteratorFactory);
+        setField(processedEventStreamer, "processedEventStreamerConfiguration", processedEventStreamerConfiguration);
+        setField(processedEventStreamer, "spliteratorStreamFactory", spliteratorStreamFactory);
+
+        setField(processedEventStreamSpliteratorFactory, "processedEventTrackingRepository", processedEventTrackingRepository);
+
         setField(missingEventRangeFinder, "processedEventTrackingRepository", processedEventTrackingRepository);
+        setField(missingEventRangeFinder, "processedEventStreamer", processedEventStreamer);
 
         setField(publishedEventReadConfiguration, "rangeNormalizationMaxSize", "1000");
         setField(eventRangeNormalizer, "publishedEventReadConfiguration", publishedEventReadConfiguration);
@@ -72,13 +87,16 @@ public class ProcessedEventTrackingServiceIT {
         final String componentName = "EVENT_LISTENER";
         final Long highestPublishedEventNumber = 23L;
         final Long highestExclusiveEventNumber = highestPublishedEventNumber + 1;
+        final long batchSize = 5L;
 
         // insert events missing event 4 and events 7, 8 and 9
         insertEventsWithSomeMissing(source, componentName);
 
+        when(processedEventStreamerConfiguration.getProcessedEventFetchBatchSize()).thenReturn(batchSize);
+
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService
                 .getAllMissingEvents(source, componentName, highestPublishedEventNumber)
-                .collect(toList());
+                .toList();
 
         assertThat(missingEventRanges.size(), is(3));
 

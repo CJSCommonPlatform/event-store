@@ -49,7 +49,6 @@ public class ProcessedEventTrackingRepositoryIT {
 
     @Before
     public void ensureOurDatasourceProviderReturnsOurTestDataSource() {
-
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
     }
 
@@ -136,8 +135,7 @@ public class ProcessedEventTrackingRepositoryIT {
                             fromEventNumber,
                             batchSize,
                             source,
-                            componentName)
-                    .toList();
+                            componentName);
 
 
             if (fromEventNumber > batchSize) {

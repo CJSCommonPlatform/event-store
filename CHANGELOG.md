@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
                        
 ### [Unreleased]
 
+## [17.0.2] - 2023-05-30
+### Fixed
+- Fix batch fetch of processed events to load batches of 'n' events 
+   into a Java List in memory
+
 ## [17.0.1] - 2023-05-10
 ### Changed
 - Update framework-libraries to 17.0.1 in order to:

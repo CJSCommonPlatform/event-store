@@ -3,11 +3,16 @@ package uk.gov.justice.services.subscription;
 import static java.lang.Long.MAX_VALUE;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterators.AbstractSpliterator;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProcessedEventStreamSpliterator extends AbstractSpliterator<ProcessedEvent> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessedEventStreamSpliterator.class);
 
     private final String source;
     private final String component;
@@ -16,7 +21,6 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
 
     private Iterator<ProcessedEvent> processedEventsIterator;
     private Long currentEventNumber = -1L;
-    private Stream<ProcessedEvent> processedEventStream;
 
     public ProcessedEventStreamSpliterator(
             final String source,
@@ -34,16 +38,26 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
     @Override
     public boolean tryAdvance(final Consumer<? super ProcessedEvent> nextProcessedEventConsumer) {
 
+        // first time through - currentEventNumber will be -1, so get the first list of processed events
         if (currentEventNumber < 0) {
-            processedEventStream = processedEventTrackingRepository.getProcessedEventsLessThanEventNumberInDescendingOrder(
+
+            if(LOGGER.isInfoEnabled()) {
+                LOGGER.info("Making first fetch of processed events table to load {} events into memory ", batchSize);
+            }
+            final List<ProcessedEvent> processedEvents = processedEventTrackingRepository.getProcessedEventsLessThanEventNumberInDescendingOrder(
                     MAX_VALUE,
                     batchSize,
                     source,
                     component);
 
-            processedEventsIterator = processedEventStream.iterator();
+            if(LOGGER.isInfoEnabled()) {
+                LOGGER.info("Fetched List of {} ProcessedEvents", processedEvents.size());
+            }
+            processedEventsIterator = processedEvents.iterator();
         }
 
+        // normal iteration over processed events. will set the next processed event to be
+        // returned and return true (as in we have another processed event)
         if (processedEventsIterator.hasNext()) {
             final ProcessedEvent nextProcessedEvent = processedEventsIterator.next();
             currentEventNumber = nextProcessedEvent.getPreviousEventNumber();
@@ -53,14 +67,22 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
             return true;
         }
 
+        // if there are no events left in the process event iterator, yet we haven't reached the final
+        // event (event number 1), then fetch the next list of processed events as an iterator
         if (currentEventNumber > 0) {
-            closeSafely(processedEventStream);
-            processedEventsIterator = processedEventTrackingRepository.getProcessedEventsLessThanEventNumberInDescendingOrder(
-                            currentEventNumber + 1,
-                            batchSize,
-                            source,
-                            component)
-                    .iterator();
+            if(LOGGER.isInfoEnabled()) {
+                LOGGER.info("Making fetch of processed events table to load {} events into memory ", batchSize);
+            }
+            final List<ProcessedEvent> processedEvents = processedEventTrackingRepository.getProcessedEventsLessThanEventNumberInDescendingOrder(
+                    currentEventNumber + 1,
+                    batchSize,
+                    source,
+                    component);
+
+            if(LOGGER.isInfoEnabled()) {
+                LOGGER.info("Fetched List of {} ProcessedEvents", processedEvents.size());
+            }
+            processedEventsIterator = processedEvents.iterator();
 
             final ProcessedEvent nextProcessedEvent = processedEventsIterator.next();
             currentEventNumber = nextProcessedEvent.getPreviousEventNumber();
@@ -70,14 +92,11 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
             return true;
         }
 
-        closeSafely(processedEventStream);
-
-        return false;
-    }
-
-    private void closeSafely(final Stream<ProcessedEvent> theProcessedEventStream) {
-        if (theProcessedEventStream != null) {
-            theProcessedEventStream.close();
+        // if the current event number is now zero we've reached the end of the stream of events
+        // so return false
+        if(LOGGER.isInfoEnabled()) {
+            LOGGER.info("All processed events fetched. No more events to process");
         }
+        return false;
     }
 }

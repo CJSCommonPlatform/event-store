@@ -2,13 +2,16 @@
 All notable changes to this project will be documented in this file, which follows the guidelines
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
-                       
+
 ### [Unreleased]
+### Fixed
+- Fix Logging of missing event ranges to only log on debug
+
 
 ## [17.0.2] - 2023-05-30
 ### Fixed
-- Fix batch fetch of processed events to load batches of 'n' events 
-   into a Java List in memory
+- Fix batch fetch of processed events to load batches of 'n' events
+  into a Java List in memory
 
 ## [17.0.1] - 2023-05-10
 ### Changed
@@ -45,13 +48,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Provide capability to override destination names while performing artemis healthcheck
 - Upgrade framework to access messaging-jms dependency through framework-bom
 - Updated slf4j/log4j bridge jar from slf4j-log4j12 to slf4j-reload4j
-- MessageProducerClient and MessageConsumerClient are now idempotent when start is called  
+- MessageProducerClient and MessageConsumerClient are now idempotent when start is called
 - Moved healthcheck database table checker into microservices-framework
-- Update liquibase to 4.10.0 
-                                     
+- Update liquibase to 4.10.0
+
 ### Added
 - New healthcheck module
-- Healthchecks for viewstore, eventstore, jobstore and filestore 
+- Healthchecks for viewstore, eventstore, jobstore and filestore
 - Added new healthcheck for the system database.
 - Added healthcheck modules into the event store bom
 - Add artemis health check implementation which gets automatically registered by existing healthcheck mechanism
@@ -64,12 +67,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Removed dependency on liquibase jars from test-utils-persistence
 
 ### Security
-  - Update hibernate version to 5.4.24.Final
-  - Update jackson.databind version to 2.12.7.1
-  - Update jackson libraries to 2.12.7
-  - Update wildfly to version 26.1.2.Final
-  - Update artemis to version 2.20.0
-  - Update resteasy-client to version 4.7.7.Final
+- Update hibernate version to 5.4.24.Final
+- Update jackson.databind version to 2.12.7.1
+- Update jackson libraries to 2.12.7
+- Update wildfly to version 26.1.2.Final
+- Update artemis to version 2.20.0
+- Update resteasy-client to version 4.7.7.Final
 
 ## [7.2.2] - 2020-11-18
 ### Changed
@@ -82,7 +85,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [7.2.0] - 2020-11-16
 ### Added
 - Added support for FeatureControl toggling by annotating service component
-handler methods with @FeatureControl
+  handler methods with @FeatureControl
 ### Changed
 - Moved timer bean utilities to framework-libraries
 - Updated framework to version 7.2.0
@@ -90,8 +93,8 @@ handler methods with @FeatureControl
 ## [7.1.4] - 2020-10-16
 ### Changed
 - Updated framework-libraries to version 7.1.5
-- Builders of generated pojos now have a `withValuesFrom(...)` method 
-to allow the builder to be initialised with the values of another pojo instance  
+- Builders of generated pojos now have a `withValuesFrom(...)` method
+  to allow the builder to be initialised with the values of another pojo instance
 
 ## [7.1.3] - 2020-10-15
 ### Changed
@@ -101,7 +104,7 @@ to allow the builder to be initialised with the values of another pojo instance
 ## [7.1.2] - 2020-10-09
 ### Changed
 - The context name is now used for creating JMS destination name if the event
- is an administration event
+  is an administration event
 
 ## [7.1.1] - 2020-09-25
 ### Changed
@@ -121,9 +124,9 @@ to allow the builder to be initialised with the values of another pojo instance
 
 ## [7.0.9] - 2020-08-28
 ### Changed
-- Changed the removal of the event_log trigger to be called by a 
-ServletContextListener to fix call happening after database 
-connections destroyed
+- Changed the removal of the event_log trigger to be called by a
+  ServletContextListener to fix call happening after database
+  connections destroyed
 
 
 ## [7.0.8] - 2020-08-14
@@ -136,13 +139,13 @@ connections destroyed
 
 ## [7.0.6] - 2020-07-24
 ### Added
-- indexes added to stream_id and position_in_stream in event_log table 
+- indexes added to stream_id and position_in_stream in event_log table
 ### Changed
-- DefaultEventStoreDataSourceProvider changed to a singleton, 
-so the caching of the DataSource works properly
-- Test util class DatabaseCleaner has an additional method 
-'cleanEventStoreTables(...)' for truncating specified tables 
-in the event-store
+- DefaultEventStoreDataSourceProvider changed to a singleton,
+  so the caching of the DataSource works properly
+- Test util class DatabaseCleaner has an additional method
+  'cleanEventStoreTables(...)' for truncating specified tables
+  in the event-store
 - Update framework to 7.0.8
 
 ## [7.0.5] - 2020-07-08
@@ -213,8 +216,8 @@ in the event-store
 
 ## [2.4.5] - 2020-01-06
 ### Removed
-- Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes 
-many strange ejb database errors
+- Remove mechanism to also drop/add trigger on SUSPEND/UNSUSPEND as it causes
+  many strange ejb database errors
 
 ## [2.4.4] - 2020-01-06
 ### Added
@@ -239,16 +242,16 @@ many strange ejb database errors
 
 ## [2.4.0] - 2019-11-13
 ### Added
- New SystemCommand VERIFY_REBUILD to verify the results of of the rebuild 
-    - Verifies that the number of active events in event_log matches the number of events in published_event
-    - Verifies that each event_number in published_event correctly links to an existing previous_event 
-    - Verifies that each active stream has at least one event 
+New SystemCommand VERIFY_REBUILD to verify the results of of the rebuild
+- Verifies that the number of active events in event_log matches the number of events in published_event
+- Verifies that each event_number in published_event correctly links to an existing previous_event
+- Verifies that each active stream has at least one event
 ### Changed
 - SHUTTER command renamed to SUSPEND
 - UNSHUTTER command renamed to UNSUSPEND
-- The database trigger for publishing on the event_log table is now added on application 
-startup and removed on application shut down
-- Updated to framework 6.4.0 
+- The database trigger for publishing on the event_log table is now added on application
+  startup and removed on application shut down
+- Updated to framework 6.4.0
 
 ## [2.3.1] - 2019-11-07
 ### Fixed
@@ -262,16 +265,16 @@ startup and removed on application shut down
 
 ## [2.2.7] - 2019-11-04
 ### Added
-- New command 'ValidatePublishedEventsCommand' and handler for validating all events in 
-event_log against their schemas
+- New command 'ValidatePublishedEventsCommand' and handler for validating all events in
+  event_log against their schemas
 ### Changed
 - Updated framework to 6.2.5
 - Updated Json Schema Catalog to 1.7.6
 
 ## [2.2.6] - 2019-10-30
 ### Changed
-- Improved the event_log query to determine if the renumber of events is complete. 
-Changed to use select MAX rather than count(*)
+- Improved the event_log query to determine if the renumber of events is complete.
+  Changed to use select MAX rather than count(*)
 
 ## [2.2.5] - 2019-10-29
 ### Changed
@@ -289,25 +292,25 @@ Changed to use select MAX rather than count(*)
 ### Changed
 - Pre publish and publish timer beans now run in a separate thread.
 - New JNDI boolean values of 'pre.publish.disable' and 'publish.disable' to disable
-the running of PrePublisherTimerBean and PublisherTimerBean respectively
+  the running of PrePublisherTimerBean and PublisherTimerBean respectively
 - Error message of event linking verification now gives more accurate error messages
-based on whether the problem is in published_event or processed_event
+  based on whether the problem is in published_event or processed_event
 - New SystemCommands EnablePublishingCommand and DisablePublishingCommand for enabling/disabling the publishing beans
 - Catchup will check for all missing events in the processed_event table and Catchup only the missing event ranges
 
 ## [2.2.1] - 2019-10-18
 ### Fixed
-- VERIFY_CATCHUP now correctly marks its status as COMMAND_FAILED if any of 
-the verification steps fail. Verification warnings are considered successful  
+- VERIFY_CATCHUP now correctly marks its status as COMMAND_FAILED if any of
+  the verification steps fail. Verification warnings are considered successful
 
 ## [2.2.0] - 2019-10-15
 ### Added
 - New table in System database 'system_command_status' for storing state of commands
 ### Changed
 - Updated framework to 6.2.0
-- All system commands now store their state in the system_command_status table in the system 
-database. This is to allow the JMX client to wait until the command has completed or failed 
-before it exits.
+- All system commands now store their state in the system_command_status table in the system
+  database. This is to allow the JMX client to wait until the command has completed or failed
+  before it exits.
 - Now using CatchupCommand to determine if we are running Event or Indexer catchup
 - Converted ShutteringExecutors to use the new ShutteringExecutor interface
 - Added commandId to all SystemEvents
@@ -344,29 +347,29 @@ Run the renumbering of events in a batch
 
 ## [2.0.23] - 2019-10-04
 ### Changed
-- Updated framework to 6.0.17  
+- Updated framework to 6.0.17
 
 ## [2.0.22] - 2019-09-24
 ### Changed
-- Catchup verification logging now runs in MDC context 
+- Catchup verification logging now runs in MDC context
 
 ## [2.0.21] - 2019-09-23
 ### Added
-- New SystemCommand to verify the results of running catchup 
+- New SystemCommand to verify the results of running catchup
     - Verifies that the number of active events in event_log matches the number of events in published_event
     - Verifies that the number of events in published_event matches the number of events in processed_event
     - Verifies that the stream_buffer table is empty
-    - Verifies that each event_number in published_event correctly links to an existing previous_event 
-    - Verifies that each event_number in processed_event correctly links to an existing previous_event 
-    - Verifies that each active stream has at least one event 
+    - Verifies that each event_number in published_event correctly links to an existing previous_event
+    - Verifies that each event_number in processed_event correctly links to an existing previous_event
+    - Verifies that each active stream has at least one event
 
 ## [2.0.20] - 2019-09-23
 ### Fixed
-- Fixed name of publish queue trigger 
+- Fixed name of publish queue trigger
 
 ## [2.0.19] - 2019-09-19
 ### Added
-- New SystemCommands AddTrigger and RemoveTrigger to manage the trigger on the event_log table 
+- New SystemCommands AddTrigger and RemoveTrigger to manage the trigger on the event_log table
 - MDC logging of the service context for JMX commands
 
 ## [2.0.18] - 2019-09-18
@@ -402,8 +405,8 @@ Run the renumbering of events in a batch
 
 ## [2.0.12] - 2019-09-04
 ### Changed
-- If the event source name in the JsonEnvelope is missing is calculated from the event name rather 
-than throwing an exception
+- If the event source name in the JsonEnvelope is missing is calculated from the event name rather
+  than throwing an exception
 
 ## [2.0.11] - 2019-08-30
 ### Changed
@@ -460,17 +463,17 @@ than throwing an exception
 - Added implementation for updating StreamStatus table with component column
 - Add Published Event Source
 - Add event linked tracking for processed events
-- Subscription prioritisation  
+- Subscription prioritisation
 - Catchup now callable from JMX bean
 - Support to for linked events after stream transformation
 - Java API to retrieve all stream IDs (active and inactive ones)
 - truncate() method to the EventSource interface
 - populate() method to the EventSource interface
 - Added component to the event buffer to allow it to handle both the event listener and indexer
-- Added component column to processed_event table to allow Event Listener and Indexer to create unique primary keys   
+- Added component column to processed_event table to allow Event Listener and Indexer to create unique primary keys
 
 ### Changed
-- Catchup and rebuild moved to a new 'event-store-management' module  
+- Catchup and rebuild moved to a new 'event-store-management' module
 - Catchup and rebuild now use the new System Command jmx architecture
 - Shuttering executors no longer register themselves but are discovered at system startup and registered
 - Implement usage of new system database
@@ -522,12 +525,12 @@ than throwing an exception
 - New util module
 - Subscription repository
 - Subscription liquibase for subscription table
-- Better logging for event catchup 
+- Better logging for event catchup
 - A new transaction is started for each event during event catchup
 - Event catchup only runs with event listener components
 - Indexes to 'name' and 'date_created' columns in the event_log table
 - New util module
-- Better logging for event catchup 
+- Better logging for event catchup
 - An event-number to each event to allow for event catchup
 - Added a new TimerBean 'PrePublishBean'
 - Added a new auto incrementing column event_number to event_log table
@@ -577,10 +580,10 @@ than throwing an exception
 - Remove requirement to have a subscription-descriptor.yaml on the classpath
 - event-publisher-process to event-store-bom
 - New test-utils-event-store module to hold TestEventRepository moved from framework
-- Reverted names of event buffer tables to their original names: 
-subscription -> stream_status, event-buffer -> stream buffer
-- Moved test-utils-persistence into this project from 
-[Framework](https://github.com/CJSCommonPlatform/microservice_framework)
+- Reverted names of event buffer tables to their original names:
+  subscription -> stream_status, event-buffer -> stream buffer
+- Moved test-utils-persistence into this project from
+  [Framework](https://github.com/CJSCommonPlatform/microservice_framework)
 
 ### Added
 - Extracted project from all event store related modules in Microservices Framework 5.0.0-M1: https://github.com/CJSCommonPlatform/microservice_framework

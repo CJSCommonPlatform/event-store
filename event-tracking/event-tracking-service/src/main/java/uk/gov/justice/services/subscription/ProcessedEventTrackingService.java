@@ -65,7 +65,14 @@ public class ProcessedEventTrackingService {
         final LinkedList<MissingEventRange> missingEventRanges = missingEventRangeFinder.getRangesOfMissingEvents(eventSourceName, componentName, highestPublishedEventNumber);
         final List<MissingEventRange> normalizedEventRanges = eventRangeNormalizer.normalize(missingEventRanges);
 
-        logger.info(createMessageMissingEventRanges(normalizedEventRanges));
+        if (logger.isInfoEnabled()) {
+            logger.info(format("Found %d missing event ranges", missingEventRanges.size()));
+            logger.info(format("Event ranges normalized to %d missing event ranges", normalizedEventRanges.size()));
+        }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug(createMessageMissingEventRanges(normalizedEventRanges));
+        }
 
         return normalizedEventRanges.stream();
     }

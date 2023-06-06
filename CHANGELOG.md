@@ -5,13 +5,14 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
-## [8.3.1] - 2023-05-31
+## [8.3.2] - 2023-06-06
 ### Fixed
-- Fix batch fetch of processed events to load batches of 'n' events
+  - Fix Logging of missing event ranges to only log on debug
+
+## [8.3.1] - 2023-06-02
+### Fixed
+  - Fix batch fetch of processed events to load batches of 'n' events
   into a Java List in memory
-### Changed
-- Updated framework-libraries to 8.0.5 in order to
-    - Remove unnecessary logging of 'skipping generation' message in pojo generator
  
 ## [8.3.0] - 2023-05-17
 ### Changed

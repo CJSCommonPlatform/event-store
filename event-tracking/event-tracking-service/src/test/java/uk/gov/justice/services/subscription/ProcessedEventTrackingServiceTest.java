@@ -47,6 +47,9 @@ public class ProcessedEventTrackingServiceTest {
     private EventRangeNormalizer eventRangeNormalizer;
 
     @Mock
+    private MissingEventRangeStringifier missingEventRangeStringifier;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -134,6 +137,7 @@ public class ProcessedEventTrackingServiceTest {
         final String eventSourceName = "example-context";
         final String componentName = "EVENT_LISTENER";
         final Long highestPublishedEventNumber = 10L;
+        final String missingEventRangeString = "...some missing events...";
 
         final MissingEventRange missingEventRange_1 = new MissingEventRange(4L, 7L);
         final MissingEventRange missingEventRange_2 = new MissingEventRange(8L, highestPublishedEventNumber);
@@ -142,6 +146,8 @@ public class ProcessedEventTrackingServiceTest {
 
         when(missingEventRangeFinder.getRangesOfMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)).thenReturn(missingEventRangeList);
         when(eventRangeNormalizer.normalize(missingEventRangeList)).thenReturn(missingEventRangeList);
+        when(missingEventRangeStringifier.createMissingEventRangeStringFrom(missingEventRangeList)).thenReturn(missingEventRangeString);
+        when(logger.isInfoEnabled()).thenReturn(true);
 
         final List<MissingEventRange> missingEventRanges = processedEventTrackingService
                 .getAllMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)
@@ -151,11 +157,9 @@ public class ProcessedEventTrackingServiceTest {
         assertThat(missingEventRanges.get(0), is(missingEventRange_1));
         assertThat(missingEventRanges.get(1), is(missingEventRange_2));
 
-        verify(logger).info("Missing Event Ranges: [\n" +
-                "MissingEventRange{from event_number: 4 (inclusive) to event_number: 7 (exclusive)},\n" +
-                "MissingEventRange{from event_number: 8 (inclusive) to event_number: 10 (exclusive)}\n" +
-                "]"
-        );
+        verify(logger).info("Found 2 missing event ranges");
+        verify(logger).info("Event ranges normalized to 2 missing event ranges");
+        verify(logger).info(missingEventRangeString);
     }
 
     @Test

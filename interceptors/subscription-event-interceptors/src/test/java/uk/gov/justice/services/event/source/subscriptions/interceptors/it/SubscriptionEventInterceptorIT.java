@@ -77,6 +77,7 @@ import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.subscription.EventRangeNormalizer;
 import uk.gov.justice.services.subscription.MissingEventRangeFinder;
+import uk.gov.justice.services.subscription.MissingEventRangeStringifier;
 import uk.gov.justice.services.subscription.ProcessedEventStreamSpliteratorFactory;
 import uk.gov.justice.services.subscription.ProcessedEventStreamer;
 import uk.gov.justice.services.subscription.ProcessedEventStreamerConfiguration;
@@ -241,7 +242,9 @@ public class SubscriptionEventInterceptorIT {
             ProcessedEventStreamer.class,
             SpliteratorStreamFactory.class,
             ProcessedEventStreamerConfiguration.class,
-            ProcessedEventStreamSpliteratorFactory.class
+            ProcessedEventStreamSpliteratorFactory.class,
+
+            MissingEventRangeStringifier.class
     })
 
     public WebApp war() {

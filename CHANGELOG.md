@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.3.3] - 2023-06-08
+### Fixed
+  - Limit logging of MissingEventRanges logged to sensible maximum number.
+### Added
+  - New JNDI value `catchup.max.number.of.missing.event.ranges.to.log` 
+
 ## [8.3.2] - 2023-06-06
 ### Fixed
   - Fix Logging of missing event ranges to only log on debug

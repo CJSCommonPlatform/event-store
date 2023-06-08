@@ -1,7 +1,6 @@
 package uk.gov.justice.services.subscription;
 
 import static java.lang.String.format;
-import static java.lang.System.lineSeparator;
 import static java.util.stream.Collectors.joining;
 
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
@@ -35,6 +34,9 @@ public class ProcessedEventTrackingService {
     private EventRangeNormalizer eventRangeNormalizer;
 
     @Inject
+    private MissingEventRangeStringifier missingEventRangeStringifier;
+
+    @Inject
     private Logger logger;
 
     public void trackProcessedEvent(final JsonEnvelope event, final String componentName) {
@@ -66,12 +68,11 @@ public class ProcessedEventTrackingService {
         final List<MissingEventRange> normalizedEventRanges = eventRangeNormalizer.normalize(missingEventRanges);
 
         if (logger.isInfoEnabled()) {
+            final String messageMissingEventRangeString = missingEventRangeStringifier
+                    .createMissingEventRangeStringFrom(normalizedEventRanges);
             logger.info(format("Found %d missing event ranges", missingEventRanges.size()));
             logger.info(format("Event ranges normalized to %d missing event ranges", normalizedEventRanges.size()));
-        }
-
-        if(logger.isDebugEnabled()) {
-            logger.debug(createMessageMissingEventRanges(normalizedEventRanges));
+            logger.info(messageMissingEventRangeString);
         }
 
         return normalizedEventRanges.stream();
@@ -82,17 +83,5 @@ public class ProcessedEventTrackingService {
         return processedEventTrackingRepository.getLatestProcessedEvent(source, componentName)
                 .map(ProcessedEvent::getEventNumber)
                 .orElse(FIRST_POSSIBLE_EVENT_NUMBER);
-    }
-    
-    private String createMessageMissingEventRanges(final List<MissingEventRange> missingEventRanges) {
-
-        return "Missing Event Ranges: [" +
-                lineSeparator() +
-                missingEventRanges
-                        .stream()
-                        .map(MissingEventRange::toString)
-                        .collect(joining("," + lineSeparator())) +
-                lineSeparator() +
-                "]";
     }
 }

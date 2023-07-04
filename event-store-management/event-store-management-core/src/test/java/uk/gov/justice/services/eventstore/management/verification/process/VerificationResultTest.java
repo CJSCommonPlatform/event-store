@@ -9,11 +9,11 @@ import static uk.gov.justice.services.eventstore.management.verification.process
 import static uk.gov.justice.services.eventstore.management.verification.process.VerificationResult.success;
 import static uk.gov.justice.services.eventstore.management.verification.process.VerificationResult.warning;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class VerificationResultTest {
 
     @Test

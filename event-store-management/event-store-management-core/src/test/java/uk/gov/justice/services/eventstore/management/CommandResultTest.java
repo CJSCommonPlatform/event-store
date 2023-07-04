@@ -10,7 +10,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CommandResultTest {
 

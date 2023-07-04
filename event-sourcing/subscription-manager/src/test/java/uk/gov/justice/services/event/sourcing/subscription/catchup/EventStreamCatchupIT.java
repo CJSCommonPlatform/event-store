@@ -2,7 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.catchup;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 
 import uk.gov.justice.services.cdi.LoggerProducer;
@@ -28,15 +28,14 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Application;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 public class EventStreamCatchupIT {
 
     @Inject

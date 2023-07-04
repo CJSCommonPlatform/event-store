@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Changed
+- Update junit to 5, surefire and failsafe plugins
 
 ## [17.0.2] - 2023-06-15
 ### Fixed

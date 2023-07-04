@@ -5,8 +5,8 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -24,14 +24,14 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventStreamJdbcRepositoryIT {
 
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
@@ -57,7 +57,7 @@ public class EventStreamJdbcRepositoryIT {
     @InjectMocks
     private EventStreamJdbcRepository jdbcRepository;
 
-    @Before
+    @BeforeEach
     public void initialize() throws Exception {
 
         dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();

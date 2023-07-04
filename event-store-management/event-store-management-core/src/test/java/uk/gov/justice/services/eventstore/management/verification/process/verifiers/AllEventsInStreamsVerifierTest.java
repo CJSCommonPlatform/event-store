@@ -5,7 +5,7 @@ import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,15 +27,15 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AllEventsInStreamsVerifierTest {
 
     @Mock
@@ -109,7 +109,7 @@ public class AllEventsInStreamsVerifierTest {
         assertThat(verificationResult.size(), is(1));
 
         assertThat(verificationResult.get(0).getVerificationResultType(), is(WARNING));
-        assertThat(verificationResult.get(0).getMessage(), is("The following 2 streams in the stream_status table have no events: [ee06dc8e-0fe8-4355-8b3b-b57e65153847, 84f05b66-df81-4196-b30d-8d47daa69b6b]"));
+        assertThat(verificationResult.get(0).getMessage(), is("The following 2 streams in the stream_status table have no events: [84f05b66-df81-4196-b30d-8d47daa69b6b, ee06dc8e-0fe8-4355-8b3b-b57e65153847]"));
 
         verify(resultSet).close();
         verify(preparedStatement).close();

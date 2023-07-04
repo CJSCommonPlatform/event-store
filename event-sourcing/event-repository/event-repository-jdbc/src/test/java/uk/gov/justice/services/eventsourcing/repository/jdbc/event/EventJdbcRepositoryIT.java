@@ -7,7 +7,8 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
@@ -30,16 +31,16 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventJdbcRepositoryIT {
 
     private static final UUID STREAM_ID = randomUUID();
@@ -71,7 +72,7 @@ public class EventJdbcRepositoryIT {
 
     private DataSource dataSource;
 
-    @Before
+    @BeforeEach
     public void initialize() throws Exception {
 
         dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
@@ -285,19 +286,23 @@ public class EventJdbcRepositoryIT {
         assertThat(finalNumberOfEvents, is(3L));
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionOnDuplicateId() throws InvalidPositionException {
         final UUID id = randomUUID();
 
-        jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID).build());
-        jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID + 1).build());
+        assertThrows(JdbcRepositoryException.class, () -> {
+            jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID).build());
+            jdbcRepository.insert(eventBuilder().withId(id).withPositionInStream(SEQUENCE_ID + 1).build());
+        });
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionOnDuplicateSequenceId() throws InvalidPositionException {
 
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
-        jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
+        assertThrows(JdbcRepositoryException.class, () -> {
+            jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
+            jdbcRepository.insert(eventBuilder().withStreamId(STREAM_ID).withPositionInStream(SEQUENCE_ID).build());
+        });
     }
 
     @Test

@@ -3,7 +3,7 @@ package uk.gov.justice.subscription.registry;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.subscription.domain.builders.SubscriptionBuilder.subscription;
 import static uk.gov.justice.subscription.domain.builders.SubscriptionsDescriptorBuilder.subscriptionsDescriptor;
 
@@ -12,7 +12,7 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SubscriptionsDescriptorRegistryTest {
 

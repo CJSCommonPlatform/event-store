@@ -19,8 +19,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 public class EventBufferJdbcRepositoryIT {
@@ -28,7 +28,7 @@ public class EventBufferJdbcRepositoryIT {
     public static final String EVENT_LISTENER = "event_listener";
     private EventBufferJdbcRepository eventBufferJdbcRepository;
 
-    @Before
+    @BeforeEach
     public void initDatabase() throws Exception {
         final DataSource dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
         eventBufferJdbcRepository = new EventBufferJdbcRepository(

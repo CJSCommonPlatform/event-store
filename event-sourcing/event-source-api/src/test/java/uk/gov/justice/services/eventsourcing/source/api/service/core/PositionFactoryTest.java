@@ -3,13 +3,13 @@ package uk.gov.justice.services.eventsourcing.source.api.service.core;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.FIRST;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.HEAD;
 
 import uk.gov.justice.services.adapter.rest.exception.BadRequestException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PositionFactoryTest {
 

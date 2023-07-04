@@ -107,15 +107,14 @@ import javax.sql.DataSource;
 
 import org.apache.openejb.jee.Application;
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 @Adapter(EVENT_LISTENER)
 public class SubscriptionEventInterceptorIT {
 
@@ -136,7 +135,7 @@ public class SubscriptionEventInterceptorIT {
     @Inject
     private ProcessedEventTrackingService processedEventTrackingService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         final InitialContext initialContext = new InitialContext();
         initialContext.bind("java:/DS.SubscriptionEventInterceptorIT", dataSource);

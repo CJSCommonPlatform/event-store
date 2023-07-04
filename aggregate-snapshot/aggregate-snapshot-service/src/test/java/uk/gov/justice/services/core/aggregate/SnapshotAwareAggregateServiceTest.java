@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,19 +36,19 @@ import java.util.stream.Stream;
 
 import javax.json.JsonObject;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 /**
  * Unit tests for the {@link SnapshotAwareAggregateService} class.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SnapshotAwareAggregateServiceTest {
 
     private static final UUID STREAM_ID = randomUUID();
@@ -76,7 +77,7 @@ public class SnapshotAwareAggregateServiceTest {
         defaultAggregateService.register(new EventFoundEvent(clazz, name));
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         defaultAggregateService.logger = logger;
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
@@ -187,7 +188,7 @@ public class SnapshotAwareAggregateServiceTest {
         verify(logger).trace("Recreating aggregate for instance {} of aggregate type {}", STREAM_ID, TestAggregate.class);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionForUnregisteredEvent() throws AggregateChangeDetectedException {
         defaultAggregateService.logger = logger;
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
@@ -198,17 +199,17 @@ public class SnapshotAwareAggregateServiceTest {
         when(snapshotService.getLatestVersionedAggregate(STREAM_ID, TestAggregate.class)).thenReturn(Optional.of(new VersionedAggregate<>(INITIAL_AGGREGATE_VERSION, new TestAggregate())));
         when(eventStream.readFrom(NEXT_AGGREGATE_VERSION)).thenReturn(of(envelopeFrom(metadataWithRandomUUID("eventA"), eventPayloadA)));
 
-        aggregateService.get(eventStream, TestAggregate.class);
+        assertThrows(IllegalStateException.class, () -> aggregateService.get(eventStream, TestAggregate.class));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionForNonInstantiatableEvent() throws AggregateChangeDetectedException {
         defaultAggregateService.logger = logger;
         defaultAggregateService.jsonObjectToObjectConverter = jsonObjectToObjectConverter;
 
         registerEvent(EventA.class, "eventA");
 
-        aggregateService.get(eventStream, PrivateAggregate.class);
+        assertThrows(RuntimeException.class, () -> aggregateService.get(eventStream, PrivateAggregate.class));
     }
 
     @Test

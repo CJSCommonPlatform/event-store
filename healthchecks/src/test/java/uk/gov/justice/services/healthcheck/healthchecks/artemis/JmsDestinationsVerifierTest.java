@@ -2,7 +2,8 @@ package uk.gov.justice.services.healthcheck.healthchecks.artemis;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.anyString;
@@ -21,16 +22,16 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JmsDestinationsVerifierTest {
 
     @Mock
@@ -65,13 +66,13 @@ public class JmsDestinationsVerifierTest {
         verify(consumer, times(2)).close();
     }
 
-    @Test(expected = DestinationNotFoundException.class)
+    @Test
     public void shouldThrowExceptionWhenDestinationNotExist() throws Exception {
         var session = mock(Session.class);
         given(destinationNamesProvider.getDestinationNames()).willReturn(List.of("queue-1"));
         doThrow(new JmsEnvelopeSenderException("Ex message", new RuntimeException())).when(destinationProvider).getDestination("queue-1");
 
-        jmsDestinationsVerifier.verify(session);
+        assertThrows(DestinationNotFoundException.class, () -> jmsDestinationsVerifier.verify(session));
     }
 
     @Test

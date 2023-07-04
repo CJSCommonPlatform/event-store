@@ -5,7 +5,7 @@
     <parent>
         <artifactId>event-publisher</artifactId>
         <groupId>uk.gov.justice.event-store</groupId>
-        <version>17.0.3-SNAPSHOT</version>
+        <version>17.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -62,8 +62,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,6 +81,11 @@
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-repository-liquibase</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomee</groupId>
+            <artifactId>openejb-junit5</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

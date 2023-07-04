@@ -4,8 +4,8 @@ import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -20,8 +20,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StreamStatusJdbcRepositoryIT {
 
@@ -37,7 +37,7 @@ public class StreamStatusJdbcRepositoryIT {
 
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
 
-    @Before
+    @BeforeEach
     public void initDatabase() throws Exception {
         dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
 

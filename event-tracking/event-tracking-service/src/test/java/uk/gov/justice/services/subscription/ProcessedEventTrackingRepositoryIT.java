@@ -4,7 +4,7 @@ import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
@@ -20,15 +20,15 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ProcessedEventTrackingRepositoryIT {
 
     private final DataSource viewStoreDataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
@@ -47,12 +47,12 @@ public class ProcessedEventTrackingRepositoryIT {
     @InjectMocks
     private ProcessedEventTrackingRepository processedEventTrackingRepository;
 
-    @Before
+    @BeforeEach
     public void ensureOurDatasourceProviderReturnsOurTestDataSource() {
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
     }
 
-    @Before
+    @BeforeEach
     public void cleanTable() {
         new DatabaseCleaner().cleanViewStoreTables("framework", "processed_event");
     }

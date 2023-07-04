@@ -6,7 +6,7 @@ import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 import static uk.gov.justice.services.messaging.spi.DefaultJsonMetadata.metadataBuilder;
 
@@ -84,17 +84,16 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Application;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 public class EventPublishIT {
 
     @Inject
@@ -112,7 +111,7 @@ public class EventPublishIT {
 
     private EventStoreDataAccess eventStoreDataAccess;
 
-    @Before
+    @BeforeEach
     public void initializeDatabase() throws Exception {
         final DataSource eventStoreDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
         eventStoreInitializer.initializeEventStore(eventStoreDataSource);

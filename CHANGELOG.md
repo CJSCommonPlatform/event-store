@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.1.1] - 2023-07-19
+### Changed
+- Update junit to 5, surefire and failsafe plugins
+
 ## [17.0.2] - 2023-06-15
 ### Fixed
 - Fix Logging of missing event ranges to only log on debug

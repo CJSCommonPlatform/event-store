@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EventStoreDataAccessIT {
 

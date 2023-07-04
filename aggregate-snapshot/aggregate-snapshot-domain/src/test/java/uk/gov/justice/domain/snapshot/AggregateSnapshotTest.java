@@ -2,7 +2,7 @@ package uk.gov.justice.domain.snapshot;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedException;
@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 public class AggregateSnapshotTest {

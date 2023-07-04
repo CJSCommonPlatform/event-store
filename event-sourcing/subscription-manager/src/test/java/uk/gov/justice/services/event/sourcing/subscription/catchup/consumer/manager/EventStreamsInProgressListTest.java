@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EventStreamsInProgressListTest {
 

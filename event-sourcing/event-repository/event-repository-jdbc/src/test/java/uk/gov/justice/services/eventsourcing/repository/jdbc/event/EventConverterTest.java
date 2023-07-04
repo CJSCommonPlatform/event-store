@@ -5,6 +5,7 @@ import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
@@ -23,12 +24,12 @@ import uk.gov.justice.services.test.utils.common.helper.StoppedClock;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventConverterTest {
 
     private final static String PAYLOAD_FIELD_NAME = "field";
@@ -46,7 +47,7 @@ public class EventConverterTest {
     private EventConverter eventConverter;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         eventConverter = new EventConverter();
         eventConverter.stringToJsonObjectConverter = new StringToJsonObjectConverter();
@@ -75,14 +76,14 @@ public class EventConverterTest {
         assertEquals(envelope.payloadAsJsonObject().toString(), event.getPayload(), false);
     }
 
-    @Test(expected = InvalidStreamIdException.class)
+    @Test
     public void shouldThrowExceptionOnNullStreamId() throws Exception {
-        eventConverter.eventOf(envelopeFrom(metadataBuilder().withId(ID).withName(NAME), createObjectBuilder()));
+        assertThrows(InvalidStreamIdException.class, () -> eventConverter.eventOf(envelopeFrom(metadataBuilder().withId(ID).withName(NAME), createObjectBuilder())));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionOnMissingCreatedAt() throws Exception {
-        eventConverter.eventOf((envelopeFrom(metadataBuilder().withId(ID).withName(NAME).withStreamId(STREAM_ID), createObjectBuilder())));
+        assertThrows(IllegalArgumentException.class, () -> eventConverter.eventOf((envelopeFrom(metadataBuilder().withId(ID).withName(NAME).withStreamId(STREAM_ID), createObjectBuilder()))));
     }
 
     @Test

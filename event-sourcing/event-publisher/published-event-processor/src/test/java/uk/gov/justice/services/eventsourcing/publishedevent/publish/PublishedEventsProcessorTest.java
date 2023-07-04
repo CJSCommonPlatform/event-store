@@ -3,8 +3,9 @@ package uk.gov.justice.services.eventsourcing.publishedevent.publish;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -23,13 +24,13 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PublishedEventsProcessorTest {
     @Mock(answer = RETURNS_DEEP_STUBS)
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
@@ -104,6 +105,7 @@ public class PublishedEventsProcessorTest {
 
         final DataSource dataSource = mock(DataSource.class);
         when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(dataSource);
+        doNothing().when(databaseTableTruncator).truncate("published_event", dataSource);
         doThrow(sqlException).when(databaseTableTruncator).truncate("pre_publish_queue", dataSource);
 
         try {

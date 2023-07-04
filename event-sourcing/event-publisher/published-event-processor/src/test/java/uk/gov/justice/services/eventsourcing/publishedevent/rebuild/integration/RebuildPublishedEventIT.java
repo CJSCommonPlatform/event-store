@@ -55,17 +55,16 @@ import javax.json.JsonObject;
 import javax.sql.DataSource;
 
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Default;
 import org.apache.openejb.testing.Module;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 public class RebuildPublishedEventIT {
 
 
@@ -81,12 +80,12 @@ public class RebuildPublishedEventIT {
 
     private static int port;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         port = getNextAvailablePort();
     }
 
-    @Before
+    @BeforeEach
     public void cleanDatabase() {
         databaseCleaner.cleanEventStoreTables("framework");
     }

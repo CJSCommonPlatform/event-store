@@ -7,7 +7,7 @@ import static uk.gov.justice.services.eventsourcing.source.api.service.core.Posi
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.Position.position;
 
 import com.google.common.testing.EqualsTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PositionTest {
 

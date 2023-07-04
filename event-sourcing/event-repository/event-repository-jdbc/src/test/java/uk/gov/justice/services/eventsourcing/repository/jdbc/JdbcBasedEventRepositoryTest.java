@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,14 +36,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JdbcBasedEventRepositoryTest {
 
     private static final UUID STREAM_ID = UUID.fromString("4b4e80a0-76f7-476c-b75b-527e38fb259e");
@@ -107,9 +108,9 @@ public class JdbcBasedEventRepositoryTest {
         verify(logger).trace("Retrieving event stream for {}", STREAM_ID);
     }
 
-    @Test(expected = InvalidStreamIdException.class)
+    @Test
     public void shouldThrowExceptionOnNullStreamId() throws Exception {
-        jdbcBasedEventRepository.getEventsByStreamId(null);
+        assertThrows(InvalidStreamIdException.class, () -> jdbcBasedEventRepository.getEventsByStreamId(null));
     }
 
     @Test
@@ -139,24 +140,24 @@ public class JdbcBasedEventRepositoryTest {
         verify(logger).trace("Retrieving event stream for {} at sequence {}", STREAM_ID, POSITION);
     }
 
-    @Test(expected = InvalidStreamIdException.class)
+    @Test
     public void shouldThrowExceptionOnNullStreamIdWhenGettingStreamByStreamIdAndSequence() throws Exception {
-        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(null, POSITION);
+        assertThrows(InvalidStreamIdException.class, () -> jdbcBasedEventRepository.getEventsByStreamIdFromPosition(null, POSITION));
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionOnNullSequenceIdWhenGettingStreamByStreamIdAndSequence() throws Exception {
-        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null);
+        assertThrows(JdbcRepositoryException.class, () -> jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null));
     }
 
-    @Test(expected = InvalidStreamIdException.class)
+    @Test
     public void shouldThrowExceptionOnNullStreamIdWhenGettingStreamByStreamIdAndPositionByPage() throws Exception {
-        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(null, POSITION, 10);
+        assertThrows(InvalidStreamIdException.class, () -> jdbcBasedEventRepository.getEventsByStreamIdFromPosition(null, POSITION, 10));
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionOnNullSequenceIdWhenGettingStreamByStreamIdAndPositonByPage() throws Exception {
-        jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null, 10);
+        assertThrows(JdbcRepositoryException.class, () -> jdbcBasedEventRepository.getEventsByStreamIdFromPosition(STREAM_ID, null, 10));
     }
 
     @Test
@@ -312,7 +313,7 @@ public class JdbcBasedEventRepositoryTest {
         verify(logger).trace("Storing event {} into stream {} at position {}", name, STREAM_ID, POSITION);
     }
 
-    @Test(expected = StoreEventRequestFailedException.class)
+    @Test
     public void shouldThrowExceptionOnDuplicatePosition() throws Exception {
         when(eventConverter.eventOf(envelope)).thenReturn(event);
         when(envelope.metadata()).thenReturn(metadata);
@@ -321,7 +322,7 @@ public class JdbcBasedEventRepositoryTest {
 
         doThrow(InvalidPositionException.class).when(eventJdbcRepository).insert(event);
 
-        jdbcBasedEventRepository.storeEvent(envelope);
+        assertThrows(StoreEventRequestFailedException.class, () -> jdbcBasedEventRepository.storeEvent(envelope));
     }
 
     @Test

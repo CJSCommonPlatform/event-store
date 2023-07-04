@@ -1,6 +1,7 @@
 package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,16 +24,16 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventBufferJdbcRepositoryTest {
     private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
     private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
@@ -67,7 +68,7 @@ public class EventBufferJdbcRepositoryTest {
 
     public static final String EVENT_LISTENER = "event_listener";
 
-    @Before
+    @BeforeEach
     public void initDatabase() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
     }
@@ -113,7 +114,7 @@ public class EventBufferJdbcRepositoryTest {
         verify(logger).warn("Event already present in event buffer. Ignoring");
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionWhileStoringEvent() throws SQLException {
         final String source = "source";
 
@@ -122,7 +123,9 @@ public class EventBufferJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
+        final EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER);
+
+        assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.insert(eventBufferEvent));
     }
 
     @Test
@@ -155,7 +158,7 @@ public class EventBufferJdbcRepositoryTest {
         verify(preparedStatement).executeUpdate();
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionWhileReturningBufferedEvent() throws SQLException {
 
         final UUID streamId = randomUUID();
@@ -170,7 +173,8 @@ public class EventBufferJdbcRepositoryTest {
                 .thenThrow(new SQLException());
 
         eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
-        eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component);
+
+        assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component));
    }
 
     @Test
@@ -201,7 +205,7 @@ public class EventBufferJdbcRepositoryTest {
         verify(preparedStatement, times(2)).executeUpdate();
     }
 
-    @Test(expected = JdbcRepositoryException.class)
+    @Test
     public void shouldThrowExceptionWhileRemovingEventFromBuffer() throws SQLException {
 
         final String source = "source";
@@ -217,7 +221,7 @@ public class EventBufferJdbcRepositoryTest {
         EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER);
 
         eventBufferJdbcRepository.insert(eventBufferEvent);
-        eventBufferJdbcRepository.remove(eventBufferEvent);
+        assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.remove(eventBufferEvent));
     }
 
 }

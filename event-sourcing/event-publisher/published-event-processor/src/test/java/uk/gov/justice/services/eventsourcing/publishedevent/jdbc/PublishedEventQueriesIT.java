@@ -3,7 +3,7 @@ package uk.gov.justice.services.eventsourcing.publishedevent.jdbc;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
@@ -20,13 +20,13 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PublishedEventQueriesIT {
 
     private final DataSource eventStoreDataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
@@ -34,7 +34,7 @@ public class PublishedEventQueriesIT {
     @InjectMocks
     private PublishedEventQueries publishedEventQueries;
 
-    @Before
+    @BeforeEach
     public void initDatabase() throws Exception {
         new EventStoreInitializer().initializeEventStore(eventStoreDataSource);
     }

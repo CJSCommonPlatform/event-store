@@ -2,26 +2,29 @@ package uk.gov.justice.services.test.utils.persistence;
 
 import javax.inject.Inject;
 import javax.transaction.UserTransaction;
-
+import org.junit.After;
+import org.junit.Before;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 /**
  * This class should be extended by any test which require managed persistence/transactions provided
- * by deltaspike via JPA.
+ * by deltaspike via JPA and currently deltaspike is not supporting junit5 and hence all deltaspike tests
+ * can't be migrated to junit5, but they will be run using jupiter vintage engine
  */
-public abstract class BaseTransactionalTest {
+@Deprecated
+public abstract class BaseTransactionalJunit4Test {
 
     @Inject
     UserTransaction userTransaction;
 
-    @BeforeEach
+    @Before
     public final void setup() throws Exception {
         userTransaction.begin();
         setUpBefore();
     }
 
-    @AfterEach
+    @After
     public final void tearDown() throws Exception {
         tearDownAfter();
         userTransaction.rollback();

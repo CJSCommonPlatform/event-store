@@ -9,8 +9,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,17 +33,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventStreamManagerTest {
 
     private static final UUID STREAM_ID = randomUUID();
@@ -102,12 +104,12 @@ public class EventStreamManagerTest {
 
     }
 
-    @Test(expected = EventStreamException.class)
+    @Test
     public void shouldThrowExceptionWhenEnvelopeContainsVersion() throws Exception {
         final JsonEnvelope event = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName("my-event").withVersion(INITIAL_VERSION + 1),
                 createObjectBuilder());
-        eventStreamManager.append(STREAM_ID, Stream.of(event));
+        assertThrows(EventStreamException.class, () -> eventStreamManager.append(STREAM_ID, Stream.of(event)));
     }
 
     @Test
@@ -162,25 +164,25 @@ public class EventStreamManagerTest {
 
     }
 
-    @Test(expected = EventStreamException.class)
+    @Test
     public void shouldThrowExceptionOnNullFromVersion() throws Exception {
         final JsonEnvelope event = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName("my-event"),
                 createObjectBuilder());
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), null);
+        assertThrows(EventStreamException.class, () -> eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), null));
     }
 
-    @Test(expected = VersionMismatchException.class)
+    @Test
     public void shouldThrowExceptionWhenEventsAreMissing() throws Exception {
 
         final JsonEnvelope event = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName("my-event"),
                 createObjectBuilder());
 
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), INVALID_VERSION);
+        assertThrows(VersionMismatchException.class, () -> eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), INVALID_VERSION));
     }
 
-    @Test(expected = OptimisticLockingRetryException.class)
+    @Test
     public void shouldThrowExceptionWhenVersionAlreadyExists() throws Exception {
         when(eventRepository.getStreamSize(STREAM_ID)).thenReturn(CURRENT_VERSION + 1);
 
@@ -188,7 +190,7 @@ public class EventStreamManagerTest {
                 metadataBuilder().withId(randomUUID()).withName("my-event"),
                 createObjectBuilder());
 
-        eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), CURRENT_VERSION);
+        assertThrows(OptimisticLockingRetryException.class, () -> eventStreamManager.appendAfter(STREAM_ID, Stream.of(event), CURRENT_VERSION));
     }
 
     @Test
@@ -290,7 +292,10 @@ public class EventStreamManagerTest {
                 metadataBuilder().withId(randomUUID()).withName("my-event-3"),
                 createObjectBuilder());
 
-        doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(event2, STREAM_ID, currentVersion + 2, EVENT_SOURCE_NAME);
+        doNothing().when(publishingEventAppender).append(eq(event1), eq(STREAM_ID), anyLong(), eq(EVENT_SOURCE_NAME));
+        doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(eq(event2), eq(STREAM_ID), eq(currentVersion + 2), eq(EVENT_SOURCE_NAME));
+        doNothing().when(publishingEventAppender).append(eq(event2), eq(STREAM_ID), eq(currentVersionAfterException + 1), eq(EVENT_SOURCE_NAME));
+        doNothing().when(publishingEventAppender).append(eq(event3), eq(STREAM_ID), anyLong(), eq(EVENT_SOURCE_NAME));
 
         eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event1, event2, event3));
 
@@ -321,7 +326,10 @@ public class EventStreamManagerTest {
                 metadataBuilder().withId(randomUUID()).withName("my-event-3"),
                 createObjectBuilder());
 
-        doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(event2, STREAM_ID, currentVersion + 2, EVENT_SOURCE_NAME);
+        doNothing().when(publishingEventAppender).append(eq(event1), eq(STREAM_ID), anyLong(), eq(EVENT_SOURCE_NAME));
+        doThrow(OptimisticLockingRetryException.class).when(publishingEventAppender).append(eq(event2), eq(STREAM_ID), eq(currentVersion + 2), eq(EVENT_SOURCE_NAME));
+        doNothing().when(publishingEventAppender).append(eq(event2), eq(STREAM_ID), eq(currentVersionAfterException + 1), eq(EVENT_SOURCE_NAME));
+        doNothing().when(publishingEventAppender).append(eq(event3), eq(STREAM_ID), anyLong(), eq(EVENT_SOURCE_NAME));
 
         eventStreamManager.appendNonConsecutively(STREAM_ID, Stream.of(event1, event2, event3));
 

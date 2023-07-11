@@ -2,6 +2,7 @@ package uk.gov.justice.services.eventsourcing.source.api.security;
 
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.common.http.HeaderConstants.USER_ID;
 
@@ -14,13 +15,13 @@ import java.util.UUID;
 import javax.ws.rs.core.MultivaluedHashMap;
 
 import org.jboss.resteasy.specimpl.ResteasyHttpHeaders;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AccessControllerTest {
 
     @Mock
@@ -37,24 +38,24 @@ public class AccessControllerTest {
         accessController.checkAccessControl(headersWithUserId(systemUserId));
     }
 
-    @Test(expected = AccessControlViolationException.class)
+    @Test
     public void shouldThrowExceptionIfUserPassedInHeaderIsNotSystemUser() throws Exception {
         when(systemUserProvider.getContextSystemUserId()).thenReturn(Optional.of(randomUUID()));
 
-        accessController.checkAccessControl(headersWithUserId(randomUUID()));
+        assertThrows(AccessControlViolationException.class, () -> accessController.checkAccessControl(headersWithUserId(randomUUID())));
     }
 
-    @Test(expected = AccessControlViolationException.class)
+    @Test
     public void shouldThrowExceptionIfNoSystemUserDefined() throws Exception {
         when(systemUserProvider.getContextSystemUserId()).thenReturn(Optional.empty());
-        accessController.checkAccessControl(headersWithUserId(randomUUID()));
+        assertThrows(AccessControlViolationException.class, () -> accessController.checkAccessControl(headersWithUserId(randomUUID())));
     }
 
-    @Test(expected = AccessControlViolationException.class)
+    @Test
     public void shouldThrowExceptionIfUserIdNotProvidedInRequest() throws Exception {
         when(systemUserProvider.getContextSystemUserId()).thenReturn(Optional.of(randomUUID()));
 
-        accessController.checkAccessControl(emptyHeaders());
+        assertThrows(AccessControlViolationException.class, () -> accessController.checkAccessControl(emptyHeaders()));
     }
 
     private ResteasyHttpHeaders emptyHeaders() {

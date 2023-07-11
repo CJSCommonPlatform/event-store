@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,15 +22,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EnvelopeEventStreamTest {
 
     private static final Long POSITION = 3L;
@@ -52,18 +53,9 @@ public class EnvelopeEventStreamTest {
 
     private EnvelopeEventStream envelopeEventStream;
 
-    @Before
+    @BeforeEach
     public void setup() {
         envelopeEventStream = new EnvelopeEventStream(STREAM_ID, EVENT_SOURCE_NAME, eventStreamManager);
-        when(eventStreamManager.read(STREAM_ID)).thenReturn(Stream.of(
-                jsonEnvelopeWithVersion(1L),
-                jsonEnvelopeWithVersion(2L),
-                jsonEnvelopeWithVersion(3L),
-                jsonEnvelopeWithVersion(4L)));
-        when(eventStreamManager.readFrom(STREAM_ID, POSITION)).thenReturn(Stream.of(
-                jsonEnvelopeWithVersion(3L),
-                jsonEnvelopeWithVersion(4L)
-        ));
     }
 
     @Test
@@ -144,21 +136,30 @@ public class EnvelopeEventStreamTest {
         assertThat(streamName, equalTo(EVENT_SOURCE_NAME));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionIfReadTwice() {
-        envelopeEventStream.read();
-        envelopeEventStream.read();
+
+        assertThrows(IllegalStateException.class, () -> {
+            envelopeEventStream.read();
+            envelopeEventStream.read();
+        });
     }
 
     @Test
     public void shouldAppendToLastReadVersion() throws Exception {
         final JsonEnvelope event = jsonEnvelopeWithDefaults();
         final Stream<JsonEnvelope> events = Stream.of(event);
+        when(eventStreamManager.read(STREAM_ID)).thenReturn(Stream.of(
+                jsonEnvelopeWithVersion(1L),
+                jsonEnvelopeWithVersion(2L),
+                jsonEnvelopeWithVersion(3L),
+                jsonEnvelopeWithVersion(4L)));
 
         envelopeEventStream.read().forEach(e -> {
         });
         envelopeEventStream.append(events);
 
+        verify(eventStreamManager).read(eq(STREAM_ID));
         verify(eventStreamManager).appendAfter(eq(STREAM_ID), streamCaptor.capture(), eq(CURRENT_POSITION));
         final List<JsonEnvelope> appendedEvents = streamCaptor.getValue().collect(toList());
         assertThat(appendedEvents, hasSize(1));
@@ -182,6 +183,11 @@ public class EnvelopeEventStreamTest {
     public void shouldAllowTwoAppendsAfterRead() throws Exception {
         final JsonEnvelope event5 = jsonEnvelopeWithDefaults();
         final JsonEnvelope event6 = jsonEnvelopeWithDefaults();
+        when(eventStreamManager.read(STREAM_ID)).thenReturn(Stream.of(
+                jsonEnvelopeWithVersion(1L),
+                jsonEnvelopeWithVersion(2L),
+                jsonEnvelopeWithVersion(3L),
+                jsonEnvelopeWithVersion(4L)));
 
         envelopeEventStream.read().forEach(e -> {
         });

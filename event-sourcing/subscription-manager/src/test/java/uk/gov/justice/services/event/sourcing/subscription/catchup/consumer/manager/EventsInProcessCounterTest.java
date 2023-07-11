@@ -7,7 +7,7 @@ import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EventsInProcessCounterTest {
 

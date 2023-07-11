@@ -19,8 +19,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultipleDataSourcePublishedEventRepositoryIT {
 
@@ -28,7 +28,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
 
     private MultipleDataSourcePublishedEventRepository multipleDataSourcePublishedEventRepository;
 
-    @Before
+    @BeforeEach
     public void initialize() throws Exception {
         dataSource = new FrameworkTestDataSourceFactory().createEventStoreDataSource();
         new DatabaseCleaner().cleanEventStoreTables("framework");

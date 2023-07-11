@@ -6,7 +6,7 @@ import static org.hamcrest.core.Is.is;
 
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.OptimisticLockingRetryException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OptimisticLockingRetryExceptionTest {
 

@@ -5,6 +5,7 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -19,14 +20,14 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PublishingEventAppenderTest {
 
     private static final String DEFAULT_EVENT_SOURCE_NAME = "defaultEventSource";
@@ -67,7 +68,7 @@ public class PublishingEventAppenderTest {
         assertThat(storedEnvelope.payloadAsJsonObject().getString("somePayloadField"), is("payloadValue123"));
     }
 
-    @Test(expected = EventStreamException.class)
+    @Test
     public void shouldThrowExceptionWhenStoreEventRequestFails() throws Exception {
         doThrow(StoreEventRequestFailedException.class).when(eventRepository).storeEvent(any());
 
@@ -80,7 +81,7 @@ public class PublishingEventAppenderTest {
                         .add("somePayloadField", "payloadValue123")
         );
 
-        eventAppender.append(jsonEnvelope, randomUUID(), 1l, DEFAULT_EVENT_SOURCE_NAME);
+        assertThrows(EventStreamException.class, () -> eventAppender.append(jsonEnvelope, randomUUID(), 1l, DEFAULT_EVENT_SOURCE_NAME));
     }
 
     @Test

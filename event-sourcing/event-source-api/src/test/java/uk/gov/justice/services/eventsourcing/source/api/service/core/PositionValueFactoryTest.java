@@ -5,7 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.FIRST;
 import static uk.gov.justice.services.eventsourcing.source.api.service.core.FixedPositionValue.HEAD;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PositionValueFactoryTest {
 

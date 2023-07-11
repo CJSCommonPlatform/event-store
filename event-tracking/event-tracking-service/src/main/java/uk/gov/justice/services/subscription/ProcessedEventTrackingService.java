@@ -1,7 +1,6 @@
 package uk.gov.justice.services.subscription;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
 
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 import uk.gov.justice.services.eventsourcing.util.messaging.EventSourceNameCalculator;

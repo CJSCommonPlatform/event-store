@@ -112,19 +112,18 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.openejb.jee.Application;
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Classes;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.EnableServices;
 import org.apache.openejb.testing.Module;
 import org.apache.openejb.util.NetworkUtil;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @EnableServices("jaxrs")
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 public class EventsPageIT {
 
     private static final String LIQUIBASE_EVENT_STORE_CHANGELOG_XML = "liquibase/event-store-db-changelog.xml";
@@ -143,12 +142,12 @@ public class EventsPageIT {
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         port = NetworkUtil.getNextAvailablePort();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         httpClient = createDefault();
         initEventDatabase();

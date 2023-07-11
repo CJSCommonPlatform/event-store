@@ -3,8 +3,8 @@ package uk.gov.justice.services.test.utils.persistence;
 import javax.inject.Inject;
 import javax.transaction.UserTransaction;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * This class should be extended by any test which require managed persistence/transactions provided
@@ -15,13 +15,13 @@ public abstract class BaseTransactionalTest {
     @Inject
     UserTransaction userTransaction;
 
-    @Before
+    @BeforeEach
     public final void setup() throws Exception {
         userTransaction.begin();
         setUpBefore();
     }
 
-    @After
+    @AfterEach
     public final void tearDown() throws Exception {
         tearDownAfter();
         userTransaction.rollback();

@@ -101,15 +101,14 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.junit.ApplicationComposer;
+import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Application;
 import org.apache.openejb.testing.Configuration;
 import org.apache.openejb.testing.Module;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-@RunWith(ApplicationComposer.class)
+@RunWithApplicationComposer
 public class SnapshotAwareAggregateServiceIT {
 
     private static final String AGGREGATE_INTERFACE_FULL_NAME = "uk.gov.justice.domain.aggregate.Aggregate";
@@ -234,7 +233,7 @@ public class SnapshotAwareAggregateServiceIT {
                 .build();
     }
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
         defaultAggregateService.register(new EventFoundEvent(EventA.class, "context.eventA"));

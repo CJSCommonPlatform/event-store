@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.eventsourcing.source.api.service.PagingLinks.PagingLinksBuilder.pagingLinksBuilder;
@@ -30,14 +31,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.specimpl.ResteasyHttpHeaders;
 import org.jboss.resteasy.spi.ResteasyUriInfo;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventPageResourceTest {
 
     @Mock
@@ -93,7 +94,7 @@ public class EventPageResourceTest {
         assertThat(uuidArgumentCaptor.getValue(), is(streamId));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void shouldReturnBadRequestWhenHeadEventsRequestedWithForwardDirection() throws Exception {
 
         final String streamId = randomUUID().toString();
@@ -104,10 +105,10 @@ public class EventPageResourceTest {
 
         final Page<EventEntry> page = new Page<>(emptyList(), pagingLinksBuilder(fixedUrl, fixedUrl).build());
 
-        resource.events(streamId, HEAD, FORWARD.toString(), 10, uriInfo);
+        assertThrows(BadRequestException.class, () -> resource.events(streamId, HEAD, FORWARD.toString(), 10, uriInfo));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void shouldReturnBadRequestWhenFirstEventsRequestedWithBackwardDirection() throws Exception {
 
         final String streamId = randomUUID().toString();
@@ -118,7 +119,7 @@ public class EventPageResourceTest {
 
         final Page<EventEntry> page = new Page<>(emptyList(), pagingLinksBuilder(fixedUrl, fixedUrl).build());
 
-        resource.events(streamId, FIRST, BACKWARD.toString(), 10, uriInfo);
+        assertThrows(BadRequestException.class, () -> resource.events(streamId, FIRST, BACKWARD.toString(), 10, uriInfo));
     }
 
     @Test

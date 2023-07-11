@@ -1,23 +1,17 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
-import static net.trajano.commons.testing.UtilityClassTestUtil.assertUtilityClassWellDefined;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EventsTest {
 
     private static final Object OBJECT_1 = new Object();
     private static final Object OBJECT_2 = new Object();
-
-    @Test
-    public void shouldBeWellDefinedUtilityClass() {
-        assertUtilityClassWellDefined(Events.class);
-    }
 
     @Test
     public void shouldReturnStreamOfObjects() {

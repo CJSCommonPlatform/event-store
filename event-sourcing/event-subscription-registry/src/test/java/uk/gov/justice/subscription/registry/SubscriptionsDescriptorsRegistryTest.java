@@ -12,7 +12,7 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDe
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SubscriptionsDescriptorsRegistryTest {
 

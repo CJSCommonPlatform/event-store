@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.1.0] - 2023-07-11
+## [17.1.1] - 2023-07-19
 ### Changed
 - Update junit to 5, surefire and failsafe plugins
 

@@ -82,12 +82,17 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
             if(LOGGER.isInfoEnabled()) {
                 LOGGER.info("Fetched List of {} ProcessedEvents", processedEvents.size());
             }
+
             processedEventsIterator = processedEvents.iterator();
 
-            final ProcessedEvent nextProcessedEvent = processedEventsIterator.next();
-            currentEventNumber = nextProcessedEvent.getPreviousEventNumber();
+            if (processedEventsIterator.hasNext()) {
+                final ProcessedEvent nextProcessedEvent = processedEventsIterator.next();
+                currentEventNumber = nextProcessedEvent.getPreviousEventNumber();
 
-            nextProcessedEventConsumer.accept(nextProcessedEvent);
+                nextProcessedEventConsumer.accept(nextProcessedEvent);
+            }  else {
+                return false;
+            }
 
             return true;
         }
@@ -97,6 +102,7 @@ public class ProcessedEventStreamSpliterator extends AbstractSpliterator<Process
         if(LOGGER.isInfoEnabled()) {
             LOGGER.info("All processed events fetched. No more events to process");
         }
+
         return false;
     }
 }

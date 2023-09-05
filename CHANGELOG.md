@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.3.4] - 2023-09-05
+### Fixed
+  - Fixed IndexOutOfBoundsException in ProcessedEventStreamSpliterator during catchup
+
 ## [8.3.3] - 2023-06-08
 ### Fixed
   - Limit logging of MissingEventRanges logged to sensible maximum number.

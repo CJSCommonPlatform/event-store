@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.2.0-M1] - 2023-10-24
+### Changed
+- Centralise all generic library dependencies and versions into maven-common-bom
+
 ## [17.1.3] - 2023-09-06
 ### Fixed
 - Fixed IndexOutOfBoundsException in ProcessedEventStreamSpliterator during catchup

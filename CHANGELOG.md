@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.3.0-M2] - 2023-11-08
+## [17.3.0] - 2023-11-09
 ### Added
 - Added dependencies required by various contexts to the framework-libraries-bom
 - Added unifiedsearch-core and unifiedsearch-client-generator dependencies to framework-bom

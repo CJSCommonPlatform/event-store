@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.0] - 2023-12-08
+### Changed
+- Update framework to 17.4.0
+
 ## [17.3.1] - 2023-11-27
 ### Changed
 - Update common-bom to 17.2.1

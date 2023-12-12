@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.1] - 2023-12-12
+### Changed
+- Add retry mechanism to jobstore via framework-libraries
+
 ## [17.4.0] - 2023-12-08
 ### Changed
 - Update framework to 17.4.0

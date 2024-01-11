@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## [Unreleased]
 
+## [8.3.6] - 2024-01-11
+### Changed
+- Update to framework to 8.0.7
+
 ## [8.3.4] - 2023-09-05
 ### Fixed
   - Fixed IndexOutOfBoundsException in ProcessedEventStreamSpliterator during catchup

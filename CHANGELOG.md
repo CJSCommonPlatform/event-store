@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.2] - 2024-02-08
+### Changed
+- Add jobstore retry migration liquibase script via framework-libraries
+
 ## [17.4.1] - 2023-12-12
 ### Changed
 - Add retry mechanism to jobstore via framework-libraries

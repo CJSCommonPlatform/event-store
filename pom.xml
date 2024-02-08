@@ -39,7 +39,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>17.4.1</framework.version>
+        <framework.version>17.4.2</framework.version>
     </properties>
 
     <dependencyManagement>

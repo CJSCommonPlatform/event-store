@@ -34,6 +34,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     private static final String SQL_FIND_LATEST_BY_STREAM_ID = "SELECT * FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
     private static final String SQL_INSERT_EVENT_LOG = "INSERT INTO snapshot (stream_id, version_id, type, aggregate ) VALUES(?, ?, ?, ?)";
     private static final String DELETE_ALL_SNAPSHOTS_FOR_STREAM_ID_AND_CLASS = "delete from snapshot where stream_id =? and type=?";
+    private static final String DELETE_ALL_SNAPSHOTS_OF_STREAM_ID_AND_CLASS_AND_LESS_THAN_POSITION_IN_STREAM = "delete from snapshot where stream_id =? and type=? and version_id<?";
     private static final String SQL_CURRENT_SNAPSHOT_VERSION_ID = "SELECT version_id FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
 
     @Inject
@@ -83,6 +84,19 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
             ps.executeUpdate();
         } catch (final SQLException e) {
             logger.error(format("Exception while removing snapshots %s of stream %s", clazz, streamId), e);
+        }
+    }
+
+    @Override
+    public <T extends Aggregate> void removeAllSnapshotsOlderThan(final AggregateSnapshot aggregateSnapshot) {
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
+             final PreparedStatement ps = connection.prepareStatement(DELETE_ALL_SNAPSHOTS_OF_STREAM_ID_AND_CLASS_AND_LESS_THAN_POSITION_IN_STREAM)) {
+            ps.setObject(1, aggregateSnapshot.getStreamId());
+            ps.setString(2, aggregateSnapshot.getType());
+            ps.setLong(3, aggregateSnapshot.getPositionInStream());
+            ps.executeUpdate();
+        } catch (final SQLException e) {
+            logger.error(format("Exception while removing old snapshots %s of stream %s, version_id less than %s", aggregateSnapshot.getType(), aggregateSnapshot.getStreamId(), aggregateSnapshot.getPositionInStream()), e);
         }
     }
 

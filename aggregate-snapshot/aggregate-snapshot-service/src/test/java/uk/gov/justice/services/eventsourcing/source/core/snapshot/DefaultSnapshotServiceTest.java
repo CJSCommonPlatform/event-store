@@ -4,12 +4,14 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.mockito.*;
 import uk.gov.justice.domain.aggregate.NoSerializableTestAggregate;
 import uk.gov.justice.domain.aggregate.TestAggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
@@ -22,10 +24,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
@@ -62,16 +60,15 @@ public class DefaultSnapshotServiceTest {
     }
 
     @Test
-    public void shouldRemoveAllSnapshots() throws AggregateChangeDetectedException {
+    public void shouldRemoveAllSnapshots() {
 
         snapshotService.removeAllSnapshots(STREAM_ID, TestAggregate.class);
         verify(snapshotRepository).removeAllSnapshots(STREAM_ID, TestAggregate.class);
     }
 
     @Test
-    public void shouldCreateSnapshotIfStrategyMandatesCreation() throws AggregateChangeDetectedException {
+    public void shouldCreateAndRemoveOldSnapshotsIfStrategyMandatesCreation() {
         final TestAggregate aggregate = new TestAggregate();
-        final Optional<AggregateSnapshot<TestAggregate>> aggregateSnapshot = Optional.empty();
         final Long currentSnapshotVersion = 0l;
         final Long currentAggregateVersionId = 26l;
         when(snapshotRepository.getLatestSnapshotVersion(STREAM_ID, TestAggregate.class)).thenReturn(currentSnapshotVersion);
@@ -80,14 +77,18 @@ public class DefaultSnapshotServiceTest {
         snapshotService.attemptAggregateStore(STREAM_ID, currentAggregateVersionId, aggregate);
 
         verify(snapshotRepository, times(1)).storeSnapshot(snapshotArgumentCaptor.capture());
-
         assertThat(snapshotArgumentCaptor.getValue(), notNullValue());
         assertThat(snapshotArgumentCaptor.getValue().getPositionInStream(), is(currentAggregateVersionId));
 
+        verify(snapshotRepository, times(1)).removeAllSnapshotsOlderThan(argThat(actual -> {
+            assertThat(actual.getPositionInStream(), is(currentAggregateVersionId));
+            assertThat(actual.getStreamId(), is(STREAM_ID));
+            return true;
+        }));
     }
 
     @Test
-    public void shouldNotCreateAggregateIfStrategyDoesNotMandatesCreation() throws AggregateChangeDetectedException {
+    public void shouldNotCreateAggregateIfStrategyDoesNotMandatesCreation() {
         final Long currentSnapshotVersion = 0l;
         final Long currentAggregateVersionId = 26l;
         final TestAggregate aggregate = new TestAggregate();
@@ -96,13 +97,12 @@ public class DefaultSnapshotServiceTest {
 
         snapshotService.attemptAggregateStore(STREAM_ID, currentAggregateVersionId, aggregate);
         verify(snapshotRepository, never()).storeSnapshot(any(AggregateSnapshot.class));
-
-
+        verify(snapshotRepository, never()).removeAllSnapshotsOlderThan(any(AggregateSnapshot.class));
     }
 
 
     @Test
-    public void shouldNotCreateSnapshotWhenStrategyMandatesCreationButFailsSerialization() throws AggregateChangeDetectedException {
+    public void shouldNotCreateSnapshotWhenStrategyMandatesCreationButFailsSerialization() {
         final NoSerializableTestAggregate aggregate = new NoSerializableTestAggregate();
         final Long currentSnapshotVersion = 16l;
         final Long currentAggregateVersionId = 36l;
@@ -112,6 +112,6 @@ public class DefaultSnapshotServiceTest {
         snapshotService.attemptAggregateStore(STREAM_ID, currentAggregateVersionId, aggregate);
 
         verify(snapshotRepository, never()).storeSnapshot(any(AggregateSnapshot.class));
+        verify(snapshotRepository, never()).removeAllSnapshotsOlderThan(any(AggregateSnapshot.class));
     }
-
 }

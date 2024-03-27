@@ -3,6 +3,7 @@ package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -26,6 +27,9 @@ import java.util.UUID;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,12 +65,25 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
 
-        snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
+        final boolean returnValue = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
 
+        assertTrue(returnValue);
         final Optional<AggregateSnapshot<RecordingAggregate>> snapshot = snapshotJdbcRepository.getLatestSnapshot(streamId, TYPE);
 
         assertThat(snapshot, notNullValue());
         assertThat(snapshot, is(Optional.of(aggregateSnapshot)));
+    }
+
+    @Test
+    public void shouldIgnoreFailureOnStoreAndLogError() throws Exception {
+        final UUID streamId = randomUUID();
+        final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
+        snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
+
+        final boolean returnValue = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
+
+        assertFalse(returnValue);
+        verify(logger).error(eq("Error while storing a snapshot for {} at version {}"), eq(streamId), eq( VERSION_ID), ArgumentMatchers.any(Throwable.class));
     }
 
     @Test

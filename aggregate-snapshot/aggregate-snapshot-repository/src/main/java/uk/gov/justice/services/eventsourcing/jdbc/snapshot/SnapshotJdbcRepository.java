@@ -44,7 +44,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     private Logger logger;
 
     @Override
-    public void storeSnapshot(final AggregateSnapshot aggregateSnapshot) {
+    public boolean storeSnapshot(final AggregateSnapshot aggregateSnapshot) {
 
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement ps = connection.prepareStatement(SQL_INSERT_EVENT_LOG)) {
@@ -53,9 +53,13 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
             ps.setString(3, aggregateSnapshot.getType());
             ps.setBytes(4, aggregateSnapshot.getAggregateByteRepresentation());
             ps.executeUpdate();
+
+            return true;
         } catch (final SQLException e) {
             logger.error("Error while storing a snapshot for {} at version {}", aggregateSnapshot.getStreamId(), aggregateSnapshot.getPositionInStream(), e);
         }
+
+        return false;
     }
 
     @Override

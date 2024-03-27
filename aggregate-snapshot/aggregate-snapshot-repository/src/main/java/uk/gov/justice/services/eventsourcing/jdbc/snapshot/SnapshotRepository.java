@@ -16,8 +16,9 @@ public interface SnapshotRepository {
      * Store snapshot.
      *
      * @param aggregateSnapshot the aggregate snapshot
+     * @return true on successful save, otherwise false
      */
-    void storeSnapshot(final AggregateSnapshot aggregateSnapshot);
+    boolean storeSnapshot(final AggregateSnapshot aggregateSnapshot);
 
     /**
      * Gets latest snapshot.

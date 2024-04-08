@@ -1,25 +1,26 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import static java.lang.String.format;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
-
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.sql.DataSource;
+import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 
 public class MultipleDataSourcePublishedEventRepository {
 
     private static final String SQL_FIND_ALL_SINCE = "SELECT * FROM published_event WHERE event_number > ? ORDER BY event_number ASC";
     private static final String SQL_FIND_RANGE = "SELECT * FROM published_event WHERE event_number >= ? AND event_number < ? ORDER BY event_number ASC";
+    private static final String SQL_FIND_BY_ID = "SELECT * FROM published_event WHERE id = ?";
 
     private static final String ID = "id";
     private static final String STREAM_ID = "stream_id";
@@ -82,6 +83,29 @@ public class MultipleDataSourcePublishedEventRepository {
             return jdbcResultSetStreamer.streamOf(psWrapper, asPublishedEvent());
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find events from event_number %d to %d", fromEventNumber, toEventNumber), e);
+        }
+    }
+
+    /**
+     * Returns Optional of PublishedEvent for a given event id.
+     *
+     * @param eventId - id of the event to fetch
+     * @return Optional of PublishedEvent
+     */
+    public Optional<PublishedEvent> findByEventId(final UUID eventId) {
+
+        try {
+            final PreparedStatementWrapper psWrapper = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SQL_FIND_BY_ID);
+
+            psWrapper.setObject(1, eventId);
+
+            final ResultSet rs = psWrapper.executeQuery();
+
+            return rs.next()
+                    ? Optional.of(asPublishedEvent().apply(rs))
+                    : Optional.empty();
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(format("Failed to find event with id %s", eventId), e);
         }
     }
 

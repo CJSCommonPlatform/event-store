@@ -1,23 +1,24 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
-import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
-
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.MultipleDataSourcePublishedEventRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
+import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultPublishedEventSourceTest {
@@ -57,5 +58,17 @@ public class DefaultPublishedEventSourceTest {
         final Stream<PublishedEvent> eventRange = defaultPublishedEventSource.findEventRange(missingEventRange);
 
         assertThat(eventRange, is(streamOfEvents));
+    }
+
+    @Test
+    public void findByEventIdShouldReturnEvent() throws Exception {
+
+        final UUID eventId = UUID.randomUUID();
+        final Optional<PublishedEvent> publishedEvent = Optional.of(mock(PublishedEvent.class));
+        when(multipleDataSourcePublishedEventRepository.findByEventId(eventId)).thenReturn(publishedEvent);
+
+        final Optional<PublishedEvent> fetchedEvent = defaultPublishedEventSource.findByEventId(eventId);
+
+        assertThat(fetchedEvent, is(publishedEvent));
     }
 }

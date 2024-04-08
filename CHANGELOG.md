@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- new command handler for command 'REPLAY_EVENT_TO_EVENT_LISTENER' to replay a single event to event-listener by invoking it's interceptor chain
 
 ## [8.10.0-M2] - 2024-04-04
 ### Changed

@@ -43,7 +43,7 @@ public class ReplayEventToEventListenerProcessorBean {
         final PublishedEventSource publishedEventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
 
         return publishedEventSource.findByEventId(eventId)
-                .orElseThrow(() -> new IllegalStateException("Published event not found for given commandRuntimeId:" + eventId + " under event source name:" + eventSourceName));
+                .orElseThrow(() -> new ReplayEventFailedException("Published event not found for given commandRuntimeId:" + eventId + " under event source name:" + eventSourceName));
     }
 
     private void processWithEventBuffer(String componentName, PublishedEvent publishedEvent) {

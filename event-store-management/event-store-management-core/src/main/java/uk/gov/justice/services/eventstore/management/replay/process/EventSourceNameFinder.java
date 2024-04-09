@@ -32,7 +32,7 @@ public class EventSourceNameFinder {
                 .flatMap(this::getSubscriptions)
                 .findFirst()
                 .map(Subscription::getEventSourceName)
-                .orElseThrow(() -> new IllegalStateException("No event source name found for event listener"));
+                .orElseThrow(() -> new ReplayEventFailedException("No event source name found for event listener"));
     }
 
     private Stream<Subscription> getSubscriptions(SubscriptionsDescriptor subscriptionsDescriptor) {

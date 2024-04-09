@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -65,7 +64,7 @@ public class ReplayEventToEventListenerProcessorBeanTest {
         when(publishedEventSourceProvider.getPublishedEventSource(EVENT_SOURCE_NAME)).thenReturn(publishedEventSource);
         when(publishedEventSource.findByEventId(COMMAND_RUNTIME_ID)).thenReturn(Optional.empty());
 
-        final IllegalStateException e = assertThrows(IllegalStateException.class, () -> replayEventToEventListenerProcessorBean.perform(REPLAY_EVENT_CONTEXT));
+        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> replayEventToEventListenerProcessorBean.perform(REPLAY_EVENT_CONTEXT));
 
         assertThat(e.getMessage(), is("Published event not found for given commandRuntimeId:" + COMMAND_RUNTIME_ID + " under event source name:" + EVENT_SOURCE_NAME));
     }

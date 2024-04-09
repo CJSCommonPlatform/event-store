@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +9,6 @@ import uk.gov.justice.services.eventstore.management.catchup.process.PriorityCom
 import uk.gov.justice.subscription.domain.builders.SubscriptionBuilder;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
-
-import java.util.Collections;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -83,7 +80,7 @@ public class EventSourceNameFinderTest {
                 .build();
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(singletonList(eventListenerSD));
 
-        final IllegalStateException e = assertThrows(IllegalStateException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
+        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
 
         assertThat(e.getMessage(), is("No event source name found for event listener"));
     }
@@ -101,7 +98,7 @@ public class EventSourceNameFinderTest {
                 .build();
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(singletonList(eventProcessorSD));
 
-        final IllegalStateException e = assertThrows(IllegalStateException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
+        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
 
         assertThat(e.getMessage(), is("No event source name found for event listener"));
     }

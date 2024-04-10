@@ -8,8 +8,6 @@ import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 import javax.inject.Inject;
 import java.util.stream.Stream;
 
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
-
 public class EventSourceNameFinder {
 
     private final SubscriptionsDescriptorsRegistry subscriptionsDescriptorsRegistry;
@@ -22,12 +20,12 @@ public class EventSourceNameFinder {
         this.priorityComparatorProvider = priorityComparatorProvider;
     }
 
-    public String getEventSourceNameOfEventListener() {
+    public String getEventSourceNameOf(String componentName) {
 
         return subscriptionsDescriptorsRegistry
                 .getAll()
                 .stream()
-                .filter(subscriptionsDescriptor -> subscriptionsDescriptor.getServiceComponent().contains(EVENT_LISTENER))
+                .filter(subscriptionsDescriptor -> subscriptionsDescriptor.getServiceComponent().contains(componentName))
                 .sorted(priorityComparatorProvider.getSubscriptionDescriptorComparator())
                 .flatMap(this::getSubscriptions)
                 .findFirst()

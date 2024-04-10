@@ -1,83 +1,110 @@
 package uk.gov.justice.services.eventstore.management.replay.commands;
 
-import static java.util.UUID.randomUUID;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentCaptor.forClass;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
-import uk.gov.justice.services.jmx.api.domain.CommandState;
+import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventListenerCommand;
+import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
+import javax.enterprise.event.Event;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import javax.enterprise.event.Event;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
+import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.*;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnit44Runner;
-
-@RunWith(MockitoJUnit44Runner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ReplayEventToEventIndexerCommandHandlerTest {
+
+    private static final UUID COMMAND_ID = UUID.randomUUID();
+    private static final UUID COMMAND_RUNTIME_ID = UUID.randomUUID();
+
+    private static final ReplayEventToEventIndexerCommand COMMAND = new ReplayEventToEventIndexerCommand();
+    private static final ZonedDateTime NOW = ZonedDateTime.now(ZoneOffset.UTC);
 
     @Mock
     private Event<SystemCommandStateChangedEvent> stateChangedEventFirer;
 
     @Mock
+    private ReplayEventToComponentRunner replayEventToComponentRunner;
+
+    @Mock
     private UtcClock clock;
+
+    @Mock
+    private Logger logger;
+
+    @Captor
+    private ArgumentCaptor<SystemCommandStateChangedEvent> eventCaptor;
 
     @InjectMocks
     private ReplayEventToEventIndexerCommandHandler replayEventToEventIndexerCommandHandler;
 
     @Test
-    public void shouldSendSingleEventToEventIndexer() throws Exception {
+    public void onSuccessShouldFireInProgressAndCompletedSystemCommands() {
+        when(clock.now()).thenReturn(NOW);
 
-        final ReplayEventToEventIndexerCommand command = new ReplayEventToEventIndexerCommand();
-        final UUID commandId = randomUUID();
-        final UUID commandRuntimeId = randomUUID();
+        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, COMMAND_RUNTIME_ID);
 
-        final ZonedDateTime startedAt = new UtcClock().now();
-        final ZonedDateTime completedAt = startedAt.plusSeconds(2);
+        verify(replayEventToComponentRunner).run(COMMAND_ID, COMMAND_RUNTIME_ID, EVENT_INDEXER);
 
-        when(clock.now()).thenReturn(startedAt, completedAt);
+        verify(stateChangedEventFirer, times(2)).fire(eventCaptor.capture());
+        final List<SystemCommandStateChangedEvent> actualEvents = eventCaptor.getAllValues();
+        final SystemCommandStateChangedEvent inProgressEvent = actualEvents.get(0);
 
-        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(
-                command,
-                commandId,
-                commandRuntimeId
-        );
+        assertThat(inProgressEvent.getCommandId(), is(COMMAND_ID));
+        assertThat(inProgressEvent.getSystemCommand(), is(COMMAND));
+        assertThat(inProgressEvent.getCommandState(), is(COMMAND_IN_PROGRESS));
+        assertThat(inProgressEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command received"));
+        assertThat(inProgressEvent.getStatusChangedAt(), is(NOW));
 
-        final ArgumentCaptor<SystemCommandStateChangedEvent> argumentCaptor = forClass(SystemCommandStateChangedEvent.class);
+        final SystemCommandStateChangedEvent completedEvent = actualEvents.get(1);
+        assertThat(completedEvent.getCommandId(), is(COMMAND_ID));
+        assertThat(completedEvent.getSystemCommand(), is(COMMAND));
+        assertThat(completedEvent.getCommandState(), is(COMMAND_COMPLETE));
+        assertThat(completedEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command completed"));
+        assertThat(completedEvent.getStatusChangedAt(), is(NOW));
+    }
 
-        verify(stateChangedEventFirer, times(2)).fire(argumentCaptor.capture());
+    @Test
+    public void onSuccessShouldFireInProgressAndFailedyStemCommands() {
+        final RuntimeException exception = new RuntimeException();
+        when(clock.now()).thenReturn(NOW);
+        doThrow(exception).when(replayEventToComponentRunner).run(any(), any(), any());
 
-        final List<SystemCommandStateChangedEvent> stateChangedEvents = argumentCaptor.getAllValues();
+        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, COMMAND_RUNTIME_ID);
 
-        final SystemCommandStateChangedEvent commandInProgressEvent = stateChangedEvents.get(0);
-        final SystemCommandStateChangedEvent commandCompleteEvent = stateChangedEvents.get(1);
+        verify(stateChangedEventFirer, times(2)).fire(eventCaptor.capture());
+        final List<SystemCommandStateChangedEvent> actualEvents = eventCaptor.getAllValues();
+        final SystemCommandStateChangedEvent inProgressEvent = actualEvents.get(0);
 
-        assertThat(commandInProgressEvent.getCommandId(), is(commandId));
-        assertThat(commandInProgressEvent.getSystemCommand(), is(command));
-        assertThat(commandInProgressEvent.getCommandState(), is(COMMAND_IN_PROGRESS));
-        assertThat(commandInProgressEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command received"));
-        assertThat(commandInProgressEvent.getStatusChangedAt(), is(startedAt));
+        assertThat(inProgressEvent.getCommandId(), is(COMMAND_ID));
+        assertThat(inProgressEvent.getSystemCommand(), is(COMMAND));
+        assertThat(inProgressEvent.getCommandState(), is(COMMAND_IN_PROGRESS));
+        assertThat(inProgressEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command received"));
+        assertThat(inProgressEvent.getStatusChangedAt(), is(NOW));
 
-        assertThat(commandCompleteEvent.getCommandId(), is(commandId));
-        assertThat(commandCompleteEvent.getSystemCommand(), is(command));
-        assertThat(commandCompleteEvent.getCommandState(), is(COMMAND_COMPLETE));
-        assertThat(commandCompleteEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command completed"));
-        assertThat(commandCompleteEvent.getStatusChangedAt(), is(completedAt));
+        final SystemCommandStateChangedEvent completedEvent = actualEvents.get(1);
+        assertThat(completedEvent.getCommandId(), is(COMMAND_ID));
+        assertThat(completedEvent.getSystemCommand(), is(COMMAND));
+        assertThat(completedEvent.getCommandState(), is(COMMAND_FAILED));
+        assertThat(completedEvent.getMessage(), is("REPLAY_EVENT_TO_EVENT_INDEXER command failed"));
+
+        verify(logger).error("REPLAY_EVENT_TO_EVENT_INDEXER failed. commandId {}, commandRuntimeId {}", COMMAND_ID, COMMAND_RUNTIME_ID, exception);
     }
 }

@@ -5,9 +5,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import javax.inject.Inject;
 import java.util.UUID;
 
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
-
-public class ReplayEventToEventListenerRunner {
+public class ReplayEventToComponentRunner {
 
     @Inject
     private EventSourceNameFinder eventSourceNameFinder;
@@ -18,11 +16,11 @@ public class ReplayEventToEventListenerRunner {
     @Inject
     private UtcClock clock;
 
-    public void run(final UUID commandId, final UUID commandRuntimeId) {
-        final String eventSourceName = eventSourceNameFinder.getEventSourceNameOfEventListener();
+    public void run(final UUID commandId, final UUID commandRuntimeId, final String componentName) {
+        final String eventSourceName = eventSourceNameFinder.getEventSourceNameOf(componentName);
 
         final ReplayEventContext replayEventContext = new ReplayEventContext(commandId,
-                commandRuntimeId, eventSourceName, EVENT_LISTENER);
+                commandRuntimeId, eventSourceName, componentName);
 
         replayEventToEventListenerProcessorBean.perform(replayEventContext);
     }

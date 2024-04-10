@@ -3,9 +3,13 @@ All notable changes to this project will be documented in this file, which follo
 on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## Unreleased
 ### Added
-- new command handler for command 'REPLAY_EVENT_TO_EVENT_LISTENER' to replay a single event to event-listener by invoking it's interceptor chain
+- new command handler for command 'REPLAY_EVENT_TO_EVENT_INDEXER' to replay a single event to event-indexer by invoking eventBufferProcessor
+
+## [8.10.0-M3] - 2024-04-10
+### Added
+- new command handler for command 'REPLAY_EVENT_TO_EVENT_LISTENER' to replay a single event to event-listener by invoking eventBufferProcessor
 
 ## [8.10.0-M2] - 2024-04-04
 ### Changed

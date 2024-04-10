@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReplayEventToEventListenerRunnerTest {
+public class ReplayEventToComponentRunnerTest {
 
     private static final UUID COMMAND_ID = UUID.randomUUID();
     private static final UUID COMMAND_RUNTIME_ID = UUID.randomUUID();
@@ -33,14 +33,15 @@ public class ReplayEventToEventListenerRunnerTest {
     private UtcClock clock;
 
     @InjectMocks
-    private ReplayEventToEventListenerRunner replayEventToEventListenerRunner;
+    private ReplayEventToComponentRunner replayEventToComponentRunner;
 
     @Test
     public void buildContextWithEventSourceNameAndPassItToProcessorBean() {
         final String listenerEventSourceName = "listenerEventSourceName";
-        when(eventSourceNameFinder.getEventSourceNameOfEventListener()).thenReturn(listenerEventSourceName);
+        final String componentName = EVENT_LISTENER;
+        when(eventSourceNameFinder.getEventSourceNameOf(componentName)).thenReturn(listenerEventSourceName);
 
-        replayEventToEventListenerRunner.run(COMMAND_ID, COMMAND_RUNTIME_ID);
+        replayEventToComponentRunner.run(COMMAND_ID, COMMAND_RUNTIME_ID, componentName);
 
         verify(replayEventToEventListenerProcessorBean).perform(argThat(new ArgumentMatcher<ReplayEventContext>() {
             @Override

@@ -67,7 +67,7 @@ public class EventSourceNameFinderTest {
                 .build();
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(asList(eventListenerSD, eventProcessorSD));
 
-        final String eventSourceName = eventSourceNameFinder.getEventSourceNameOfEventListener();
+        final String eventSourceName = eventSourceNameFinder.getEventSourceNameOf(EVENT_LISTENER);
 
         assertThat(eventSourceName, is("listenerEventSourceName1"));
     }
@@ -80,7 +80,7 @@ public class EventSourceNameFinderTest {
                 .build();
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(singletonList(eventListenerSD));
 
-        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
+        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOf(EVENT_LISTENER));
 
         assertThat(e.getMessage(), is("No event source name found for event listener"));
     }
@@ -98,7 +98,7 @@ public class EventSourceNameFinderTest {
                 .build();
         when(subscriptionsDescriptorsRegistry.getAll()).thenReturn(singletonList(eventProcessorSD));
 
-        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOfEventListener());
+        final ReplayEventFailedException e = assertThrows(ReplayEventFailedException.class, () -> eventSourceNameFinder.getEventSourceNameOf(EVENT_LISTENER));
 
         assertThat(e.getMessage(), is("No event source name found for event listener"));
     }

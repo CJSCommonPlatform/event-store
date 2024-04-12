@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+
+## [8.10.0-M4] - 2024-04-12
 ### Added
 - new command handler for command 'REPLAY_EVENT_TO_EVENT_INDEXER' to replay a single event to event-indexer by invoking eventBufferProcessor
 

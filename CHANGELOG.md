@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## Unreleased
 
+## [8.10.0-M5] - 2024-04-16
+- ### Changed
+- Release framework 8.10.0-M4 (Update command status as failed, when system command invocation fails)
+
 ## [8.10.0-M4] - 2024-04-12
 ### Added
 - new command handler for command 'REPLAY_EVENT_TO_EVENT_INDEXER' to replay a single event to event-indexer by invoking eventBufferProcessor

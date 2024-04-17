@@ -1,26 +1,28 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
-import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
-
+import org.junit.After;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
-import javax.sql.DataSource;
-
-import org.junit.After;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static java.util.UUID.randomUUID;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
 public class MultipleDataSourcePublishedEventRepositoryIT {
 
@@ -97,6 +99,25 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         assertThat(publishedEvents.get(0).getId(), is(event_1.getId()));
         assertThat(publishedEvents.get(1).getId(), is(event_2.getId()));
         assertThat(publishedEvents.get(2).getId(), is(event_3.getId()));
+    }
+
+    @Test
+    public void fetchByEventIdShouldRetunEventIfExists() throws Exception {
+        final Connection connection = dataSource.getConnection();
+        final PublishedEvent event = publishedEventBuilder().withPreviousEventNumber(0).withEventNumber(1).build();
+        insertPublishedEvent(event, connection);
+
+        final Optional<PublishedEvent> fetchedEvent = multipleDataSourcePublishedEventRepository.findByEventId(event.getId());
+
+        assertTrue(fetchedEvent.isPresent());
+        assertThat(fetchedEvent.get().getId(), is(event.getId()));
+    }
+
+    @Test
+    public void fetchByEventIdShouldReturnEmptyIfEventNotExist() throws Exception {
+        final Optional<PublishedEvent> fetchedEvent = multipleDataSourcePublishedEventRepository.findByEventId(randomUUID());
+
+        assertFalse(fetchedEvent.isPresent());
     }
 
     public void insertPublishedEvent(final PublishedEvent publishedEvent, final Connection connection) throws SQLException {

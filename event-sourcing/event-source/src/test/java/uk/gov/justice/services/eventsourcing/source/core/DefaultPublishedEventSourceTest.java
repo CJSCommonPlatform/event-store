@@ -11,6 +11,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -57,5 +59,17 @@ public class DefaultPublishedEventSourceTest {
         final Stream<PublishedEvent> eventRange = defaultPublishedEventSource.findEventRange(missingEventRange);
 
         assertThat(eventRange, is(streamOfEvents));
+    }
+
+    @Test
+    public void findByEventIdShouldReturnEvent() throws Exception {
+
+        final UUID eventId = UUID.randomUUID();
+        final Optional<PublishedEvent> publishedEvent = Optional.of(mock(PublishedEvent.class));
+        when(multipleDataSourcePublishedEventRepository.findByEventId(eventId)).thenReturn(publishedEvent);
+
+        final Optional<PublishedEvent> fetchedEvent = defaultPublishedEventSource.findByEventId(eventId);
+
+        assertThat(fetchedEvent, is(publishedEvent));
     }
 }

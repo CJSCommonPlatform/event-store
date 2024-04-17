@@ -1,8 +1,11 @@
 package uk.gov.justice.services.eventsourcing.source.api.service.core;
 
+import org.apache.commons.lang3.NotImplementedException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -20,4 +23,6 @@ public interface PublishedEventSource {
     Stream<PublishedEvent> findEventsSince(final long eventNumber);
 
     Stream<PublishedEvent> findEventRange(final MissingEventRange missingEventRange);
+
+    Optional<PublishedEvent> findByEventId(final UUID id);
 }

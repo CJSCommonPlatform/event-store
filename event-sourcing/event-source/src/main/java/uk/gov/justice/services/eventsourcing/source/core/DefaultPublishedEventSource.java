@@ -7,6 +7,8 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
@@ -32,5 +34,11 @@ public class DefaultPublishedEventSource implements PublishedEventSource {
         final Long toEventNumber = missingEventRange.getMissingEventTo();
 
         return multipleDataSourcePublishedEventRepository.findEventRange(fromEventNumber, toEventNumber);
+    }
+
+    @Transactional(REQUIRED)
+    @Override
+    public Optional<PublishedEvent> findByEventId(final UUID eventId) {
+        return multipleDataSourcePublishedEventRepository.findByEventId(eventId);
     }
 }

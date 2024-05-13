@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.3] - 2024-05-13
+### Added
+- Release micro-service-framework changes for adding jms message clients for effective management of jms resources in integration tests
+
 ## [17.4.2] - 2024-02-08
 ### Changed
 - Add jobstore retry migration liquibase script via framework-libraries

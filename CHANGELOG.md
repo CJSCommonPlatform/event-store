@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.4] - 2024-05-15
+### Changed
+- Release microservice-framework changes for adding junit CloseableResource that manages closing jms resources
+
 ## [17.4.3] - 2024-05-13
 ### Added
 - Release micro-service-framework changes for adding jms message clients for effective management of jms resources in integration tests

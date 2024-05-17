@@ -6,6 +6,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### [Unreleased]
 ### Added
 - Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event
+### Changed
+- Invoke eventBufferProcessor in transaction while replaying REPLAY_EVENT_TO_EVENT_LISTENER/REPLAY_EVENT_TO_EVENT_INDEXER system commands
 
 ## [17.4.4] - 2024-05-15
 ### Changed

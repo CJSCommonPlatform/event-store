@@ -8,17 +8,16 @@ import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEv
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionManagement;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.UUID;
 
-import static javax.ejb.TransactionAttributeType.NEVER;
 import static javax.ejb.TransactionManagementType.CONTAINER;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 @Stateless
 @TransactionManagement(CONTAINER)
-@TransactionAttribute(value = NEVER)
 public class ReplayEventToEventListenerProcessorBean {
 
     @Inject
@@ -30,6 +29,8 @@ public class ReplayEventToEventListenerProcessorBean {
     @Inject
     private EventConverter eventConverter;
 
+
+    @Transactional(REQUIRES_NEW)
     public void perform(final ReplayEventContext replayEventContext) {
         final String eventSourceName = replayEventContext.getEventSourceName();
         final UUID eventId = replayEventContext.getCommandRuntimeId();

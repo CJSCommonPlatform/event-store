@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## Unreleased
 
+## [8.3.8] - 2024-05-17
+### Changed
+- Invoke eventBufferProcessor in transaction while replaying REPLAY_EVENT_TO_EVENT_LISTENER/REPLAY_EVENT_TO_EVENT_INDEXER system commands
+
 ## [8.3.7] - 2024-04-17
 ### Added
 - Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event

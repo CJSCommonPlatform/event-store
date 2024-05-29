@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.4.5] - 2024-05-29
 ### Added
 - Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event
 ### Changed

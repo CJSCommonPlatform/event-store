@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.test.utils.events.EventBuilder.eventBuilder;
 
+import org.junit.jupiter.api.AfterEach;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.AnsiSQLEventLogInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.EventInsertionStrategy;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.InvalidPositionException;
@@ -30,7 +31,6 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +82,7 @@ public class EventJdbcRepositoryIT {
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }
 
-    @After
+    @AfterEach
     public void after() throws SQLException {
         dataSource.getConnection().close();
     }

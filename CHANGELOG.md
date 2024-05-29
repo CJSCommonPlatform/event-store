@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Added
+- Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event
+### Changed
+- Invoke eventBufferProcessor in transaction while replaying REPLAY_EVENT_TO_EVENT_LISTENER/REPLAY_EVENT_TO_EVENT_INDEXER system commands
 
 ## [17.4.4] - 2024-05-15
 ### Changed
@@ -42,7 +46,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Removed dependency on apache-drools as it's not used by any of the framework code
 ### Security
 - Update common-bom to fix various security vulnerabilities in org.json, plexus-codehaus, apache-tika and google-guava
- 
+
 ## [17.1.3] - 2023-09-06
 ### Fixed
 - Fixed IndexOutOfBoundsException in ProcessedEventStreamSpliterator during catchup
@@ -73,7 +77,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ## [17.0.1] - 2023-05-10
 ### Changed
 - Update framework-libraries to 17.0.1 in order to:
-  - Remove unnecessary logging of 'skipping generation' message in pojo generator
+    - Remove unnecessary logging of 'skipping generation' message in pojo generator
 
 
 ## [17.0.0] - 2023-05-05
@@ -81,10 +85,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Update to Java 17
 - Pojo generator fixed to handle null for additionalProperties
 - Update common-bom to 17.0.0 in order to:
-  - Add byte-buddy 1.12.22 as a replacement for cglib
-  - Downgrade h2 to 1.4.196 as 2.x.x is too strict for our tests
+    - Add byte-buddy 1.12.22 as a replacement for cglib
+    - Downgrade h2 to 1.4.196 as 2.x.x is too strict for our tests
 - Update framework-libraries to 17.0.0 in order to:
-  - Change 'additionalProperties' Map in generated pojos to HashMap to allow serialization
+    - Change 'additionalProperties' Map in generated pojos to HashMap to allow serialization
 ### Removed
 - Remove illegal-access argument from surefire plugin from plugin management (through maven-parent-pom 17.0.0-M6)
 - Remove illegal-access argument (not valid for java 17) from sure fire plugin
@@ -413,12 +417,12 @@ Run the renumbering of events in a batch
 ## [2.0.21] - 2019-09-23
 ### Added
 - New SystemCommand to verify the results of running catchup
-  - Verifies that the number of active events in event_log matches the number of events in published_event
-  - Verifies that the number of events in published_event matches the number of events in processed_event
-  - Verifies that the stream_buffer table is empty
-  - Verifies that each event_number in published_event correctly links to an existing previous_event
-  - Verifies that each event_number in processed_event correctly links to an existing previous_event
-  - Verifies that each active stream has at least one event
+    - Verifies that the number of active events in event_log matches the number of events in published_event
+    - Verifies that the number of events in published_event matches the number of events in processed_event
+    - Verifies that the stream_buffer table is empty
+    - Verifies that each event_number in published_event correctly links to an existing previous_event
+    - Verifies that each event_number in processed_event correctly links to an existing previous_event
+    - Verifies that each active stream has at least one event
 
 ## [2.0.20] - 2019-09-23
 ### Fixed

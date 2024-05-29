@@ -1,16 +1,15 @@
 package uk.gov.justice.services.eventstore.management.replay.commands;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
-import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventListenerCommand;
 import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
@@ -22,13 +21,11 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
-import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReplayEventToEventIndexerCommandHandlerTest {
 
     private static final UUID COMMAND_ID = UUID.randomUUID();

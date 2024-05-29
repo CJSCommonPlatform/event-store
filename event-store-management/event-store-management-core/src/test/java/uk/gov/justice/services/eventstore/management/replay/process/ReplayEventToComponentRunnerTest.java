@@ -1,23 +1,22 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.services.common.util.UtcClock;
 
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReplayEventToComponentRunnerTest {
 
     private static final UUID COMMAND_ID = UUID.randomUUID();
@@ -43,17 +42,13 @@ public class ReplayEventToComponentRunnerTest {
 
         replayEventToComponentRunner.run(COMMAND_ID, COMMAND_RUNTIME_ID, componentName);
 
-        verify(replayEventToEventListenerProcessorBean).perform(argThat(new ArgumentMatcher<ReplayEventContext>() {
-            @Override
-            public boolean matches(Object o) {
-                final ReplayEventContext actualContext = (ReplayEventContext) o;
-                assertThat(actualContext.getCommandId(), is(COMMAND_ID));
-                assertThat(actualContext.getCommandRuntimeId(), is(COMMAND_RUNTIME_ID));
-                assertThat(actualContext.getEventSourceName(), is(listenerEventSourceName));
-                assertThat(actualContext.getComponentName(), is(EVENT_LISTENER));
+        verify(replayEventToEventListenerProcessorBean).perform(argThat(actualContext -> {
+            assertThat(actualContext.getCommandId(), is(COMMAND_ID));
+            assertThat(actualContext.getCommandRuntimeId(), is(COMMAND_RUNTIME_ID));
+            assertThat(actualContext.getEventSourceName(), is(listenerEventSourceName));
+            assertThat(actualContext.getComponentName(), is(EVENT_LISTENER));
 
-                return true;
-            }
+            return true;
         }));
     }
 }

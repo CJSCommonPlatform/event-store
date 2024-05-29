@@ -1,8 +1,8 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
@@ -43,7 +43,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
                 dataSource);
     }
 
-    @After
+    @AfterEach
     public void after() throws SQLException {
         dataSource.getConnection().close();
     }

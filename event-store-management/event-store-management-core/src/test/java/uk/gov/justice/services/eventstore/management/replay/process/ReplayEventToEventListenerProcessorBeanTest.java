@@ -1,10 +1,10 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReplayEventToEventListenerProcessorBeanTest {
 
     private static final UUID COMMAND_ID = UUID.randomUUID();

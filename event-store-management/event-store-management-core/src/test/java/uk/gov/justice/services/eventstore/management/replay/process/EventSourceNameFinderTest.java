@@ -1,10 +1,10 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.services.eventstore.management.catchup.process.PriorityComparatorProvider;
 import uk.gov.justice.subscription.domain.builders.SubscriptionBuilder;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
@@ -21,7 +21,7 @@ import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
 import static uk.gov.justice.subscription.domain.builders.SubscriptionsDescriptorBuilder.subscriptionsDescriptor;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EventSourceNameFinderTest {
 
     @Mock
@@ -31,7 +31,7 @@ public class EventSourceNameFinderTest {
 
     private EventSourceNameFinder eventSourceNameFinder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         priorityComparatorProvider = new PriorityComparatorProvider();
         eventSourceNameFinder = new EventSourceNameFinder(subscriptionsDescriptorsRegistry, priorityComparatorProvider);

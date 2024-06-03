@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.4.6] - 2024-06-03
+### Changed
+- Break dependency on framework-command-client in test-utils-jmx library (by micro-service-framework changes)
+
 ## [17.4.5] - 2024-05-29
 ### Added
 - Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event

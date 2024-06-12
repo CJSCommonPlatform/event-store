@@ -65,9 +65,9 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
 
-        final boolean returnValue = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
+        final boolean snapshotStored = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
 
-        assertTrue(returnValue);
+        assertTrue(snapshotStored);
         final Optional<AggregateSnapshot<RecordingAggregate>> snapshot = snapshotJdbcRepository.getLatestSnapshot(streamId, TYPE);
 
         assertThat(snapshot, notNullValue());
@@ -80,9 +80,9 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
         snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
 
-        final boolean returnValue = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
+        final boolean snapshotStored = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
 
-        assertFalse(returnValue);
+        assertFalse(snapshotStored);
         verify(logger).error(eq("Error while storing a snapshot for {} at version {}"), eq(streamId), eq( VERSION_ID), ArgumentMatchers.any(Throwable.class));
     }
 

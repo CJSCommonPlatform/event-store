@@ -44,7 +44,11 @@ public class DefaultSnapshotService implements SnapshotService {
         if (snapshotStrategy.shouldCreateSnapshot(streamVersionId, currentSnapshotVersion)) {
             try {
                 logger.trace("Storing snapshot of aggregate: {}, streamId: {}, version: {}", aggregate.getClass().getSimpleName(), streamId, streamVersionId);
-                snapshotRepository.storeSnapshot(new AggregateSnapshot<>(streamId, streamVersionId, aggregate));
+                final AggregateSnapshot<T> aggregateSnapshot = new AggregateSnapshot<>(streamId, streamVersionId, aggregate);
+                final boolean storedSuccessfully = snapshotRepository.storeSnapshot(aggregateSnapshot);
+                if(storedSuccessfully) {
+                    snapshotRepository.removeAllSnapshotsOlderThan(aggregateSnapshot);
+                }
             } catch (SerializationException e) {
                 logger.error("Error creating snapshot for {}", streamId, e);
             }

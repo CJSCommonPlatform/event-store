@@ -16,8 +16,9 @@ public interface SnapshotRepository {
      * Store snapshot.
      *
      * @param aggregateSnapshot the aggregate snapshot
+     * @return true on successful save, otherwise false
      */
-    void storeSnapshot(final AggregateSnapshot aggregateSnapshot);
+    boolean storeSnapshot(final AggregateSnapshot aggregateSnapshot);
 
     /**
      * Gets latest snapshot.
@@ -38,6 +39,14 @@ public interface SnapshotRepository {
      * @param clazz    the clazz
      */
     <T extends Aggregate> void removeAllSnapshots(final UUID streamId, final Class<T> clazz);
+
+
+    /**
+     * Remove all snapshots older than given aggregateSnapshot
+     *
+     * @param aggregateSnapshot instance of Aggregate Snapshot
+     */
+    <T extends Aggregate> void removeAllSnapshotsOlderThan(final AggregateSnapshot aggregateSnapshot);
 
     /**
      * Gets latest snapshot version.

@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## Changed
+- Clean up old aggregate snapshots (CPI-890)
 
 ## [17.6.0] - 2024-06-13
 ### Changed

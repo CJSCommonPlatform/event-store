@@ -5,9 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 ## Changed
-- Clean up old aggregate snapshots (CPI-890)
 
 ## [17.6.0] - 2024-06-13
+### Fixed
+- All streams now only have one (current) snapshot stored in the database. All older snapshots are deleted (CPI-890)
 ### Changed
 - Merged in release-17.x.x branch to keep master up to date
 - Update framework to 17.6.0

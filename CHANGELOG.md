@@ -5,9 +5,42 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.4.3-M1] - 2024-04-23
+## [17.6.0] - 2024-06-13
+### Changed
+- Merged in release-17.x.x branch to keep master up to date
+- Update framework to 17.6.0
 ### Added
 - Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event
+
+## [17.5.1] - 2024-06-12
+### Added
+- Add maven-sonar-plugin to pluginManagement (through maven-parent-pom)
+
+## [17.5.0] - 2024-06-05
+- Update framework to 17.5.0 for:
+  - JmsMessageConsumerClientProvider now returns JmsMessageConsumerClient interface rather than the implemening class
+
+## [17.4.8] - 2024-06-04
+### Changed
+- Add method to SystemCommanderMBean interface to invoke system command without supplying CommandRunMode (through micro-service-framework changes)
+
+## [17.4.6] - 2024-06-03
+### Changed
+- Break dependency on framework-command-client in test-utils-jmx library (by micro-service-framework changes)
+
+## [17.4.5] - 2024-05-29
+### Added
+- Add REPLAY_EVENT_TO_EVENT_LISTENER and REPLAY_EVENT_TO_EVENT_INDEXER system command handlers to replay single event
+### Changed
+- Invoke eventBufferProcessor in transaction while replaying REPLAY_EVENT_TO_EVENT_LISTENER/REPLAY_EVENT_TO_EVENT_INDEXER system commands
+
+## [17.4.4] - 2024-05-15
+### Changed
+- Release microservice-framework changes for adding junit CloseableResource that manages closing jms resources
+
+## [17.4.3] - 2024-05-13
+### Added
+- Release micro-service-framework changes for adding jms message clients for effective management of jms resources in integration tests
 
 ## [17.4.2] - 2024-02-08
 ### Changed

@@ -1,5 +1,8 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
+import static javax.ejb.TransactionManagementType.CONTAINER;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.PublishedEventSourceProvider;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
@@ -7,14 +10,12 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEven
 import uk.gov.justice.services.eventsourcing.source.api.service.core.PublishedEventSource;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.util.UUID;
+
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.UUID;
-
-import static javax.ejb.TransactionManagementType.CONTAINER;
-import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 @Stateless
 @TransactionManagement(CONTAINER)

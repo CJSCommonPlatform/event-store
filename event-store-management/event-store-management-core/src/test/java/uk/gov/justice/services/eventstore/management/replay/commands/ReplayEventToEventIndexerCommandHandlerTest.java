@@ -1,6 +1,30 @@
 package uk.gov.justice.services.eventstore.management.replay.commands;
 
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
+
+import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
+import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
+import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import javax.enterprise.event.Event;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -9,22 +33,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
-import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
-import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
-import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
-
-import javax.enterprise.event.Event;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.*;
-import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReplayEventToEventIndexerCommandHandlerTest {

@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +67,7 @@ public class EventStreamJdbcRepositoryIT {
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
     }
 
-    @After
+    @AfterEach
     public void after() throws SQLException {
         dataSource.getConnection().close();
     }

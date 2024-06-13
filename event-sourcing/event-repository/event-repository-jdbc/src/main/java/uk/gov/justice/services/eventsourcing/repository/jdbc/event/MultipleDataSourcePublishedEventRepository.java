@@ -1,11 +1,13 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -13,8 +15,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+import javax.sql.DataSource;
 
 public class MultipleDataSourcePublishedEventRepository {
 

@@ -5,8 +5,9 @@ import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
 import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
 
-import javax.inject.Inject;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
 
 public class EventSourceNameFinder {
 

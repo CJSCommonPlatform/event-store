@@ -1,28 +1,30 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
-import org.junit.After;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
+
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
-import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MultipleDataSourcePublishedEventRepositoryIT {
 
@@ -43,7 +45,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
                 dataSource);
     }
 
-    @After
+    @AfterEach
     public void after() throws SQLException {
         dataSource.getConnection().close();
     }
@@ -115,7 +117,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
 
     @Test
     public void fetchByEventIdShouldReturnEmptyIfEventNotExist() throws Exception {
-        final Optional<PublishedEvent> fetchedEvent = multipleDataSourcePublishedEventRepository.findByEventId(randomUUID());
+        final Optional<PublishedEvent> fetchedEvent = multipleDataSourcePublishedEventRepository.findByEventId(UUID.randomUUID());
 
         assertFalse(fetchedEvent.isPresent());
     }

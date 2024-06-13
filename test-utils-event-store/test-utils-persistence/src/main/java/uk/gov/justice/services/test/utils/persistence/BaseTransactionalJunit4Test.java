@@ -2,10 +2,9 @@ package uk.gov.justice.services.test.utils.persistence;
 
 import javax.inject.Inject;
 import javax.transaction.UserTransaction;
+
 import org.junit.After;
 import org.junit.Before;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 /**
  * This class should be extended by any test which require managed persistence/transactions provided

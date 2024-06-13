@@ -1,15 +1,5 @@
 package uk.gov.justice.services.eventstore.management.replay.process;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.services.eventstore.management.catchup.process.PriorityComparatorProvider;
-import uk.gov.justice.subscription.domain.builders.SubscriptionBuilder;
-import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
-import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -20,6 +10,17 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
 import static uk.gov.justice.subscription.domain.builders.SubscriptionsDescriptorBuilder.subscriptionsDescriptor;
+
+import uk.gov.justice.services.eventstore.management.catchup.process.PriorityComparatorProvider;
+import uk.gov.justice.subscription.domain.builders.SubscriptionBuilder;
+import uk.gov.justice.subscription.domain.subscriptiondescriptor.SubscriptionsDescriptor;
+import uk.gov.justice.subscription.registry.SubscriptionsDescriptorsRegistry;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class EventSourceNameFinderTest {

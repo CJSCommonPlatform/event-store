@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.5.2] - 2024-06-17
+### Added
+- Enhance JmsMessageConsumerClient to retrieve message as JsonObject (through microservice-framework)
+
 ## [17.5.1] - 2024-06-12
 ### Added
 - Add maven-sonar-plugin to pluginManagement (through maven-parent-pom)

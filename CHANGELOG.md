@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 ## Changed
+## [17.6.1] - 2024-06-18
+### Fixed
+- Fix transaction problem in ReplayEventToEventListerCommands by moving transaction boundry one layer down 
 
 ## [17.6.0] - 2024-06-13
 ### Fixed

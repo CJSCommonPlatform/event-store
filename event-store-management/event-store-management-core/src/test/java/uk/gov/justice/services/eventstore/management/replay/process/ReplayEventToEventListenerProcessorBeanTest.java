@@ -37,7 +37,7 @@ public class ReplayEventToEventListenerProcessorBeanTest {
     private PublishedEventSourceProvider publishedEventSourceProvider;
 
     @Mock
-    private EventBufferProcessorFactory eventBufferProcessorFactory;
+    private TransactionReplayEventProcessor transactionReplayEventProcessor;
 
     @Mock
     private EventConverter eventConverter;
@@ -46,7 +46,7 @@ public class ReplayEventToEventListenerProcessorBeanTest {
     private ReplayEventToEventListenerProcessorBean replayEventToEventListenerProcessorBean;
 
     @Test
-    public void shouldFetchPublishedEventAndInvokeEventBufferProcessor() {
+    public void shouldFetchPublishedEventAndInvokeEventProcessor() {
         final PublishedEventSource publishedEventSource = mock(PublishedEventSource.class);
         final PublishedEvent publishedEvent =  mock(PublishedEvent.class);
         final JsonEnvelope eventEnvelope = mock(JsonEnvelope.class);
@@ -54,11 +54,10 @@ public class ReplayEventToEventListenerProcessorBeanTest {
         when(publishedEventSourceProvider.getPublishedEventSource(EVENT_SOURCE_NAME)).thenReturn(publishedEventSource);
         when(publishedEventSource.findByEventId(COMMAND_RUNTIME_ID)).thenReturn(Optional.of(publishedEvent));
         when(eventConverter.envelopeOf(publishedEvent)).thenReturn(eventEnvelope);
-        when(eventBufferProcessorFactory.create(EVENT_LISTENER)).thenReturn(eventBufferProcessor);
 
         replayEventToEventListenerProcessorBean.perform(REPLAY_EVENT_CONTEXT);
 
-        verify(eventBufferProcessor).processWithEventBuffer(eventEnvelope);
+        verify(transactionReplayEventProcessor).processWithEventBuffer(EVENT_LISTENER, eventEnvelope);
     }
 
     @Test

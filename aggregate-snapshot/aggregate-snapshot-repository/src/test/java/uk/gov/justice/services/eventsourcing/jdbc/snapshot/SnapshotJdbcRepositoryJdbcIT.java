@@ -37,7 +37,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     private static final String FETCH_ALL_SNAPSHOTS_QUERY = "SELECT * FROM snapshot";
     private static final String REMOVE_ALL_SNAPSHOTS_SQL = "DELETE FROM snapshot";
-    private static final String FIND_CREATED_TIME_BY_VERSION_ID = "SELECT time_created FROM snapshot where stream_id = ? and version_id = ?";
+    private static final String FIND_CREATED_TIME_BY_VERSION_ID = "SELECT created_at FROM snapshot where stream_id = ? and version_id = ?";
     private static final Long VERSION_ID = 5L;
     private static final Class<RecordingAggregate> TYPE = RecordingAggregate.class;
     private static final Class<DifferentAggregate> OTHER_TYPE = DifferentAggregate.class;
@@ -79,7 +79,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
         assertThat(snapshot, notNullValue());
         assertThat(snapshot, is(Optional.of(aggregateSnapshot)));
-        final Timestamp createdTime = findSnapshotCreatedTime(streamId, VERSION_ID);
+        final Timestamp createdTime = findSnapshotCreatedAt(streamId, VERSION_ID);
         assertThat(createdTime, is(toSqlTimestamp(now)));
     }
 
@@ -237,15 +237,15 @@ public class SnapshotJdbcRepositoryJdbcIT {
         }
     }
 
-    private Timestamp findSnapshotCreatedTime(UUID streamId, Long versionId) throws Exception {
+    private Timestamp findSnapshotCreatedAt(UUID streamId, Long versionId) throws Exception {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(FIND_CREATED_TIME_BY_VERSION_ID)) {
              preparedStatement.setObject(1, streamId);
              preparedStatement.setLong(2, versionId);
-             final ResultSet rs = preparedStatement.executeQuery();
-
-             rs.next();
-             return rs.getTimestamp("time_created");
+             try(final ResultSet rs = preparedStatement.executeQuery()) {
+                 rs.next();
+                 return rs.getTimestamp("created_at");
+             }
         }
     }
 
@@ -253,10 +253,11 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final List<AggregateSnapshot> fetchedSnapshots = new ArrayList<>();
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(FETCH_ALL_SNAPSHOTS_QUERY)) {
-            final ResultSet rs = preparedStatement.executeQuery();
-            while(rs.next()) {
-                fetchedSnapshots.add(snapshotJdbcRepository.entityFrom(rs));
-            }
+             try(final ResultSet rs = preparedStatement.executeQuery()) {
+                 while(rs.next()) {
+                     fetchedSnapshots.add(snapshotJdbcRepository.entityFrom(rs));
+                 }
+             }
         }
 
         return fetchedSnapshots;

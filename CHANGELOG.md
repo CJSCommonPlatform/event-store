@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 ### Added
-- Adds time_created column to snapshot table and populate this while saving new snapshot
+- Adds created_at column to snapshot table and populate this while saving new snapshot
 - 
 ## Changed
 ## [17.6.1] - 2024-06-18

@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.6.2] - 2024-07-05
 ### Added
 - Adds created_at column to snapshot table and populate this while saving new snapshot
 - 

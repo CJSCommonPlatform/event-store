@@ -1,12 +1,14 @@
 package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 
-import static java.lang.String.format;
-
+import org.slf4j.Logger;
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,10 +16,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
+import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 /**
  * JDBC based repository for snapshot records.
@@ -32,7 +32,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     private static final String COL_TYPE = "type";
     private static final String COL_AGGREGATE = "aggregate";
     private static final String SQL_FIND_LATEST_BY_STREAM_ID = "SELECT * FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
-    private static final String SQL_INSERT_EVENT_LOG = "INSERT INTO snapshot (stream_id, version_id, type, aggregate ) VALUES(?, ?, ?, ?)";
+    private static final String SQL_INSERT_EVENT_LOG = "INSERT INTO snapshot (stream_id, version_id, type, aggregate, time_created ) VALUES(?, ?, ?, ?, ?)";
     private static final String DELETE_ALL_SNAPSHOTS_FOR_STREAM_ID_AND_CLASS = "delete from snapshot where stream_id =? and type=?";
     private static final String DELETE_ALL_SNAPSHOTS_OF_STREAM_ID_AND_CLASS_AND_LESS_THAN_POSITION_IN_STREAM = "delete from snapshot where stream_id =? and type=? and version_id<?";
     private static final String SQL_CURRENT_SNAPSHOT_VERSION_ID = "SELECT version_id FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
@@ -43,6 +43,9 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     @Inject
     private Logger logger;
 
+    @Inject
+    private UtcClock clock;
+
     @Override
     public boolean storeSnapshot(final AggregateSnapshot aggregateSnapshot) {
 
@@ -52,6 +55,7 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
             ps.setLong(2, aggregateSnapshot.getPositionInStream());
             ps.setString(3, aggregateSnapshot.getType());
             ps.setBytes(4, aggregateSnapshot.getAggregateByteRepresentation());
+            ps.setTimestamp(5, toSqlTimestamp(clock.now()));
             ps.executeUpdate();
 
             return true;

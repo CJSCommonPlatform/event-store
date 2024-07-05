@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Added
+- Adds time_created column to snapshot table and populate this while saving new snapshot
+- 
 ## Changed
 ## [17.6.1] - 2024-06-18
 ### Fixed

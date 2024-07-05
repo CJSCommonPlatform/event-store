@@ -11,14 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
 import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 @ExtendWith(MockitoExtension.class)
 public class SnapshotJdbcRepositoryJdbcIT {
 
     private static final String FETCH_ALL_SNAPSHOTS_QUERY = "SELECT * FROM snapshot";
     private static final String REMOVE_ALL_SNAPSHOTS_SQL = "DELETE FROM snapshot";
+    private static final String FIND_CREATED_TIME_BY_VERSION_ID = "SELECT time_created FROM snapshot where stream_id = ? and version_id = ?";
     private static final Long VERSION_ID = 5L;
     private static final Class<RecordingAggregate> TYPE = RecordingAggregate.class;
     private static final Class<DifferentAggregate> OTHER_TYPE = DifferentAggregate.class;
@@ -50,8 +51,13 @@ public class SnapshotJdbcRepositoryJdbcIT {
     @Mock
     private Logger logger;
 
+    @Mock
+    private UtcClock clock;
+
     @InjectMocks
     private SnapshotJdbcRepository snapshotJdbcRepository;
+
+    private final ZonedDateTime now = new UtcClock().now();
 
     @BeforeEach
     public void setupDatabaseConnection() throws Exception {
@@ -60,7 +66,8 @@ public class SnapshotJdbcRepositoryJdbcIT {
     }
 
     @Test
-    public void shouldStoreAndRetrieveSnapshot() {
+    public void shouldStoreAndRetrieveSnapshot() throws Exception {
+        when(clock.now()).thenReturn(now);
 
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
@@ -72,10 +79,13 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
         assertThat(snapshot, notNullValue());
         assertThat(snapshot, is(Optional.of(aggregateSnapshot)));
+        final Timestamp createdTime = findSnapshotCreatedTime(streamId, VERSION_ID);
+        assertThat(createdTime, is(toSqlTimestamp(now)));
     }
 
     @Test
     public void shouldIgnoreFailureOnStoreAndLogError() throws Exception {
+        when(clock.now()).thenReturn(now);
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
         snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
@@ -88,6 +98,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     @Test
     public void shouldRetrieveLatestSnapshot() {
+        when(clock.now()).thenReturn(now);
 
         final UUID streamId = randomUUID();
 
@@ -111,6 +122,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     @Test
     public void shouldRetrieveLatestSnapshotWithCorrectType() {
+        when(clock.now()).thenReturn(now);
 
         final UUID streamId = randomUUID();
 
@@ -130,6 +142,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     @Test
     public void shouldRemoveAllSnapshots() {
+        when(clock.now()).thenReturn(now);
 
         final UUID streamId = randomUUID();
 
@@ -155,6 +168,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     @Test
     public void shouldRemoveOlderSnapshotsThanGivenSnapshot() throws Exception {
+        when(clock.now()).thenReturn(now);
         final UUID streamId = randomUUID();
         final UUID otherStreamId = randomUUID();
 
@@ -205,6 +219,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     @Test
     public void shouldRetrieveOptionalNullIfOnlySnapshotsOfDifferentTypesAvailable() {
+        when(clock.now()).thenReturn(now);
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot1 = createSnapshot(streamId, VERSION_ID, OTHER_TYPE, AGGREGATE);
         snapshotJdbcRepository.storeSnapshot(aggregateSnapshot1);
@@ -219,6 +234,18 @@ public class SnapshotJdbcRepositoryJdbcIT {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_ALL_SNAPSHOTS_SQL)) {
             preparedStatement.executeUpdate();
+        }
+    }
+
+    private Timestamp findSnapshotCreatedTime(UUID streamId, Long versionId) throws Exception {
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(FIND_CREATED_TIME_BY_VERSION_ID)) {
+             preparedStatement.setObject(1, streamId);
+             preparedStatement.setLong(2, versionId);
+             final ResultSet rs = preparedStatement.executeQuery();
+
+             rs.next();
+             return rs.getTimestamp("time_created");
         }
     }
 

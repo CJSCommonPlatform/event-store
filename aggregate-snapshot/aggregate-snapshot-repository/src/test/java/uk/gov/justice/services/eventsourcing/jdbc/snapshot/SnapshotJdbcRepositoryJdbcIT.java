@@ -79,8 +79,9 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
         assertThat(snapshot, notNullValue());
         assertThat(snapshot, is(Optional.of(aggregateSnapshot)));
-        final Timestamp createdTime = findSnapshotCreatedAt(streamId, VERSION_ID);
-        assertThat(createdTime, is(toSqlTimestamp(now)));
+        final Optional<Timestamp> createdTime = findSnapshotCreatedAt(streamId, VERSION_ID);
+        assertTrue(createdTime.isPresent());
+        assertThat(createdTime.get(), is(toSqlTimestamp(now)));
     }
 
     @Test
@@ -237,15 +238,14 @@ public class SnapshotJdbcRepositoryJdbcIT {
         }
     }
 
-    private Timestamp findSnapshotCreatedAt(UUID streamId, Long versionId) throws Exception {
+    private Optional<Timestamp> findSnapshotCreatedAt(UUID streamId, Long versionId) throws Exception {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(FIND_CREATED_TIME_BY_VERSION_ID)) {
-             preparedStatement.setObject(1, streamId);
-             preparedStatement.setLong(2, versionId);
-             try(final ResultSet rs = preparedStatement.executeQuery()) {
-                 rs.next();
-                 return rs.getTimestamp("created_at");
-             }
+             final PreparedStatement ps = connection.prepareStatement(FIND_CREATED_TIME_BY_VERSION_ID)) {
+            ps.setObject(1, streamId);
+            ps.setLong(2, versionId);
+            try(final ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(rs.getTimestamp("created_at")) : Optional.empty();
+            }
         }
     }
 
@@ -253,11 +253,11 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final List<AggregateSnapshot> fetchedSnapshots = new ArrayList<>();
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(FETCH_ALL_SNAPSHOTS_QUERY)) {
-             try(final ResultSet rs = preparedStatement.executeQuery()) {
-                 while(rs.next()) {
-                     fetchedSnapshots.add(snapshotJdbcRepository.entityFrom(rs));
-                 }
-             }
+            try(final ResultSet rs = preparedStatement.executeQuery()) {
+                while(rs.next()) {
+                    fetchedSnapshots.add(snapshotJdbcRepository.entityFrom(rs));
+                }
+            }
         }
 
         return fetchedSnapshots;

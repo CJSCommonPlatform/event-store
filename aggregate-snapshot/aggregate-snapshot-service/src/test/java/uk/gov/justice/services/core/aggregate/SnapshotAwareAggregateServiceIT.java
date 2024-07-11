@@ -73,6 +73,8 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
+import uk.gov.justice.services.messaging.jms.JmsMessagingConfiguration;
+import uk.gov.justice.services.messaging.jms.OversizeMessageGuard;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
@@ -216,7 +218,9 @@ public class SnapshotAwareAggregateServiceIT {
             ContextNameProvider.class,
             PublishQueuesDataAccess.class,
             PrePublishQueueRepository.class,
-            PublishQueueRepository.class
+            PublishQueueRepository.class,
+            OversizeMessageGuard.class,
+            JmsMessagingConfiguration.class
     })
 
     public WebApp war() {

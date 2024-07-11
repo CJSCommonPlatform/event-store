@@ -13,6 +13,7 @@ import static uk.gov.justice.services.messaging.spi.DefaultJsonMetadata.metadata
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.common.configuration.ContextNameProvider;
 import uk.gov.justice.services.common.configuration.JndiBasedServiceContextNameProvider;
+import uk.gov.justice.services.common.configuration.ValueProducer;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
 import uk.gov.justice.services.common.util.Clock;
@@ -56,6 +57,8 @@ import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.EnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsEnvelopeSender;
+import uk.gov.justice.services.messaging.jms.JmsMessagingConfiguration;
+import uk.gov.justice.services.messaging.jms.OversizeMessageGuard;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.messaging.spi.DefaultEnvelopeProvider;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
@@ -191,7 +194,10 @@ public class EventPublishIT {
             JdbcBasedEventRepository.class,
             EventStreamJdbcRepository.class,
             PrePublishQueueRepository.class,
-            PublishQueueRepository.class
+            PublishQueueRepository.class,
+            OversizeMessageGuard.class,
+            JmsMessagingConfiguration.class,
+            ValueProducer.class
     })
     public WebApp war() {
         return new WebApp()

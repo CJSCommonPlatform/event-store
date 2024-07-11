@@ -17,6 +17,9 @@ import uk.gov.justice.services.cdi.InitialContextProducer;
 import uk.gov.justice.services.cdi.LoggerProducer;
 import uk.gov.justice.services.common.annotation.ComponentNameExtractor;
 import uk.gov.justice.services.common.configuration.GlobalValueProducer;
+import uk.gov.justice.services.common.configuration.JndiBasedServiceContextNameProvider;
+import uk.gov.justice.services.common.configuration.ServiceContextNameProvider;
+import uk.gov.justice.services.common.configuration.ValueProducer;
 import uk.gov.justice.services.common.converter.ObjectToJsonValueConverter;
 import uk.gov.justice.services.common.converter.StringToJsonObjectConverter;
 import uk.gov.justice.services.common.converter.jackson.ObjectMapperProducer;
@@ -76,6 +79,8 @@ import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.messaging.DefaultJsonObjectEnvelopeConverter;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
+import uk.gov.justice.services.messaging.jms.JmsMessagingConfiguration;
+import uk.gov.justice.services.messaging.jms.OversizeMessageGuard;
 import uk.gov.justice.services.messaging.logging.DefaultTraceLogger;
 import uk.gov.justice.services.subscription.EventRangeNormalizer;
 import uk.gov.justice.services.subscription.MissingEventRangeFinder;
@@ -248,7 +253,11 @@ public class SubscriptionEventInterceptorIT {
             ProcessedEventStreamerConfiguration.class,
             ProcessedEventStreamSpliteratorFactory.class,
 
-            MissingEventRangeStringifier.class
+            MissingEventRangeStringifier.class,
+            JmsMessagingConfiguration.class,
+            ValueProducer.class,
+            OversizeMessageGuard.class,
+            JndiBasedServiceContextNameProvider.class
     })
 
     public WebApp war() {

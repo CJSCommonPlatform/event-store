@@ -4,6 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## [17.6.3] - 2024-07-12
+### Changed
+- All events pulled from the event queue by the message driven bean now
+  check the size of the message, and will log an error if the number of bytes
+  is greater than a new jndi value `messaging.jms.oversize.message.threshold.bytes`
+- All rest http parameters in the generated rest endpoints are now encoded using owasp to
+  protect against cross site scripting
 
 ## [17.6.2] - 2024-07-05
 ### Added

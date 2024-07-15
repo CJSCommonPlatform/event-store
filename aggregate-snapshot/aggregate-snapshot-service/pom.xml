@@ -109,6 +109,11 @@
             <artifactId>persistence-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.services</groupId>
+            <artifactId>messaging-jms</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.healthcheck.healthchecks.JobStoreHealthcheck.JOB_STORE_TABLE_NAMES;
 
+import uk.gov.justice.framework.libraries.datasource.providers.jobstore.JobStoreDataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
-import uk.gov.moj.cpp.jobstore.persistence.JdbcJobStoreDataSourceProvider;
 
 import java.sql.SQLException;
 
@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 public class JobStoreHealthcheckTest {
 
     @Mock
-    private JdbcJobStoreDataSourceProvider jdbcJobStoreDataSourceProvider;
+    private JobStoreDataSourceProvider jobStoreDataSourceProvider;
 
     @Mock
     private TableChecker tableChecker;
@@ -56,7 +56,7 @@ public class JobStoreHealthcheckTest {
         final DataSource jobStoreDataSource = mock(DataSource.class);
         final HealthcheckResult healthcheckResult = mock(HealthcheckResult.class);
 
-        when(jdbcJobStoreDataSourceProvider.getDataSource()).thenReturn(jobStoreDataSource);
+        when(jobStoreDataSourceProvider.getJobStoreDataSource()).thenReturn(jobStoreDataSource);
         when(tableChecker.checkTables(JOB_STORE_TABLE_NAMES, jobStoreDataSource)).thenReturn(healthcheckResult);
 
         assertThat(jobStoreHealthcheck.runHealthcheck(), is(healthcheckResult));
@@ -68,7 +68,7 @@ public class JobStoreHealthcheckTest {
         final SQLException sqlException = new SQLException("Oops");
         final DataSource jobStoreDataSource = mock(DataSource.class);
 
-        when(jdbcJobStoreDataSourceProvider.getDataSource()).thenReturn(jobStoreDataSource);
+        when(jobStoreDataSourceProvider.getJobStoreDataSource()).thenReturn(jobStoreDataSource);
         when(tableChecker.checkTables(JOB_STORE_TABLE_NAMES, jobStoreDataSource)).thenThrow(sqlException);
 
         final HealthcheckResult healthcheckResult = jobStoreHealthcheck.runHealthcheck();

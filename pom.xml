@@ -39,7 +39,7 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>17.6.1</framework.version>
+        <framework.version>17.6.2-M1</framework.version>
     </properties>
 
     <dependencyManagement>
@@ -50,6 +50,13 @@
                 <version>${framework.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+
+            <!-- remove this when I've remembered to add the dependency to framework-libraries-bom -->
+            <dependency>
+                <groupId>uk.gov.justice.framework.libraries</groupId>
+                <artifactId>framework-datasource-providers</artifactId>
+                <version>17.6.1-M1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

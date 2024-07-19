@@ -4,10 +4,10 @@ import static java.lang.String.format;
 import static java.util.List.of;
 import static uk.gov.justice.services.healthcheck.api.HealthcheckResult.failure;
 
+import uk.gov.justice.framework.libraries.datasource.providers.jobstore.JobStoreDataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.Healthcheck;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
-import uk.gov.moj.cpp.jobstore.persistence.JdbcJobStoreDataSourceProvider;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class JobStoreHealthcheck implements Healthcheck {
     public static final List<String> JOB_STORE_TABLE_NAMES = of("job");
 
     @Inject
-    private JdbcJobStoreDataSourceProvider jdbcJobStoreDataSourceProvider;
+    private JobStoreDataSourceProvider jobStoreDataSourceProvider;
 
     @Inject
     private TableChecker tableChecker;
@@ -45,7 +45,7 @@ public class JobStoreHealthcheck implements Healthcheck {
     @Override
     public HealthcheckResult runHealthcheck() {
 
-        final DataSource jobStoreDataSource = jdbcJobStoreDataSourceProvider.getDataSource();
+        final DataSource jobStoreDataSource = jobStoreDataSourceProvider.getJobStoreDataSource();
 
         try {
             return tableChecker.checkTables(JOB_STORE_TABLE_NAMES, jobStoreDataSource);

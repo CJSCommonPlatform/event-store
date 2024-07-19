@@ -4,6 +4,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## [17.6.4-M1] - 2024-07-19
+### Changed
+- Update framework-libraries to 17.6.1-M1
+
 ## [17.6.3] - 2024-07-12
 ### Changed
 - All events pulled from the event queue by the message driven bean now

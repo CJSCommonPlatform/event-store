@@ -18,6 +18,4 @@ public class CanCatchupFilter {
 
         return eventCatchup || indexerCatchup;
     }
-
-
 }

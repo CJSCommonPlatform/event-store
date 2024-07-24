@@ -4,6 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+### Changed
+- The catchup process can now whitelist event sources to catchup
+- New Jndi value can be set to `ALLOW_ALL` to allow all
+### Added
+- New Jndi value `java:global/catchup.event.source.whitelist` for a comma separated list of whitelisted event-sources for catchup.
+
 ## [17.6.3] - 2024-07-12
 ### Changed
 - All events pulled from the event queue by the message driven bean now

@@ -5,8 +5,23 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+### Changed
+- The catchup process can now whitelist event sources to catchup
+- New Jndi value can be set to `ALLOW_ALL` to allow all
+### Added
+- New Jndi value `java:global/catchup.event.source.whitelist` for a comma separated list of whitelisted event-sources for catchup.
+
+## [17.6.3] - 2024-07-12
+### Changed
+- All events pulled from the event queue by the message driven bean now
+  check the size of the message, and will log an error if the number of bytes
+  is greater than a new jndi value `messaging.jms.oversize.message.threshold.bytes`
+- All rest http parameters in the generated rest endpoints are now encoded using owasp to
+  protect against cross site scripting
+
 ## [17.5.4] - 2024-07-23
-### Fix for Jacksons SingleArgumentConstructorPojo issue
+### Fixed
+- Fix for Jacksons SingleArgumentConstructorPojo issue
 
 ## [17.5.3] - 2024-06-21
 ### Security

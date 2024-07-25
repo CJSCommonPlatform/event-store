@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ## Unreleased
 
+## [8.3.10] - 2024-08-05
+### Fixed
+- Fetch of PublishedEvents during catchup now correctly uses MultipleDataSourcePublishedEventRepository
+
 ## [8.3.9] - 2024-07-25
 ### Changed
 - The catchup process can now whitelist event sources to catchup

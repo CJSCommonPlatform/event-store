@@ -1,26 +1,38 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.UUID.fromString;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+import javax.sql.DataSource;
 
 public class MultipleDataSourcePublishedEventRepository {
 
     private static final String SQL_FIND_ALL_SINCE = "SELECT * FROM published_event WHERE event_number > ? ORDER BY event_number ASC";
     private static final String SQL_FIND_RANGE = "SELECT * FROM published_event WHERE event_number >= ? AND event_number < ? ORDER BY event_number ASC";
     private static final String SQL_FIND_BY_ID = "SELECT * FROM published_event WHERE id = ?";
+    private static final String SQL_FIND_LATEST_PUBLISHED_EVENT =
+            "SELECT id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number " +
+                    "FROM published_event " +
+                    "ORDER BY event_number DESC " +
+                    "LIMIT 1";
 
     private static final String ID = "id";
     private static final String STREAM_ID = "stream_id";
@@ -31,7 +43,6 @@ public class MultipleDataSourcePublishedEventRepository {
     private static final String DATE_CREATED = "date_created";
     private static final String EVENT_NUMBER = "event_number";
     private static final String PREVIOUS_EVENT_NUMBER = "previous_event_number";
-
 
     private final JdbcResultSetStreamer jdbcResultSetStreamer;
     private final PreparedStatementWrapperFactory preparedStatementWrapperFactory;
@@ -99,13 +110,53 @@ public class MultipleDataSourcePublishedEventRepository {
 
             psWrapper.setObject(1, eventId);
 
-            final ResultSet rs = psWrapper.executeQuery();
+            final ResultSet resultSet = psWrapper.executeQuery();
 
-            return rs.next()
-                    ? Optional.of(asPublishedEvent().apply(rs))
-                    : Optional.empty();
+            return resultSet.next()
+                    ? of(asPublishedEvent().apply(resultSet))
+                    : empty();
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to find event with id %s", eventId), e);
+        }
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public Optional<PublishedEvent> getLatestPublishedEvent() {
+        try {
+            try (final Connection connection = dataSource.getConnection();
+                 final PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_LATEST_PUBLISHED_EVENT)) {
+
+                try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                    if (resultSet.next()) {
+                        final UUID id = fromString(resultSet.getString("id"));
+                        final UUID streamId = fromString(resultSet.getString("stream_id"));
+                        final Long positionInStream = resultSet.getLong("position_in_stream");
+                        final String name = resultSet.getString("name");
+                        final String metadata = resultSet.getString("metadata");
+                        final String payload = resultSet.getString("payload");
+                        final ZonedDateTime createdAt = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
+                        final long eventNumber = resultSet.getLong("event_number");
+                        final long previousEventNumber = resultSet.getLong("previous_event_number");
+
+                        return of(new PublishedEvent(
+                                id,
+                                streamId,
+                                positionInStream,
+                                name,
+                                metadata,
+                                payload,
+                                createdAt,
+                                eventNumber,
+                                previousEventNumber)
+                        );
+                    }
+                }
+            }
+
+            return empty();
+        } catch (SQLException e) {
+            throw new JdbcRepositoryException("Failed to get latest PublishedEvent", e);
         }
     }
 

@@ -2,8 +2,9 @@ package uk.gov.justice.services.eventstore.management.replay.process;
 
 import uk.gov.justice.services.common.util.UtcClock;
 
-import javax.inject.Inject;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 public class ReplayEventToComponentRunner {
 

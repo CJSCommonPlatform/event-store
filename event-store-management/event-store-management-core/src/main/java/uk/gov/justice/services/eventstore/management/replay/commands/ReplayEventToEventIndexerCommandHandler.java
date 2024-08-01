@@ -1,6 +1,11 @@
 package uk.gov.justice.services.eventstore.management.replay.commands;
 
-import org.slf4j.Logger;
+import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
+import static uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand.REPLAY_EVENT_TO_EVENT_INDEXER;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
+import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
+
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
 import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
@@ -8,13 +13,12 @@ import uk.gov.justice.services.jmx.api.domain.CommandState;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.util.UUID;
 
-import static uk.gov.justice.services.core.annotation.Component.EVENT_INDEXER;
-import static uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand.REPLAY_EVENT_TO_EVENT_INDEXER;
-import static uk.gov.justice.services.jmx.api.domain.CommandState.*;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
 
 public class ReplayEventToEventIndexerCommandHandler {
 

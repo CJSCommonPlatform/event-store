@@ -1,14 +1,14 @@
 package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 
-import org.slf4j.Logger;
+import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,8 +16,10 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.lang.String.format;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
 
 /**
  * JDBC based repository for snapshot records.

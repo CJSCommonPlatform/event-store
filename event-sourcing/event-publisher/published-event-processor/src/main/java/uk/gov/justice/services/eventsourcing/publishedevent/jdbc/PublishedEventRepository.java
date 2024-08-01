@@ -44,14 +44,4 @@ public class PublishedEventRepository {
             throw new PublishedEventException(format("Unable to insert PublishedEvent with id '%s'", publishedEvent.getId()), e);
         }
     }
-
-    public Optional<PublishedEvent> getLatestPublishedEvent() {
-        final DataSource defaultDataSource = eventStoreDataSourceProvider.getDefaultDataSource();
-        try {
-            return publishedEventQueries.getLatestPublishedEvent(defaultDataSource);
-
-        } catch (final SQLException e) {
-            throw new PublishedEventException("Failed to get latest published event", e);
-        }
-    }
 }

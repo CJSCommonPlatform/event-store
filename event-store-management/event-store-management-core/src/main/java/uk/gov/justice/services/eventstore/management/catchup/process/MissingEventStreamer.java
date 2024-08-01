@@ -17,13 +17,10 @@ public class MissingEventStreamer {
     @Inject
     private ProcessedEventTrackingService processedEventTrackingService;
 
-    @Inject
-    private HighestPublishedEventNumberProvider highestPublishedEventNumberProvider;
-
     public Stream<PublishedEvent> getMissingEvents(final String eventSourceName, final String componentName) {
 
         final PublishedEventSource publishedEventSource = publishedEventSourceProvider.getPublishedEventSource(eventSourceName);
-        final Long highestPublishedEventNumber = highestPublishedEventNumberProvider.getHighestPublishedEventNumber();
+        final Long highestPublishedEventNumber = publishedEventSource.getHighestPublishedEventNumber();
 
         return processedEventTrackingService.getAllMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)
                 .flatMap(publishedEventSource::findEventRange);

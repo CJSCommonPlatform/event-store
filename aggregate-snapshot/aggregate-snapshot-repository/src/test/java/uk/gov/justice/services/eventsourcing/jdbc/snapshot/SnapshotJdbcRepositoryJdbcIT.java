@@ -1,5 +1,39 @@
 package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
+
+import uk.gov.justice.domain.aggregate.Aggregate;
+import uk.gov.justice.domain.snapshot.AggregateSnapshot;
+import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.sql.DataSource;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,28 +43,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
-import uk.gov.justice.domain.aggregate.Aggregate;
-import uk.gov.justice.domain.snapshot.AggregateSnapshot;
-import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
-import uk.gov.justice.services.test.utils.persistence.SettableEventStoreDataSourceProvider;
-
-import javax.sql.DataSource;
-import java.sql.*;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static java.util.UUID.randomUUID;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
-import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 @ExtendWith(MockitoExtension.class)
 public class SnapshotJdbcRepositoryJdbcIT {

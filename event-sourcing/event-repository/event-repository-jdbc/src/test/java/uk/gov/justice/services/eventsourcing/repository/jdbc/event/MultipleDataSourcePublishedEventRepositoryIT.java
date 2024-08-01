@@ -1,10 +1,12 @@
 package uk.gov.justice.services.eventsourcing.repository.jdbc.event;
 
+import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 import static uk.gov.justice.services.test.utils.events.PublishedEventBuilder.publishedEventBuilder;
 
@@ -104,7 +106,7 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
     }
 
     @Test
-    public void fetchByEventIdShouldRetunEventIfExists() throws Exception {
+    public void fetchByEventIdShouldReturnEventIfExists() throws Exception {
         final Connection connection = dataSource.getConnection();
         final PublishedEvent event = publishedEventBuilder().withPreviousEventNumber(0).withEventNumber(1).build();
         insertPublishedEvent(event, connection);
@@ -122,7 +124,46 @@ public class MultipleDataSourcePublishedEventRepositoryIT {
         assertFalse(fetchedEvent.isPresent());
     }
 
-    public void insertPublishedEvent(final PublishedEvent publishedEvent, final Connection connection) throws SQLException {
+    @Test
+    public void shouldGetLatestPublishedEvent() throws Exception {
+
+        final PublishedEvent event_1 = publishedEventBuilder().withPreviousEventNumber(0).withEventNumber(1).build();
+        final PublishedEvent event_2 = publishedEventBuilder().withPreviousEventNumber(1).withEventNumber(2).build();
+        final PublishedEvent event_3 = publishedEventBuilder().withPreviousEventNumber(2).withEventNumber(3).build();
+        final PublishedEvent event_4 = publishedEventBuilder().withPreviousEventNumber(3).withEventNumber(4).build();
+        final PublishedEvent event_5 = publishedEventBuilder().withPreviousEventNumber(4).withEventNumber(5).build();
+
+        final Connection connection = dataSource.getConnection();
+        
+        insertPublishedEvent(event_1, connection);
+        insertPublishedEvent(event_2, connection);
+        insertPublishedEvent(event_3, connection);
+        insertPublishedEvent(event_4, connection);
+        insertPublishedEvent(event_5, connection);
+
+        final Optional<PublishedEvent> latestPublishedEvent = multipleDataSourcePublishedEventRepository.getLatestPublishedEvent();
+
+        if (latestPublishedEvent.isPresent()) {
+            assertThat(latestPublishedEvent.get().getId(), is(event_5.getId()));
+            assertThat(latestPublishedEvent.get().getName(), is(event_5.getName()));
+            assertThat(latestPublishedEvent.get().getStreamId(), is(event_5.getStreamId()));
+            assertThat(latestPublishedEvent.get().getMetadata(), is(event_5.getMetadata()));
+            assertThat(latestPublishedEvent.get().getCreatedAt(), is(event_5.getCreatedAt()));
+            assertThat(latestPublishedEvent.get().getEventNumber(), is(event_5.getEventNumber()));
+            assertThat(latestPublishedEvent.get().getPreviousEventNumber(), is(event_5.getPreviousEventNumber()));
+            assertThat(latestPublishedEvent.get().getPositionInStream(), is(event_5.getPositionInStream()));
+            assertThat(latestPublishedEvent.get().getPayload(), is(event_5.getPayload()));
+        } else {
+            fail();
+        }
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenGettingLatestPublishedEventIfNoPublishedEventsExist() throws Exception {
+        assertThat(multipleDataSourcePublishedEventRepository.getLatestPublishedEvent(), is(empty()));
+    }
+
+    private void insertPublishedEvent(final PublishedEvent publishedEvent, final Connection connection) throws SQLException {
 
         final String sql = "INSERT into published_event (" +
                 "id, stream_id, position_in_stream, name, payload, metadata, date_created, event_number, previous_event_number) " +

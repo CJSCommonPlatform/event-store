@@ -1,33 +1,29 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import uk.gov.justice.services.jdbc.persistence.InitialContextFactory;
 
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 public class CatchupWhitelistedEventSourcesProviderTest {

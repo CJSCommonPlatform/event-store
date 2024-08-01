@@ -1,8 +1,6 @@
 package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;

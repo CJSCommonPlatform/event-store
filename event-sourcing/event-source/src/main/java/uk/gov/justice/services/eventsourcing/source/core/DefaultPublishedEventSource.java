@@ -41,4 +41,16 @@ public class DefaultPublishedEventSource implements PublishedEventSource {
     public Optional<PublishedEvent> findByEventId(final UUID eventId) {
         return multipleDataSourcePublishedEventRepository.findByEventId(eventId);
     }
+
+    @Transactional(REQUIRED)
+    @Override
+    public Long getHighestPublishedEventNumber() {
+        final Optional<PublishedEvent> latestPublishedEvent = multipleDataSourcePublishedEventRepository
+                .getLatestPublishedEvent();
+
+        return latestPublishedEvent.map(publishedEvent -> publishedEvent
+                        .getEventNumber()
+                        .orElse(0L))
+                .orElse(0L);
+    }
 }

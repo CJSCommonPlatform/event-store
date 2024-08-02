@@ -1,5 +1,8 @@
 package uk.gov.justice.services.eventsourcing.source.core;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,12 +67,41 @@ public class DefaultPublishedEventSourceTest {
     @Test
     public void findByEventIdShouldReturnEvent() throws Exception {
 
-        final UUID eventId = UUID.randomUUID();
-        final Optional<PublishedEvent> publishedEvent = Optional.of(mock(PublishedEvent.class));
+        final UUID eventId = randomUUID();
+        final Optional<PublishedEvent> publishedEvent = of(mock(PublishedEvent.class));
         when(multipleDataSourcePublishedEventRepository.findByEventId(eventId)).thenReturn(publishedEvent);
 
         final Optional<PublishedEvent> fetchedEvent = defaultPublishedEventSource.findByEventId(eventId);
 
         assertThat(fetchedEvent, is(publishedEvent));
+    }
+
+    @Test
+    public void shouldGetEventNumberFromLatestPublishedEvent() throws Exception {
+
+        final Long latestEventNumber = 9827394873L;
+        final PublishedEvent latestPublishedEvent = mock(PublishedEvent.class);
+        when(latestPublishedEvent.getEventNumber()).thenReturn(of(latestEventNumber));
+        when(multipleDataSourcePublishedEventRepository.getLatestPublishedEvent()).thenReturn(of(latestPublishedEvent));
+
+        assertThat(defaultPublishedEventSource.getHighestPublishedEventNumber(), is(latestEventNumber));
+    }
+
+    @Test
+    public void shouldReturnZeroIfLatestPublishedEventHasNoEventNumber() throws Exception {
+
+        final PublishedEvent latestPublishedEvent = mock(PublishedEvent.class);
+        when(latestPublishedEvent.getEventNumber()).thenReturn(empty());
+        when(multipleDataSourcePublishedEventRepository.getLatestPublishedEvent()).thenReturn(of(latestPublishedEvent));
+
+        assertThat(defaultPublishedEventSource.getHighestPublishedEventNumber(), is(0L));
+    }
+
+    @Test
+    public void shouldReturnZeroIfNoLatestPublishedEventFound() throws Exception {
+
+        when(multipleDataSourcePublishedEventRepository.getLatestPublishedEvent()).thenReturn(empty());
+
+        assertThat(defaultPublishedEventSource.getHighestPublishedEventNumber(), is(0L));
     }
 }

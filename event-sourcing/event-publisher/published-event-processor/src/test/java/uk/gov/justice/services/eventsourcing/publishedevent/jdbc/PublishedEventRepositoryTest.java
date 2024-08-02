@@ -16,7 +16,6 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.exception.Published
 import uk.gov.justice.services.eventsourcing.source.core.EventStoreDataSourceProvider;
 
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -104,32 +103,4 @@ public class PublishedEventRepositoryTest {
         assertThat(publishedEventException.getMessage(), is("Failed to get PublishedEvent with id '3fa24506-0738-4987-80ab-ccb20318a195'"));
     }
 
-    @Test
-    public void shouldGetTheLatestPublishedEventByEventNumber() throws Exception {
-
-        final DataSource defaultDataSource = mock(DataSource.class);
-        final Optional<PublishedEvent> publishedEvent = of(mock(PublishedEvent.class));
-
-        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(defaultDataSource);
-        when(publishedEventQueries.getLatestPublishedEvent(defaultDataSource)).thenReturn(publishedEvent);
-
-        assertThat(publishedEventRepository.getLatestPublishedEvent(), is(publishedEvent));
-    }
-
-    @Test
-    public void shouldFailIfGettingTheLatestPublishedEventFails() throws Exception {
-
-        final SQLException sqlException = new SQLException("Ooops");
-        final DataSource defaultDataSource = mock(DataSource.class);
-
-        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(defaultDataSource);
-        when(publishedEventQueries.getLatestPublishedEvent(defaultDataSource)).thenThrow(sqlException);
-
-        final PublishedEventException publishedEventException = assertThrows(
-                PublishedEventException.class,
-                publishedEventRepository::getLatestPublishedEvent);
-
-        assertThat(publishedEventException.getCause(), is(sqlException));
-        assertThat(publishedEventException.getMessage(), is("Failed to get latest published event"));
-    }
 }

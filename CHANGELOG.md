@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Fixed
+- Fetch of PublishedEvents during catchup now correctly uses MultipleDataSourcePublishedEventRepository
 
 ## [8.3.10] - 2024-08-05
 ### Fixed

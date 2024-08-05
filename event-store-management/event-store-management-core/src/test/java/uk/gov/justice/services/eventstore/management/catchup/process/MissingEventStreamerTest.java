@@ -30,9 +30,6 @@ public class MissingEventStreamerTest {
     @Mock
     private ProcessedEventTrackingService processedEventTrackingService;
 
-    @Mock
-    private HighestPublishedEventNumberProvider highestPublishedEventNumberProvider;
-
     @InjectMocks
     private MissingEventStreamer missingEventStreamer;
 
@@ -61,7 +58,7 @@ public class MissingEventStreamerTest {
 
 
         when(publishedEventSourceProvider.getPublishedEventSource(eventSourceName)).thenReturn(publishedEventSource);
-        when(highestPublishedEventNumberProvider.getHighestPublishedEventNumber()).thenReturn(highestPublishedEventNumber);
+        when(publishedEventSource.getHighestPublishedEventNumber()).thenReturn(highestPublishedEventNumber);
         when(processedEventTrackingService.getAllMissingEvents(eventSourceName, componentName, highestPublishedEventNumber)).thenReturn(missingEventRangeStream);
         when(publishedEventSource.findEventRange(missingEventRange_1)).thenReturn(publishedEventStream_1);
         when(publishedEventSource.findEventRange(missingEventRange_2)).thenReturn(publishedEventStream_2);

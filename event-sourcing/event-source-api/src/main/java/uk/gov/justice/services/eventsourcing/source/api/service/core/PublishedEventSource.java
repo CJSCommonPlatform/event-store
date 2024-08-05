@@ -1,6 +1,5 @@
 package uk.gov.justice.services.eventsourcing.source.api.service.core;
 
-import org.apache.commons.lang3.NotImplementedException;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingEventRange;
 
@@ -25,4 +24,6 @@ public interface PublishedEventSource {
     Stream<PublishedEvent> findEventRange(final MissingEventRange missingEventRange);
 
     Optional<PublishedEvent> findByEventId(final UUID id);
+
+    Long getHighestPublishedEventNumber();
 }

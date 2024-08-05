@@ -2,17 +2,14 @@ package uk.gov.justice.services.eventstore.management.catchup.process;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
 
 import uk.gov.justice.services.jdbc.persistence.InitialContextFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.naming.NamingException;

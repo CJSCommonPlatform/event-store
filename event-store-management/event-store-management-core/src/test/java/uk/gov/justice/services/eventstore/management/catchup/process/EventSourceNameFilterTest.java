@@ -10,9 +10,6 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.subscription.domain.subscriptiondescriptor.Subscription;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

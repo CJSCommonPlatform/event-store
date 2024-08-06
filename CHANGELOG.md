@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## [17.5.5] - 2024-08-06
+### Changed
+- For EVENT_PROCESSORs, derive the destinationType (queue|topic) from event_sources.location.jms_uri in event-sources.yaml
 
 ### Changed
 - The catchup process can now whitelist event sources to catchup

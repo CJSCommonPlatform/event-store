@@ -4,9 +4,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## [17.5.6] - 2024-08-12
+### Changed
+- For EVENT_PROCESSORs, derive the destinationType (queue|topic) from event_sources.location.jms_uri in event-sources.yaml when RAML is used to describe the component
+
 ## [17.5.5] - 2024-08-06
 ### Changed
-- For EVENT_PROCESSORs, derive the destinationType (queue|topic) from event_sources.location.jms_uri in event-sources.yaml
+- For EVENT_PROCESSORs, derive the destinationType (queue|topic) from event_sources.location.jms_uri in event-sources.yaml when YAML is used to describe the component
 
 ### Changed
 - The catchup process can now whitelist event sources to catchup

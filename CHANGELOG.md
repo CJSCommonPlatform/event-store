@@ -4,7 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.6.4] - 2024-09-17
 ### Changed
+- Update framework libraries to 17.6.2 in order to:
+  - Update jobstore to process tasks with higher priority first
+  - Fix for Jackson single argument constructor issue inspired from  https://github.com/FasterXML/jackson-databind/issues/1498
 - The catchup process can now whitelist event sources to catchup
 - New Jndi value can be set to `ALLOW_ALL` to allow all
 ### Added

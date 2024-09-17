@@ -26,6 +26,10 @@
             <artifactId>framework-healthcheck</artifactId>
         </dependency>
         <dependency>
+            <groupId>uk.gov.justice.framework.libraries</groupId>
+            <artifactId>framework-datasource-providers</artifactId>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.justice.framework-api</groupId>
             <artifactId>framework-api-event-source</artifactId>
         </dependency>

@@ -22,7 +22,7 @@ public class FileStoreHealthcheck implements Healthcheck {
 
     public static final String FILE_STORE_HEALTHCHECK_NAME = "file-store-healthcheck";
 
-    public static final List<String> FILE_STORE_TABLE_NAMES = of("content", "metadata");
+    public static final List<String> FILE_STORE_TABLE_NAMES = of("content");
 
     @Inject
     private DataSourceProvider fileStoreDataSourceProvider;

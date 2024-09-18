@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.5] - 2024-09-18
+### Changed
+- Update framework libraries to 17.6.3 in order to:
+  - Refactor of File Store to merge file store 'metadata' table into the 'content' table.
+  - File Store now only contains one table
+  
 ## [17.6.4] - 2024-09-17
 ### Changed
 - Update framework libraries to 17.6.2 in order to:

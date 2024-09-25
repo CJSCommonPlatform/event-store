@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.6] - 2024-09-25
+### Changed
+- Update framework-libraries to 17.6.4 in order to
+  - Improve the fetching of jobs by priority from the jobstore by retrying with a different priority if the first select returns no jobs
+
 ## [17.6.5] - 2024-09-18
 ### Changed
 - Update framework libraries to 17.6.3 in order to:

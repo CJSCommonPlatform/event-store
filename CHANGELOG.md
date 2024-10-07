@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.7] - 2024-10-07
+### Fixed
+- Fixed test library accidentally put on compile scope
+
 ## [17.6.6] - 2024-09-25
 ### Changed
 - Update framework-libraries to 17.6.4 in order to

@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.8] - 2024-10-08
+### Fixed
+- Fixed the percentage of times that HIGH, MEDIUM and LOW priority jobs are run
+
 ## [17.6.7] - 2024-10-07
 ### Fixed
 - Fixed test library accidentally put on compile scope

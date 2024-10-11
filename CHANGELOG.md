@@ -5,6 +5,18 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.10] - 2024-10-11
+### Added
+- New method 'payloadIsNull()' on DefaultJsonEnvelope, to check if the payload is `JsonValue.NULL` or `null`
+### Fixed
+- Fix where null payloads of JsonEnvelopes get converted to `JsonValue.NULL` and cause a ClassCastException
+- All JsonEnvelopes that have null payloads will now:
+  - return `JsonValue.NULL` if `getPayload()` is called
+  - throw `IncompatibleJsonPayloadTypeException` if `getPayloadAsJsonObject()` is called
+  - throw `IncompatibleJsonPayloadTypeException` if `getPayloadAsJsonArray()` is called
+  - throw `IncompatibleJsonPayloadTypeException` if `getPayloadAsJsonString()` is called
+  - throw `IncompatibleJsonPayloadTypeException` if `getPayloadAsJsonNumber()` is called
+
 ## [17.6.9] - 2024-10-08
 ### Fixed
 - Fixed the percentage of times that HIGH, MEDIUM and LOW priority jobs are run

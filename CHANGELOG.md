@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.6.11] - 2024-10-14
+### Fixed
+- Fixed spelling mistake in OversizeMessageGuard error message
+
 ## [17.6.10] - 2024-10-11
 ### Added
 - New method 'payloadIsNull()' on DefaultJsonEnvelope, to check if the payload is `JsonValue.NULL` or `null`

@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.0-M1] - 2024-10-2811
+### Changed
+- Update framework to 17.100.0-M1 for:
+  - Jmx commands can now have and extra optional String `command-runtime-string` that can ba
+  passed to JmxCommandHandlers via the JmxCommandHandling framework
+
 ## [17.6.11] - 2024-10-14
 ### Fixed
 - Fixed spelling mistake in OversizeMessageGuard error message

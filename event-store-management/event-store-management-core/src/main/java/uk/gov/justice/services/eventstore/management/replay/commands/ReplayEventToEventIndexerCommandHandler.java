@@ -10,6 +10,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
 import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
 import uk.gov.justice.services.jmx.api.domain.CommandState;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
@@ -35,9 +36,12 @@ public class ReplayEventToEventIndexerCommandHandler {
     private Logger logger;
 
     @HandlesSystemCommand(REPLAY_EVENT_TO_EVENT_INDEXER)
-    public void replayEventToEventIndexer(final ReplayEventToEventIndexerCommand command, final UUID commandId, final UUID commandRuntimeId) {
+    public void replayEventToEventIndexer(
+            final ReplayEventToEventIndexerCommand command,
+            final UUID commandId,
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         fireEvent(COMMAND_IN_PROGRESS, command, commandId, "REPLAY_EVENT_TO_EVENT_INDEXER command received");
-
+        final UUID commandRuntimeId = jmxCommandRuntimeParameters.getCommandRuntimeId();
         try {
             replayEventToComponentRunner.run(commandId, commandRuntimeId, EVENT_INDEXER);
             fireEvent(COMMAND_COMPLETE, command, commandId, "REPLAY_EVENT_TO_EVENT_INDEXER command completed");

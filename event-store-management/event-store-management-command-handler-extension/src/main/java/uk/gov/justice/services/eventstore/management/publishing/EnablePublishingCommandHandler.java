@@ -5,6 +5,7 @@ import static uk.gov.justice.services.eventstore.management.commands.EnablePubli
 
 import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
 import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 
@@ -20,13 +21,21 @@ public class EnablePublishingCommandHandler {
 
     @Interceptors(MdcLoggerInterceptor.class)
     @HandlesSystemCommand(ENABLE_PUBLISHING)
-    public void enablePublishing(final EnablePublishingCommand enablePublishingCommand, final UUID commandId) {
+    public void enablePublishing(
+            final EnablePublishingCommand enablePublishingCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         enablePublishingProcessor.enableDisable(enablePublishingCommand, commandId);
     }
 
     @Interceptors(MdcLoggerInterceptor.class)
     @HandlesSystemCommand(DISABLE_PUBLISHING)
-    public void disablePublishing(final DisablePublishingCommand disablePublishingCommand, final UUID commandId) {
+    public void disablePublishing(
+            final DisablePublishingCommand disablePublishingCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         enablePublishingProcessor.enableDisable(disablePublishingCommand, commandId);
     }
 }

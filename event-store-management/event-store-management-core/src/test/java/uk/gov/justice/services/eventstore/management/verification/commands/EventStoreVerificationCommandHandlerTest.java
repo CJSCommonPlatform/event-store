@@ -2,10 +2,12 @@ package uk.gov.justice.services.eventstore.management.verification.commands;
 
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
+import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.withNoCommandParameters;
 
 import uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.VerifyRebuildCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.EventStoreVerification;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class EventStoreVerificationCommandHandlerTest {
         final UUID commandId = randomUUID();
         final VerifyRebuildCommand verifyRebuildCommand = new VerifyRebuildCommand();
 
-        eventStoreVerificationCommandHandler.verifyRebuild(verifyRebuildCommand, commandId);
+        eventStoreVerificationCommandHandler.verifyRebuild(verifyRebuildCommand, commandId, withNoCommandParameters());
 
         verify(eventStoreVerification).verifyEventStore(commandId, verifyRebuildCommand);
     }
@@ -41,7 +43,7 @@ public class EventStoreVerificationCommandHandlerTest {
         final UUID commandId = randomUUID();
         final VerifyCatchupCommand verifyCatchupCommand = new VerifyCatchupCommand();
 
-        eventStoreVerificationCommandHandler.verifyCatchup(verifyCatchupCommand, commandId);
+        eventStoreVerificationCommandHandler.verifyCatchup(verifyCatchupCommand, commandId, withNoCommandParameters());
 
         verify(eventStoreVerification).verifyEventStore(commandId, verifyCatchupCommand);
     }

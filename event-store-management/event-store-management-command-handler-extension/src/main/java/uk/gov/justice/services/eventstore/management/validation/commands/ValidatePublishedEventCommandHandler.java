@@ -9,6 +9,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.commands.ValidatePublishedEventsCommand;
 import uk.gov.justice.services.eventstore.management.validation.process.EventValidationProcess;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
@@ -37,7 +38,11 @@ public class ValidatePublishedEventCommandHandler {
 
     @Interceptors(MdcLoggerInterceptor.class)
     @HandlesSystemCommand(VALIDATE_EVENTS)
-    public void validateEventsAgainstSchemas(final ValidatePublishedEventsCommand validatePublishedEventsCommand, final UUID commandId) {
+    public void validateEventsAgainstSchemas(
+            final ValidatePublishedEventsCommand validatePublishedEventsCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
 
         logger.info(format("Received %s command", validatePublishedEventsCommand.getName()));
 

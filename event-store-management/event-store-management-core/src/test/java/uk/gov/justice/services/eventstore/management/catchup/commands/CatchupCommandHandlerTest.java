@@ -5,11 +5,13 @@ import static java.time.ZonedDateTime.of;
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.withNoCommandParameters;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -42,12 +44,13 @@ public class CatchupCommandHandlerTest {
     public void shouldFireEventCatchup() throws Exception {
 
         final UUID commandId = randomUUID();
+
         final EventCatchupCommand eventCatchupCommand = new EventCatchupCommand();
         final ZonedDateTime now = of(2019, 8, 23, 11, 22, 1, 0, UTC);
 
         when(clock.now()).thenReturn(now);
 
-        catchupCommandHandler.catchupEvents(eventCatchupCommand, commandId);
+        catchupCommandHandler.catchupEvents(eventCatchupCommand, commandId, withNoCommandParameters());
 
         verify(logger).info("Received command 'CATCHUP' at 11:22:01 AM");
         verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, eventCatchupCommand, now));
@@ -62,7 +65,7 @@ public class CatchupCommandHandlerTest {
 
         when(clock.now()).thenReturn(now);
 
-        catchupCommandHandler.catchupSearchIndexes(indexerCatchupCommand, commandId);
+        catchupCommandHandler.catchupSearchIndexes(indexerCatchupCommand, commandId, withNoCommandParameters());
 
         verify(logger).info("Received command 'INDEXER_CATCHUP' at 11:22:01 AM");
         verify(catchupRequestedEventFirer).fire(new CatchupRequestedEvent(commandId, indexerCatchupCommand, now));

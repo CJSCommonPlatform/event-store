@@ -5,6 +5,15 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.0-M3] - 2024-10-29
+### Changed
+- Update framework to 17.100.0-M3
+- All JmxCommandHandlers must now have `commandName` String, `commandId` UUID and JmxCommandRuntimeParameters in their method signatures
+### Added
+- New parameter 'JmxCommandRuntimeParameters' to JMX commands
+### Fixed
+- JdbcResultSetStreamer now correctly streams data using statement.setFetchSize(). The Default fetch size is 200. This can be overridden with JNDI prop jdbc.statement.fetchSize
+
 ## [17.100.0-M2] - 2024-10-29
 ### Changed
 - Renamed methods in JmxCommandRuntimeParameters

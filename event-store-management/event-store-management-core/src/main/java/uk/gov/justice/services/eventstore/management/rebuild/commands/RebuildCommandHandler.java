@@ -10,6 +10,7 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
 import uk.gov.justice.services.eventstore.management.commands.RebuildCommand;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 import uk.gov.justice.services.jmx.logging.MdcLoggerInterceptor;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
@@ -39,7 +40,11 @@ public class RebuildCommandHandler {
 
     @Interceptors(MdcLoggerInterceptor.class)
     @HandlesSystemCommand(REBUILD)
-    public void doRebuild(final RebuildCommand rebuildCommand, final UUID commandId) {
+    public void doRebuild(
+            final RebuildCommand rebuildCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         final String commandName = rebuildCommand.getName();
         final ZonedDateTime rebuildStartedAt = clock.now();
         final String startMessage = format("%s started at %tc", commandName, rebuildStartedAt);

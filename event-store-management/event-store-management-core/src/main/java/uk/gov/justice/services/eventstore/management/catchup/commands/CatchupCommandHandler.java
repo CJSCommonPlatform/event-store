@@ -8,6 +8,7 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.CatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.command.HandlesSystemCommand;
 
 import java.time.ZonedDateTime;
@@ -30,12 +31,20 @@ public class CatchupCommandHandler {
     private Logger logger;
 
     @HandlesSystemCommand(CATCHUP)
-    public void catchupEvents(final CatchupCommand catchupCommand, final UUID commandId) {
+    public void catchupEvents(
+            final CatchupCommand catchupCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         doCatchup(catchupCommand, commandId);
     }
 
     @HandlesSystemCommand(INDEXER_CATCHUP)
-    public void catchupSearchIndexes(final IndexerCatchupCommand indexerCatchupCommand, final UUID commandId) {
+    public void catchupSearchIndexes(
+            final IndexerCatchupCommand indexerCatchupCommand,
+            final UUID commandId,
+            @SuppressWarnings("unused")
+            final JmxCommandRuntimeParameters jmxCommandRuntimeParameters) {
         doCatchup(indexerCatchupCommand, commandId);
     }
 

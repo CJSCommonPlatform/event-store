@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.eventstore.management.CommandResult.success;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
+import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.withNoCommandParameters;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.commands.ValidatePublishedEventsCommand;
 import uk.gov.justice.services.eventstore.management.validation.process.EventValidationProcess;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;
@@ -74,7 +76,10 @@ public class ValidatePublishedEventCommandHandlerTest {
         when(clock.now()).thenReturn(startedAt, completedAt);
         when(eventValidationProcess.validateAllPublishedEvents(commandId)).thenReturn(commandResult);
 
-        validatePublishedEventCommandHandler.validateEventsAgainstSchemas(validatePublishedEventsCommand, commandId);
+        validatePublishedEventCommandHandler.validateEventsAgainstSchemas(
+                validatePublishedEventsCommand,
+                commandId,
+                withNoCommandParameters());
 
         inOrder.verify(logger).info("Received VALIDATE_EVENTS command");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());
@@ -120,7 +125,10 @@ public class ValidatePublishedEventCommandHandlerTest {
         when(clock.now()).thenReturn(startedAt, failedAt);
         doThrow(nullPointerException).when(eventValidationProcess).validateAllPublishedEvents(commandId);
 
-        validatePublishedEventCommandHandler.validateEventsAgainstSchemas(validatePublishedEventsCommand, commandId);
+        validatePublishedEventCommandHandler.validateEventsAgainstSchemas(
+                validatePublishedEventsCommand,
+                commandId,
+                withNoCommandParameters());
 
         inOrder.verify(logger).info("Received VALIDATE_EVENTS command");
         inOrder.verify(systemCommandStateChangedEventFirer).fire(systemCommandStateChangedEventCaptor.capture());

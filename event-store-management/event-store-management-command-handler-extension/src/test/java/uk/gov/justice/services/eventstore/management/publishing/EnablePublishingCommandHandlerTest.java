@@ -2,9 +2,11 @@ package uk.gov.justice.services.eventstore.management.publishing;
 
 import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
+import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.withNoCommandParameters;
 
 import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
 import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class EnablePublishingCommandHandlerTest {
         final EnablePublishingCommand enablePublishingCommand = new EnablePublishingCommand();
         final UUID commandId = randomUUID();
 
-        enablePublishingCommandHandler.enablePublishing(enablePublishingCommand, commandId);
+        enablePublishingCommandHandler.enablePublishing(enablePublishingCommand, commandId, withNoCommandParameters());
 
         verify(enablePublishingProcessor).enableDisable(enablePublishingCommand, commandId);
     }
@@ -41,7 +43,7 @@ public class EnablePublishingCommandHandlerTest {
         final DisablePublishingCommand disablePublishingCommand = new DisablePublishingCommand();
         final UUID commandId = randomUUID();
 
-        enablePublishingCommandHandler.disablePublishing(disablePublishingCommand, commandId);
+        enablePublishingCommandHandler.disablePublishing(disablePublishingCommand, commandId, withNoCommandParameters());
 
         verify(enablePublishingProcessor).enableDisable(disablePublishingCommand, commandId);
     }

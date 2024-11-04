@@ -93,7 +93,7 @@ public class RegenerateAggregateSnapshotBeanTest {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void shouldThrowAggregateSnapshotGenerationFailedExceptionIfShapshotGenerationFails() throws Exception {
+    public void shouldThrowAggregateSnapshotGenerationFailedExceptionIfSnapshotGenerationFails() throws Exception {
 
         final EventStreamException eventStreamException = new EventStreamException("ooops");
         final int transactionTimoutSeconds = 23;

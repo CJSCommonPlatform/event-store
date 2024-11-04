@@ -17,7 +17,7 @@ public class AggregateClassProvider {
                 return (Class<? extends Aggregate>) aClass;
             }
 
-            throw new AggregateClassLoadingException(format("The class '%s' is not a valid Aggregate", aggregateClassName));
+            throw new AggregateClassLoadingException(format("The class '%s' is not an Aggregate", aggregateClassName));
 
         } catch (final ClassNotFoundException e) {
             throw new AggregateClassLoadingException(format("Failed to load Aggregate class '%s'",  aggregateClassName), e);

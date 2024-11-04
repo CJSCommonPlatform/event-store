@@ -6,7 +6,6 @@ import uk.gov.justice.domain.aggregate.Aggregate;
 
 public class AggregateClassProvider {
 
-
     @SuppressWarnings("unchecked")
     public Class<? extends Aggregate> toClass(final String aggregateClassName) {
 

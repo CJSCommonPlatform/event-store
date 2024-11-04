@@ -1,27 +1,14 @@
 package uk.gov.justice.services.eventstore.management.aggregate.snapshot.regeneration.commands;
 
-import static java.lang.String.format;
 import static java.util.UUID.fromString;
-import static java.util.UUID.randomUUID;
-import static java.util.stream.Stream.empty;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
-
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static uk.gov.justice.services.eventstore.management.aggregate.snapshot.regeneration.commands.RegenerateAggregateSnapshotBean.EMPTY_JSON_ENVELOPE_STREAM_TO_FORCE_SNAPSHOT_GENERATION;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
@@ -29,13 +16,18 @@ import uk.gov.justice.services.core.aggregate.SnapshotAwareAggregateService;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import javax.inject.Inject;
 import javax.transaction.UserTransaction;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 public class RegenerateAggregateSnapshotBeanTest {

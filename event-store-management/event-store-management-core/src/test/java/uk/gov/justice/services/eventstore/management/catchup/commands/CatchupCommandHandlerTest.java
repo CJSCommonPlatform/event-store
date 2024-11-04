@@ -11,7 +11,6 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.EventCatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.IndexerCatchupCommand;
 import uk.gov.justice.services.eventstore.management.events.catchup.CatchupRequestedEvent;
-import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

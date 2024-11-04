@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.0-M4] - 2024-11-04
+### Added
+- New Jmx command `RebuildSnapshotCommand` and handler that can force hydration and generation of an Aggregate snapshot
+
 ## [17.100.0-M3] - 2024-10-29
 ### Changed
 - Update framework to 17.100.0-M3

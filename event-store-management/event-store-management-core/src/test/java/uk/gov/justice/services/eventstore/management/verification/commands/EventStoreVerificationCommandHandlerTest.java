@@ -7,7 +7,6 @@ import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParame
 import uk.gov.justice.services.eventstore.management.commands.VerifyCatchupCommand;
 import uk.gov.justice.services.eventstore.management.commands.VerifyRebuildCommand;
 import uk.gov.justice.services.eventstore.management.verification.process.EventStoreVerification;
-import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.util.UUID;
 

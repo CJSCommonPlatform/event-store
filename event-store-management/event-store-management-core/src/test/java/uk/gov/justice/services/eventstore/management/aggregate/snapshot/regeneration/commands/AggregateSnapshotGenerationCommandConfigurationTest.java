@@ -43,7 +43,7 @@ public class AggregateSnapshotGenerationCommandConfigurationTest {
                 AggregateSnapshotGenerationFailedException.class,
                 () -> aggregateSnapshotGenerationCommandConfiguration.getTransactionTimoutSeconds());
 
-        assertThat(aggregateSnapshotGenerationFailedException.getMessage(), is("Failed to parse jndi value 'jmx.aggregate.snapshot.generation.read.timout.seconds'. Value 'something-that-is-not-a-number' is not a number"));
+        assertThat(aggregateSnapshotGenerationFailedException.getMessage(), is("Failed to parse jndi value 'jmx.aggregate.snapshot.generation.timout.seconds'. Value 'something-that-is-not-a-number' is not a number"));
 
     }
 }

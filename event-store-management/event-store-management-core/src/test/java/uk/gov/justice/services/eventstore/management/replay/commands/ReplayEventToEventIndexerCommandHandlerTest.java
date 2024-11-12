@@ -16,6 +16,8 @@ import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PRO
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.commands.ReplayEventToEventIndexerCommand;
 import uk.gov.justice.services.eventstore.management.replay.process.ReplayEventToComponentRunner;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
+import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.JmxCommandRuntimeParametersBuilder;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZoneOffset;
@@ -63,9 +65,13 @@ public class ReplayEventToEventIndexerCommandHandlerTest {
 
     @Test
     public void onSuccessShouldFireInProgressAndCompletedSystemCommands() {
+
+        final JmxCommandRuntimeParameters jmxCommandRuntimeParameters = new JmxCommandRuntimeParametersBuilder()
+                .withCommandRuntimeId(COMMAND_RUNTIME_ID)
+                .build();
         when(clock.now()).thenReturn(NOW);
 
-        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, COMMAND_RUNTIME_ID);
+        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, jmxCommandRuntimeParameters);
 
         verify(replayEventToComponentRunner).run(COMMAND_ID, COMMAND_RUNTIME_ID, EVENT_INDEXER);
 
@@ -89,11 +95,15 @@ public class ReplayEventToEventIndexerCommandHandlerTest {
 
     @Test
     public void onSuccessShouldFireInProgressAndFailedyStemCommands() {
+        final JmxCommandRuntimeParameters jmxCommandRuntimeParameters = new JmxCommandRuntimeParametersBuilder()
+                .withCommandRuntimeId(COMMAND_RUNTIME_ID)
+                .build();
+
         final RuntimeException exception = new RuntimeException();
         when(clock.now()).thenReturn(NOW);
         doThrow(exception).when(replayEventToComponentRunner).run(any(), any(), any());
 
-        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, COMMAND_RUNTIME_ID);
+        replayEventToEventIndexerCommandHandler.replayEventToEventIndexer(COMMAND, COMMAND_ID, jmxCommandRuntimeParameters);
 
         verify(stateChangedEventFirer, times(2)).fire(eventCaptor.capture());
         final List<SystemCommandStateChangedEvent> actualEvents = eventCaptor.getAllValues();

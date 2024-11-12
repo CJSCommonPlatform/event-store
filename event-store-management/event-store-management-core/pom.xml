@@ -5,7 +5,7 @@
     <parent>
         <artifactId>event-store-management</artifactId>
         <groupId>uk.gov.justice.event-store</groupId>
-        <version>17.6.12-SNAPSHOT</version>
+        <version>17.100.0-M5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,6 +55,11 @@
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>
             <artifactId>event-tracking-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.justice.event-store</groupId>
+            <artifactId>aggregate-snapshot-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 

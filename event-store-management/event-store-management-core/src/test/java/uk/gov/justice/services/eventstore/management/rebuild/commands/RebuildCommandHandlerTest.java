@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_COMPLETE;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_FAILED;
 import static uk.gov.justice.services.jmx.api.domain.CommandState.COMMAND_IN_PROGRESS;
+import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters.withNoCommandParameters;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventsourcing.publishedevent.rebuild.PublishedEventRebuilder;
@@ -65,7 +66,7 @@ public class RebuildCommandHandlerTest {
 
         when(clock.now()).thenReturn(rebuildStartedAt, rebuildCompletedAt);
 
-        rebuildCommandHandler.doRebuild(rebuildCommand, commandId);
+        rebuildCommandHandler.doRebuild(rebuildCommand, commandId, withNoCommandParameters());
 
         final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, logger, publishedEventRebuilder);
 
@@ -108,7 +109,7 @@ public class RebuildCommandHandlerTest {
         when(clock.now()).thenReturn(rebuildStartedAt, rebuildCompletedAt);
         doThrow(nullPointerException).when(publishedEventRebuilder).rebuild();
 
-        rebuildCommandHandler.doRebuild(rebuildCommand, commandId);
+        rebuildCommandHandler.doRebuild(rebuildCommand, commandId, withNoCommandParameters());
 
         final InOrder inOrder = inOrder(systemCommandStateChangedEventFirer, logger, publishedEventRebuilder);
 

@@ -5,6 +5,18 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.0] - 2024-11-12
+### Changed
+- Jmx commands can now have and extra optional String `command-runtime-string` that can ba
+  passed to JmxCommandHandlers via the JmxCommandHandling framework
+- All JmxCommandHandlers must now have `commandName` String, `commandId` UUID and JmxCommandRuntimeParameters in their method signatures
+- Split filestore `content` tables back into two tables of `metadata` and `content` to allow for backwards compatibility with liquibase
+### Added
+- New parameter 'commandRuntimeString' to JMX commands
+- New Jmx command `RebuildSnapshotCommand` and handler that can force hydration and generation of an Aggregate snapshot_
+### Fixed
+- JdbcResultSetStreamer now correctly streams data using statement.setFetchSize(). The Default fetch size is 200. This can be overridden with JNDI prop jdbc.statement.fetchSize
+
 ## [17.6.11] - 2024-10-14
 ### Fixed
 - Fixed spelling mistake in OversizeMessageGuard error message

@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
 
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferEvent;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
@@ -45,6 +46,9 @@ public class ConsecutiveEventBufferService implements EventBufferService {
 
     @Inject
     private EventSourceNameCalculator eventSourceNameCalculator;
+
+    @Inject
+    private UtcClock clock;
 
     /**
      * Takes an incoming event and returns a stream of json envelopes. If the event is not
@@ -132,7 +136,8 @@ public class ConsecutiveEventBufferService implements EventBufferService {
                         incomingEventVersion,
                         jsonObjectEnvelopeConverter.asJsonString(incomingEvent),
                         source,
-                        component));
+                        component,
+                        clock.now()));
 
     }
 

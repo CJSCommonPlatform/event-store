@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.3] - 2024-11-14
+### Added
+- New column `buffered_at` on the stream_buffer tables to allow for monitoring of stuck stream_buffer events
+
 ## [17.100.1] - 2024-11-12
 ### Changed
 - Jmx commands can now have and extra optional String `command-runtime-string` that can ba

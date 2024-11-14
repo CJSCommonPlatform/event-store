@@ -4,6 +4,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Added
+- New column `buffered_at` on the stream_buffer tables to allow for monitoring of stuck stream_buffer events
+
 
 ## [17.100.1] - 2024-11-12
 ### Changed

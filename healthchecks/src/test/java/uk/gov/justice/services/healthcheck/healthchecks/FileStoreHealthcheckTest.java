@@ -1,6 +1,7 @@
 package uk.gov.justice.services.healthcheck.healthchecks;
 
 import static java.util.Optional.of;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,14 +40,18 @@ public class FileStoreHealthcheckTest {
 
     @Test
     public void shouldReturnCorrectHealthcheckName() throws Exception {
-
         assertThat(fileStoreHealthcheck.getHealthcheckName(), is("file-store-healthcheck"));
     }
 
     @Test
     public void shouldReturnCorrectHealthcheckDescription() throws Exception {
-
         assertThat(fileStoreHealthcheck.healthcheckDescription(), is("Checks connectivity to the filestore database and that all tables are available"));
+    }
+
+    @Test
+    public void shouldHaveTheCorrectListOfTableNames() throws Exception {
+        assertThat(FILE_STORE_TABLE_NAMES.size(), is(2));
+        assertThat(FILE_STORE_TABLE_NAMES, hasItems("content", "metadata"));
     }
 
     @Test

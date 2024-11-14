@@ -1,7 +1,10 @@
 package uk.gov.justice.services.event.buffer.core.repository.streambuffer;
 
 import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
+import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -24,8 +27,8 @@ import org.slf4j.Logger;
 @ApplicationScoped
 public class EventBufferJdbcRepository {
 
-    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
-    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
+    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component, buffered_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component, buffered_at FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
     private static final String STREAM_ID = "stream_id";
@@ -33,6 +36,7 @@ public class EventBufferJdbcRepository {
     private static final String EVENT = "event";
     private static final String SOURCE = "source";
     private static final String COMPONENT = "component";
+    private static final String BUFFERED_AT = "buffered_at";
 
     @Inject
     private JdbcResultSetStreamer jdbcResultSetStreamer;
@@ -48,7 +52,8 @@ public class EventBufferJdbcRepository {
 
     private DataSource dataSource;
 
-    public EventBufferJdbcRepository() {}
+    public EventBufferJdbcRepository() {
+    }
 
     public EventBufferJdbcRepository(final JdbcResultSetStreamer jdbcResultSetStreamer,
                                      final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
@@ -72,8 +77,9 @@ public class EventBufferJdbcRepository {
             ps.setString(3, bufferedEvent.getEvent());
             ps.setString(4, bufferedEvent.getSource());
             ps.setString(5, bufferedEvent.getComponent());
+            ps.setTimestamp(6, toSqlTimestamp(bufferedEvent.getBufferedAt()));
             final int rowsUpdated = ps.executeUpdate();
-            if (rowsUpdated == 0){
+            if (rowsUpdated == 0) {
                 logger.warn("Event already present in event buffer. Ignoring");
             }
 
@@ -107,21 +113,21 @@ public class EventBufferJdbcRepository {
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while removing event from the buffer: %s", eventBufferEvent), e);
         }
-
     }
 
     private Function<ResultSet, EventBufferEvent> entityFromFunction() {
         return resultSet -> {
             try {
                 return new EventBufferEvent((UUID) resultSet.getObject(STREAM_ID),
-                                                    resultSet.getLong(POSITION),
-                                                    resultSet.getString(EVENT),
-                                                    resultSet.getString(SOURCE),
-                                                    resultSet.getString(COMPONENT));
+                        resultSet.getLong(POSITION),
+                        resultSet.getString(EVENT),
+                        resultSet.getString(SOURCE),
+                        resultSet.getString(COMPONENT),
+                        fromSqlTimestamp(resultSet.getTimestamp(BUFFERED_AT))
+                );
             } catch (final SQLException e) {
                 throw new JdbcRepositoryException("Unexpected SQLException mapping ResultSet to StreamBufferEntity instance", e);
             }
         };
     }
-
 }

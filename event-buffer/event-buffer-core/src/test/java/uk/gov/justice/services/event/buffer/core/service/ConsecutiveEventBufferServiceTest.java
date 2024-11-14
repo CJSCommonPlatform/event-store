@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferEvent;
 import uk.gov.justice.services.event.buffer.core.repository.streambuffer.EventBufferJdbcRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
@@ -25,9 +26,11 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.JsonObjectEnvelopeConverter;
 import uk.gov.justice.services.test.utils.common.stream.StreamCloseSpy;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -55,6 +58,9 @@ public class ConsecutiveEventBufferServiceTest {
 
     @Mock
     private EventSourceNameCalculator eventSourceNameCalculator;
+
+    @Mock
+    private UtcClock clock;
 
     @InjectMocks
     private ConsecutiveEventBufferService bufferService;
@@ -195,6 +201,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String eventName = "source.events.something.happened";
         final String source = "source";
         final UUID streamId = randomUUID();
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         final JsonEnvelope incomingEvent = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(6L),
@@ -206,6 +213,7 @@ public class ConsecutiveEventBufferServiceTest {
         when(eventSourceNameCalculator.getSource(incomingEvent)).thenReturn(source);
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(subscription));
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER)).thenReturn(of(new Subscription(streamId, 4L, source, EVENT_LISTENER)));
+        when(clock.now()).thenReturn(bufferedAt);
 
         when(jsonObjectEnvelopeConverter.asJsonString(incomingEvent)).thenReturn("someStringRepresentation");
 
@@ -216,7 +224,7 @@ public class ConsecutiveEventBufferServiceTest {
         inOrder.verify(streamStatusJdbcRepository).updateSource(streamId, source, EVENT_LISTENER);
         inOrder.verify(streamStatusJdbcRepository).insertOrDoNothing(new Subscription(streamId, 0L, source, EVENT_LISTENER));
         inOrder.verify(streamStatusJdbcRepository).findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
-        inOrder.verify(streamBufferRepository).insert(new EventBufferEvent(streamId, 6L, "someStringRepresentation", source, EVENT_LISTENER));
+        inOrder.verify(streamBufferRepository).insert(new EventBufferEvent(streamId, 6L, "someStringRepresentation", source, EVENT_LISTENER, bufferedAt));
 
         assertThat(returnedEvents, empty());
     }
@@ -228,6 +236,7 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
         final String component = EVENT_LISTENER;
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         final JsonEnvelope incomingEvent = envelopeFrom(
                 metadataBuilder().withId(randomUUID()).withName(eventName).withStreamId(streamId).withPosition(3L),
@@ -241,13 +250,13 @@ public class ConsecutiveEventBufferServiceTest {
         when(subscription.getPosition()).thenReturn(2L);
 
         when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(
-                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", "source_4", component),
-                        new EventBufferEvent(streamId, 5L, "someEventContent5", "source_5", component),
-                        new EventBufferEvent(streamId, 6L, "someEventContent6", "source_6", component),
-                        new EventBufferEvent(streamId, 8L, "someEventContent8", "source_8", component),
-                        new EventBufferEvent(streamId, 9L, "someEventContent9", "source_9", component),
-                        new EventBufferEvent(streamId, 10L, "someEventContent10", "source_10", component),
-                        new EventBufferEvent(streamId, 11L, "someEventContent11", "source_11", component)));
+                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", "source_4", component, bufferedAt),
+                        new EventBufferEvent(streamId, 5L, "someEventContent5", "source_5", component, bufferedAt),
+                        new EventBufferEvent(streamId, 6L, "someEventContent6", "source_6", component, bufferedAt),
+                        new EventBufferEvent(streamId, 8L, "someEventContent8", "source_8", component, bufferedAt),
+                        new EventBufferEvent(streamId, 9L, "someEventContent9", "source_9", component, bufferedAt),
+                        new EventBufferEvent(streamId, 10L, "someEventContent10", "source_10", component, bufferedAt),
+                        new EventBufferEvent(streamId, 11L, "someEventContent11", "source_11", component, bufferedAt)));
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
         final JsonEnvelope bufferedEvent5 = mock(JsonEnvelope.class);
@@ -269,12 +278,13 @@ public class ConsecutiveEventBufferServiceTest {
     }
 
     @Test
-    public void shoulCloseSourceStreamOnConsecutiveStreamClose() {
+    public void shouldCloseSourceStreamOnConsecutiveStreamClose() {
 
         final UUID streamId = randomUUID();
         final String source = "source";
         final String eventName = "source.event.name";
         final String component = EVENT_LISTENER;
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         final Subscription subscription = mock(Subscription.class);
 
@@ -290,11 +300,9 @@ public class ConsecutiveEventBufferServiceTest {
         final StreamCloseSpy sourceStreamSpy = new StreamCloseSpy();
 
         when(streamBufferRepository.findStreamByIdSourceAndComponent(streamId, source, component)).thenReturn(
-                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", source, component),
-                        new EventBufferEvent(streamId, 8L, "someEventContent8", source, component)).onClose(sourceStreamSpy)
+                Stream.of(new EventBufferEvent(streamId, 4L, "someEventContent4", source, component, bufferedAt),
+                        new EventBufferEvent(streamId, 8L, "someEventContent8", source, component, bufferedAt)).onClose(sourceStreamSpy)
         );
-
-        final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
 
         final Stream<JsonEnvelope> returnedEvents = bufferService.currentOrderedEventsWith(incomingEvent, component);
         returnedEvents.close();
@@ -315,17 +323,16 @@ public class ConsecutiveEventBufferServiceTest {
         final String source = "source";
         final String eventName = "source.event.name";
         final String component = EVENT_LISTENER;
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         final Subscription subscription = mock(Subscription.class);
 
         when(streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, component)).thenReturn(of(subscription));
         when(subscription.getPosition()).thenReturn(2L);
 
-
-        final EventBufferEvent event4 = new EventBufferEvent(streamId, 4L, "someEventContent4", "source_1", component);
-        final EventBufferEvent event5 = new EventBufferEvent(streamId, 5L, "someEventContent5", "source_2", component);
-        final EventBufferEvent event6 = new EventBufferEvent(streamId, 6L, "someEventContent6", "source_3", component);
-
+        final EventBufferEvent event4 = new EventBufferEvent(streamId, 4L, "someEventContent4", "source_1", component, bufferedAt);
+        final EventBufferEvent event5 = new EventBufferEvent(streamId, 5L, "someEventContent5", "source_2", component, bufferedAt);
+        final EventBufferEvent event6 = new EventBufferEvent(streamId, 6L, "someEventContent6", "source_3", component, bufferedAt);
 
         final JsonEnvelope bufferedEvent4 = mock(JsonEnvelope.class);
         final JsonEnvelope bufferedEvent5 = mock(JsonEnvelope.class);

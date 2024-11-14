@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -18,6 +19,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -35,8 +37,8 @@ import org.slf4j.Logger;
 
 @ExtendWith(MockitoExtension.class)
 public class EventBufferJdbcRepositoryTest {
-    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
-    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+    private static final String SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT = "SELECT stream_id, position, event, source, component, buffered_at FROM stream_buffer WHERE stream_id=? AND source=? AND component=? ORDER BY position";
+    private static final String INSERT = "INSERT INTO stream_buffer (stream_id, position, event, source, component, buffered_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
     private static final String DELETE_BY_STREAM_ID_POSITION = "DELETE FROM stream_buffer WHERE stream_id=? AND position=? AND source=? AND component=?";
 
     @Spy
@@ -75,14 +77,15 @@ public class EventBufferJdbcRepositoryTest {
 
     @Test
     public void shouldInsertEvent() throws SQLException {
-        final String source = "source";
-
-        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
-        when(preparedStatement.executeUpdate()).thenReturn(1);
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
+        final String source = "source";
+        final ZonedDateTime bufferedAt = new UtcClock().now();
+
+        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER, bufferedAt));
 
         verify(preparedStatement).setObject(1, streamId);
         verify(preparedStatement).setLong(2, position);
@@ -95,15 +98,15 @@ public class EventBufferJdbcRepositoryTest {
 
     @Test
     public void shouldWarnIfInsertDoesNothing() throws SQLException {
-        final String source = "source";
-
-
-        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
-        when(preparedStatement.executeUpdate()).thenReturn(0);
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER));
+        final String source = "source";
+        final ZonedDateTime bufferedAt = new UtcClock().now();
+
+        when(connection.prepareStatement(INSERT)).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(0);
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER, bufferedAt));
 
         verify(preparedStatement).setObject(1, streamId);
         verify(preparedStatement).setLong(2, position);
@@ -117,13 +120,14 @@ public class EventBufferJdbcRepositoryTest {
     @Test
     public void shouldThrowExceptionWhileStoringEvent() throws SQLException {
         final String source = "source";
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         when(connection.prepareStatement(INSERT))
                 .thenThrow(new SQLException());
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        final EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER);
+        final EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER, bufferedAt);
 
         assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.insert(eventBufferEvent));
     }
@@ -133,6 +137,7 @@ public class EventBufferJdbcRepositoryTest {
 
         final String source = "source";
         final String component = EVENT_LISTENER;
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         final Function<ResultSet, EventBufferEvent> function = mock(Function.class);
         final Stream<EventBufferEvent> stream = mock(Stream.class);
@@ -145,7 +150,7 @@ public class EventBufferJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 1L;
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component, bufferedAt));
 
         eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component);
 
@@ -165,6 +170,7 @@ public class EventBufferJdbcRepositoryTest {
         final long position = 1l;
         final String source = "source";
         final String component = EVENT_LISTENER;
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         when(connection.prepareStatement(INSERT))
                 .thenReturn(preparedStatement);
@@ -172,7 +178,7 @@ public class EventBufferJdbcRepositoryTest {
         when(connection.prepareStatement(SELECT_STREAM_BUFFER_BY_STREAM_ID_SOURCE_AND_COMPONENT))
                 .thenThrow(new SQLException());
 
-        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component));
+        eventBufferJdbcRepository.insert(new EventBufferEvent(streamId, position, "eventVersion_2", source, component, bufferedAt));
 
         assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.findStreamByIdSourceAndComponent(streamId, source, component));
    }
@@ -180,6 +186,7 @@ public class EventBufferJdbcRepositoryTest {
     @Test
     public void shouldRemoveBufferedEvent() throws SQLException {
         final String source = "source";
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         when(connection.prepareStatement(INSERT))
                 .thenReturn(preparedStatement);
@@ -189,7 +196,7 @@ public class EventBufferJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER);
+        EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER, bufferedAt);
         eventBufferJdbcRepository.insert(eventBufferEvent);
 
         eventBufferJdbcRepository.remove(eventBufferEvent);
@@ -209,6 +216,7 @@ public class EventBufferJdbcRepositoryTest {
     public void shouldThrowExceptionWhileRemovingEventFromBuffer() throws SQLException {
 
         final String source = "source";
+        final ZonedDateTime bufferedAt = new UtcClock().now();
 
         when(connection.prepareStatement(INSERT))
                 .thenReturn(preparedStatement);
@@ -218,10 +226,9 @@ public class EventBufferJdbcRepositoryTest {
 
         final UUID streamId = randomUUID();
         final long position = 1l;
-        EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER);
+        EventBufferEvent eventBufferEvent = new EventBufferEvent(streamId, position, "eventVersion_2", source, EVENT_LISTENER, bufferedAt);
 
         eventBufferJdbcRepository.insert(eventBufferEvent);
         assertThrows(JdbcRepositoryException.class, () -> eventBufferJdbcRepository.remove(eventBufferEvent));
     }
-
 }

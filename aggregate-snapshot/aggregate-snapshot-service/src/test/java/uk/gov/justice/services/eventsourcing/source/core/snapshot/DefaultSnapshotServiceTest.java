@@ -9,18 +9,22 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import uk.gov.justice.domain.aggregate.NoSerializableTestAggregate;
 import uk.gov.justice.domain.aggregate.TestAggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
 import uk.gov.justice.domain.snapshot.VersionedAggregate;
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedException;
 import uk.gov.justice.services.eventsourcing.jdbc.snapshot.SnapshotRepository;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang3.SerializationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -67,6 +71,13 @@ public class DefaultSnapshotServiceTest {
 
         snapshotService.removeAllSnapshots(STREAM_ID, TestAggregate.class);
         verify(snapshotRepository).removeAllSnapshots(STREAM_ID, TestAggregate.class);
+    }
+
+    @Test
+    void shouldRemoveSnapshot() {
+        final ZonedDateTime now = new UtcClock().now();
+        snapshotService.removeSnapshot(STREAM_ID, TestAggregate.class, 1L, now);
+        verify(snapshotRepository).removeSnapshots(STREAM_ID, TestAggregate.class, 1L, now);
     }
 
     @Test
@@ -131,5 +142,38 @@ public class DefaultSnapshotServiceTest {
 
         verify(snapshotRepository, never()).storeSnapshot(any(AggregateSnapshot.class));
         verify(snapshotRepository, never()).removeAllSnapshotsOlderThan(any(AggregateSnapshot.class));
+    }
+
+    @Test
+    public void shouldStoreSnapshotSimply() {
+        final TestAggregate aggregate = new TestAggregate();
+        final Long currentSnapshotVersion = 16l;
+        when(snapshotRepository.storeSnapshot(any(AggregateSnapshot.class))).thenReturn(true);
+
+        final boolean storedOK = snapshotService.storeAggregateSimply(STREAM_ID, currentSnapshotVersion, aggregate);
+        assertThat(storedOK, is(true));
+
+        verify(snapshotRepository).storeSnapshot(any(AggregateSnapshot.class));
+
+        verify(logger).debug("Storing snapshot of aggregate: {}, streamId: {}, version: {}", aggregate.getClass().getSimpleName(), STREAM_ID, currentSnapshotVersion);
+        verify(logger).debug("Stored successfully {}", true);
+        verifyNoMoreInteractions(logger, snapshotRepository);
+    }
+
+    @Test
+    public void storeSnapshotSimplyShouldReturnFalseOnSQLException() {
+        final SerializationException exception = new SerializationException("Cannot save");
+        final TestAggregate aggregate = new TestAggregate();
+        final Long currentSnapshotVersion = 16l;
+        when(snapshotRepository.storeSnapshot(any(AggregateSnapshot.class))).thenThrow(exception);
+
+        final boolean storedOK = snapshotService.storeAggregateSimply(STREAM_ID, currentSnapshotVersion, aggregate);
+        assertThat(storedOK, is(false));
+
+        verify(snapshotRepository).storeSnapshot(any(AggregateSnapshot.class));
+
+        verify(logger).debug("Storing snapshot of aggregate: {}, streamId: {}, version: {}", aggregate.getClass().getSimpleName(), STREAM_ID, currentSnapshotVersion);
+        verify(logger).error("Error creating snapshot for %s".formatted(STREAM_ID), exception);
+        verifyNoMoreInteractions(logger, snapshotRepository);
     }
 }

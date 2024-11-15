@@ -8,6 +8,7 @@ import uk.gov.justice.domain.snapshot.VersionedAggregate;
 import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedException;
 import uk.gov.justice.services.eventsourcing.jdbc.snapshot.SnapshotRepository;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,15 +45,30 @@ public class DefaultSnapshotService implements SnapshotService {
         if (snapshotStrategy.shouldCreateSnapshot(streamVersionId, currentSnapshotVersion)) {
             try {
                 logger.trace("Storing snapshot of aggregate: {}, streamId: {}, version: {}", aggregate.getClass().getSimpleName(), streamId, streamVersionId);
-                final AggregateSnapshot<T> aggregateSnapshot = new AggregateSnapshot<>(streamId, streamVersionId, aggregate);
+                final AggregateSnapshot<T> aggregateSnapshot = new AggregateSnapshot<>(streamId, streamVersionId, aggregate);//createdAt is added before saving
                 final boolean storedSuccessfully = snapshotRepository.storeSnapshot(aggregateSnapshot);
-                if(storedSuccessfully) {
+                if (storedSuccessfully) {
                     snapshotRepository.removeAllSnapshotsOlderThan(aggregateSnapshot);
                 }
             } catch (SerializationException e) {
                 logger.error("Error creating snapshot for {}", streamId, e);
             }
         }
+    }
+
+
+    public <T extends Aggregate> boolean storeAggregateSimply(final UUID streamId, final long streamVersionId, final T aggregate) {
+        try {
+            logger.debug("Storing snapshot of aggregate: {}, streamId: {}, version: {}", aggregate.getClass().getSimpleName(), streamId, streamVersionId);
+            final AggregateSnapshot<T> aggregateSnapshot = new AggregateSnapshot<>(streamId, streamVersionId, aggregate);//createdAt is added before saving
+            final boolean storedSuccessfully = snapshotRepository.storeSnapshot(aggregateSnapshot);
+            logger.debug("Stored successfully {}", storedSuccessfully);
+            return storedSuccessfully;
+        } catch (SerializationException e) {
+            logger.error("Error creating snapshot for %s".formatted(streamId), e);
+        }
+
+        return false;
     }
 
     @Override
@@ -75,6 +91,12 @@ public class DefaultSnapshotService implements SnapshotService {
     public <T extends Aggregate> void removeAllSnapshots(final UUID streamId, final Class<T> clazz) {
         logger.trace("Removing all snapshots for {}", streamId, clazz);
         snapshotRepository.removeAllSnapshots(streamId, clazz);
+    }
+
+    @Override
+    public <T extends Aggregate> int removeSnapshot(final UUID streamId, final Class<T> clazz, final long positionInStream, final ZonedDateTime createdAt) {
+        logger.trace("Removing snapshot for {}, {}, {}, {}", streamId, clazz, positionInStream, createdAt);
+        return snapshotRepository.removeSnapshots(streamId, clazz, positionInStream, createdAt);
     }
 
     @Override

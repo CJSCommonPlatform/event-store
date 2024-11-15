@@ -9,9 +9,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
@@ -28,8 +31,10 @@ import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedE
 import uk.gov.justice.services.core.extension.EventFoundEvent;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
+import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.AsyncSnapshotService;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -66,6 +71,9 @@ public class SnapshotAwareAggregateServiceTest {
 
     @Mock
     private SnapshotService snapshotService;
+
+    @Mock
+    private AsyncSnapshotService asyncSnapshotService;
 
     @Spy
     private DefaultAggregateService defaultAggregateService;
@@ -269,7 +277,7 @@ public class SnapshotAwareAggregateServiceTest {
 
         when(eventStream.getId()).thenReturn(streamId);
 
-        doThrow(new AggregateChangeDetectedException("Aggregate Change Detected")).when(snapshotService).getLatestVersionedAggregate(streamId, TestAggregate.class);
+        doThrow(new AggregateChangeDetectedException("Aggregate Change Detected", 10L, ZonedDateTime.now())).when(snapshotService).getLatestVersionedAggregate(streamId, TestAggregate.class);
 
         when(jsonObjectToObjectConverter.convert(jsonEventA.payloadAsJsonObject(), EventA.class)).thenReturn(eventA);
         when(jsonObjectToObjectConverter.convert(jsonEventB.payloadAsJsonObject(), EventB.class)).thenReturn(eventB);
@@ -278,8 +286,9 @@ public class SnapshotAwareAggregateServiceTest {
 
         final TestAggregate aggregate1 = aggregateService.get(eventStream, TestAggregate.class);
 
-        verify(snapshotService).removeAllSnapshots(streamId, TestAggregate.class);
+        verify(asyncSnapshotService).removeAggregateSnapshot(eq(streamId), eq(TestAggregate.class), eq(10L), any(ZonedDateTime.class));
 
         assertThat(aggregate1.recordedEvents(), hasItems(eventA, eventB, eventC));
+        verifyNoMoreInteractions(asyncSnapshotService);
     }
 }

@@ -10,7 +10,7 @@ public class AggregateChangeDetectedExceptionTest {
 
     @Test
     public void shouldCreateInstanceOfAggregateChangeDetectedExceptionWithMessage() throws Exception {
-        final AggregateChangeDetectedException exception = new AggregateChangeDetectedException("Test message");
+        final AggregateChangeDetectedException exception = new AggregateChangeDetectedException("Test message", 0L, null);
         assertThat(exception.getMessage(), is("Test message"));
         assertThat(exception, instanceOf(Exception.class));
     }

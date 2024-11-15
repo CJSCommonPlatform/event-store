@@ -4,6 +4,7 @@ package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.AggregateSnapshot;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +40,17 @@ public interface SnapshotRepository {
      * @param clazz    the clazz
      */
     <T extends Aggregate> void removeAllSnapshots(final UUID streamId, final Class<T> clazz);
+
+
+    /**
+     * Remove all snapshots older than a given date.
+     *
+     * @param <T>       the type parameter
+     * @param streamId  the stream id
+     * @param clazz     the clazz
+     * @param createdAt
+     */
+    <T extends Aggregate> int removeSnapshots(final UUID streamId, final Class<T> clazz, final long positionInStream, final ZonedDateTime createdAt);
 
 
     /**

@@ -5,6 +5,9 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+### Added
+- Add correct type descriptions to RebuildSnapshotCommand 
+
 ## [17.100.3] - 2024-11-14
 ### Added
 - New column `buffered_at` on the stream_buffer tables to allow for monitoring of stuck stream_buffer events

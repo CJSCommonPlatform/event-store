@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
@@ -97,7 +98,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
     }
 
     @Test
-    public void shouldIgnoreFailureOnStoreAndLogError() throws Exception {
+    void shouldUpsert() {
         when(clock.now()).thenReturn(now);
         final UUID streamId = randomUUID();
         final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
@@ -105,8 +106,21 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
         final boolean snapshotStored = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
 
+        assertThat(snapshotStored, is(true));
+    }
+
+    @Test
+    void shouldIgnoreFailureOnStoreAndLogError() throws Exception {
+        final SQLException exception = new SQLException("Failed to get connection");
+        final DataSource ds = mock(DataSource.class);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(ds);
+        when(ds.getConnection()).thenThrow(exception);
+        final UUID streamId = randomUUID();
+        final AggregateSnapshot aggregateSnapshot = createSnapshot(streamId, VERSION_ID, TYPE, AGGREGATE);
+
+        final boolean snapshotStored = snapshotJdbcRepository.storeSnapshot(aggregateSnapshot);
         assertFalse(snapshotStored);
-        verify(logger).error(eq("Error while storing a snapshot for {} at version {}"), eq(streamId), eq( VERSION_ID), ArgumentMatchers.any(Throwable.class));
+        verify(logger).error(eq("Error while storing a snapshot for {} at version {}"), eq(streamId), eq(VERSION_ID), ArgumentMatchers.any(Throwable.class));
     }
 
     @Test
@@ -205,6 +219,44 @@ public class SnapshotJdbcRepositoryJdbcIT {
     }
 
     @Test
+    void shouldRemoveSnapshots() throws Exception {
+        when(clock.now()).thenReturn(now);
+        final UUID streamId = randomUUID();
+
+        final AggregateSnapshot snapshot1 = createSnapshot(streamId, 1L, TYPE, AGGREGATE);
+        final AggregateSnapshot snapshot2 = createSnapshot(streamId, 2L, TYPE, AGGREGATE);
+        final AggregateSnapshot snapshot3 = createSnapshot(streamId, 3L, TYPE, AGGREGATE);
+
+        snapshotJdbcRepository.storeSnapshot(snapshot1);
+        snapshotJdbcRepository.storeSnapshot(snapshot2);
+        snapshotJdbcRepository.storeSnapshot(snapshot3);
+
+        final int deleteCount = snapshotJdbcRepository.removeSnapshots(snapshot2.getStreamId(), TYPE, snapshot2.getPositionInStream(), now);
+        assertThat(deleteCount, is(2));
+        final List<AggregateSnapshot> fetchedSnapshots = fetchAllSnapshotsFromDb();
+        assertThat(fetchedSnapshots.size(), is(1));
+        assertThat(fetchedSnapshots, hasItems(snapshot3));
+        verifyNoMoreInteractions(logger);
+    }
+
+    @Test
+    void removeSnapshotsShouldReturnZeroOnSQLException() throws Exception {
+        final SQLException exception = new SQLException("Failed to get connection");
+        final DataSource ds = mock(DataSource.class);
+        when(eventStoreDataSourceProvider.getDefaultDataSource()).thenReturn(ds);
+        when(ds.getConnection()).thenThrow(exception);
+
+        final UUID streamId = randomUUID();
+
+        final AggregateSnapshot snapshot1 = createSnapshot(streamId, 1L, TYPE, AGGREGATE);
+
+        final int count = snapshotJdbcRepository.removeSnapshots(snapshot1.getStreamId(), TYPE, snapshot1.getPositionInStream(), now);
+        assertThat(count, is(0));
+        verify(logger).error("Exception while removing snapshots %s of stream %s".formatted(TYPE, streamId), exception);
+        verifyNoMoreInteractions(logger);
+    }
+
+    @Test
     public void shouldLogErrorAndIgnoreAnyFailuresWhileRemovingOldSnapshots() throws Exception {
         //There is no easy way to reproduce sqlexception and had to use chain of mocks
         final UUID streamId = randomUUID();
@@ -243,7 +295,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
 
     }
 
-    private void removeAllSnapshots() throws Exception  {
+    private void removeAllSnapshots() throws Exception {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_ALL_SNAPSHOTS_SQL)) {
             preparedStatement.executeUpdate();
@@ -255,7 +307,7 @@ public class SnapshotJdbcRepositoryJdbcIT {
              final PreparedStatement ps = connection.prepareStatement(FIND_CREATED_TIME_BY_VERSION_ID)) {
             ps.setObject(1, streamId);
             ps.setLong(2, versionId);
-            try(final ResultSet rs = ps.executeQuery()) {
+            try (final ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(rs.getTimestamp("created_at")) : Optional.empty();
             }
         }
@@ -265,8 +317,8 @@ public class SnapshotJdbcRepositoryJdbcIT {
         final List<AggregateSnapshot> fetchedSnapshots = new ArrayList<>();
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(FETCH_ALL_SNAPSHOTS_QUERY)) {
-            try(final ResultSet rs = preparedStatement.executeQuery()) {
-                while(rs.next()) {
+            try (final ResultSet rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
                     fetchedSnapshots.add(snapshotJdbcRepository.entityFrom(rs));
                 }
             }

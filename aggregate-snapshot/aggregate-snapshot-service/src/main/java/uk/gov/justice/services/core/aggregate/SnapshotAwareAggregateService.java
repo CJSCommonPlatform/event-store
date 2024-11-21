@@ -6,6 +6,7 @@ import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedE
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEnvelopeEventStream;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.SnapshotService;
+import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.AsyncSnapshotService;
 
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ public class SnapshotAwareAggregateService implements AggregateService {
     @Inject
     DefaultAggregateService defaultAggregateService;
 
+    @Inject
+    private AsyncSnapshotService asyncSnapshotService;
+
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Aggregate> T get(final EventStream stream, final Class<T> clazz) {
@@ -47,6 +51,7 @@ public class SnapshotAwareAggregateService implements AggregateService {
         }
 
         return aggregate;
+
     }
 
     private <T extends Aggregate> T aggregateOf(final EventStream stream, Class<T> clazz, final Optional<VersionedAggregate<T>> versionedAggregate) {
@@ -68,7 +73,7 @@ public class SnapshotAwareAggregateService implements AggregateService {
         try {
             return snapshotService.getLatestVersionedAggregate(stream.getId(), clazz);
         } catch (AggregateChangeDetectedException e) {
-            snapshotService.removeAllSnapshots(stream.getId(), clazz);
+            asyncSnapshotService.removeAggregateSnapshot(stream.getId(), clazz, e.getPositionInStream(), e.getCreatedAt());
             return Optional.empty();
         }
     }

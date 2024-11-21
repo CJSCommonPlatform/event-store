@@ -1,6 +1,7 @@
 package uk.gov.justice.services.eventsourcing.jdbc.snapshot;
 
 import static java.lang.String.format;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.fromSqlTimestamp;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
@@ -13,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,11 +36,15 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     private static final String COL_VERSION_ID = "version_id";
     private static final String COL_TYPE = "type";
     private static final String COL_AGGREGATE = "aggregate";
+    private static final String COL_CREATED_AT = "created_at";
     private static final String SQL_FIND_LATEST_BY_STREAM_ID = "SELECT * FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
-    private static final String SQL_INSERT_EVENT_LOG = "INSERT INTO snapshot (stream_id, version_id, type, aggregate, created_at ) VALUES(?, ?, ?, ?, ?)";
+    private static final String SQL_UPSERT_SNAPSHOT = "INSERT INTO snapshot AS s (stream_id, version_id, type, aggregate, created_at ) VALUES(?, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT stream_id_version_id_type DO UPDATE SET aggregate =?, created_at = ? WHERE s.created_at<=?";
     private static final String DELETE_ALL_SNAPSHOTS_FOR_STREAM_ID_AND_CLASS = "delete from snapshot where stream_id =? and type=?";
     private static final String DELETE_ALL_SNAPSHOTS_OF_STREAM_ID_AND_CLASS_AND_LESS_THAN_POSITION_IN_STREAM = "delete from snapshot where stream_id =? and type=? and version_id<?";
     private static final String SQL_CURRENT_SNAPSHOT_VERSION_ID = "SELECT version_id FROM snapshot WHERE stream_id=? AND type=? ORDER BY version_id DESC";
+
+    // using 'stream_id =? and type=? and created_at <=?' may give better outcome and is backward compatible with the current behavious
+    private static final String DELETE_SNAPSHOTS = "delete from snapshot where stream_id =? and type=? and version_id <=? and created_at <=? ";
 
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
@@ -52,12 +59,18 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     public boolean storeSnapshot(final AggregateSnapshot aggregateSnapshot) {
 
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
-             final PreparedStatement ps = connection.prepareStatement(SQL_INSERT_EVENT_LOG)) {
+             final PreparedStatement ps = connection.prepareStatement(SQL_UPSERT_SNAPSHOT)) {
+            final Timestamp now = toSqlTimestamp(clock.now());
+
             ps.setObject(1, aggregateSnapshot.getStreamId());
             ps.setLong(2, aggregateSnapshot.getPositionInStream());
             ps.setString(3, aggregateSnapshot.getType());
             ps.setBytes(4, aggregateSnapshot.getAggregateByteRepresentation());
-            ps.setTimestamp(5, toSqlTimestamp(clock.now()));
+            ps.setTimestamp(5, now);
+            ps.setBytes(6, aggregateSnapshot.getAggregateByteRepresentation());
+            ps.setTimestamp(7, now);
+            ps.setTimestamp(8, now);
+
             ps.executeUpdate();
 
             return true;
@@ -98,6 +111,21 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
     }
 
     @Override
+    public <T extends Aggregate> int removeSnapshots(final UUID streamId, final Class<T> clazz, final long positionInStream, final ZonedDateTime createdAt) {
+        try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
+             final PreparedStatement ps = connection.prepareStatement(DELETE_SNAPSHOTS)) {
+            ps.setObject(1, streamId);
+            ps.setString(2, clazz.getName());
+            ps.setLong(3, positionInStream);
+            ps.setTimestamp(4, toSqlTimestamp(createdAt));
+            return ps.executeUpdate();
+        } catch (final SQLException e) {
+            logger.error("Exception while removing snapshots %s of stream %s".formatted(clazz, streamId), e);
+        }
+        return 0;
+    }
+
+    @Override
     public <T extends Aggregate> void removeAllSnapshotsOlderThan(final AggregateSnapshot aggregateSnapshot) {
         try (final Connection connection = eventStoreDataSourceProvider.getDefaultDataSource().getConnection();
              final PreparedStatement ps = connection.prepareStatement(DELETE_ALL_SNAPSHOTS_OF_STREAM_ID_AND_CLASS_AND_LESS_THAN_POSITION_IN_STREAM)) {
@@ -134,7 +162,8 @@ public class SnapshotJdbcRepository implements SnapshotRepository {
                 (UUID) resultSet.getObject(COL_STREAM_ID),
                 resultSet.getLong(COL_VERSION_ID),
                 resultSet.getString(COL_TYPE),
-                resultSet.getBytes(COL_AGGREGATE));
+                resultSet.getBytes(COL_AGGREGATE),
+                fromSqlTimestamp(resultSet.getTimestamp(COL_CREATED_AT)));
     }
 
     @SuppressWarnings("unchecked")

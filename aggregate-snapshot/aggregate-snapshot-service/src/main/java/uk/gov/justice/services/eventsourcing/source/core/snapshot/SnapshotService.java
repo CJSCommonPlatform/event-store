@@ -4,6 +4,7 @@ import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.snapshot.VersionedAggregate;
 import uk.gov.justice.services.core.aggregate.exception.AggregateChangeDetectedException;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +46,17 @@ public interface SnapshotService {
      * @param clazz    the clazz
      */
     public <T extends Aggregate> void removeAllSnapshots(final UUID streamId, final Class<T> clazz);
+
+    /**
+     * Remove all snapshots older than a given date
+     *
+     * @param streamId
+     * @param clazz
+     * @param createdAt
+     * @param <T>
+     * @return
+     */
+    public <T extends Aggregate> int removeSnapshot(final UUID streamId, final Class<T> clazz, final long positionInStream, final ZonedDateTime createdAt);
 
     /**
      * Gets latest snapshot version.

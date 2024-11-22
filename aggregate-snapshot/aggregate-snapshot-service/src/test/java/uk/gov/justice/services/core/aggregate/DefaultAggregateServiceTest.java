@@ -226,6 +226,12 @@ class DefaultAggregateServiceTest {
     }
 
     @Test
+    void shouldNotNeedToSaveSnapshotInBackgroundIfPositionInStreamIsOne() {
+        final boolean actual = aggregateService.needsToSaveSnapshotInBackground(1L, randomUUID());
+        assertThat(actual, equalTo(false));
+    }
+
+    @Test
     void shouldNotNeedToSaveSnapshotInBackgroundIfNoPositionInStream() {
         final boolean actual = aggregateService.needsToSaveSnapshotInBackground(null, randomUUID());
         assertThat(actual, equalTo(false));

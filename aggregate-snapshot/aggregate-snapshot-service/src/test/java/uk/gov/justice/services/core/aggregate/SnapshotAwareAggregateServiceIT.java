@@ -1,9 +1,11 @@
 package uk.gov.justice.services.core.aggregate;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -11,6 +13,7 @@ import static org.hamcrest.core.IsNot.not;
 import static uk.gov.justice.services.core.postgres.OpenEjbConfigurationBuilder.createOpenEjbConfigurationBuilder;
 import static uk.gov.justice.services.test.utils.core.messaging.JsonEnvelopeBuilder.envelope;
 import static uk.gov.justice.services.test.utils.core.messaging.MetadataBuilderFactory.metadataWithRandomUUID;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.getValueOfField;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.domain.aggregate.TestAggregate;
@@ -49,6 +52,7 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueReposit
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
+import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
@@ -67,6 +71,8 @@ import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamEx
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.AsyncSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotStrategy;
+import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.SnapshotDeleterObserver;
+import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.SnapshotSaverObserver;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.JdbcResultSetStreamer;
 import uk.gov.justice.services.jdbc.persistence.JndiAppNameProvider;
@@ -77,6 +83,8 @@ import uk.gov.justice.services.messaging.jms.DefaultEnvelopeConverter;
 import uk.gov.justice.services.messaging.jms.JmsMessagingConfiguration;
 import uk.gov.justice.services.messaging.jms.OversizeMessageGuard;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
+import uk.gov.justice.services.test.utils.core.messaging.Poller;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -102,7 +110,7 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
+import javax.naming.InitialContext;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Application;
@@ -131,6 +139,8 @@ public class SnapshotAwareAggregateServiceIT {
 
     private static final long SNAPSHOT_THRESHOLD = 25L;
     private static final String FRAMEWORK_CONTEXT_NAME = "framework";
+    public static final int TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD = 20;
+    private final Poller poller = new Poller(10, 3_000L);
 
     @Inject
     private SnapshotRepository snapshotRepository;
@@ -143,7 +153,6 @@ public class SnapshotAwareAggregateServiceIT {
 
     @Inject
     private DefaultAggregateService defaultAggregateService;
-
     @Inject
     private Clock clock;
 
@@ -152,7 +161,6 @@ public class SnapshotAwareAggregateServiceIT {
 
     @Inject
     private EventStoreDataSourceProvider eventStoreDataSourceProvider;
-
 
     @Module
     @org.apache.openejb.testing.Classes(cdi = true, value = {
@@ -222,7 +230,9 @@ public class SnapshotAwareAggregateServiceIT {
             PublishQueueRepository.class,
             OversizeMessageGuard.class,
             JmsMessagingConfiguration.class,
-            AsyncSnapshotService.class
+            AsyncSnapshotService.class,
+            SnapshotDeleterObserver.class,
+            SnapshotSaverObserver.class
     })
 
     public WebApp war() {
@@ -241,6 +251,10 @@ public class SnapshotAwareAggregateServiceIT {
 
     @BeforeEach
     public void init() throws Exception {
+        // the 2 lines below are needed only for shouldSaveSnapshotsInBackground. Moving this inside the test does not work
+        final InitialContext initialContext = new InitialContext();
+        initialContext.bind("java:global/snapshot.background.saving.threshold", "" + TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD);
+
         new DatabaseCleaner().cleanEventStoreTables(FRAMEWORK_CONTEXT_NAME);
         defaultAggregateService.register(new EventFoundEvent(EventA.class, "context.eventA"));
     }
@@ -424,7 +438,7 @@ public class SnapshotAwareAggregateServiceIT {
 
         assertThat(snapshot, not(nullValue()));
         assertThat(snapshot.isPresent(), equalTo(true));
-//        assertThat(snapshot.get().getPositionInStream(), equalTo(100L));
+        assertThat(snapshot.get().getPositionInStream(), equalTo(100L));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(100));
 
 
@@ -440,8 +454,55 @@ public class SnapshotAwareAggregateServiceIT {
         assertThat(newSnapshot.isPresent(), equalTo(true));
         assertThat(newSnapshot.get().getType(), equalTo(newAggregateClass.getName()));
         assertThat(newSnapshot.get().getStreamId(), equalTo(streamId));
- //       assertThat(newSnapshot.get().getPositionInStream(), equalTo(123L));//todo
+        assertThat(newSnapshot.get().getPositionInStream(), equalTo(123L));
         assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(123));
+        assertThat(rowCount(SQL_EVENT_STREAM_COUNT_BY_STREAM_ID, streamId), is(1));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldSaveSnapshotsInBackground() throws Exception {
+
+        final UUID streamId = randomUUID();
+        final DynamicAggregateTestClassGenerator classGenerator = new DynamicAggregateTestClassGenerator();
+
+        final Class oldAggregateClass = classGenerator.generatedTestAggregateClassOf(1L, TEST_AGGREGATE_PACKAGE, TEST_AGGREGATE_CLASS_NAME);
+
+        // remember we always sane prev snapshot, so we need +1 here .
+        // Note that on purpose, TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD < SNAPSHOT_THRESHOLD so
+        // that we do not trigger the synchronous snapshot generation
+        createEventStreamAndApply(streamId, TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD + 1, "context.eventA", oldAggregateClass);
+
+        final Optional<AggregateSnapshot> snapshot = snapshotRepository.getLatestSnapshot(streamId, oldAggregateClass);
+
+        // no snapshot so far
+        assertThat(snapshot.isPresent(), equalTo(false));
+
+        final Class newAggregateClass = classGenerator.generatedTestAggregateClassOf(2L, TEST_AGGREGATE_PACKAGE, TEST_AGGREGATE_CLASS_NAME);
+
+        // Add one more event and append it to trigger the get() on the existing TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD + 1 events.
+        // this must trigger the asynch background snapshot generation
+        createEventStreamAndApply(streamId, 1, "context.eventA", newAggregateClass);
+
+        final Optional<AggregateSnapshot> newSnapshot = poller.pollUntilFound(() -> {
+           final Optional<AggregateSnapshot> response = snapshotRepository.getLatestSnapshot(streamId, newAggregateClass);
+            if (response.isPresent()) {
+                return response;
+            }
+            return empty();
+        });
+
+        assertThat(newSnapshot.isPresent(), equalTo(true));
+        final AggregateSnapshot aggregateSnapshot = newSnapshot.get();
+        assertThat(aggregateSnapshot.getType(), equalTo(newAggregateClass.getName()));
+        assertThat(aggregateSnapshot.getStreamId(), equalTo(streamId));
+        final Aggregate aggregate = aggregateSnapshot.getAggregate(new DefaultObjectInputStreamStrategy());
+        assertThat(aggregate, is(notNullValue()));
+        assertThat(aggregate, instanceOf(newAggregateClass));
+        final String lastApplied = getValueOfField(aggregate, "lastApplied", String.class);
+        assertThat(lastApplied, is("value-20"));
+        assertThat(aggregateSnapshot.getPositionInStream(), is((long) TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD));
+        assertThat(rowCount(SQL_EVENT_LOG_COUNT_BY_STREAM_ID, streamId), is(TEST_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD + 2));
         assertThat(rowCount(SQL_EVENT_STREAM_COUNT_BY_STREAM_ID, streamId), is(1));
     }
 
@@ -489,7 +550,7 @@ public class SnapshotAwareAggregateServiceIT {
                     .with(metadataWithRandomUUID(eventName)
                             .createdAt(clock.now())
                             .withStreamId(streamId))
-                    .withPayloadOf("value", "name")
+                    .withPayloadOf("value-%s".formatted(i), "name")
                     .build();
 
             aggregate.apply(new EventA(String.valueOf(i)));

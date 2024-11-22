@@ -32,6 +32,7 @@ public class DynamicAggregateTestClassGenerator {
                 .addCode("        return match(event).with(\n" +
                         "                when(uk.gov.justice.domain.event.EventA.class).apply(x -> {\n" +
                         "                            ++count;\n" +
+                        "                            lastApplied = x.getName();\n" +
                         "                        }\n" +
                         "                ));")
                 .returns(Object.class)
@@ -54,13 +55,14 @@ public class DynamicAggregateTestClassGenerator {
         fieldSpecSerialVersionId.initializer(serialVersionUid + "L");
 
         final FieldSpec.Builder fieldSpecCount = FieldSpec.builder(TypeName.INT.unbox(), "count", Modifier.PRIVATE);
-
+        final FieldSpec.Builder fieldSpecLastApplied = FieldSpec.builder(ClassName.get(String.class), "lastApplied", Modifier.PRIVATE);
 
         final TypeSpec dynamicTestAggregate = TypeSpec.classBuilder(fileNameToBeGenerated)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addMethod(constructor)
                 .addField(fieldSpecSerialVersionId.build())
                 .addField(fieldSpecCount.build())
+                .addField(fieldSpecLastApplied.build())
                 .addMethod(apply)
                 .addMethod(applyObjectStream)
                 .addSuperinterface(Aggregate.class)

@@ -5,6 +5,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.100.4] - 2024-11-22
+### Fixed
+- Removed test classes erroneously included in framework-command-client.jar
+### Changed
+- Improved error messages printed whilst running framework-command-client.jar
+
 ## [17.100.3] - 2024-11-14
 ### Added
 - New column `buffered_at` on the stream_buffer tables to allow for monitoring of stuck stream_buffer events

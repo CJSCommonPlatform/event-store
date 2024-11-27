@@ -4,7 +4,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
-## [17.100.5] - 2024-11-26
+## [17.100.6] - 2024-11-27
 ### Removed
 - Removed @MXBean annotation from Jmx interface class to change from MXBean to MBean
 

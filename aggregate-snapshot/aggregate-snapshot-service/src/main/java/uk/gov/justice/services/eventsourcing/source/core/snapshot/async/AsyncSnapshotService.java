@@ -22,9 +22,9 @@ public class AsyncSnapshotService {
     @Inject
     private Event<SnapshotDeleterRequestEvent> aggregateSnapshotDeletionRequestFirer;
 
-    public <T extends Aggregate> void saveAggregateSnapshot(final UUID uuid, final Long aLong, final T aggregate) {
+    public <T extends Aggregate> void saveAggregateSnapshot(final UUID uuid, final Long positionInStream, final T aggregate) {
         final T clonedAggregate = SerializationUtils.clone(aggregate);// deep copy
-        final SnapshotSaverRequestEvent snapshotDeletionRunner = new SnapshotSaverRequestEvent(uuid, aLong, clonedAggregate);
+        final SnapshotSaverRequestEvent snapshotDeletionRunner = new SnapshotSaverRequestEvent(uuid, positionInStream, clonedAggregate);
         aggregateSnapshotSaverRequestEventFirer.fireAsync(snapshotDeletionRunner);
     }
 

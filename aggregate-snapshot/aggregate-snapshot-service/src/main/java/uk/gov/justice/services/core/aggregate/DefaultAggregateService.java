@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 @Priority(1)
 public class DefaultAggregateService implements AggregateService {
 
-    private static final int SNAPSHOT_BACKGROUND_SAVING_THRESHOLD = 50000;
+    private static final long DEFAULT_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD = 50000;
 
     @Inject
     Logger logger;
@@ -43,7 +43,7 @@ public class DefaultAggregateService implements AggregateService {
     private AsyncSnapshotService asyncSnapshotService;
 
     @Inject
-    @Value(key = "snapshot.background.saving.threshold", defaultValue = "" + SNAPSHOT_BACKGROUND_SAVING_THRESHOLD)
+    @Value(key = "snapshot.background.saving.threshold", defaultValue = "" + DEFAULT_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD)
     private long snapshotBackgroundSavingThreshold;
 
     private ConcurrentHashMap<String, Class<?>> eventMap = new ConcurrentHashMap<>();
@@ -70,7 +70,9 @@ public class DefaultAggregateService implements AggregateService {
     public <T extends Aggregate> T applyEvents(final Stream<JsonEnvelope> events, final T aggregate) {
         logger.trace("Apply events for aggregate: {}", aggregate.getClass());
         try (final Stream<JsonEnvelope> e1 = events) {
-            aggregate.applyForEach(events.filter(e -> !e.metadata().name().startsWith(SYSTEM_EVENTS)).map(ev -> trySaveSnapshotInBackground(ev, aggregate)).map(this::convertEnvelopeToEvent));
+            aggregate.applyForEach(events.filter(e -> !e.metadata().name().startsWith(SYSTEM_EVENTS)).
+                    map(ev -> trySaveSnapshotInBackground(ev, aggregate)).
+                    map(this::convertEnvelopeToEvent));
             return aggregate;
         }
     }
@@ -96,28 +98,29 @@ public class DefaultAggregateService implements AggregateService {
     }
 
     private <T extends Aggregate> JsonEnvelope trySaveSnapshotInBackground(final JsonEnvelope event, final T aggregate) {
-        final Long pos = event.metadata().position().orElse(-1L);
+        final Long currentPositionInStream = event.metadata().position().orElse(-1L);
         final UUID streamId = event.metadata().streamId().orElse(null);
 
-        if (needsToSaveSnapshotInBackground(pos, streamId)) {
-            asyncSnapshotService.saveAggregateSnapshot(streamId, pos - 1, aggregate);
+        if (needsToSaveSnapshotInBackground(currentPositionInStream, streamId)) {
+            asyncSnapshotService.saveAggregateSnapshot(streamId, currentPositionInStream - 1, aggregate);
         }
         return event;
     }
 
-    boolean needsToSaveSnapshotInBackground(final Long pos, final UUID streamId) {
+    boolean needsToSaveSnapshotInBackground(final Long currentPositionInStream, final UUID streamId) {
 
-        if (pos == null || streamId == null) {
+        if (currentPositionInStream == null || streamId == null) {
             return false;
         }
 
-        if (pos <= 0) {
+        //position needs to be strictly greater than 1 as we need to go back one step in order to save
+        if (currentPositionInStream <= 1) {
             return false;
         }
 
-        final long threshold = snapshotBackgroundSavingThreshold <= 0 ? SNAPSHOT_BACKGROUND_SAVING_THRESHOLD : snapshotBackgroundSavingThreshold;
+        final long threshold = snapshotBackgroundSavingThreshold <= 0 ? DEFAULT_SNAPSHOT_BACKGROUND_SAVING_THRESHOLD : snapshotBackgroundSavingThreshold;
 
-        return (pos % threshold == 1);
+        return (currentPositionInStream % threshold == 1);
     }
 
 }

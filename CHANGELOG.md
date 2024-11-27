@@ -4,6 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+## [17.100.7] - 2024-11-27
+### Changed
+- Jmx MBean `SystemCommanderMBean` now only takes basic Java Objects to keep the JMX handling interoperable
+### Removed
+- Removed `JmxCommandParameters` and `CommandRunMode` from JMX SystemCommanderMBean call
+
 ## [17.100.6] - 2024-11-27
 ### Removed
 - Removed @MXBean annotation from Jmx interface class to change from MXBean to MBean

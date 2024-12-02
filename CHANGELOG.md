@@ -4,11 +4,35 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.101.0] - 2024-12-02
+### Changed
+- Bump version to 17.101.0
 ### Added
 - Save aggregate snapshots asynchronously in the background when we have a large amount of event on a single stream. Default it 50000. This is configurable via JNDI var snapshot.background.saving.threshold
 - Add 'liquibase.analytics.enabled: false' to all liquibase.properties files to
   stop liquibase collecting anonymous analytics if we should ever upgrade to liquibase  
   4.30.0 or greater. Details can be found here: https://www.liquibase.com/blog/product-update-liquibase-now-collects-anonymous-usage-analytics
+
+## [17.100.3] - 2024-11-14
+### Added
+- New column `buffered_at` on the stream_buffer tables to allow for monitoring of stuck stream_buffer events
+
+## [17.100.7] - 2024-11-27
+### Changed
+- Jmx MBean `SystemCommanderMBean` now only takes basic Java Objects to keep the JMX handling interoperable
+### Removed
+- Removed `JmxCommandParameters` and `CommandRunMode` from JMX SystemCommanderMBean call
+
+## [17.100.6] - 2024-11-27
+### Removed
+- Removed @MXBean annotation from Jmx interface class to change from MXBean to MBean
+
+## [17.100.4] - 2024-11-22
+### Fixed
+- Removed test classes erroneously included in framework-command-client.jar
+### Changed
+- Improved error messages printed whilst running framework-command-client.jar
 
 ## [17.100.3] - 2024-11-14
 ### Added

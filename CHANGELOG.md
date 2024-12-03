@@ -9,10 +9,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### Changed
 - Bump version to 17.101.0
 ### Added
+- Expose prometheus metrics through /internal/metrics/prometheus endpoint
+- Provide timerRegistrar bean to register timer with metricsRegistry
 - Save aggregate snapshots asynchronously in the background when we have a large amount of event on a single stream. Default it 50000. This is configurable via JNDI var snapshot.background.saving.threshold
-- Add 'liquibase.analytics.enabled: false' to all liquibase.properties files to
-  stop liquibase collecting anonymous analytics if we should ever upgrade to liquibase  
-  4.30.0 or greater. Details can be found here: https://www.liquibase.com/blog/product-update-liquibase-now-collects-anonymous-usage-analytics
+- Add 'liquibase.analytics.enabled: false' to all liquibase.properties files to stop liquibase collecting anonymous analytics if we should ever upgrade to liquibase 4.30.0 or greater. Details can be found here: https://www.liquibase.com/blog/product-update-liquibase-now-collects-anonymous-usage-analytics
 
 ## [17.100.3] - 2024-11-14
 ### Added

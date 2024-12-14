@@ -4,6 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.100.8] - 2024-12-14
+### Fixed
+- Fixed error in RegenerateAggregateSnapshotBean where a closed java Stream was reused
+
 ## [17.100.7] - 2024-11-27
 ### Changed
 - Jmx MBean `SystemCommanderMBean` now only takes basic Java Objects to keep the JMX handling interoperable

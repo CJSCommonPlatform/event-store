@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Changed
+- Optimised SnapshotJdbcRepository queries to fetch only required data
 
 ## [17.101.2] - 2024-12-03
 ### Changed

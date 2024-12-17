@@ -5,9 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.101.2] - 2024-12-03
+## [17.101.3] - 2024-12-17
 ### Changed
 - Bump version to 17.101.0
+- Optimised SnapshotJdbcRepository queries to fetch only required data
 ### Added
 - Expose prometheus metrics through /internal/metrics/prometheus endpoint
 - Provide timerRegistrar bean to register timer with metricsRegistry

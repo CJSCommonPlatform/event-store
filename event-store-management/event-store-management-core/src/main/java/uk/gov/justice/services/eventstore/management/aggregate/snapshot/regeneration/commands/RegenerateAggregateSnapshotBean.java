@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class RegenerateAggregateSnapshotBean {
 
-    static final Stream<JsonEnvelope> EMPTY_JSON_ENVELOPE_STREAM_TO_FORCE_SNAPSHOT_GENERATION = empty();
-
     @Inject
     private SnapshotAwareAggregateService snapshotAwareAggregateService;
 
@@ -58,7 +56,8 @@ public class RegenerateAggregateSnapshotBean {
             final EventStream eventStream = eventSource.getStreamById(streamId);
             final Aggregate aggregate = snapshotAwareAggregateService.get(eventStream, aggregateClass);
             // to save, let's append
-            eventStream.append(EMPTY_JSON_ENVELOPE_STREAM_TO_FORCE_SNAPSHOT_GENERATION);
+            final Stream<JsonEnvelope> empty = empty();
+            eventStream.append(empty);
 
             logger.info(format("'%s' hydrated with all events for streamId '%s'", aggregate.getClass().getName(), streamId));
 

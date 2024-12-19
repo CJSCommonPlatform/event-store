@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>aggregate</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.event-store</groupId>

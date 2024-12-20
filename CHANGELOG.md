@@ -6,6 +6,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 ### [Unreleased]
 ### Changed
 - Optimised SnapshotJdbcRepository queries to fetch only required data
+- Bump microservice-framework to 17.101.4 
 
 ## [17.101.2] - 2024-12-03
 ### Changed

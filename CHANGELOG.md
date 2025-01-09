@@ -4,6 +4,8 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.101.4] - 2025-01-09
 ### Added
 - Add dependency for org.ow2.asm version 9.3 (through maven-common-bom)
 ### Changed

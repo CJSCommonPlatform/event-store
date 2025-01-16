@@ -4,8 +4,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.101.5] - 2025-01-16
 ### Removed
-- Removed OWASP cross-site scripting check on html rest parameters introduced in release 17.6.1
+- Update microservice-framework to 17.101.6
+- Removed OWASP cross-site scripting check on html rest parameters introduced in microservice-framework release 17.6.1
 
 ## [17.101.4] - 2025-01-09
 ### Added

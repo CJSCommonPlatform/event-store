@@ -4,8 +4,20 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+
+## [17.102.0-M1] - 2025-02-10
 ### Changed
+- Bump version to 17.102.x
 - Optimised SnapshotJdbcRepository queries to fetch only required data
+### Added
+- Error handling for event streams:
+  - New table `stream_error` in viewstore
+  - Exceptions thrown during event processing now stored in stream_error table
+  - New nullable column `stream_error_id` in stream status table with constraint on stream_error table
+  - New nullable column `stream_error_position` in stream status table
+  - Exception stacktraces are parsed to find entries into our code and stored in stream_error table
+  - New Interceptor `EntityManagerFlushInterceptor` for EVENT_LISTENER component that will always flush the Hibernate EntityManager to commit viewstore changes to the database
+  - New JNDI value `event.error.handling.enabled` with default value of `false` to enable/disable error handling for events
 
 ## [17.101.2] - 2024-12-03
 ### Changed

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="stream_buffer-009" author="TechPod"
+               logicalFilePath="liquibase/event-buffer-changesets/009-add-stream-error-id-and-position-to-stream-status-table.changelog.xml">
+
+        <addColumn tableName="stream_status">
+            <column name="stream_error_id" type="uuid">
+            <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addColumn tableName="stream_status">
+            <column name="stream_error_position" type="BIGINT">
+            <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint
+                baseTableName="stream_status"
+                baseColumnNames="stream_error_id"
+                constraintName="stream_status_to_stream_error_fk"
+                referencedTableName="stream_error"
+                referencedColumnNames="id"/>
+
+        <rollback>
+            <dropUniqueConstraint tableName="stream_status" constraintName="stream_status_to_stream_error_fk" uniqueColumns="stream_error_id"/>
+            <dropColumn tableName="stream_status" columnName="stream_error_id"/>
+            <dropColumn tableName="stream_status" columnName="stream_error_position"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

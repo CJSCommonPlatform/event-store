@@ -8,6 +8,7 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.BackwardsCompatibleSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
 
@@ -22,10 +23,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class BackwardsCompatibleSubscriptionManagerFactoryTest {
 
     @Mock
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Mock
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+
+    @Mock
+    private StreamProcessingFailureHandler streamProcessingFailureHandler;
 
     @InjectMocks
     private BackwardsCompatibleSubscriptionManagerFactory backwardsCompatibleSubscriptionManagerFactory;
@@ -44,5 +48,6 @@ public class BackwardsCompatibleSubscriptionManagerFactoryTest {
 
         assertThat(getValueOfField(subscriptionManager, "interceptorChainProcessor", InterceptorChainProcessor.class), is(interceptorChainProcessor));
         assertThat(getValueOfField(subscriptionManager, "interceptorContextProvider", InterceptorContextProvider.class), is(interceptorContextProvider));
+        assertThat(getValueOfField(subscriptionManager, "streamProcessingFailureHandler", StreamProcessingFailureHandler.class), is(streamProcessingFailureHandler));
     }
 }

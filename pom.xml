@@ -12,7 +12,7 @@
 
     <groupId>uk.gov.justice.event-store</groupId>
     <artifactId>event-store</artifactId>
-    <version>17.101.3-SNAPSHOT</version>
+    <version>17.102.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Event Store</name>
@@ -39,7 +39,9 @@
 
     <properties>
         <cpp.repo.name>event-store</cpp.repo.name>
-        <framework.version>17.101.3</framework.version>
+        <framework.version>17.102.0-M1</framework.version>
+        <!-- TODO: move to common-bom -->
+        <commons-codec.version>1.17.2</commons-codec.version>
     </properties>
 
     <dependencyManagement>
@@ -50,6 +52,12 @@
                 <version>${framework.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <!-- TODO: move to common-bom -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

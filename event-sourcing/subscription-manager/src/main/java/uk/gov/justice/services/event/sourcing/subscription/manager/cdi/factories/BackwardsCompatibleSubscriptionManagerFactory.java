@@ -2,6 +2,7 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.BackwardsCompatibleSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
 
@@ -10,10 +11,13 @@ import javax.inject.Inject;
 public class BackwardsCompatibleSubscriptionManagerFactory {
 
     @Inject
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Inject
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+
+    @Inject
+    private StreamProcessingFailureHandler streamProcessingFailureHandler;
 
     public BackwardsCompatibleSubscriptionManager create(final String componentName) {
 
@@ -22,6 +26,7 @@ public class BackwardsCompatibleSubscriptionManagerFactory {
 
         return new BackwardsCompatibleSubscriptionManager(
                 interceptorChainProcessor,
-                interceptorContextProvider);
+                interceptorContextProvider,
+                streamProcessingFailureHandler);
     }
 }

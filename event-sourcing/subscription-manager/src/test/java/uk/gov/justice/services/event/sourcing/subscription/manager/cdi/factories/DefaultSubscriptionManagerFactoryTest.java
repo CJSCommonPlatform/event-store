@@ -10,6 +10,7 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.DefaultSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
@@ -24,13 +25,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class DefaultSubscriptionManagerFactoryTest {
 
     @Mock
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Mock
-    EventBufferService eventBufferService;
+    private EventBufferService eventBufferService;
 
     @Mock
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+
+    @Mock
+    private StreamProcessingFailureHandler streamProcessingFailureHandler;
 
     @InjectMocks
     private DefaultSubscriptionManagerFactory defaultSubscriptionManagerFactory;
@@ -45,6 +49,7 @@ public class DefaultSubscriptionManagerFactoryTest {
         when(interceptorChainProcessorProducer.produceLocalProcessor(componentName)).thenReturn(interceptorChainProcessor);
 
         final DefaultSubscriptionManager defaultSubscriptionManager = (DefaultSubscriptionManager) defaultSubscriptionManagerFactory.create(componentName);
+        assertThat(getValueOfField(defaultSubscriptionManager, "streamProcessingFailureHandler", StreamProcessingFailureHandler.class), is(streamProcessingFailureHandler));
 
         final EventBufferProcessor eventBufferProcessor = getValueOfField(defaultSubscriptionManager, "eventBufferProcessor", EventBufferProcessor.class);
 

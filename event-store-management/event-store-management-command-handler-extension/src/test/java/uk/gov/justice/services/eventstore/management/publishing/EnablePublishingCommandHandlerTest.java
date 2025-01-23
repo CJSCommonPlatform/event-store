@@ -6,7 +6,6 @@ import static uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParame
 
 import uk.gov.justice.services.eventstore.management.commands.DisablePublishingCommand;
 import uk.gov.justice.services.eventstore.management.commands.EnablePublishingCommand;
-import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 
 import java.util.UUID;
 

@@ -4,10 +4,10 @@ import static java.lang.String.format;
 import static java.util.List.of;
 import static uk.gov.justice.services.healthcheck.api.HealthcheckResult.failure;
 
+import uk.gov.justice.framework.libraries.datasource.providers.jobstore.JndiJobStoreDataSourceProvider;
 import uk.gov.justice.services.healthcheck.api.Healthcheck;
 import uk.gov.justice.services.healthcheck.api.HealthcheckResult;
 import uk.gov.justice.services.healthcheck.utils.database.TableChecker;
-import uk.gov.justice.framework.libraries.datasource.providers.jobstore.JndiJobStoreDataSourceProvider;
 
 import java.sql.SQLException;
 import java.util.List;

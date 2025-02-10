@@ -8,8 +8,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
 
 import uk.gov.justice.services.common.util.UtcClock;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 

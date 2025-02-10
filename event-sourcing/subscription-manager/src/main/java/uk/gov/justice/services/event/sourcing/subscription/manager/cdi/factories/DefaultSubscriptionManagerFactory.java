@@ -3,6 +3,8 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamErrorService;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.DefaultSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
@@ -13,13 +15,19 @@ import javax.inject.Inject;
 public class DefaultSubscriptionManagerFactory {
 
     @Inject
-    InterceptorContextProvider interceptorContextProvider;
+    private InterceptorContextProvider interceptorContextProvider;
 
     @Inject
-    EventBufferService eventBufferService;
+    private EventBufferService eventBufferService;
 
     @Inject
-    InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+    private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
+
+    @Inject
+    private StreamProcessingFailureHandler streamProcessingFailureHandler;
+
+    @Inject
+    private StreamErrorService streamErrorService;
 
     public SubscriptionManager create(final String componentName) {
 
@@ -29,9 +37,10 @@ public class DefaultSubscriptionManagerFactory {
         final EventBufferProcessor eventBufferProcessor = new EventBufferProcessor(
                 interceptorChainProcessor,
                 eventBufferService,
+                streamErrorService,
                 interceptorContextProvider,
                 componentName);
 
-        return new DefaultSubscriptionManager(eventBufferProcessor);
+        return new DefaultSubscriptionManager(eventBufferProcessor, streamProcessingFailureHandler);
     }
 }

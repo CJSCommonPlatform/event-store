@@ -1,12 +1,15 @@
 package uk.gov.justice.services.event.buffer.core.repository.subscription;
 
 import static java.lang.String.format;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -16,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 
 @ApplicationScoped
 public class StreamStatusJdbcRepository {
@@ -31,11 +35,13 @@ public class StreamStatusJdbcRepository {
     /**
      * Statements
      */
-    private static final String SELECT_BY_STREAM_ID_AND_SOURCE = "SELECT stream_id, position, source, component FROM stream_status WHERE stream_id=? AND component=? AND source in (?,'unknown') FOR UPDATE";
-    private static final String INSERT = "INSERT INTO stream_status (position, stream_id, source, component) VALUES (?, ?, ?, ?)";
-    private static final String INSERT_ON_CONFLICT_DO_NOTHING = INSERT + " ON CONFLICT DO NOTHING";
-    private static final String UPDATE = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
-    private static final String UPDATE_UNKNOWN_SOURCE = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
+    private static final String SELECT_BY_STREAM_ID_AND_SOURCE_SQL = "SELECT stream_id, position, source, component FROM stream_status WHERE stream_id=? AND component=? AND source in (?,'unknown') FOR UPDATE";
+    private static final String INSERT_SQL = "INSERT INTO stream_status (position, stream_id, source, component) VALUES (?, ?, ?, ?)";
+    private static final String INSERT_ON_CONFLICT_DO_NOTHING_SQL = INSERT_SQL + " ON CONFLICT DO NOTHING";
+    private static final String UPDATE_SQL = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
+    private static final String UPDATE_UNKNOWN_SOURCE_SQL = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
+    private static final String MARK_STREAM_AS_ERRORED_SQL = "UPDATE stream_status SET stream_error_id = ?, stream_error_position = ? WHERE stream_id = ?";
+    private static final String UNMARK_STREAM_AS_ERRORED_SQL = "UPDATE stream_status SET stream_error_id = NULL, stream_error_position = NULL WHERE stream_id = ?";
 
     @Inject
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
@@ -64,7 +70,7 @@ public class StreamStatusJdbcRepository {
      * @param subscription the status of the stream to insert
      */
     public void insert(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_SQL)) {
             ps.setLong(1, subscription.getPosition());
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
@@ -83,7 +89,7 @@ public class StreamStatusJdbcRepository {
      *
      */
     public void insertOrDoNothing(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING_SQL)) {
             ps.setLong(1, subscription.getPosition());
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
@@ -101,7 +107,7 @@ public class StreamStatusJdbcRepository {
      *
      */
     public void update(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_SQL)) {
             ps.setLong(1, subscription.getPosition());
             ps.setString(2, subscription.getSource());
             ps.setObject(3, subscription.getComponent());
@@ -122,7 +128,7 @@ public class StreamStatusJdbcRepository {
      * @return a {@link Subscription}.
      */
     public Optional<Subscription> findByStreamIdAndSource(final UUID streamId, final String source, final String component) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_BY_STREAM_ID_AND_SOURCE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_BY_STREAM_ID_AND_SOURCE_SQL)) {
             ps.setObject(1, streamId);
             ps.setObject(2, component);
             ps.setObject(3, source);
@@ -146,13 +152,45 @@ public class StreamStatusJdbcRepository {
     }
 
     public void updateSource(final UUID streamId, final String source, final String component) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_UNKNOWN_SOURCE)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_UNKNOWN_SOURCE_SQL)) {
             ps.setString(1, source);
             ps.setObject(2, component);
             ps.setObject(3, streamId);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while updating unknown source of the stream: %s", streamId), e);
+        }
+    }
+
+    @Transactional(REQUIRED)
+    public void markStreamAsErrored(final UUID streamId, final UUID streamErrorId, final Long positionInStream) {
+
+        try(final Connection connection = dataSource.getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement(MARK_STREAM_AS_ERRORED_SQL)) {
+
+            preparedStatement.setObject(1, streamErrorId);
+            preparedStatement.setLong(2, positionInStream);
+            preparedStatement.setObject(3, streamId);
+            preparedStatement.executeUpdate();
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(
+                    format("Failed to mark stream as errored in stream_status table. streamId: '%s', streamErrorId: '%s' positionInStream: %s",
+                            streamId,
+                            streamErrorId,
+                            positionInStream),
+                    e);
+        }
+    }
+
+    @Transactional(REQUIRED)
+    public void unmarkStreamAsErrored(final UUID streamId) {
+
+        try(final Connection connection = dataSource.getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
+            preparedStatement.setObject(1, streamId);
+            preparedStatement.executeUpdate();
+        } catch (final SQLException e) {
+            throw new JdbcRepositoryException(format("Failed to unmark stream as errored in stream_status table. streamId: '%s'", streamId), e);
         }
     }
 }

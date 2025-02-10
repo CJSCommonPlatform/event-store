@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="stream_buffer-008" author="TechPod"
+               logicalFilePath="liquibase/event-buffer-changesets/008-create-stream-error-table.changelog.xml">
+
+        <createTable tableName="stream_error">
+            <column name="id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_classname" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_message" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cause_classname" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="cause_message" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="java_classname" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="java_method" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="java_line_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stream_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="position_in_stream" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="full_stack_trace" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="stream_error" columnNames="id" constraintName="event_error_pkey"/>
+
+        <rollback>
+            <dropTable cascadeConstraints="true" tableName="stream_error"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

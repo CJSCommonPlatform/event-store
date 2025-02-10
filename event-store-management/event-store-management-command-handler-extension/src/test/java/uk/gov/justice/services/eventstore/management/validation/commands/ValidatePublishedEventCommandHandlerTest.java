@@ -15,7 +15,6 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.eventstore.management.CommandResult;
 import uk.gov.justice.services.eventstore.management.commands.ValidatePublishedEventsCommand;
 import uk.gov.justice.services.eventstore.management.validation.process.EventValidationProcess;
-import uk.gov.justice.services.jmx.api.parameters.JmxCommandRuntimeParameters;
 import uk.gov.justice.services.jmx.state.events.SystemCommandStateChangedEvent;
 
 import java.time.ZonedDateTime;

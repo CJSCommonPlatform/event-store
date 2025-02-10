@@ -52,7 +52,6 @@ import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueueReposit
 import uk.gov.justice.services.eventsourcing.repository.jdbc.PublishQueuesDataAccess;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventConverter;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.event.EventJdbcRepository;
-import uk.gov.justice.services.eventsourcing.repository.jdbc.event.PublishedEvent;
 import uk.gov.justice.services.eventsourcing.repository.jdbc.eventstream.EventStreamJdbcRepository;
 import uk.gov.justice.services.eventsourcing.source.core.EventAppender;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
@@ -68,9 +67,9 @@ import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEventSourc
 import uk.gov.justice.services.eventsourcing.source.core.SnapshotAwareEventSourceProducer;
 import uk.gov.justice.services.eventsourcing.source.core.SystemEventService;
 import uk.gov.justice.services.eventsourcing.source.core.exception.EventStreamException;
-import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.AsyncSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.DefaultSnapshotStrategy;
+import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.AsyncSnapshotService;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.SnapshotDeleterObserver;
 import uk.gov.justice.services.eventsourcing.source.core.snapshot.async.SnapshotSaverObserver;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
@@ -84,7 +83,6 @@ import uk.gov.justice.services.messaging.jms.JmsMessagingConfiguration;
 import uk.gov.justice.services.messaging.jms.OversizeMessageGuard;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 import uk.gov.justice.services.test.utils.core.messaging.Poller;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.services.test.utils.messaging.jms.DummyJmsEnvelopeSender;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.OpenEjbEventStoreDataSourceProvider;
@@ -111,6 +109,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
+
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.junit5.RunWithApplicationComposer;
 import org.apache.openejb.testing.Application;

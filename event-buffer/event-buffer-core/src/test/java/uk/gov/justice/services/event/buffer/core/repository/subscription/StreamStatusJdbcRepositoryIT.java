@@ -1,18 +1,31 @@
 package uk.gov.justice.services.event.buffer.core.repository.subscription;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
+import uk.gov.justice.services.common.util.UtcClock;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -22,6 +35,7 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 
 public class StreamStatusJdbcRepositoryIT {
 
@@ -178,7 +192,7 @@ public class StreamStatusJdbcRepositoryIT {
 
         streamStatusJdbcRepository.update(subscription);
         final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source3, EVENT_LISTENER);
-        assertThat(result, is(Optional.empty()));
+        assertThat(result, is(empty()));
     }
 
     @Test
@@ -227,7 +241,7 @@ public class StreamStatusJdbcRepositoryIT {
 
         streamStatusJdbcRepository.update(subscription);
         final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, newSource, EVENT_LISTENER);
-        assertThat(result, is(Optional.empty()));
+        assertThat(result, is(empty()));
     }
 
     private Subscription subscriptionOf(final UUID id, final Long version, final String source, final String component) {
@@ -269,4 +283,58 @@ public class StreamStatusJdbcRepositoryIT {
         return 0;
     }
 
+    @Test
+    public void shouldSetStreamErrorIdIntoStreamStatus() throws Exception {
+
+        final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
+        final DataSource viewStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
+        final StreamErrorRepository streamErrorRepository = new StreamErrorRepository();
+
+        final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
+
+        setField(streamErrorRepository, "viewStoreDataSourceProvider", viewStoreJdbcDataSourceProvider);
+
+        when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
+
+        final UUID streamId = randomUUID();
+        final UUID eventId = randomUUID();
+        final UUID streamErrorId = randomUUID();
+        final Long positionInStream = 23L;
+        final StreamError streamError = new StreamError(
+                streamErrorId,
+                "hash",
+                "some.exception.ClassName",
+                "some-exception-message",
+                empty(),
+                empty(),
+                "some.java.ClassName",
+                "someMethod",
+                23,
+                "events.context.some-event-name",
+                eventId,
+                streamId,
+                positionInStream,
+                new UtcClock().now(),
+                "stack-trace"
+        );
+
+        streamErrorRepository.save(streamError);
+
+        initialiseBuffer(streamId, "source1");
+        streamStatusJdbcRepository.markStreamAsErrored(streamId, streamErrorId, positionInStream);
+
+        try(final Connection connection = viewStoreDataSource.getConnection();
+            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT stream_error_id from stream_status WHERE stream_id = ?")) {
+
+            preparedStatement.setObject(1, streamId);
+
+            try(final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if(resultSet.next()) {
+                    assertThat(resultSet.getObject(1), is(streamErrorId));
+                } else {
+                   fail(format("Failed to find stream_error_id '%s' in stream_status table", streamErrorId));
+                }
+            }
+        }
+    }
 }

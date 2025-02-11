@@ -5,7 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.102.0-M1] - 2025-02-10
+## [17.102.0-M2] - 2025-02-10
 ### Changed
 - Bump version to 17.102.x
 - Optimised SnapshotJdbcRepository queries to fetch only required data

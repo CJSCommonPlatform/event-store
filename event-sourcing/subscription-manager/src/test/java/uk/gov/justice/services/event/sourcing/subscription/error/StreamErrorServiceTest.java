@@ -36,18 +36,27 @@ public class StreamErrorServiceTest {
         final UUID streamErrorId = randomUUID();
         final UUID streamId = randomUUID();
         final Long positionInStream = 98239847L;
+        final String componentName = "SOME_COMPONENT";
+        final String source = "some-source";
         final StreamError streamError = mock(StreamError.class);
 
         when(streamError.id()).thenReturn(streamErrorId);
         when(streamError.streamId()).thenReturn(streamId);
         when(streamError.positionInStream()).thenReturn(positionInStream);
+        when(streamError.componentName()).thenReturn(componentName);
+        when(streamError.source()).thenReturn(source);
 
         streamErrorService.markStreamAsErrored(streamError);
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository, streamErrorRepository);
-        inOrder.verify(streamStatusJdbcRepository).unmarkStreamAsErrored(streamId);
-        inOrder.verify(streamErrorRepository).removeAllErrorsForStream(streamId);
+        inOrder.verify(streamStatusJdbcRepository).unmarkStreamAsErrored(streamId, source, componentName);
+        inOrder.verify(streamErrorRepository).removeErrorForStream(streamId, source, componentName);
         inOrder.verify(streamErrorRepository).save(streamError);
-        inOrder.verify(streamStatusJdbcRepository).markStreamAsErrored(streamId, streamErrorId, positionInStream);
+        inOrder.verify(streamStatusJdbcRepository).markStreamAsErrored(
+                streamId,
+                streamErrorId,
+                positionInStream,
+                componentName,
+                source);
     }
 }

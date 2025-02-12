@@ -19,26 +19,7 @@ public record StreamError(
         UUID streamId,
         Long positionInStream,
         ZonedDateTime dateCreated,
-        String fullStackTrace) {
-
-    @Override
-    public String toString() {
-        return "StreamError{" +
-                "id=" + id +
-                ", hash='" + hash + '\'' +
-                ", exceptionClassName='" + exceptionClassName + '\'' +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", causeClassName=" + causeClassName +
-                ", causeMessage=" + causeMessage +
-                ", javaClassname='" + javaClassname + '\'' +
-                ", javaMethod='" + javaMethod + '\'' +
-                ", javaLineNumber=" + javaLineNumber +
-                ", eventName='" + eventName + '\'' +
-                ", eventId=" + eventId +
-                ", streamId=" + streamId +
-                ", positionInStream=" + positionInStream +
-                ", dateCreated=" + dateCreated +
-                ", fullStackTrace='" + fullStackTrace + '\'' +
-                '}';
-    }
+        String fullStackTrace,
+        String componentName,
+        String source) {
 }

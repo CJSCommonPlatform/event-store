@@ -39,9 +39,11 @@ public class StreamErrorRepository {
                 stream_id,
                 position_in_stream,
                 date_created,
-                full_stack_trace
+                full_stack_trace,
+                component_name,
+                source
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
     private static final String FIND_BY_ID_SQL = """
@@ -59,12 +61,14 @@ public class StreamErrorRepository {
                 stream_id,
                 position_in_stream,
                 date_created,
-                full_stack_trace
+                full_stack_trace,
+                component_name,
+                source
             FROM stream_error
             WHERE id = ?
             """;
 
-    private static final String REMOVE_ALL_FOR_STREAM_SQL = "DELETE FROM stream_error WHERE stream_id = ?";
+    private static final String REMOVE_ERROR_ON_STREAM_SQL = "DELETE FROM stream_error WHERE stream_id = ? AND source = ? AND component_name = ?";
 
     @Inject
     private ViewStoreJdbcDataSourceProvider viewStoreDataSourceProvider;
@@ -90,6 +94,8 @@ public class StreamErrorRepository {
             final Long positionInStream = streamError.positionInStream();
             final ZonedDateTime dateCreated = streamError.dateCreated();
             final String fullStackTrace = streamError.fullStackTrace();
+            final String componentName = streamError.componentName();
+            final String source = streamError.source();
 
             preparedStatement.setObject(1, id);
             preparedStatement.setString(2, hash);
@@ -106,6 +112,8 @@ public class StreamErrorRepository {
             preparedStatement.setLong(13, positionInStream);
             preparedStatement.setTimestamp(14, toSqlTimestamp(dateCreated));
             preparedStatement.setString(15, fullStackTrace);
+            preparedStatement.setString(16, componentName);
+            preparedStatement.setString(17, source);
 
             preparedStatement.executeUpdate();
 
@@ -139,6 +147,8 @@ public class StreamErrorRepository {
                     final Long positionInStream = resultSet.getLong("position_in_stream");
                     final ZonedDateTime dateCreated = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
                     final String fullStackTrace = resultSet.getString("full_stack_trace");
+                    final String componentName = resultSet.getString("component_name");;
+                    final String source = resultSet.getString("source");;
 
                     final StreamError streamError = new StreamError(
                             id,
@@ -155,7 +165,9 @@ public class StreamErrorRepository {
                             streamId,
                             positionInStream,
                             dateCreated,
-                            fullStackTrace
+                            fullStackTrace,
+                            componentName,
+                            source
                     );
 
                     return of(streamError);
@@ -169,11 +181,13 @@ public class StreamErrorRepository {
     }
     
     @Transactional(REQUIRED)
-    public int removeAllErrorsForStream(final UUID streamId) {
+    public int removeErrorForStream(final UUID streamId, final String source, final String componentName) {
 
         try (final Connection connection = viewStoreDataSourceProvider.getDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_ALL_FOR_STREAM_SQL)) {
+             final PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_ERROR_ON_STREAM_SQL)) {
             preparedStatement.setObject(1, streamId);
+            preparedStatement.setString(2, source);
+            preparedStatement.setString(3, componentName);
             return preparedStatement.executeUpdate();
         } catch (final SQLException e) {
             throw new StreamErrorHandlingException(format("Failed delete errors by stream id '%s' from 'stream_error' table", streamId), e);

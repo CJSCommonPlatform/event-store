@@ -41,6 +41,6 @@ public class DefaultSubscriptionManagerFactory {
                 interceptorContextProvider,
                 componentName);
 
-        return new DefaultSubscriptionManager(eventBufferProcessor, streamProcessingFailureHandler);
+        return new DefaultSubscriptionManager(eventBufferProcessor, streamProcessingFailureHandler, componentName);
     }
 }

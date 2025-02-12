@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,21 +23,21 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 public class DefaultSubscriptionManagerTest {
 
-    @Mock
-    private EventBufferProcessor eventBufferProcessor;
-
-    @Mock
-    private StreamProcessingFailureHandler streamProcessingFailureHandler;
-
-    @InjectMocks
-    private DefaultSubscriptionManager defaultSubscriptionManager;
+    private final String componentName = "SOME_COMPONENT";
+    private final EventBufferProcessor eventBufferProcessor = mock(EventBufferProcessor.class);
+    private final StreamProcessingFailureHandler streamProcessingFailureHandler = mock(StreamProcessingFailureHandler.class);
+    private DefaultSubscriptionManager defaultSubscriptionManager = new DefaultSubscriptionManager(
+            eventBufferProcessor,
+            streamProcessingFailureHandler,
+            componentName
+    );
 
     @Test
     public void shouldProcessWithEventBuffer() {
@@ -45,7 +46,9 @@ public class DefaultSubscriptionManagerTest {
 
         defaultSubscriptionManager.process(incomingJsonEnvelope);
 
-        verify(eventBufferProcessor).processWithEventBuffer(incomingJsonEnvelope);
+        final InOrder inOrder = inOrder(eventBufferProcessor, streamProcessingFailureHandler);
+        inOrder.verify(eventBufferProcessor).processWithEventBuffer(incomingJsonEnvelope);
+        inOrder.verify(streamProcessingFailureHandler).onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
     }
 
     @Test
@@ -72,7 +75,7 @@ public class DefaultSubscriptionManagerTest {
         assertThat(streamProcessingException.getCause(), is(nullPointerException));
         assertThat(streamProcessingException.getMessage(), is("Failed to process event. name: 'context.events.some-event', eventId: 'adab819c-4e57-4d58-bcba-e832d35121be, streamId: '0703f8b5-c003-47b2-ad20-f414e653e5f0'"));
 
-        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException);
+        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException, componentName);
     }
 
     @Test
@@ -100,6 +103,6 @@ public class DefaultSubscriptionManagerTest {
         assertThat(streamProcessingException.getCause(), is(nullPointerException));
         assertThat(streamProcessingException.getMessage(), is("Failed to process event. name: 'context.events.some-event', eventId: 'adab819c-4e57-4d58-bcba-e832d35121be, streamId: 'null'"));
 
-        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException);
+        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException, componentName);
     }
 }

@@ -22,7 +22,10 @@ public class StreamErrorConverter {
     @Inject
     private UtcClock clock;
 
-    public StreamError asStreamError(final ExceptionDetails exceptionDetails, final JsonEnvelope event) {
+    public StreamError asStreamError(
+            final ExceptionDetails exceptionDetails,
+            final JsonEnvelope event,
+            final String componentName) {
 
         final UUID id = randomUUID();
         final StackTraceElement stackTraceElement = exceptionDetails.stackTraceElements().get(0);
@@ -46,6 +49,8 @@ public class StreamErrorConverter {
                 .orElseThrow(() -> new MissingStreamIdException(format("No stream id found in event JsonEnvelope. Event name: '%s', eventId: '%s'", eventName, eventId)));
         final Long positionInStream = event.metadata().position()
                 .orElseThrow(() -> new MissingPoisitionInStreamException(format("No positionInStream found in event JsonEnvelope. Event name: '%s', eventId: '%s'", eventName, eventId)));
+        final String source = event.metadata().source()
+                .orElseThrow(() -> new MissingSourceException(format("No source found in event JsonEnvelope. Event name: '%s', eventId: '%s'", eventName, eventId)));
         final ZonedDateTime dateCreated = clock.now();
         final String fullStackTrace = exceptionDetails.fullStackTrace();
 
@@ -64,7 +69,9 @@ public class StreamErrorConverter {
                 streamId,
                 positionInStream,
                 dateCreated,
-                fullStackTrace
+                fullStackTrace,
+                componentName,
+                source
         );
     }
 }

@@ -27,6 +27,7 @@ public class BackwardsCompatibleSubscriptionManagerFactory {
         return new BackwardsCompatibleSubscriptionManager(
                 interceptorChainProcessor,
                 interceptorContextProvider,
-                streamProcessingFailureHandler);
+                streamProcessingFailureHandler,
+                componentName);
     }
 }

@@ -11,17 +11,39 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Optimised SnapshotJdbcRepository queries to fetch only required data
 ### Added
 - Error handling for event streams:
-  - New table `stream_error` in viewstore
-  - Exceptions thrown during event processing now stored in stream_error table
-  - New nullable column `stream_error_id` in stream status table with constraint on stream_error table
-  - New nullable column `stream_error_position` in stream status table
-  - Exception stacktraces are parsed to find entries into our code and stored in stream_error table
-  - New Interceptor `EntityManagerFlushInterceptor` for EVENT_LISTENER component that will always flush the Hibernate EntityManager to commit viewstore changes to the database
-  - New JNDI value `event.error.handling.enabled` with default value of `false` to enable/disable error handling for events
+    - New table `stream_error` in viewstore
+    - Exceptions thrown during event processing now stored in stream_error table
+    - New nullable column `stream_error_id` in stream status table with constraint on stream_error table
+    - New nullable column `stream_error_position` in stream status table
+    - Exception stacktraces are parsed to find entries into our code and stored in stream_error table
+    - New Interceptor `EntityManagerFlushInterceptor` for EVENT_LISTENER component that will always flush the Hibernate EntityManager to commit viewstore changes to the database
+    - New JNDI value `event.error.handling.enabled` with default value of `false` to enable/disable error handling for events
 
-## [17.101.2] - 2024-12-03
+## [17.101.5] - 2025-01-16
 ### Changed
-- Bump version to 17.101.0
+- Update microservice-framework to 17.101.6
+### Removed
+- Removed OWASP cross-site scripting check on html rest parameters introduced in microservice-framework release 17.6.1
+
+## [17.101.4] - 2025-01-09
+### Added
+- Add dependency for org.ow2.asm version 9.3 (through maven-common-bom)
+### Changed
+- Update microservice-framework to 17.101.5
+- Update framework-libraries to 17.101.2
+- Update maven-parent-pom to 17.101.0
+- Update postgresql.driver.version to 42.3.2 (through maven-parent-pom)
+- Update maven-common-bom to 17.101.1
+### Security
+- Update com.jayway.json-path to version 2.9.0 to fix **security vulnerability CWE-787**
+  Detail: https://cwe.mitre.org/data/definitions/787.html (through maven-common-bom)
+- Update commons.io to 2.18.0 to fix security vulnerability CVE-2024-47554
+  Detail: https://nvd.nist.gov/vuln/detail/CVE-2024-47554 and https://cwe.mitre.org/data/definitions/400.html
+
+## [17.101.3] - 2024-12-20
+### Changed
+- Bump microservice-framework to 17.101.4
+- Optimised SnapshotJdbcRepository queries to fetch only required data
 ### Added
 - Expose prometheus metrics through /internal/metrics/prometheus endpoint
 - Provide timerRegistrar bean to register timer with metricsRegistry

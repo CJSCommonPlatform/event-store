@@ -17,10 +17,15 @@ public class DefaultSubscriptionManager implements SubscriptionManager {
 
     private final EventBufferProcessor eventBufferProcessor;
     private final StreamProcessingFailureHandler streamProcessingFailureHandler;
+    private final String componentName;
 
-    public DefaultSubscriptionManager(final EventBufferProcessor eventBufferProcessor, final StreamProcessingFailureHandler streamProcessingFailureHandler) {
+    public DefaultSubscriptionManager(
+            final EventBufferProcessor eventBufferProcessor,
+            final StreamProcessingFailureHandler streamProcessingFailureHandler,
+            final String componentName) {
         this.eventBufferProcessor = eventBufferProcessor;
         this.streamProcessingFailureHandler = streamProcessingFailureHandler;
+        this.componentName = componentName;
     }
 
     @Transactional(REQUIRED)
@@ -29,13 +34,11 @@ public class DefaultSubscriptionManager implements SubscriptionManager {
     public void process(final JsonEnvelope incomingJsonEnvelope) {
         try {
             eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope);
+            streamProcessingFailureHandler.onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
         } catch (final Throwable e) {
-            streamProcessingFailureHandler.onStreamProcessingFailure(incomingJsonEnvelope, e);
+            streamProcessingFailureHandler.onStreamProcessingFailure(incomingJsonEnvelope, e, componentName);
             final Metadata metadata = incomingJsonEnvelope.metadata();
-            final String name = metadata.name();
-            final UUID id = metadata.id();
-            final UUID streamId = metadata.streamId().orElse(null);
-            throw new StreamProcessingException(format("Failed to process event. name: '%s', eventId: '%s, streamId: '%s'", name, id, streamId), e);
+            throw new StreamProcessingException(format("Failed to process event. name: '%s', eventId: '%s, streamId: '%s'", metadata.name(), metadata.id(), metadata.streamId().orElse(null)), e);
         }
     }
 }

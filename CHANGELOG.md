@@ -4,6 +4,12 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 [Semantic Versioning](http://semver.org/).
 
 ### [Unreleased]
+### Changed
+- Errors set into stream_status table are now `upserts` to handle the case where no stream yet exists in stream_status
+- Now only one error per stream is set into stream_error table
+- Streams are marked as errored in stream_status table using stream_id, source and component
+- `source` and `component` added to StreamError Object
+- Marking a stream as fixed in stream_status table now handles the case when no stream yet exists in stream_status
 
 ## [17.102.0-M2] - 2025-02-10
 ### Changed

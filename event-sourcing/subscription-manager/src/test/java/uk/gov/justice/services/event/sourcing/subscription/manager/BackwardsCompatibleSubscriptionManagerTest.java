@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,20 +35,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class BackwardsCompatibleSubscriptionManagerTest {
 
-    @Mock
-    private InterceptorChainProcessor interceptorChainProcessor;
-
-    @Mock
-    private InterceptorContextProvider interceptorContextProvider;
-
-    @Mock
-    private StreamProcessingFailureHandler streamProcessingFailureHandler;
+    private final String componentName = "SOME_COMPONENT";
+    private final InterceptorChainProcessor interceptorChainProcessor = mock(InterceptorChainProcessor.class);
+    private final InterceptorContextProvider interceptorContextProvider = mock(InterceptorContextProvider.class);
+    private final StreamProcessingFailureHandler streamProcessingFailureHandler = mock(StreamProcessingFailureHandler.class);
 
     @Captor
     private ArgumentCaptor<InterceptorContext> interceptorContextCaptor;
 
-    @InjectMocks
-    private BackwardsCompatibleSubscriptionManager backwardsCompatibleSubscriptionManager;
+    private BackwardsCompatibleSubscriptionManager backwardsCompatibleSubscriptionManager = new BackwardsCompatibleSubscriptionManager(
+            interceptorChainProcessor,
+            interceptorContextProvider,
+            streamProcessingFailureHandler,
+            componentName
+    );
 
     @SuppressWarnings("unchecked")
     @Test
@@ -59,7 +61,9 @@ public class BackwardsCompatibleSubscriptionManagerTest {
 
         backwardsCompatibleSubscriptionManager.process(incomingJsonEnvelope);
 
-        verify(interceptorChainProcessor).process(interceptorContextCaptor.capture());
+        final InOrder inOrder = inOrder(interceptorChainProcessor, streamProcessingFailureHandler);
+        inOrder.verify(interceptorChainProcessor).process(interceptorContextCaptor.capture());
+        inOrder.verify(streamProcessingFailureHandler).onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
 
         assertThat(interceptorContextCaptor.getValue(), is(interceptorContext));
     }
@@ -90,7 +94,7 @@ public class BackwardsCompatibleSubscriptionManagerTest {
         assertThat(streamProcessingException.getCause(), is(nullPointerException));
         assertThat(streamProcessingException.getMessage(), is("Failed to process event. name: 'context.events.some-event', eventId: 'adab819c-4e57-4d58-bcba-e832d35121be, streamId: '0703f8b5-c003-47b2-ad20-f414e653e5f0'"));
         
-        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException);
+        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException, componentName);
     }
 
     @Test
@@ -119,6 +123,6 @@ public class BackwardsCompatibleSubscriptionManagerTest {
         assertThat(streamProcessingException.getCause(), is(nullPointerException));
         assertThat(streamProcessingException.getMessage(), is("Failed to process event. name: 'context.events.some-event', eventId: 'adab819c-4e57-4d58-bcba-e832d35121be, streamId: 'null'"));
 
-        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException);
+        verify(streamProcessingFailureHandler).onStreamProcessingFailure(incomingJsonEnvelope, nullPointerException, componentName);
     }
 }

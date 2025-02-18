@@ -40,8 +40,21 @@ public class StreamStatusJdbcRepository {
     private static final String INSERT_ON_CONFLICT_DO_NOTHING_SQL = INSERT_SQL + " ON CONFLICT DO NOTHING";
     private static final String UPDATE_SQL = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
     private static final String UPDATE_UNKNOWN_SOURCE_SQL = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
-    private static final String MARK_STREAM_AS_ERRORED_SQL = "UPDATE stream_status SET stream_error_id = ?, stream_error_position = ? WHERE stream_id = ?";
-    private static final String UNMARK_STREAM_AS_ERRORED_SQL = "UPDATE stream_status SET stream_error_id = NULL, stream_error_position = NULL WHERE stream_id = ?";
+
+    final String UPSERT_STREAM_ERROR_SQL = """
+                INSERT INTO stream_status (
+                    stream_id,
+                    position,
+                    source,
+                    component,
+                    stream_error_id,
+                    stream_error_position)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (stream_id, source, component)
+                DO UPDATE
+                SET stream_error_id = ?, stream_error_position = ?""";
+
+    private static final long INITIAL_POSITION_ON_ERROR = 0L;
 
     @Inject
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
@@ -163,31 +176,53 @@ public class StreamStatusJdbcRepository {
     }
 
     @Transactional(REQUIRED)
-    public void markStreamAsErrored(final UUID streamId, final UUID streamErrorId, final Long positionInStream) {
+    public void markStreamAsErrored(
+            final UUID streamId,
+            final UUID streamErrorId,
+            final Long errorPosition,
+            final String componentName,
+            final String source) {
 
-        try(final Connection connection = dataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement(MARK_STREAM_AS_ERRORED_SQL)) {
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_STREAM_ERROR_SQL)) {
+            preparedStatement.setObject(1, streamId);
+            preparedStatement.setLong(2, INITIAL_POSITION_ON_ERROR);
+            preparedStatement.setString(3, source);
+            preparedStatement.setString(4, componentName);
+            preparedStatement.setObject(5, streamErrorId);
+            preparedStatement.setLong(6, errorPosition);
+            preparedStatement.setObject(7, streamErrorId);
+            preparedStatement.setLong(8, errorPosition);
 
-            preparedStatement.setObject(1, streamErrorId);
-            preparedStatement.setLong(2, positionInStream);
-            preparedStatement.setObject(3, streamId);
             preparedStatement.executeUpdate();
-        } catch (final SQLException e) {
+        }  catch (final SQLException e) {
             throw new JdbcRepositoryException(
-                    format("Failed to mark stream as errored in stream_status table. streamId: '%s', streamErrorId: '%s' positionInStream: %s",
+                    format("Failed to mark stream as errored in stream_status table. streamId: '%s', component: '%s', streamErrorId: '%s' positionInStream: %s",
                             streamId,
+                            componentName,
                             streamErrorId,
-                            positionInStream),
+                            errorPosition),
                     e);
         }
     }
 
     @Transactional(REQUIRED)
-    public void unmarkStreamAsErrored(final UUID streamId) {
+    public void unmarkStreamAsErrored(final UUID streamId, final String source, final String componentName) {
+
+        final String UNMARK_STREAM_AS_ERRORED_SQL = """
+            UPDATE stream_status
+            SET stream_error_id = NULL,
+                stream_error_position = NULL
+            WHERE stream_id = ?
+            AND source = ?
+            AND component = ?
+        """;
 
         try(final Connection connection = dataSource.getConnection();
             final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
             preparedStatement.setObject(1, streamId);
+            preparedStatement.setString(2, source);
+            preparedStatement.setString(3, componentName);
             preparedStatement.executeUpdate();
         } catch (final SQLException e) {
             throw new JdbcRepositoryException(format("Failed to unmark stream as errored in stream_status table. streamId: '%s'", streamId), e);

@@ -7,25 +7,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.setField;
 
-import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
-import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
-import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
-import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
-import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -35,7 +23,6 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 
 public class StreamStatusJdbcRepositoryIT {
 
@@ -57,11 +44,11 @@ public class StreamStatusJdbcRepositoryIT {
 
         streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory);
 
-        new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer");
+        new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer", "stream_error");
     }
 
     @Test
-    public void shouldNotCreateSeparateInitialSubscriptinForTheNewSourceWhenWeHaveExistingEventsForTheStream() throws Exception {
+    public void shouldNotCreateSeparateInitialSubscriptionForTheNewSourceWhenWeHaveExistingEventsForTheStream() throws Exception {
         final String source = "unknown";
         final UUID streamId = randomUUID();
 
@@ -121,7 +108,7 @@ public class StreamStatusJdbcRepositoryIT {
         final String source = "unknown";
         final UUID streamId = randomUUID();
 
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, source, EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, source, EVENT_LISTENER));
 
         final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
 
@@ -135,7 +122,7 @@ public class StreamStatusJdbcRepositoryIT {
     public void shouldUpdateSourceWhenNotUnknown() throws Exception {
         final UUID streamId = randomUUID();
 
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "unknown", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "unknown", EVENT_LISTENER));
 
         final String source = "sjp";
         final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
@@ -152,7 +139,7 @@ public class StreamStatusJdbcRepositoryIT {
         final long version = 4L;
         final String source = "source";
 
-        streamStatusJdbcRepository.insert(subscriptionOf(id, version, source, EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(id, version, source, EVENT_LISTENER));
 
         final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, source, EVENT_LISTENER);
         assertTrue(result.isPresent());
@@ -170,10 +157,10 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldUpdateVersionForSameStreamIdWithMultipleSources() throws Exception {
         final UUID id = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 4", EVENT_LISTENER));
-        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 4", EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(id, 4L, "source 5", EVENT_LISTENER));
-        streamStatusJdbcRepository.update(subscriptionOf(id, 5L, "source 5", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(id, 4L, "source 4", EVENT_LISTENER));
+        streamStatusJdbcRepository.update(new Subscription(id, 5L, "source 4", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(id, 4L, "source 5", EVENT_LISTENER));
+        streamStatusJdbcRepository.update(new Subscription(id, 5L, "source 5", EVENT_LISTENER));
 
         final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(id, "source 5", EVENT_LISTENER);
         assertTrue(result.isPresent());
@@ -185,7 +172,7 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldNotUpdateVersionForANewSourceField() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source2", EVENT_LISTENER));
 
         final String source3 = "source3";
         final Subscription subscription = new Subscription(streamId, 1L, source3, EVENT_LISTENER);
@@ -199,8 +186,8 @@ public class StreamStatusJdbcRepositoryIT {
     public void shouldUpdateVersionForAnExistingSourceField() throws Exception {
         final UUID streamId = randomUUID();
         final String source3 = "source3";
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 4L, source3, EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source4", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 4L, source3, EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source4", EVENT_LISTENER));
 
         final Subscription subscription = new Subscription(streamId, 5L, source3, EVENT_LISTENER);
 
@@ -215,9 +202,9 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldUpdateNewVersionNumberForExistingSourceWhenMultipleSourceEventsExist() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1", EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source1", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source2", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 2L, "source3", EVENT_LISTENER));
 
         final String existingSource = "source2";
         final Subscription subscription = new Subscription(streamId, 2L, existingSource, EVENT_LISTENER);
@@ -232,9 +219,9 @@ public class StreamStatusJdbcRepositoryIT {
     @Test
     public void shouldNotUpdateNewVersionNumberForNewSourceWhenMultipleSourceEventsExist() throws Exception {
         final UUID streamId = randomUUID();
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source1", EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 1L, "source2", EVENT_LISTENER));
-        streamStatusJdbcRepository.insert(subscriptionOf(streamId, 2L, "source3", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source1", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 1L, "source2", EVENT_LISTENER));
+        streamStatusJdbcRepository.insert(new Subscription(streamId, 2L, "source3", EVENT_LISTENER));
 
         final String newSource = "source4";
         final Subscription subscription = new Subscription(streamId, 1L, newSource, EVENT_LISTENER);
@@ -242,26 +229,6 @@ public class StreamStatusJdbcRepositoryIT {
         streamStatusJdbcRepository.update(subscription);
         final Optional<Subscription> result = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, newSource, EVENT_LISTENER);
         assertThat(result, is(empty()));
-    }
-
-    private Subscription subscriptionOf(final UUID id, final Long version, final String source, final String component) {
-        return new Subscription(id, version, source, component);
-    }
-
-    private long initialiseBuffer(final UUID streamId, final String source) {
-        streamStatusJdbcRepository.updateSource(streamId, source, EVENT_LISTENER);
-        final Optional<Subscription> currentStatus = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
-
-        if (!currentStatus.isPresent()) {
-            //this is to address race condition
-            //in case of primary key violation the exception gets thrown, event goes back into topic and the transaction gets retried
-            streamStatusJdbcRepository
-                    .insert(new Subscription(streamId, INITIAL_POSITION, source, EVENT_LISTENER));
-            return INITIAL_POSITION;
-
-        } else {
-            return currentStatus.get().getPosition();
-        }
     }
 
     /**
@@ -283,58 +250,19 @@ public class StreamStatusJdbcRepositoryIT {
         return 0;
     }
 
-    @Test
-    public void shouldSetStreamErrorIdIntoStreamStatus() throws Exception {
+    private long initialiseBuffer(final UUID streamId, final String source) {
+        streamStatusJdbcRepository.updateSource(streamId, source, EVENT_LISTENER);
+        final Optional<Subscription> currentStatus = streamStatusJdbcRepository.findByStreamIdAndSource(streamId, source, EVENT_LISTENER);
 
-        final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
-        final DataSource viewStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
-        final StreamErrorRepository streamErrorRepository = new StreamErrorRepository();
+        if (!currentStatus.isPresent()) {
+            //this is to address race condition
+            //in case of primary key violation the exception gets thrown, event goes back into topic and the transaction gets retried
+            streamStatusJdbcRepository
+                    .insert(new Subscription(streamId, INITIAL_POSITION, source, EVENT_LISTENER));
+            return INITIAL_POSITION;
 
-        final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
-
-        setField(streamErrorRepository, "viewStoreDataSourceProvider", viewStoreJdbcDataSourceProvider);
-
-        when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
-
-        final UUID streamId = randomUUID();
-        final UUID eventId = randomUUID();
-        final UUID streamErrorId = randomUUID();
-        final Long positionInStream = 23L;
-        final StreamError streamError = new StreamError(
-                streamErrorId,
-                "hash",
-                "some.exception.ClassName",
-                "some-exception-message",
-                empty(),
-                empty(),
-                "some.java.ClassName",
-                "someMethod",
-                23,
-                "events.context.some-event-name",
-                eventId,
-                streamId,
-                positionInStream,
-                new UtcClock().now(),
-                "stack-trace"
-        );
-
-        streamErrorRepository.save(streamError);
-
-        initialiseBuffer(streamId, "source1");
-        streamStatusJdbcRepository.markStreamAsErrored(streamId, streamErrorId, positionInStream);
-
-        try(final Connection connection = viewStoreDataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT stream_error_id from stream_status WHERE stream_id = ?")) {
-
-            preparedStatement.setObject(1, streamId);
-
-            try(final ResultSet resultSet = preparedStatement.executeQuery()) {
-                if(resultSet.next()) {
-                    assertThat(resultSet.getObject(1), is(streamErrorId));
-                } else {
-                   fail(format("Failed to find stream_error_id '%s' in stream_status table", streamErrorId));
-                }
-            }
+        } else {
+            return currentStatus.get().getPosition();
         }
     }
 }

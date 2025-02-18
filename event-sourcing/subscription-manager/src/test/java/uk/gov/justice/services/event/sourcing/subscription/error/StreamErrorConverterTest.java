@@ -44,6 +44,8 @@ public class StreamErrorConverterTest {
 
         final NullPointerException causeException = new NullPointerException("Ooops");
         final RuntimeException exception = new RuntimeException("Something went wrogn", causeException);
+        final String componentName = "SOME_COMPONENT";
+        final String source = "usersgroups";
 
         final String fullStackTrace = "Full stack trace";
         final String javaClassName = "uk.gov.justice.eventbuffer.core.error.SomeFailingJavaClass";
@@ -80,12 +82,13 @@ public class StreamErrorConverterTest {
         when(metadata.id()).thenReturn(eventId);
         when(metadata.streamId()).thenReturn(of(streamId));
         when(metadata.position()).thenReturn(of(positionInStream));
+        when(metadata.source()).thenReturn(of(source));
 
         when(earliestStackTraceElement.getClassName()).thenReturn(javaClassName);
         when(earliestStackTraceElement.getMethodName()).thenReturn(methodName);
         when(earliestStackTraceElement.getLineNumber()).thenReturn(lineNumber);
 
-        final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event);
+        final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event, componentName);
 
         assertThat(streamError.id(), is(instanceOf(UUID.class)));
         assertThat(streamError.eventName(), is(eventName));
@@ -101,6 +104,8 @@ public class StreamErrorConverterTest {
         assertThat(streamError.javaMethod(), is(methodName));
         assertThat(streamError.javaLineNumber(), is(lineNumber));
         assertThat(streamError.fullStackTrace(), is(fullStackTrace));
+        assertThat(streamError.componentName(), is(componentName));
+        assertThat(streamError.source(), is(source));
     }
 
     @Test
@@ -108,10 +113,12 @@ public class StreamErrorConverterTest {
 
         final RuntimeException exception = new RuntimeException("Something went wrogn");
 
+        final String componentName = "SOME_COMPONENT";
         final String fullStackTrace = "Full stack trace";
         final String javaClassName = "uk.gov.justice.eventbuffer.core.error.SomeFailingJavaClass";
         final String methodName = "someJavaMethod";
         final int lineNumber = 234;
+        final String source = "some-source";
 
         final String hash = "kshdkfhkjsdfhkjsdhfkj";
         final ZonedDateTime dateCreated = new UtcClock().now();
@@ -143,12 +150,13 @@ public class StreamErrorConverterTest {
         when(metadata.id()).thenReturn(eventId);
         when(metadata.streamId()).thenReturn(of(streamId));
         when(metadata.position()).thenReturn(of(positionInStream));
+        when(metadata.source()).thenReturn(of(source));
 
         when(earliestStackTraceElement.getClassName()).thenReturn(javaClassName);
         when(earliestStackTraceElement.getMethodName()).thenReturn(methodName);
         when(earliestStackTraceElement.getLineNumber()).thenReturn(lineNumber);
 
-        final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event);
+        final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event, componentName);
 
         assertThat(streamError.id(), is(instanceOf(UUID.class)));
         assertThat(streamError.eventName(), is(eventName));
@@ -164,6 +172,7 @@ public class StreamErrorConverterTest {
         assertThat(streamError.javaMethod(), is(methodName));
         assertThat(streamError.javaLineNumber(), is(lineNumber));
         assertThat(streamError.fullStackTrace(), is(fullStackTrace));
+        assertThat(streamError.componentName(), is(componentName));
     }
 
     @Test
@@ -172,6 +181,7 @@ public class StreamErrorConverterTest {
         final NullPointerException causeException = new NullPointerException("Ooops");
         final RuntimeException exception = new RuntimeException("Something went wrogn", causeException);
 
+        final String componentName = "SOME_COMPONENT";
         final String fullStackTrace = "Full stack trace";
         final String javaClassName = "uk.gov.justice.eventbuffer.core.error.SomeFailingJavaClass";
         final String methodName = "someJavaMethod";
@@ -210,7 +220,7 @@ public class StreamErrorConverterTest {
 
         final MissingStreamIdException missingStreamIdException = assertThrows(
                 MissingStreamIdException.class,
-                () -> streamErrorConverter.asStreamError(exceptionDetails, event));
+                () -> streamErrorConverter.asStreamError(exceptionDetails, event, componentName));
 
         assertThat(missingStreamIdException.getMessage(), is("No stream id found in event JsonEnvelope. Event name: 'context.events.something.happened', eventId: '74a2b139-cba7-4430-b200-b322c3729b1f'"));
     }
@@ -221,6 +231,7 @@ public class StreamErrorConverterTest {
         final NullPointerException causeException = new NullPointerException("Ooops");
         final RuntimeException exception = new RuntimeException("Something went wrogn", causeException);
 
+        final String componentName = "SOME_COMPONENT";
         final String fullStackTrace = "Full stack trace";
         final String javaClassName = "uk.gov.justice.eventbuffer.core.error.SomeFailingJavaClass";
         final String methodName = "someJavaMethod";
@@ -260,7 +271,7 @@ public class StreamErrorConverterTest {
 
         final MissingPoisitionInStreamException missingPoisitionInStreamException = assertThrows(
                 MissingPoisitionInStreamException.class,
-                () -> streamErrorConverter.asStreamError(exceptionDetails, event));
+                () -> streamErrorConverter.asStreamError(exceptionDetails, event, componentName));
 
         assertThat(missingPoisitionInStreamException.getMessage(), is("No positionInStream found in event JsonEnvelope. Event name: 'context.events.something.happened', eventId: '7de6f031-8d1e-4e3b-9f03-112a9af80690'"));
     }

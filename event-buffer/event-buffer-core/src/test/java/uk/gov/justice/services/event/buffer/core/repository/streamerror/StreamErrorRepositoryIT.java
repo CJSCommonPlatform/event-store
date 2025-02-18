@@ -40,12 +40,14 @@ public class StreamErrorRepositoryIT {
         final DataSource viewStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 
+        final String source = "some-source";
+        final String componentName = "SOME_COMPONENT";
         final UUID id = randomUUID();
         final UUID streamId = randomUUID();
         final Optional<String> causeClassName = of("uk.gov.justice.services.SomeCauseException");
         final Optional<String> causeMessage = of("Oh no!");
 
-        final StreamError streamError = aStreamError(id, streamId, causeClassName, causeMessage);
+        final StreamError streamError = aStreamError(id, streamId, causeClassName, causeMessage, source, componentName);
         streamErrorRepository.save(streamError);
 
         final Optional<StreamError> persistableEventErrorOptional = streamErrorRepository.findBy(id);
@@ -68,25 +70,29 @@ public class StreamErrorRepositoryIT {
         assertThat(foundStreamError.streamId(), is(streamError.streamId()));
         assertThat(foundStreamError.dateCreated(), is(streamError.dateCreated()));
         assertThat(foundStreamError.fullStackTrace(), is(streamError.fullStackTrace()));
+        assertThat(foundStreamError.componentName(), is(streamError.componentName()));
+        assertThat(foundStreamError.source(), is(streamError.source()));
     }
 
     @Test
     public void shouldHandleMissingCauseExceptionAndMessage() throws Exception {
 
+        final String source = "some-source";
+        final String componentName = "SOME_COMPONENT";
         final UUID id = randomUUID();
         final UUID streamId = randomUUID();
 
         final DataSource viewStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 
-        final StreamError streamError = aStreamError(id, streamId, empty(), empty());
+        final StreamError streamError = aStreamError(id, streamId, empty(), empty(), source, componentName);
         streamErrorRepository.save(streamError);
 
-        final Optional<StreamError> persistableEventErrorOptional = streamErrorRepository.findBy(id);
+        final Optional<StreamError> streamErrorOptional = streamErrorRepository.findBy(id);
 
-        assertThat(persistableEventErrorOptional.isPresent(), is(true));
+        assertThat(streamErrorOptional.isPresent(), is(true));
 
-        final StreamError foundStreamError = persistableEventErrorOptional.get();
+        final StreamError foundStreamError = streamErrorOptional.get();
 
         assertThat(foundStreamError.id(), is(id));
         assertThat(foundStreamError.hash(), is(streamError.hash()));
@@ -103,11 +109,16 @@ public class StreamErrorRepositoryIT {
         assertThat(foundStreamError.positionInStream(), is(streamError.positionInStream()));
         assertThat(foundStreamError.dateCreated(), is(streamError.dateCreated()));
         assertThat(foundStreamError.fullStackTrace(), is(streamError.fullStackTrace()));
+        assertThat(foundStreamError.componentName(), is(streamError.componentName()));
     }
 
     @Test
     public void shouldDeleteAllByStreamId() throws Exception {
 
+        final String componentName_1 = "SOME_COMPONENT_1";
+        final String componentName_2 = "SOME_COMPONENT_2";
+        final String source_1 = "some-source_1";
+        final String source_2 = "some-source_2";
         final UUID id_1 = randomUUID();
         final UUID id_2 = randomUUID();
         final UUID id_3 = randomUUID();
@@ -116,10 +127,10 @@ public class StreamErrorRepositoryIT {
         final UUID streamId = randomUUID();
         final UUID streamToDeleteId = randomUUID();
 
-        final StreamError streamError_1 = aStreamError(id_1, streamToDeleteId, empty(), empty());
-        final StreamError streamError_2 = aStreamError(id_2, streamId, empty(), empty());
-        final StreamError streamError_3 = aStreamError(id_3, streamToDeleteId, empty(), empty());
-        final StreamError streamError_4 = aStreamError(id_4, streamId, empty(), empty());
+        final StreamError streamError_1 = aStreamError(id_1, streamToDeleteId, empty(), empty(), source_1, componentName_1);
+        final StreamError streamError_2 = aStreamError(id_2, streamId, empty(), empty(), source_1, componentName_2);
+        final StreamError streamError_3 = aStreamError(id_3, streamToDeleteId, empty(), empty(), source_2, componentName_2);
+        final StreamError streamError_4 = aStreamError(id_4, streamId, empty(), empty(), source_1, componentName_1);
 
         final DataSource viewStoreDataSource = testJdbcDataSourceProvider.getViewStoreDataSource("framework");
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
@@ -134,11 +145,11 @@ public class StreamErrorRepositoryIT {
         assertThat(streamErrorRepository.findBy(id_3).isPresent(), is(true));
         assertThat(streamErrorRepository.findBy(id_4).isPresent(), is(true));
 
-        final int numberOfErrorsDeleted = streamErrorRepository.removeAllErrorsForStream(streamToDeleteId);
+        final int numberOfErrorsDeleted = streamErrorRepository.removeErrorForStream(streamToDeleteId,  source_2, componentName_2);
 
-        assertThat(numberOfErrorsDeleted, is(2));
+        assertThat(numberOfErrorsDeleted, is(1));
 
-        assertThat(streamErrorRepository.findBy(id_1).isPresent(), is(false));
+        assertThat(streamErrorRepository.findBy(id_1).isPresent(), is(true));
         assertThat(streamErrorRepository.findBy(id_2).isPresent(), is(true));
         assertThat(streamErrorRepository.findBy(id_3).isPresent(), is(false));
         assertThat(streamErrorRepository.findBy(id_4).isPresent(), is(true));
@@ -148,7 +159,9 @@ public class StreamErrorRepositoryIT {
             final UUID id,
             final UUID streamId,
             final Optional<String> causeClassName,
-            final Optional<String> causeMessage) {
+            final Optional<String> causeMessage,
+            final String source,
+            final String componentName) {
         final String hash = "576b975aff05b7f2b4a1f7b26eb47aa5";
         final String exceptionClassName = "uk.gov.justice.SomeException";
         final String exceptionMessage = "We're all going to die";
@@ -159,7 +172,6 @@ public class StreamErrorRepositoryIT {
         final UUID eventId = randomUUID();
         final ZonedDateTime dateCreated = new UtcClock().now();
         final String fullStackTrace = "the full stack trace";
-
         return new StreamError(
                 id,
                 hash,
@@ -175,6 +187,8 @@ public class StreamErrorRepositoryIT {
                 streamId,
                 23873624L,
                 dateCreated,
-                fullStackTrace);
+                fullStackTrace,
+                componentName,
+                source);
     }
 }

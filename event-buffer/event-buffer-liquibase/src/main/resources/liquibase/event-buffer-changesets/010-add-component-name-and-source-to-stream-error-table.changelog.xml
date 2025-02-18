@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="stream_buffer-010" author="TechPod"
+               logicalFilePath="liquibase/event-buffer-changesets/010-add-component-name-and-source-to-stream-error-table.changelog.xml">
+
+        <addColumn tableName="stream_error">
+            <column name="component_name" type="varchar(100)">
+            <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="stream_error">
+            <column name="source" type="varchar(100)">
+            <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="stream_error" columnName="component_name"/>
+            <dropColumn tableName="stream_error" columnName="source"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

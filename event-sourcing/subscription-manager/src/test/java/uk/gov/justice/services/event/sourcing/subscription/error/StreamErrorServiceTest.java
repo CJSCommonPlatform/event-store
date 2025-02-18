@@ -59,4 +59,18 @@ public class StreamErrorServiceTest {
                 componentName,
                 source);
     }
+
+    @Test
+    public void shouldMarkStreamAsFixed() throws Exception {
+
+        final UUID streamId = randomUUID();
+        final String componentName = "SOME_COMPONENT";
+        final String source = "some-source";
+
+        streamErrorService.markStreamAsFixed(streamId, source, componentName);
+
+        final InOrder inOrder = inOrder(streamStatusJdbcRepository, streamErrorRepository);
+        inOrder.verify(streamStatusJdbcRepository).unmarkStreamAsErrored(streamId, source, componentName);
+        inOrder.verify(streamErrorRepository).removeErrorForStream(streamId, source, componentName);
+    }
 }

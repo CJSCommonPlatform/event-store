@@ -5,6 +5,8 @@ import static java.util.UUID.randomUUID;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHash;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingStreamIdException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
@@ -54,16 +56,20 @@ public class StreamErrorConverter {
         final ZonedDateTime dateCreated = clock.now();
         final String fullStackTrace = exceptionDetails.fullStackTrace();
 
-        return new StreamError(
-                id,
+        final StreamErrorHash streamErrorHash = new StreamErrorHash(
                 hash,
                 exceptionClassName,
-                exceptionMessage,
                 causeClassName,
-                causeMessage,
                 javaClassname,
                 javaMethod,
-                javaLineNumber,
+                javaLineNumber
+        );
+
+        final StreamErrorDetails streamErrorDetails = new StreamErrorDetails(
+                id,
+                hash,
+                exceptionMessage,
+                causeMessage,
                 eventName,
                 eventId,
                 streamId,
@@ -73,5 +79,7 @@ public class StreamErrorConverter {
                 componentName,
                 source
         );
+
+        return new StreamError(streamErrorDetails, streamErrorHash);
     }
 }

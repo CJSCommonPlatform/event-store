@@ -12,6 +12,10 @@ import static uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil.
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetailsPersistence;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHash;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHashPersistence;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
@@ -26,6 +30,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +59,12 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
         final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 
+        final StreamErrorHashPersistence streamErrorHashPersistence = new StreamErrorHashPersistence();
+        final StreamErrorDetailsPersistence streamErrorDetailsPersistence = new StreamErrorDetailsPersistence();
+
         setField(streamErrorRepository, "viewStoreDataSourceProvider", viewStoreJdbcDataSourceProvider);
+        setField(streamErrorRepository, "streamErrorDetailsPersistence", streamErrorDetailsPersistence);
+        setField(streamErrorRepository, "streamErrorHashPersistence", streamErrorHashPersistence);
     }
 
     @Test
@@ -165,16 +175,22 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
             final Long positionInStream,
             final String componentName,
             final String source) {
-        return new StreamError(
-                streamErrorId,
-                "hash",
+
+        final String hash = "9374874397kjshdkfjhsdf";
+        final StreamErrorHash streamErrorHash = new StreamErrorHash(
+                hash,
                 "some.exception.ClassName",
-                "some-exception-message",
-                empty(),
                 empty(),
                 "some.java.ClassName",
                 "someMethod",
-                2334,
+                2334
+        );
+
+        final StreamErrorDetails streamErrorDetails = new StreamErrorDetails(
+                streamErrorId,
+                hash,
+                "some-exception-message",
+                empty(),
                 "events.context.some-event-name",
                 eventId,
                 streamId,
@@ -183,6 +199,11 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
                 "stack-trace",
                 componentName,
                 source
+        );
+
+        return new StreamError(
+                streamErrorDetails,
+                streamErrorHash
         );
     }
 

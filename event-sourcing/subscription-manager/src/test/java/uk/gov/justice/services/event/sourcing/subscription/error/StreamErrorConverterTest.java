@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHash;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingStreamIdException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
@@ -89,23 +91,28 @@ public class StreamErrorConverterTest {
         when(earliestStackTraceElement.getLineNumber()).thenReturn(lineNumber);
 
         final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event, componentName);
+        final StreamErrorDetails streamErrorDetails = streamError.streamErrorDetails();
 
-        assertThat(streamError.id(), is(instanceOf(UUID.class)));
-        assertThat(streamError.eventName(), is(eventName));
-        assertThat(streamError.eventId(), is(eventId));
-        assertThat(streamError.streamId(), is(streamId));
-        assertThat(streamError.positionInStream(), is(positionInStream));
-        assertThat(streamError.dateCreated(), is(dateCreated));
-        assertThat(streamError.exceptionClassName(), is(exception.getClass().getName()));
-        assertThat(streamError.exceptionMessage(), is("Something went wrogn"));
-        assertThat(streamError.causeClassName(), is(of(causeException.getClass().getName())));
-        assertThat(streamError.causeMessage(), is(of("Ooops")));
-        assertThat(streamError.javaClassname(), is(javaClassName));
-        assertThat(streamError.javaMethod(), is(methodName));
-        assertThat(streamError.javaLineNumber(), is(lineNumber));
-        assertThat(streamError.fullStackTrace(), is(fullStackTrace));
-        assertThat(streamError.componentName(), is(componentName));
-        assertThat(streamError.source(), is(source));
+        assertThat(streamErrorDetails.id(), is(instanceOf(UUID.class)));
+        assertThat(streamErrorDetails.eventName(), is(eventName));
+        assertThat(streamErrorDetails.eventId(), is(eventId));
+        assertThat(streamErrorDetails.streamId(), is(streamId));
+        assertThat(streamErrorDetails.positionInStream(), is(positionInStream));
+        assertThat(streamErrorDetails.dateCreated(), is(dateCreated));
+        assertThat(streamErrorDetails.exceptionMessage(), is("Something went wrogn"));
+        assertThat(streamErrorDetails.causeMessage(), is(of("Ooops")));
+        assertThat(streamErrorDetails.fullStackTrace(), is(fullStackTrace));
+        assertThat(streamErrorDetails.componentName(), is(componentName));
+        assertThat(streamErrorDetails.source(), is(source));
+
+        final StreamErrorHash streamErrorHash = streamError.streamErrorHash();
+
+        assertThat(streamErrorHash.hash(), is(hash));
+        assertThat(streamErrorHash.exceptionClassName(), is(exception.getClass().getName()));
+        assertThat(streamErrorHash.causeClassName(), is(of(causeException.getClass().getName())));
+        assertThat(streamErrorHash.javaClassName(), is(javaClassName));
+        assertThat(streamErrorHash.javaMethod(), is(methodName));
+        assertThat(streamErrorHash.javaLineNumber(), is(lineNumber));
     }
 
     @Test
@@ -158,21 +165,27 @@ public class StreamErrorConverterTest {
 
         final StreamError streamError = streamErrorConverter.asStreamError(exceptionDetails, event, componentName);
 
-        assertThat(streamError.id(), is(instanceOf(UUID.class)));
-        assertThat(streamError.eventName(), is(eventName));
-        assertThat(streamError.eventId(), is(eventId));
-        assertThat(streamError.streamId(), is(streamId));
-        assertThat(streamError.positionInStream(), is(positionInStream));
-        assertThat(streamError.dateCreated(), is(dateCreated));
-        assertThat(streamError.exceptionClassName(), is(exception.getClass().getName()));
-        assertThat(streamError.exceptionMessage(), is("Something went wrogn"));
-        assertThat(streamError.causeClassName(), is(empty()));
-        assertThat(streamError.causeMessage(), is(empty()));
-        assertThat(streamError.javaClassname(), is(javaClassName));
-        assertThat(streamError.javaMethod(), is(methodName));
-        assertThat(streamError.javaLineNumber(), is(lineNumber));
-        assertThat(streamError.fullStackTrace(), is(fullStackTrace));
-        assertThat(streamError.componentName(), is(componentName));
+        final StreamErrorDetails streamErrorDetails = streamError.streamErrorDetails();
+
+        assertThat(streamErrorDetails.id(), is(instanceOf(UUID.class)));
+        assertThat(streamErrorDetails.eventName(), is(eventName));
+        assertThat(streamErrorDetails.eventId(), is(eventId));
+        assertThat(streamErrorDetails.streamId(), is(streamId));
+        assertThat(streamErrorDetails.positionInStream(), is(positionInStream));
+        assertThat(streamErrorDetails.dateCreated(), is(dateCreated));
+        assertThat(streamErrorDetails.exceptionMessage(), is("Something went wrogn"));
+        assertThat(streamErrorDetails.causeMessage(), is(empty()));
+        assertThat(streamErrorDetails.fullStackTrace(), is(fullStackTrace));
+        assertThat(streamErrorDetails.componentName(), is(componentName));
+
+        final StreamErrorHash streamErrorHash = streamError.streamErrorHash();
+
+        assertThat(streamErrorHash.hash(), is(hash));
+        assertThat(streamErrorHash.exceptionClassName(), is(exception.getClass().getName()));
+        assertThat(streamErrorHash.causeClassName(), is(empty()));
+        assertThat(streamErrorHash.javaClassName(), is(javaClassName));
+        assertThat(streamErrorHash.javaMethod(), is(methodName));
+        assertThat(streamErrorHash.javaLineNumber(), is(lineNumber));
     }
 
     @Test

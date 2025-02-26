@@ -4,6 +4,7 @@ import static javax.transaction.Transactional.TxType.REQUIRED;
 import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
 import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
 
@@ -23,11 +24,13 @@ public class StreamErrorService {
     @Transactional(REQUIRES_NEW)
     public void markStreamAsErrored(final StreamError streamError) {
 
-        final UUID streamId = streamError.streamId();
-        final UUID streamErrorId = streamError.id();
-        final Long positionInStream = streamError.positionInStream();
-        final String componentName = streamError.componentName();
-        final String source = streamError.source();
+        final StreamErrorDetails streamErrorDetails = streamError.streamErrorDetails();
+
+        final UUID streamId = streamErrorDetails.streamId();
+        final UUID streamErrorId = streamErrorDetails.id();
+        final Long positionInStream = streamErrorDetails.positionInStream();
+        final String componentName = streamErrorDetails.componentName();
+        final String source = streamErrorDetails.source();
 
         streamStatusJdbcRepository.unmarkStreamAsErrored(streamId, source, componentName);
         streamErrorRepository.removeErrorForStream(streamId, source, componentName);

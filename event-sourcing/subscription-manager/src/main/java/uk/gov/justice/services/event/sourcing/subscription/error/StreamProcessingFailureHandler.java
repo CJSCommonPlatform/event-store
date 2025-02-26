@@ -4,11 +4,11 @@ import static java.lang.String.format;
 
 import uk.gov.justice.services.common.configuration.errors.event.EventErrorHandlingConfiguration;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
 import uk.gov.justice.services.eventsourcing.source.api.streams.MissingStreamIdException;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;

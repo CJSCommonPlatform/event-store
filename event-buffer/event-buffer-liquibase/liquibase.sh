@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
 CONTEXT_NAME=framework
-EVENT_STORE_VERSION=17.102.0-M3-SNAPSHOT
+EVENT_STORE_VERSION=17.102.0-M4-SNAPSHOT
 
 #fail script on error
 set -e
 
 LIQUIBASE_COMMAND=update
 #LIQUIBASE_COMMAND=dropAll
-
 
 function runEventBufferLiquibase() {
     echo "running EventBufferLiquibase"

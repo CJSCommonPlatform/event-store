@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="stream_buffer-011" author="TechPod"
+               logicalFilePath="liquibase/event-buffer-changesets/011-add-stream-error-hash-table.changelog.xml">
+
+        <createTable tableName="stream_error_hash">
+            <column name="hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exception_classname" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cause_classname" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="java_classname" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="java_method" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="java_line_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="stream_error_hash" columnNames="hash"
+                       constraintName="stream_error_hash_pkey"/>
+
+        <addForeignKeyConstraint
+                baseTableName="stream_error"
+                baseColumnNames="hash"
+                constraintName="stream_error_to_stream_error_hash_fk"
+                referencedTableName="stream_error_hash"
+                referencedColumnNames="hash"/>
+
+        <dropColumn tableName="stream_error" columnName="exception_classname"/>
+        <dropColumn tableName="stream_error" columnName="cause_classname"/>
+        <dropColumn tableName="stream_error" columnName="java_classname"/>
+        <dropColumn tableName="stream_error" columnName="java_method"/>
+        <dropColumn tableName="stream_error" columnName="java_line_number"/>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -28,6 +28,7 @@ public class StreamErrorRepository {
 
     @Transactional(REQUIRED)
     public void save(final StreamError streamError) {
+
         try (final Connection connection = viewStoreDataSourceProvider.getDataSource().getConnection()) {
             streamErrorHashPersistence.upsert(streamError.streamErrorHash(), connection);
             streamErrorDetailsPersistence.insert(streamError.streamErrorDetails(), connection);

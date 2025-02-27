@@ -35,6 +35,7 @@ public class StreamErrorDetailsPersistence {
                 source
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (stream_id, component_name, source) DO NOTHING
             """;
 
     private static final String FIND_BY_ID_SQL = """

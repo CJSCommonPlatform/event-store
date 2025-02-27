@@ -32,8 +32,6 @@ public class StreamErrorService {
         final String componentName = streamErrorDetails.componentName();
         final String source = streamErrorDetails.source();
 
-        streamStatusJdbcRepository.unmarkStreamAsErrored(streamId, source, componentName);
-        streamErrorRepository.removeErrorForStream(streamId, source, componentName);
         streamErrorRepository.save(streamError);
         streamStatusJdbcRepository.markStreamAsErrored(
                 streamId,

@@ -32,7 +32,7 @@ public class StreamErrorServiceTest {
     private StreamErrorService streamErrorService;
 
     @Test
-    public void shouldRemoveAllOldErrorsForStreamAndSaveNewError() throws Exception {
+    public void shouldSaveStreamErrorAndHash() throws Exception {
 
         final UUID streamErrorId = randomUUID();
         final UUID streamId = randomUUID();
@@ -52,8 +52,6 @@ public class StreamErrorServiceTest {
         streamErrorService.markStreamAsErrored(streamError);
 
         final InOrder inOrder = inOrder(streamStatusJdbcRepository, streamErrorRepository);
-        inOrder.verify(streamStatusJdbcRepository).unmarkStreamAsErrored(streamId, source, componentName);
-        inOrder.verify(streamErrorRepository).removeErrorForStream(streamId, source, componentName);
         inOrder.verify(streamErrorRepository).save(streamError);
         inOrder.verify(streamStatusJdbcRepository).markStreamAsErrored(
                 streamId,

@@ -5,6 +5,13 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.102.0-M5] - 2025-02-27
+### Changed
+- The columns `stream_id`, `component_name` and `source` on the `stream_error` table are now unique when combined
+- Inserts into `stream_error` now `DO NOTHING` if a row with the same `stream_id`, `component_name` and `source` on the `stream`error` already exists
+- Inserts into `stream_error` are therefore idempotent
+- No longer removing stream_errors before inserting a new error, as the insert is now idempotent
+
 ## [17.102.0-M4] - 2025-02-27
 ### Changed
 - Split out the stream_error table into `stream_error` and `stream_error_hash`

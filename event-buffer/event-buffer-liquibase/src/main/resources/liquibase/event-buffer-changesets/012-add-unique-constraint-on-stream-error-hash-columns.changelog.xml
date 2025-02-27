@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="stream_buffer-012" author="TechPod"
+               logicalFilePath="liquibase/event-buffer-changesets/012-add-unique-constraint-on-stream-error-hash-columns.changelog.xml">
+        <addUniqueConstraint tableName="stream_error"
+                             columnNames="stream_id, source, component_name"/>
+
+        <rollback>
+            <dropUniqueConstraint tableName="stream_error" uniqueColumns="stream_id, source, component_name"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

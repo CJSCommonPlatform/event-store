@@ -2,7 +2,10 @@ package uk.gov.justice.services.event.buffer.core.repository.subscription;
 
 import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRED;
+import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
+import uk.gov.justice.services.common.converter.ZonedDateTimes;
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
@@ -12,6 +15,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,28 +36,30 @@ public class StreamStatusJdbcRepository {
     private static final String LATEST_POSITION_COLUMN = "position";
     private static final String SOURCE = "source";
     private static final String COMPONENT = "component";
+    private static final String UPDATED_AT = "updated_at";
 
     /**
      * Statements
      */
     private static final String SELECT_BY_STREAM_ID_AND_SOURCE_SQL = "SELECT stream_id, position, source, component FROM stream_status WHERE stream_id=? AND component=? AND source in (?,'unknown') FOR UPDATE";
-    private static final String INSERT_SQL = "INSERT INTO stream_status (position, stream_id, source, component) VALUES (?, ?, ?, ?)";
+    private static final String INSERT_SQL = "INSERT INTO stream_status (position, stream_id, source, component, updated_at) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_ON_CONFLICT_DO_NOTHING_SQL = INSERT_SQL + " ON CONFLICT DO NOTHING";
     private static final String UPDATE_SQL = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
     private static final String UPDATE_UNKNOWN_SOURCE_SQL = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
 
     final String UPSERT_STREAM_ERROR_SQL = """
-                INSERT INTO stream_status (
-                    stream_id,
-                    position,
-                    source,
-                    component,
-                    stream_error_id,
-                    stream_error_position)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT (stream_id, source, component)
-                DO UPDATE
-                SET stream_error_id = ?, stream_error_position = ?""";
+            INSERT INTO stream_status (
+                stream_id,
+                position,
+                source,
+                component,
+                stream_error_id,
+                stream_error_position,
+                updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (stream_id, source, component)
+            DO UPDATE
+            SET stream_error_id = ?, stream_error_position = ?, updated_at = ?""";
 
     private static final long INITIAL_POSITION_ON_ERROR = 0L;
 
@@ -62,13 +69,21 @@ public class StreamStatusJdbcRepository {
     @Inject
     private ViewStoreJdbcDataSourceProvider dataSourceProvider;
 
+    @Inject
+    private UtcClock clock;
+
     private DataSource dataSource;
 
-    public StreamStatusJdbcRepository() {}
+    public StreamStatusJdbcRepository() {
+    }
 
-    public StreamStatusJdbcRepository(final DataSource dataSource, final PreparedStatementWrapperFactory preparedStatementWrapperFactory) {
+    public StreamStatusJdbcRepository(
+            final DataSource dataSource,
+            final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
+            final UtcClock clock) {
         this.dataSource = dataSource;
         this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
+        this.clock = clock;
     }
 
     @PostConstruct
@@ -88,6 +103,7 @@ public class StreamStatusJdbcRepository {
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
             ps.setString(4, subscription.getComponent());
+            ps.setTimestamp(5, toSqlTimestamp(clock.now()));
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while storing status of the stream: %s", subscription), e);
@@ -98,16 +114,17 @@ public class StreamStatusJdbcRepository {
     /**
      * Tries to insert if database is PostgresSQL and version&gt;=9.5. Uses PostgreSQl-specific sql
      * clause. Does not fail if status for the given stream already exists
-     *  @param subscription the status of the stream to insert
      *
+     * @param subscription the status of the stream to insert
      */
     public void insertOrDoNothing(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING_SQL)) {
-            ps.setLong(1, subscription.getPosition());
-            ps.setObject(2, subscription.getStreamId());
-            ps.setString(3, subscription.getSource());
-            ps.setString(4, subscription.getComponent());
-            ps.executeUpdate();
+        try (final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING_SQL)) {
+            preparedStatement.setLong(1, subscription.getPosition());
+            preparedStatement.setObject(2, subscription.getStreamId());
+            preparedStatement.setString(3, subscription.getSource());
+            preparedStatement.setString(4, subscription.getComponent());
+            preparedStatement.setTimestamp(5, toSqlTimestamp(clock.now()));
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while storing status of the stream in PostgreSQL: %s", subscription), e);
         }
@@ -116,8 +133,8 @@ public class StreamStatusJdbcRepository {
 
     /**
      * Insert the given Subscription into the stream status table.
-     *  @param subscription the event to insert
      *
+     * @param subscription the event to insert
      */
     public void update(final Subscription subscription) {
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_SQL)) {
@@ -136,7 +153,7 @@ public class StreamStatusJdbcRepository {
     /**
      * Returns a Stream of {@link Subscription} for the given stream streamId.
      *
-     * @param streamId streamId of the stream.
+     * @param streamId  streamId of the stream.
      * @param component
      * @return a {@link Subscription}.
      */
@@ -183,19 +200,26 @@ public class StreamStatusJdbcRepository {
             final String componentName,
             final String source) {
 
+        final ZonedDateTime updatedAt = clock.now();
+
         try (final Connection connection = dataSource.getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_STREAM_ERROR_SQL)) {
+
+            final Timestamp updatedAtTimestamp = toSqlTimestamp(updatedAt);
+
             preparedStatement.setObject(1, streamId);
             preparedStatement.setLong(2, INITIAL_POSITION_ON_ERROR);
             preparedStatement.setString(3, source);
             preparedStatement.setString(4, componentName);
             preparedStatement.setObject(5, streamErrorId);
             preparedStatement.setLong(6, errorPosition);
-            preparedStatement.setObject(7, streamErrorId);
-            preparedStatement.setLong(8, errorPosition);
+            preparedStatement.setObject(7, updatedAtTimestamp);
+            preparedStatement.setObject(8, streamErrorId);
+            preparedStatement.setLong(9, errorPosition);
+            preparedStatement.setObject(10, updatedAtTimestamp);
 
             preparedStatement.executeUpdate();
-        }  catch (final SQLException e) {
+        } catch (final SQLException e) {
             throw new JdbcRepositoryException(
                     format("Failed to mark stream as errored in stream_status table. streamId: '%s', component: '%s', streamErrorId: '%s' positionInStream: %s",
                             streamId,
@@ -210,16 +234,16 @@ public class StreamStatusJdbcRepository {
     public void unmarkStreamAsErrored(final UUID streamId, final String source, final String componentName) {
 
         final String UNMARK_STREAM_AS_ERRORED_SQL = """
-            UPDATE stream_status
-            SET stream_error_id = NULL,
-                stream_error_position = NULL
-            WHERE stream_id = ?
-            AND source = ?
-            AND component = ?
-        """;
+                    UPDATE stream_status
+                    SET stream_error_id = NULL,
+                        stream_error_position = NULL
+                    WHERE stream_id = ?
+                    AND source = ?
+                    AND component = ?
+                """;
 
-        try(final Connection connection = dataSource.getConnection();
-            final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
+        try (final Connection connection = dataSource.getConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
             preparedStatement.setObject(1, streamId);
             preparedStatement.setString(2, source);
             preparedStatement.setString(3, componentName);

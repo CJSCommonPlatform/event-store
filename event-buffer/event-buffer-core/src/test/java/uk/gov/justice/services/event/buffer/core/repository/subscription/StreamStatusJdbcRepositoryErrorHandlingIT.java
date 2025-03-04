@@ -43,7 +43,7 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
 
     private DataSource dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
-    private StreamStatusJdbcRepository streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory);
+    private StreamStatusJdbcRepository streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory, new UtcClock());
     private final StreamErrorRepository streamErrorRepository = new StreamErrorRepository();
 
     @BeforeEach

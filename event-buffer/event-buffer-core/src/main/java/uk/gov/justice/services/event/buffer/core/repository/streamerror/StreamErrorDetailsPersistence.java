@@ -31,11 +31,11 @@ public class StreamErrorDetailsPersistence {
                 position_in_stream,
                 date_created,
                 full_stack_trace,
-                component_name,
+                component,
                 source
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (stream_id, component_name, source) DO NOTHING
+            ON CONFLICT (stream_id, component, source) DO NOTHING
             """;
 
     private static final String FIND_BY_ID_SQL = """
@@ -49,7 +49,7 @@ public class StreamErrorDetailsPersistence {
                 position_in_stream,
                 date_created,
                 full_stack_trace,
-                component_name,
+                component,
                 source
             FROM stream_error
             WHERE id = ?
@@ -67,12 +67,12 @@ public class StreamErrorDetailsPersistence {
                 position_in_stream,
                 date_created,
                 full_stack_trace,
-                component_name,
+                component,
                 source
             FROM stream_error
             """;
 
-    private static final String DELETE_SQL = "DELETE FROM stream_error WHERE stream_id = ? AND source = ? AND component_name = ?";
+    private static final String DELETE_SQL = "DELETE FROM stream_error WHERE stream_id = ? AND source = ? AND component = ?";
 
 
     public void insert(final StreamErrorDetails streamErrorDetails, final Connection connection) throws SQLException {
@@ -110,7 +110,7 @@ public class StreamErrorDetailsPersistence {
                     final Long positionInStream = resultSet.getLong("position_in_stream");
                     final ZonedDateTime dateCreated = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
                     final String fullStackTrace = resultSet.getString("full_stack_trace");
-                    final String componentName = resultSet.getString("component_name");
+                    final String componentName = resultSet.getString("component");
                     final String source = resultSet.getString("source");
 
                     final StreamErrorDetails streamErrorDetails = new StreamErrorDetails(
@@ -153,7 +153,7 @@ public class StreamErrorDetailsPersistence {
                     final Long positionInStream = resultSet.getLong("position_in_stream");
                     final ZonedDateTime dateCreated = fromSqlTimestamp(resultSet.getTimestamp("date_created"));
                     final String fullStackTrace = resultSet.getString("full_stack_trace");
-                    final String componentName = resultSet.getString("component_name");
+                    final String componentName = resultSet.getString("component");
                     final String source = resultSet.getString("source");
 
                     final StreamErrorDetails streamErrorDetails = new StreamErrorDetails(

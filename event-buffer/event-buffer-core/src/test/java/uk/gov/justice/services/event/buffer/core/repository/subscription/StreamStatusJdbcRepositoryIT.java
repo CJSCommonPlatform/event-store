@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
@@ -27,13 +28,12 @@ import org.junit.jupiter.api.Test;
 public class StreamStatusJdbcRepositoryIT {
 
     public static final String EVENT_LISTENER = "EVENT_LISTENER";
-
     private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM stream_status WHERE stream_id=?";
-
     private static final long INITIAL_POSITION = 0L;
 
-    private StreamStatusJdbcRepository streamStatusJdbcRepository;
+    private final UtcClock clock = new UtcClock();
 
+    private StreamStatusJdbcRepository streamStatusJdbcRepository;
     private DataSource dataSource;
 
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
@@ -42,7 +42,7 @@ public class StreamStatusJdbcRepositoryIT {
     public void initDatabase() throws Exception {
         dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
 
-        streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory);
+        streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory, clock);
 
         new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer", "stream_error");
     }

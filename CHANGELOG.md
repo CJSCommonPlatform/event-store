@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+### Added
+- Added new `updated_at` column to `stream_status` table
+### Changed
+- Renamed `component_name` column in `stream_error` to `component`
+
 ## [17.102.0-M5] - 2025-02-27
 ### Changed
 - The columns `stream_id`, `component_name` and `source` on the `stream_error` table are now unique when combined

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,11 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 public class DefaultSubscriptionManagerTest {
 
@@ -40,15 +37,30 @@ public class DefaultSubscriptionManagerTest {
     );
 
     @Test
-    public void shouldProcessWithEventBuffer() {
-
+    public void shouldProcessWithEventBufferAndMarkProcessingAsSucceeded() {
+        final int numberOfEventsProcessed = 23;
         final JsonEnvelope incomingJsonEnvelope = mock(JsonEnvelope.class);
+
+        when(eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope)).thenReturn(numberOfEventsProcessed);
 
         defaultSubscriptionManager.process(incomingJsonEnvelope);
 
         final InOrder inOrder = inOrder(eventBufferProcessor, streamProcessingFailureHandler);
         inOrder.verify(eventBufferProcessor).processWithEventBuffer(incomingJsonEnvelope);
         inOrder.verify(streamProcessingFailureHandler).onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
+    }
+
+    @Test
+    public void shouldNotMarkProcessingAsSucceededIfEventBufferProcessorDoesNotProcessAnyEvents() throws Exception {
+        final int numberOfEventsProcessed = 0;
+        final JsonEnvelope incomingJsonEnvelope = mock(JsonEnvelope.class);
+
+        when(eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope)).thenReturn(numberOfEventsProcessed);
+
+        defaultSubscriptionManager.process(incomingJsonEnvelope);
+
+        verify(eventBufferProcessor).processWithEventBuffer(incomingJsonEnvelope);
+        verify(streamProcessingFailureHandler, never()).onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
     }
 
     @Test

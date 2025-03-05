@@ -41,9 +41,10 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
     public static final String EVENT_LISTENER = "EVENT_LISTENER";
     protected static final long INITIAL_STREAM_POSITION = 0L;
 
+    private final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
     private DataSource dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
-    private StreamStatusJdbcRepository streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory, new UtcClock());
+    private StreamStatusJdbcRepository streamStatusJdbcRepository = new StreamStatusJdbcRepository(viewStoreJdbcDataSourceProvider, preparedStatementWrapperFactory, new UtcClock());
     private final StreamErrorRepository streamErrorRepository = new StreamErrorRepository();
 
     @BeforeEach
@@ -56,7 +57,6 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
 
         final DataSource viewStoreDataSource = new TestJdbcDataSourceProvider().getViewStoreDataSource("framework");
 
-        final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
         when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 
         final StreamErrorHashPersistence streamErrorHashPersistence = new StreamErrorHashPersistence();

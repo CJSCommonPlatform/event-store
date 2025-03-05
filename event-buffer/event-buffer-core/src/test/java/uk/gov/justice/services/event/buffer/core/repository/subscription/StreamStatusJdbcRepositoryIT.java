@@ -7,13 +7,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
-import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
+import uk.gov.justice.services.test.utils.persistence.TestJdbcDataSourceProvider;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,27 +26,37 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class StreamStatusJdbcRepositoryIT {
 
     public static final String EVENT_LISTENER = "EVENT_LISTENER";
     private static final String COUNT_BY_STREAM_ID = "SELECT count(*) FROM stream_status WHERE stream_id=?";
     private static final long INITIAL_POSITION = 0L;
+    private final DataSource viewStoreDataSource = new TestJdbcDataSourceProvider().getViewStoreDataSource("framework");
 
+    @Spy
+    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
+
+    @Mock
+    private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
+    
+    @Spy
     private final UtcClock clock = new UtcClock();
 
+    @InjectMocks
     private StreamStatusJdbcRepository streamStatusJdbcRepository;
-    private DataSource dataSource;
-
-    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
 
     @BeforeEach
     public void initDatabase() throws Exception {
-        dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
-
-        streamStatusJdbcRepository = new StreamStatusJdbcRepository(dataSource, preparedStatementWrapperFactory, clock);
-
         new DatabaseCleaner().cleanViewStoreTables("framework", "stream_status", "stream_buffer", "stream_error");
+
+        when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
     }
 
     @Test
@@ -54,6 +66,7 @@ public class StreamStatusJdbcRepositoryIT {
 
         initialiseBuffer(streamId, source);
         final Subscription subscription = new Subscription(streamId, 2L, source, EVENT_LISTENER);
+
 
         streamStatusJdbcRepository.update(subscription);
 
@@ -238,7 +251,7 @@ public class StreamStatusJdbcRepositoryIT {
      * @return a int.
      */
     public int countByStreamId(final UUID streamId) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, COUNT_BY_STREAM_ID)) {
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(viewStoreDataSource, COUNT_BY_STREAM_ID)) {
             ps.setObject(1, streamId);
             final ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {

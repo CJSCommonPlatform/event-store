@@ -4,7 +4,6 @@ import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
-import uk.gov.justice.services.common.converter.ZonedDateTimes;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.JdbcRepositoryException;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
@@ -36,7 +35,6 @@ public class StreamStatusJdbcRepository {
     private static final String LATEST_POSITION_COLUMN = "position";
     private static final String SOURCE = "source";
     private static final String COMPONENT = "component";
-    private static final String UPDATED_AT = "updated_at";
 
     /**
      * Statements
@@ -47,7 +45,7 @@ public class StreamStatusJdbcRepository {
     private static final String UPDATE_SQL = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
     private static final String UPDATE_UNKNOWN_SOURCE_SQL = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
 
-    final String UPSERT_STREAM_ERROR_SQL = """
+    private final String UPSERT_STREAM_ERROR_SQL = """
             INSERT INTO stream_status (
                 stream_id,
                 position,
@@ -67,28 +65,21 @@ public class StreamStatusJdbcRepository {
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
 
     @Inject
-    private ViewStoreJdbcDataSourceProvider dataSourceProvider;
+    private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
 
     @Inject
     private UtcClock clock;
-
-    private DataSource dataSource;
 
     public StreamStatusJdbcRepository() {
     }
 
     public StreamStatusJdbcRepository(
-            final DataSource dataSource,
+            final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider,
             final PreparedStatementWrapperFactory preparedStatementWrapperFactory,
             final UtcClock clock) {
-        this.dataSource = dataSource;
+        this.viewStoreJdbcDataSourceProvider = viewStoreJdbcDataSourceProvider;
         this.preparedStatementWrapperFactory = preparedStatementWrapperFactory;
         this.clock = clock;
-    }
-
-    @PostConstruct
-    private void initialiseDataSource() {
-        dataSource = dataSourceProvider.getDataSource();
     }
 
 
@@ -98,7 +89,8 @@ public class StreamStatusJdbcRepository {
      * @param subscription the status of the stream to insert
      */
     public void insert(final Subscription subscription) {
-        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_SQL)) {
+        final DataSource viewStoreDataSource = viewStoreJdbcDataSourceProvider.getDataSource();
+        try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(viewStoreDataSource, INSERT_SQL)) {
             ps.setLong(1, subscription.getPosition());
             ps.setObject(2, subscription.getStreamId());
             ps.setString(3, subscription.getSource());
@@ -118,7 +110,9 @@ public class StreamStatusJdbcRepository {
      * @param subscription the status of the stream to insert
      */
     public void insertOrDoNothing(final Subscription subscription) {
-        try (final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, INSERT_ON_CONFLICT_DO_NOTHING_SQL)) {
+
+        final DataSource viewStoreDataSource = viewStoreJdbcDataSourceProvider.getDataSource();
+        try (final PreparedStatementWrapper preparedStatement = preparedStatementWrapperFactory.preparedStatementWrapperOf(viewStoreDataSource, INSERT_ON_CONFLICT_DO_NOTHING_SQL)) {
             preparedStatement.setLong(1, subscription.getPosition());
             preparedStatement.setObject(2, subscription.getStreamId());
             preparedStatement.setString(3, subscription.getSource());
@@ -137,6 +131,8 @@ public class StreamStatusJdbcRepository {
      * @param subscription the event to insert
      */
     public void update(final Subscription subscription) {
+
+        final DataSource dataSource = viewStoreJdbcDataSourceProvider.getDataSource();
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_SQL)) {
             ps.setLong(1, subscription.getPosition());
             ps.setString(2, subscription.getSource());
@@ -158,6 +154,8 @@ public class StreamStatusJdbcRepository {
      * @return a {@link Subscription}.
      */
     public Optional<Subscription> findByStreamIdAndSource(final UUID streamId, final String source, final String component) {
+
+        final DataSource dataSource = viewStoreJdbcDataSourceProvider.getDataSource();
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, SELECT_BY_STREAM_ID_AND_SOURCE_SQL)) {
             ps.setObject(1, streamId);
             ps.setObject(2, component);
@@ -182,6 +180,7 @@ public class StreamStatusJdbcRepository {
     }
 
     public void updateSource(final UUID streamId, final String source, final String component) {
+        final DataSource dataSource = viewStoreJdbcDataSourceProvider.getDataSource();
         try (final PreparedStatementWrapper ps = preparedStatementWrapperFactory.preparedStatementWrapperOf(dataSource, UPDATE_UNKNOWN_SOURCE_SQL)) {
             ps.setString(1, source);
             ps.setObject(2, component);
@@ -202,7 +201,7 @@ public class StreamStatusJdbcRepository {
 
         final ZonedDateTime updatedAt = clock.now();
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_STREAM_ERROR_SQL)) {
 
             final Timestamp updatedAtTimestamp = toSqlTimestamp(updatedAt);
@@ -213,10 +212,10 @@ public class StreamStatusJdbcRepository {
             preparedStatement.setString(4, componentName);
             preparedStatement.setObject(5, streamErrorId);
             preparedStatement.setLong(6, errorPosition);
-            preparedStatement.setObject(7, updatedAtTimestamp);
+            preparedStatement.setTimestamp(7, updatedAtTimestamp);
             preparedStatement.setObject(8, streamErrorId);
             preparedStatement.setLong(9, errorPosition);
-            preparedStatement.setObject(10, updatedAtTimestamp);
+            preparedStatement.setTimestamp(10, updatedAtTimestamp);
 
             preparedStatement.executeUpdate();
         } catch (final SQLException e) {
@@ -242,7 +241,7 @@ public class StreamStatusJdbcRepository {
                     AND component = ?
                 """;
 
-        try (final Connection connection = dataSource.getConnection();
+        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
             preparedStatement.setObject(1, streamId);
             preparedStatement.setString(2, source);

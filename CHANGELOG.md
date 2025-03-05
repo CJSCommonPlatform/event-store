@@ -9,6 +9,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 - Added new `updated_at` column to `stream_status` table
 ### Changed
 - Renamed `component_name` column in `stream_error` to `component`
+- Streams no longer marked as fixed if events remain stuck in the stream-buffer
 
 ## [17.102.0-M5] - 2025-02-27
 ### Changed

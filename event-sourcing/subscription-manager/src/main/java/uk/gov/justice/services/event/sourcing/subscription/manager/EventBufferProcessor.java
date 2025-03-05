@@ -30,13 +30,18 @@ public class EventBufferProcessor {
         this.component = component;
     }
 
-    public void processWithEventBuffer(final JsonEnvelope incomingJsonEnvelope) {
+    public int processWithEventBuffer(final JsonEnvelope incomingJsonEnvelope) {
+
+        final TallyCounter tallyCounter = new TallyCounter();
         try (final Stream<JsonEnvelope> jsonEnvelopeStream = eventBufferService.currentOrderedEventsWith(incomingJsonEnvelope, component)) {
             jsonEnvelopeStream.forEach(jsonEnvelope -> {
                 final InterceptorContext interceptorContext = interceptorContextProvider.getInterceptorContext(jsonEnvelope);
                 interceptorChainProcessor.process(interceptorContext);
+                tallyCounter.incrementByOne();
             });
         }
+
+        return tallyCounter.getTallyCount();
     }
 }
 

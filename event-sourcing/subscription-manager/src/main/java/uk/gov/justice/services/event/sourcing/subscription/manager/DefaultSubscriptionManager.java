@@ -9,8 +9,6 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.subscription.SubscriptionManager;
 
-import java.util.UUID;
-
 import javax.transaction.Transactional;
 
 public class DefaultSubscriptionManager implements SubscriptionManager {
@@ -29,12 +27,13 @@ public class DefaultSubscriptionManager implements SubscriptionManager {
     }
 
     @Transactional(REQUIRED)
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public void process(final JsonEnvelope incomingJsonEnvelope) {
         try {
-            eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope);
-            streamProcessingFailureHandler.onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
+            final int numberOfEventsProcessed = eventBufferProcessor.processWithEventBuffer(incomingJsonEnvelope);
+            if (numberOfEventsProcessed > 0) {
+                streamProcessingFailureHandler.onStreamProcessingSucceeded(incomingJsonEnvelope, componentName);
+            }
         } catch (final Throwable e) {
             streamProcessingFailureHandler.onStreamProcessingFailure(incomingJsonEnvelope, e, componentName);
             final Metadata metadata = incomingJsonEnvelope.metadata();

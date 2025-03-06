@@ -5,6 +5,7 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.102.0-M6] - 2025-03-06
 ### Added
 - Added new `updated_at` column to `stream_status` table
 ### Changed

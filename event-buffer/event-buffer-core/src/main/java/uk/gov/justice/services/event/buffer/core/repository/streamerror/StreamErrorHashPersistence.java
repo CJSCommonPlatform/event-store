@@ -57,7 +57,6 @@ public class StreamErrorHashPersistence {
                               where stream_error.hash = stream_error_hash.hash);
     """;
 
-    @Transactional(REQUIRED)
     public int upsert(final StreamErrorHash streamErrorHash, final Connection connection) throws SQLException {
 
         try(final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_HASH_SQL)) {
@@ -72,7 +71,6 @@ public class StreamErrorHashPersistence {
         }
     }
 
-    @Transactional(REQUIRED)
     public Optional<StreamErrorHash> findByHash(final String hash, final Connection connection) throws SQLException {
 
         try(final PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_HASH_SQL)) {
@@ -102,7 +100,6 @@ public class StreamErrorHashPersistence {
         }
     }
 
-    @Transactional(REQUIRED)
     public List<StreamErrorHash> findAll(final Connection connection) throws SQLException {
 
         try(final PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
@@ -134,9 +131,7 @@ public class StreamErrorHashPersistence {
         }
     }
 
-    @Transactional(REQUIRED)
     public int deleteOrphanedHashes(final Connection connection) throws SQLException {
-
         try (final PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ORPHANED_STREAM_ERROR_HASH_SQL)){
             return preparedStatement.executeUpdate();
         }

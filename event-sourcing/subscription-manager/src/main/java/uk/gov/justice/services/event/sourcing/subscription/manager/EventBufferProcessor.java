@@ -3,7 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.manager;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorContext;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
-import uk.gov.justice.services.event.sourcing.subscription.error.StreamErrorService;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamErrorRepository;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 
@@ -15,17 +15,17 @@ public class EventBufferProcessor {
     private final EventBufferService eventBufferService;
     private final InterceptorContextProvider interceptorContextProvider;
     private final String component;
-    private final StreamErrorService streamErrorService;
+    private final StreamErrorRepository streamErrorRepository;
 
     public EventBufferProcessor(
             final InterceptorChainProcessor interceptorChainProcessor,
             final EventBufferService eventBufferService,
-            final StreamErrorService streamErrorService,
+            final StreamErrorRepository streamErrorRepository,
             final InterceptorContextProvider interceptorContextProvider,
             final String component) {
         this.interceptorChainProcessor = interceptorChainProcessor;
         this.eventBufferService = eventBufferService;
-        this.streamErrorService = streamErrorService;
+        this.streamErrorRepository = streamErrorRepository;
         this.interceptorContextProvider = interceptorContextProvider;
         this.component = component;
     }

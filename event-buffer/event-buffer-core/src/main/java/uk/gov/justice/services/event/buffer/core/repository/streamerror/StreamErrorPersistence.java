@@ -3,9 +3,6 @@ package uk.gov.justice.services.event.buffer.core.repository.streamerror;
 import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.transaction.Transactional.TxType.REQUIRED;
-
-import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,12 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
-public class StreamErrorRepository {
-
-    @Inject
-    private ViewStoreJdbcDataSourceProvider viewStoreDataSourceProvider;
+public class StreamErrorPersistence {
 
     @Inject
     private StreamErrorHashPersistence streamErrorHashPersistence;
@@ -26,20 +19,19 @@ public class StreamErrorRepository {
     @Inject
     private StreamErrorDetailsPersistence streamErrorDetailsPersistence;
 
-    @Transactional(REQUIRED)
-    public void save(final StreamError streamError) {
+    public boolean save(final StreamError streamError, final Connection connection) {
 
-        try (final Connection connection = viewStoreDataSourceProvider.getDataSource().getConnection()) {
+        try {
             streamErrorHashPersistence.upsert(streamError.streamErrorHash(), connection);
-            streamErrorDetailsPersistence.insert(streamError.streamErrorDetails(), connection);
+            final int rowsUpdated = streamErrorDetailsPersistence.insert(streamError.streamErrorDetails(), connection);
+            return rowsUpdated > 0;
         } catch (final SQLException e) {
             throw new StreamErrorHandlingException(format("Failed to save StreamError: %s", streamError), e);
         }
     }
 
-    @Transactional(REQUIRED)
-    public Optional<StreamError> findBy(final UUID streamErrorId) {
-        try (final Connection connection = viewStoreDataSourceProvider.getDataSource().getConnection()) {
+    public Optional<StreamError> findBy(final UUID streamErrorId, final Connection connection) {
+        try  {
 
             final Optional<StreamErrorDetails> streamErrorDetailsOptional = streamErrorDetailsPersistence.findBy(streamErrorId, connection);
 
@@ -59,10 +51,9 @@ public class StreamErrorRepository {
         }
     }
 
-    @Transactional(REQUIRED)
-    public void removeErrorForStream(final UUID streamId, final String source, final String componentName) {
+    public void removeErrorForStream(final UUID streamId, final String source, final String componentName, final Connection connection) {
 
-        try(final Connection connection = viewStoreDataSourceProvider.getDataSource().getConnection()) {
+        try {
             streamErrorDetailsPersistence.deleteBy(streamId, source, componentName, connection);
             streamErrorHashPersistence.deleteOrphanedHashes(connection);
         } catch (final SQLException e) {

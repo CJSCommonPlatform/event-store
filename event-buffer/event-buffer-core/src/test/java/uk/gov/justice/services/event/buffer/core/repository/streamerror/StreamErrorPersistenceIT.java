@@ -5,7 +5,6 @@ import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
@@ -28,7 +27,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class StreamErrorRepositoryIT {
+public class StreamErrorPersistenceIT {
 
     @Mock
     private ViewStoreJdbcDataSourceProvider viewStoreDataSourceProvider;
@@ -40,8 +39,7 @@ public class StreamErrorRepositoryIT {
     private StreamErrorDetailsPersistence streamErrorDetailsPersistence = new StreamErrorDetailsPersistence();
 
     private final DataSource viewStoreDataSource = new TestJdbcDataSourceProvider().getViewStoreDataSource("framework");
-    final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
-
+    private final DatabaseCleaner databaseCleaner = new DatabaseCleaner();
 
     @BeforeEach
     public void cleanTables() {
@@ -49,12 +47,10 @@ public class StreamErrorRepositoryIT {
     }
 
     @InjectMocks
-    private StreamErrorRepository streamErrorRepository;
+    private StreamErrorPersistence streamErrorPersistence;
 
     @Test
     public void shouldSaveAndRemoveErrorsCorrectly() throws Exception {
-
-        when(viewStoreDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
 
         final UUID streamId = randomUUID();
         final String hash = "this-is-a-hash";
@@ -67,12 +63,13 @@ public class StreamErrorRepositoryIT {
         final StreamErrorDetails streamErrorDetails_2 = aStreamErrorDetails(streamId, hash, componentName_2, source);
         final StreamErrorHash streamErrorHash = aStreamErrorHash(hash);
 
-        streamErrorRepository.save(new StreamError(streamErrorDetails_1, streamErrorHash));
-        streamErrorRepository.save(new StreamError(streamErrorDetails_2, streamErrorHash));
 
-        // check everything was saved
         try (final Connection connection = viewStoreDataSource.getConnection()) {
 
+            streamErrorPersistence.save(new StreamError(streamErrorDetails_1, streamErrorHash), connection);
+            streamErrorPersistence.save(new StreamError(streamErrorDetails_2, streamErrorHash), connection);
+
+            // check everything was saved
             final Optional<StreamErrorHash> optionalStreamErrorHash = streamErrorHashPersistence.findByHash(hash, connection);
             assertThat(optionalStreamErrorHash, is(of(streamErrorHash)));
             final List<StreamErrorDetails> streamErrorDetails = streamErrorDetailsPersistence.findAll(connection);
@@ -82,10 +79,11 @@ public class StreamErrorRepositoryIT {
             assertThat(streamErrorDetails.get(1), is(streamErrorDetails_2));
         }
 
-        // remove one of the errors
-        streamErrorRepository.removeErrorForStream(streamId, source, componentName_2);
-
         try (final Connection connection = viewStoreDataSource.getConnection()) {
+
+            // remove one of the errors
+            streamErrorPersistence.removeErrorForStream(streamId, source, componentName_2, connection);
+
             final List<StreamErrorDetails> streamErrorDetails = streamErrorDetailsPersistence.findAll(connection);
 
             // now only one error remaining
@@ -97,10 +95,10 @@ public class StreamErrorRepositoryIT {
             assertThat(optionalStreamErrorHash, is(of(streamErrorHash)));
         }
 
-        // remove the final error
-        streamErrorRepository.removeErrorForStream(streamId, source, componentName_1);
-
         try (final Connection connection = viewStoreDataSource.getConnection()) {
+
+            // remove the final error
+            streamErrorPersistence.removeErrorForStream(streamId, source, componentName_1, connection);
 
             // now no errors remaining
             final List<StreamErrorDetails> streamErrorDetails = streamErrorDetailsPersistence.findAll(connection);

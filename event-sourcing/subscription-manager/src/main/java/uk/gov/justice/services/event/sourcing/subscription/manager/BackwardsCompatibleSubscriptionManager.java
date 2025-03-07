@@ -12,8 +12,6 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.subscription.SubscriptionManager;
 
-import java.util.UUID;
-
 import javax.transaction.Transactional;
 
 public class BackwardsCompatibleSubscriptionManager implements SubscriptionManager {

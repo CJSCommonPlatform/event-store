@@ -1,7 +1,6 @@
 package uk.gov.justice.services.event.buffer.core.repository.subscription;
 
 import static java.lang.String.format;
-import static javax.transaction.Transactional.TxType.REQUIRED;
 import static uk.gov.justice.services.common.converter.ZonedDateTimes.toSqlTimestamp;
 
 import uk.gov.justice.services.common.util.UtcClock;
@@ -10,20 +9,14 @@ import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapper;
 import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 
 @ApplicationScoped
 public class StreamStatusJdbcRepository {
@@ -44,22 +37,6 @@ public class StreamStatusJdbcRepository {
     private static final String INSERT_ON_CONFLICT_DO_NOTHING_SQL = INSERT_SQL + " ON CONFLICT DO NOTHING";
     private static final String UPDATE_SQL = "UPDATE stream_status SET position=?,source=?,component=? WHERE stream_id=? and component=? and source in (?,'unknown')";
     private static final String UPDATE_UNKNOWN_SOURCE_SQL = "UPDATE stream_status SET source=?, component=? WHERE stream_id=? and source = 'unknown'";
-
-    private final String UPSERT_STREAM_ERROR_SQL = """
-            INSERT INTO stream_status (
-                stream_id,
-                position,
-                source,
-                component,
-                stream_error_id,
-                stream_error_position,
-                updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (stream_id, source, component)
-            DO UPDATE
-            SET stream_error_id = ?, stream_error_position = ?, updated_at = ?""";
-
-    private static final long INITIAL_POSITION_ON_ERROR = 0L;
 
     @Inject
     private PreparedStatementWrapperFactory preparedStatementWrapperFactory;
@@ -188,67 +165,6 @@ public class StreamStatusJdbcRepository {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new JdbcRepositoryException(format("Exception while updating unknown source of the stream: %s", streamId), e);
-        }
-    }
-
-    @Transactional(REQUIRED)
-    public void markStreamAsErrored(
-            final UUID streamId,
-            final UUID streamErrorId,
-            final Long errorPosition,
-            final String componentName,
-            final String source) {
-
-        final ZonedDateTime updatedAt = clock.now();
-
-        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(UPSERT_STREAM_ERROR_SQL)) {
-
-            final Timestamp updatedAtTimestamp = toSqlTimestamp(updatedAt);
-
-            preparedStatement.setObject(1, streamId);
-            preparedStatement.setLong(2, INITIAL_POSITION_ON_ERROR);
-            preparedStatement.setString(3, source);
-            preparedStatement.setString(4, componentName);
-            preparedStatement.setObject(5, streamErrorId);
-            preparedStatement.setLong(6, errorPosition);
-            preparedStatement.setTimestamp(7, updatedAtTimestamp);
-            preparedStatement.setObject(8, streamErrorId);
-            preparedStatement.setLong(9, errorPosition);
-            preparedStatement.setTimestamp(10, updatedAtTimestamp);
-
-            preparedStatement.executeUpdate();
-        } catch (final SQLException e) {
-            throw new JdbcRepositoryException(
-                    format("Failed to mark stream as errored in stream_status table. streamId: '%s', component: '%s', streamErrorId: '%s' positionInStream: %s",
-                            streamId,
-                            componentName,
-                            streamErrorId,
-                            errorPosition),
-                    e);
-        }
-    }
-
-    @Transactional(REQUIRED)
-    public void unmarkStreamAsErrored(final UUID streamId, final String source, final String componentName) {
-
-        final String UNMARK_STREAM_AS_ERRORED_SQL = """
-                    UPDATE stream_status
-                    SET stream_error_id = NULL,
-                        stream_error_position = NULL
-                    WHERE stream_id = ?
-                    AND source = ?
-                    AND component = ?
-                """;
-
-        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(UNMARK_STREAM_AS_ERRORED_SQL)) {
-            preparedStatement.setObject(1, streamId);
-            preparedStatement.setString(2, source);
-            preparedStatement.setString(3, componentName);
-            preparedStatement.executeUpdate();
-        } catch (final SQLException e) {
-            throw new JdbcRepositoryException(format("Failed to unmark stream as errored in stream_status table. streamId: '%s'", streamId), e);
         }
     }
 }

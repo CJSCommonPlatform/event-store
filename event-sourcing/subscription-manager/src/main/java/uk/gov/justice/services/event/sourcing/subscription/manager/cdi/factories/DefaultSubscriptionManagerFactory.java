@@ -3,7 +3,7 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
 import uk.gov.justice.services.event.buffer.api.EventBufferService;
-import uk.gov.justice.services.event.sourcing.subscription.error.StreamErrorService;
+import uk.gov.justice.services.event.sourcing.subscription.error.StreamErrorRepository;
 import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.DefaultSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.EventBufferProcessor;
@@ -27,7 +27,7 @@ public class DefaultSubscriptionManagerFactory {
     private StreamProcessingFailureHandler streamProcessingFailureHandler;
 
     @Inject
-    private StreamErrorService streamErrorService;
+    private StreamErrorRepository streamErrorRepository;
 
     public SubscriptionManager create(final String componentName) {
 
@@ -37,7 +37,7 @@ public class DefaultSubscriptionManagerFactory {
         final EventBufferProcessor eventBufferProcessor = new EventBufferProcessor(
                 interceptorChainProcessor,
                 eventBufferService,
-                streamErrorService,
+                streamErrorRepository,
                 interceptorContextProvider,
                 componentName);
 

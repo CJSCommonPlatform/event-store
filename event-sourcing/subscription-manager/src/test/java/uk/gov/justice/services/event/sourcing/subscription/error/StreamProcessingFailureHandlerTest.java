@@ -36,7 +36,7 @@ public class StreamProcessingFailureHandlerTest {
     private StreamErrorConverter streamErrorConverter;
 
     @Mock
-    private StreamErrorService streamErrorService;
+    private StreamErrorRepository streamErrorRepository;
 
     @Mock
     private EventErrorHandlingConfiguration eventErrorHandlingConfiguration;
@@ -59,7 +59,7 @@ public class StreamProcessingFailureHandlerTest {
 
         streamProcessingFailureHandler.onStreamProcessingFailure(jsonEnvelope, nullPointerException, componentName);
 
-        verify(streamErrorService).markStreamAsErrored(streamError);
+        verify(streamErrorRepository).markStreamAsErrored(streamError);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class StreamProcessingFailureHandlerTest {
 
         streamProcessingFailureHandler.onStreamProcessingFailure(jsonEnvelope, nullPointerException, componentName);
 
-        verifyNoInteractions(streamErrorService);
+        verifyNoInteractions(streamErrorRepository);
         verifyNoInteractions(exceptionDetailsRetriever);
         verifyNoInteractions(streamErrorConverter);
     }
@@ -95,7 +95,7 @@ public class StreamProcessingFailureHandlerTest {
 
         streamProcessingFailureHandler.onStreamProcessingSucceeded(jsonEnvelope, componentName);
 
-        verify(streamErrorService).markStreamAsFixed(streamId, source, componentName);
+        verify(streamErrorRepository).markStreamAsFixed(streamId, source, componentName);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class StreamProcessingFailureHandlerTest {
 
         streamProcessingFailureHandler.onStreamProcessingSucceeded(jsonEnvelope, componentName);
 
-        verifyNoInteractions(streamErrorService);
+        verifyNoInteractions(streamErrorRepository);
     }
 
     @Test

@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.102.0-M7] - 2025-03-10
+### Changed
+- Stream error handling now uses same database connection for all error handling database updates
+- Failing retries of a previously stored error no longer update the error tables and only the first failure of that event is recorded
+
 ## [17.102.0-M6] - 2025-03-06
 ### Added
 - Added new `updated_at` column to `stream_status` table

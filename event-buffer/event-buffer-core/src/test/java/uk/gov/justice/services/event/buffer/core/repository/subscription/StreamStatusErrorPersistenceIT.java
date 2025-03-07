@@ -17,7 +17,7 @@ import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamEr
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHash;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHashPersistence;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
-import uk.gov.justice.services.jdbc.persistence.PreparedStatementWrapperFactory;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamStatusErrorPersistence;
 import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
 import uk.gov.justice.services.test.utils.persistence.FrameworkTestDataSourceFactory;
@@ -30,22 +30,19 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StreamStatusJdbcRepositoryErrorHandlingIT {
+public class StreamStatusErrorPersistenceIT {
 
     public static final String EVENT_LISTENER = "EVENT_LISTENER";
     protected static final long INITIAL_STREAM_POSITION = 0L;
 
-    private final ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider = mock(ViewStoreJdbcDataSourceProvider.class);
-    private DataSource dataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
-    private PreparedStatementWrapperFactory preparedStatementWrapperFactory = new PreparedStatementWrapperFactory();
-    private StreamStatusJdbcRepository streamStatusJdbcRepository = new StreamStatusJdbcRepository(viewStoreJdbcDataSourceProvider, preparedStatementWrapperFactory, new UtcClock());
+    private DataSource viewStoreDataSource = new FrameworkTestDataSourceFactory().createViewStoreDataSource();
     private final StreamErrorRepository streamErrorRepository = new StreamErrorRepository();
+    private final StreamStatusErrorPersistence streamStatusErrorPersistence = new StreamStatusErrorPersistence();
 
     @BeforeEach
     public void setup() {
@@ -55,14 +52,10 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
                 "stream_buffer",
                 "stream_error");
 
-        final DataSource viewStoreDataSource = new TestJdbcDataSourceProvider().getViewStoreDataSource("framework");
-
-        when(viewStoreJdbcDataSourceProvider.getDataSource()).thenReturn(viewStoreDataSource);
-
         final StreamErrorHashPersistence streamErrorHashPersistence = new StreamErrorHashPersistence();
         final StreamErrorDetailsPersistence streamErrorDetailsPersistence = new StreamErrorDetailsPersistence();
 
-        setField(streamErrorRepository, "viewStoreDataSourceProvider", viewStoreJdbcDataSourceProvider);
+        setField(streamStatusErrorPersistence, "clock", new UtcClock());
         setField(streamErrorRepository, "streamErrorDetailsPersistence", streamErrorDetailsPersistence);
         setField(streamErrorRepository, "streamErrorHashPersistence", streamErrorHashPersistence);
     }
@@ -84,15 +77,27 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
                 componentName,
                 source);
 
-        streamErrorRepository.save(streamError);
-        streamStatusJdbcRepository.markStreamAsErrored(streamId, streamErrorId, positionInStream, componentName, source);
+        try(final Connection connection = viewStoreDataSource.getConnection()) {
+            streamErrorRepository.save(streamError, connection);
+            streamStatusErrorPersistence.markStreamAsErrored(
+                    streamId,
+                    streamErrorId,
+                    positionInStream,
+                    componentName,
+                    source,
+                    connection);
 
-        final Optional<StreamStatusErrorStatus> error = findErrorStatus(streamId, source, componentName);
+            final Optional<StreamStatusErrorStatus> error = findErrorStatus(
+                    streamId,
+                    source,
+                    componentName,
+                    connection);
 
-        assertThat(error.isPresent(), is(true));
-        assertThat(error.get().streamErrorId(), is(streamErrorId));
-        assertThat(error.get().errorPositionInStream(), is(positionInStream));
-        assertThat(error.get().positionInStream(), is(INITIAL_STREAM_POSITION));
+            assertThat(error.isPresent(), is(true));
+            assertThat(error.get().streamErrorId(), is(streamErrorId));
+            assertThat(error.get().errorPositionInStream(), is(positionInStream));
+            assertThat(error.get().positionInStream(), is(INITIAL_STREAM_POSITION));
+        }
     }
 
     @Test
@@ -107,17 +112,19 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
         final String componentName = EVENT_LISTENER;
         final StreamError streamError = aStreamError(streamErrorId, eventId, streamId, positionInStream, componentName, source);
 
-        streamErrorRepository.save(streamError);
+        try(final Connection connection = viewStoreDataSource.getConnection()) {
+            streamErrorRepository.save(streamError, connection);
 
-        insertStreamIntoStreamStatusTable(streamId, positionInStream, source, componentName);
+            insertStreamIntoStreamStatusTable(streamId, positionInStream, source, componentName, connection);
 
-        streamStatusJdbcRepository.markStreamAsErrored(streamId, streamErrorId, positionInStream, componentName, source);
+            streamStatusErrorPersistence.markStreamAsErrored(streamId, streamErrorId, positionInStream, componentName, source, connection);
 
-        final Optional<StreamStatusErrorStatus> error = findErrorStatus(streamId, source, componentName);
+            final Optional<StreamStatusErrorStatus> error = findErrorStatus(streamId, source, componentName, connection);
 
-        assertThat(error.isPresent(), is(true));
-        assertThat(error.get().streamErrorId(), is(streamErrorId));
-        assertThat(error.get().errorPositionInStream(), is(positionInStream));
+            assertThat(error.isPresent(), is(true));
+            assertThat(error.get().streamErrorId(), is(streamErrorId));
+            assertThat(error.get().errorPositionInStream(), is(positionInStream));
+        }
     }
 
     @Test
@@ -137,21 +144,29 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
                 componentName,
                 source);
 
-        streamErrorRepository.save(streamError);
-        streamStatusJdbcRepository.markStreamAsErrored(streamId, streamErrorId, positionInStream, componentName, source);
+        try(final Connection connection = viewStoreDataSource.getConnection()) {
+            streamErrorRepository.save(streamError, connection);
+            streamStatusErrorPersistence.markStreamAsErrored(
+                    streamId,
+                    streamErrorId,
+                    positionInStream,
+                    componentName,
+                    source,
+                    connection);
 
-        final Optional<StreamStatusErrorStatus> error = findErrorStatus(streamId, source, componentName);
-        assertThat(error.isPresent(), is(true));
-        assertThat(error.get().streamErrorId(), is(streamErrorId));
-        assertThat(error.get().errorPositionInStream(), is(positionInStream));
+            final Optional<StreamStatusErrorStatus> error = findErrorStatus(streamId, source, componentName, connection);
+            assertThat(error.isPresent(), is(true));
+            assertThat(error.get().streamErrorId(), is(streamErrorId));
+            assertThat(error.get().errorPositionInStream(), is(positionInStream));
 
-        streamStatusJdbcRepository.unmarkStreamAsErrored(streamId, source, componentName);
+            streamStatusErrorPersistence.unmarkStreamStatusAsErrored(streamId, source, componentName, connection);
 
-        final Optional<StreamStatusErrorStatus> error2 = findErrorStatus(streamId, source, componentName);
+            final Optional<StreamStatusErrorStatus> error2 = findErrorStatus(streamId, source, componentName, connection);
 
-        assertThat(error2.isPresent(), is(true));
-        assertThat(error2.get().streamErrorId(), is(nullValue()));
-        assertThat(error2.get().errorPositionInStream(), is(nullValue()));
+            assertThat(error2.isPresent(), is(true));
+            assertThat(error2.get().streamErrorId(), is(nullValue()));
+            assertThat(error2.get().errorPositionInStream(), is(nullValue()));
+        }
     }
 
     @Test
@@ -161,11 +176,13 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
         final String source = "source1";
         final String componentName = EVENT_LISTENER;
 
-        streamStatusJdbcRepository.unmarkStreamAsErrored(streamId, source, componentName);
+        try(final Connection connection = viewStoreDataSource.getConnection()) {
+            streamStatusErrorPersistence.unmarkStreamStatusAsErrored(streamId, source, componentName, connection);
 
-        final Optional<StreamStatusErrorStatus> errorStatus = findErrorStatus(streamId, source, componentName);
+            final Optional<StreamStatusErrorStatus> errorStatus = findErrorStatus(streamId, source, componentName, connection);
 
-        assertThat(errorStatus.isPresent(), is(false));
+            assertThat(errorStatus.isPresent(), is(false));
+        }
     }
 
     private StreamError aStreamError(
@@ -211,11 +228,11 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
             final UUID streamId,
             final Long positionInStream,
             final String source,
-            final String componentName) throws SQLException {
+            final String componentName,
+            final Connection connection) throws SQLException {
         
         final String sql = "INSERT INTO stream_status (stream_id, position, source, component) VALUES (?, ?, ?, ?)";
-        try (final Connection connection = dataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, streamId);
             preparedStatement.setLong(2, positionInStream);
             preparedStatement.setString(3, source);
@@ -228,7 +245,8 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
     private Optional<StreamStatusErrorStatus> findErrorStatus(
             final UUID streamId,
             final String source,
-            final String componentName) throws SQLException {
+            final String componentName,
+            final Connection connection) throws SQLException {
         final String sql = """
                 SELECT
                     position,
@@ -239,8 +257,7 @@ public class StreamStatusJdbcRepositoryErrorHandlingIT {
                 AND source = ?
                 AND component = ?""";
 
-        try (final Connection connection = dataSource.getConnection();
-             final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, streamId);
             preparedStatement.setString(2, source);
             preparedStatement.setString(3, componentName);

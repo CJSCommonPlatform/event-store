@@ -5,9 +5,13 @@ import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamError;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorDetails;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorHandlingException;
 import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamErrorRepository;
-import uk.gov.justice.services.event.buffer.core.repository.subscription.StreamStatusJdbcRepository;
+import uk.gov.justice.services.event.buffer.core.repository.streamerror.StreamStatusErrorPersistence;
+import uk.gov.justice.services.jdbc.persistence.ViewStoreJdbcDataSourceProvider;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -19,31 +23,44 @@ public class StreamErrorService {
     private StreamErrorRepository streamErrorRepository;
 
     @Inject
-    private StreamStatusJdbcRepository streamStatusJdbcRepository;
+    private ViewStoreJdbcDataSourceProvider viewStoreJdbcDataSourceProvider;
+
+    @Inject
+    private StreamStatusErrorPersistence streamStatusErrorPersistence;
 
     @Transactional(REQUIRES_NEW)
     public void markStreamAsErrored(final StreamError streamError) {
 
-        final StreamErrorDetails streamErrorDetails = streamError.streamErrorDetails();
+        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection()) {
 
-        final UUID streamId = streamErrorDetails.streamId();
-        final UUID streamErrorId = streamErrorDetails.id();
-        final Long positionInStream = streamErrorDetails.positionInStream();
-        final String componentName = streamErrorDetails.componentName();
-        final String source = streamErrorDetails.source();
+            final StreamErrorDetails streamErrorDetails = streamError.streamErrorDetails();
+            final UUID streamId = streamErrorDetails.streamId();
+            final UUID streamErrorId = streamErrorDetails.id();
+            final Long positionInStream = streamErrorDetails.positionInStream();
+            final String componentName = streamErrorDetails.componentName();
+            final String source = streamErrorDetails.source();
 
-        streamErrorRepository.save(streamError);
-        streamStatusJdbcRepository.markStreamAsErrored(
-                streamId,
-                streamErrorId,
-                positionInStream,
-                componentName,
-                source);
+            streamErrorRepository.save(streamError, connection);
+            streamStatusErrorPersistence.markStreamAsErrored(
+                    streamId,
+                    streamErrorId,
+                    positionInStream,
+                    componentName,
+                    source,
+                    connection);
+        } catch (final SQLException e) {
+            throw new StreamErrorHandlingException("Failed to get connection to view-store", e);
+        }
     }
 
     @Transactional(REQUIRED)
     public void markStreamAsFixed(final UUID streamId, final String source, final String componentName) {
-        streamStatusJdbcRepository.unmarkStreamAsErrored(streamId, source, componentName);
-        streamErrorRepository.removeErrorForStream(streamId, source, componentName);
+
+        try (final Connection connection = viewStoreJdbcDataSourceProvider.getDataSource().getConnection()) {
+            streamStatusErrorPersistence.unmarkStreamStatusAsErrored(streamId, source, componentName, connection);
+            streamErrorRepository.removeErrorForStream(streamId, source, componentName, connection);
+        } catch (final SQLException e) {
+            throw new StreamErrorHandlingException("Failed to get connection to view-store", e);
+        }
     }
 }

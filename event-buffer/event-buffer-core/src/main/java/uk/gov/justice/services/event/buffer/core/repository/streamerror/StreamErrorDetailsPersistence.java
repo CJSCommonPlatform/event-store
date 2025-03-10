@@ -1,6 +1,5 @@
 package uk.gov.justice.services.event.buffer.core.repository.streamerror;
 
-import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -75,7 +74,7 @@ public class StreamErrorDetailsPersistence {
     private static final String DELETE_SQL = "DELETE FROM stream_error WHERE stream_id = ? AND source = ? AND component = ?";
 
 
-    public void insert(final StreamErrorDetails streamErrorDetails, final Connection connection) throws SQLException {
+    public int insert(final StreamErrorDetails streamErrorDetails, final Connection connection) throws SQLException {
 
         try (final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_EXCEPTION_SQL)) {
             preparedStatement.setObject(1, streamErrorDetails.id());
@@ -91,7 +90,7 @@ public class StreamErrorDetailsPersistence {
             preparedStatement.setString(11, streamErrorDetails.componentName());
             preparedStatement.setString(12, streamErrorDetails.source());
 
-            preparedStatement.executeUpdate();
+            return preparedStatement.executeUpdate();
         }
     }
 

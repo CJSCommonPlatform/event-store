@@ -5,51 +5,30 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
-## [17.102.0-M7] - 2025-03-10
-### Changed
-- Stream error handling now uses same database connection for all error handling database updates
-- Failing retries of a previously stored error no longer update the error tables and only the first failure of that event is recorded
-
-## [17.102.0-M6] - 2025-03-06
+## [17.102.0] - 2025-03-12
 ### Added
-- Added new `updated_at` column to `stream_status` table
-### Changed
-- Renamed `component_name` column in `stream_error` to `component`
-- Streams no longer marked as fixed if events remain stuck in the stream-buffer
-
-## [17.102.0-M5] - 2025-02-27
-### Changed
-- The columns `stream_id`, `component_name` and `source` on the `stream_error` table are now unique when combined
-- Inserts into `stream_error` now `DO NOTHING` if a row with the same `stream_id`, `component_name` and `source` on the `stream`error` already exists
-- Inserts into `stream_error` are therefore idempotent
-- No longer removing stream_errors before inserting a new error, as the insert is now idempotent
-
-## [17.102.0-M4] - 2025-02-27
-### Changed
-- Split out the stream_error table into `stream_error` and `stream_error_hash`
-- StreamError Object now split into StreamErrorDetails and StreamErrorHash
-
-## [17.102.0-M3] - 2025-02-18
-### Changed
-- Errors set into stream_status table are now `upserts` to handle the case where no stream yet exists in stream_status
-- Now only one error per stream is set into stream_error table
-- Streams are marked as errored in stream_status table using stream_id, source and component
-- `source` and `component` added to StreamError Object
-- Marking a stream as fixed in stream_status table now handles the case when no stream yet exists in stream_status
-
-## [17.102.0-M2] - 2025-02-10
+- Error handling for event streams:
+  - New table `stream_error` in viewstore
+  - Exceptions thrown during event processing now stored in stream_error table
+  - New nullable column `stream_error_id` in stream status table with constraint on stream_error table
+  - New nullable column `stream_error_position` in stream status table
+  - Exception stacktraces are parsed to find entries into our code and stored in stream_error table
+  - New Interceptor `EntityManagerFlushInterceptor` for EVENT_LISTENER component that will always flush the Hibernate EntityManager to commit viewstore changes to the database
+  - New JNDI value `event.error.handling.enabled` with default value of `false` to enable/disable error handling for events
+  - Added new `updated_at` column to `stream_status` table
+  - The columns `stream_id`, `component_name` and `source` on the `stream_error` table are now unique when combined
+  - Inserts into `stream_error` now `DO NOTHING` if a row with the same `stream_id`, `component_name` and `source` on the `stream`error` already exists
+  - Inserts into `stream_error` are therefore idempotent
+  - Split out the stream_error table into `stream_error` and `stream_error_hash`
+  - Errors set into stream_status table are `upserts` to handle the case where no stream yet exists in stream_status
+  - Only one error per stream is set into stream_error table
+  - Streams are marked as errored in stream_status table using stream_id, source and component
+  - `source` and `component` added to StreamError Object
+  - Marking a stream as fixed in stream_status table now handles the case when no stream yet exists in stream_status
 ### Changed
 - Bump version to 17.102.x
 - Optimised SnapshotJdbcRepository queries to fetch only required data
-### Added
-- Error handling for event streams:
-    - New table `stream_error` in viewstore
-    - Exceptions thrown during event processing now stored in stream_error table
-    - New nullable column `stream_error_id` in stream status table with constraint on stream_error table
-    - New nullable column `stream_error_position` in stream status table
-    - Exception stacktraces are parsed to find entries into our code and stored in stream_error table
-    - New Interceptor `EntityManagerFlushInterceptor` for EVENT_LISTENER component that will always flush the Hibernate EntityManager to commit viewstore changes to the database
-    - New JNDI value `event.error.handling.enabled` with default value of `false` to enable/disable error handling for events
+
 
 ## [17.101.5] - 2025-01-16
 ### Changed

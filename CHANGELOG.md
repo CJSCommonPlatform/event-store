@@ -5,6 +5,11 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.102.1] - 2025-03-17
+### Changed
+ - Update framework to 17.102.1 for:
+   - Oversized messages are now logged as `WARN` rather than `ERROR`
+
 ## [17.102.0] - 2025-03-12
 ### Added
 - Error handling for event streams:

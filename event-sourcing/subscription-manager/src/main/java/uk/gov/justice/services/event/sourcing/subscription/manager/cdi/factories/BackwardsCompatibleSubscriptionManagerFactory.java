@@ -2,7 +2,6 @@ package uk.gov.justice.services.event.sourcing.subscription.manager.cdi.factorie
 
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessor;
 import uk.gov.justice.services.core.interceptor.InterceptorChainProcessorProducer;
-import uk.gov.justice.services.event.sourcing.subscription.error.StreamProcessingFailureHandler;
 import uk.gov.justice.services.event.sourcing.subscription.manager.BackwardsCompatibleSubscriptionManager;
 import uk.gov.justice.services.event.sourcing.subscription.manager.cdi.InterceptorContextProvider;
 
@@ -16,9 +15,6 @@ public class BackwardsCompatibleSubscriptionManagerFactory {
     @Inject
     private InterceptorChainProcessorProducer interceptorChainProcessorProducer;
 
-    @Inject
-    private StreamProcessingFailureHandler streamProcessingFailureHandler;
-
     public BackwardsCompatibleSubscriptionManager create(final String componentName) {
 
         final InterceptorChainProcessor interceptorChainProcessor = interceptorChainProcessorProducer
@@ -26,8 +22,6 @@ public class BackwardsCompatibleSubscriptionManagerFactory {
 
         return new BackwardsCompatibleSubscriptionManager(
                 interceptorChainProcessor,
-                interceptorContextProvider,
-                streamProcessingFailureHandler,
-                componentName);
+                interceptorContextProvider);
     }
 }

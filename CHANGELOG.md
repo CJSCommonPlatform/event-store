@@ -5,6 +5,10 @@ on [Keep a CHANGELOG](http://keepachangelog.com/). This project adheres to
 
 ### [Unreleased]
 
+## [17.102.2] - 2025-03-19
+### Removed
+- Removed error handling from BackwardsCompatibleSubscriptionManager
+
 ## [17.102.1] - 2025-03-17
 ### Changed
  - Update framework to 17.102.1 for:
